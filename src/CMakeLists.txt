@@ -1,18 +1,26 @@
 set(HEADER_FILES
         ${INCLUDE_DIR}/karin/system/application.h
+        ${INCLUDE_DIR}/karin/system/window.h
         system/application_impl.h
+        system/window_impl.h
+        system/platform.h
 )
 
 set(SOURCE_FILES
         system/application.cpp
+        system/window.cpp
 )
 
 if (WIN32)
     set(SOURCE_FILES ${SOURCE_FILES}
             system/windows/win_application_impl.cpp
+            system/windows/win_window_impl.cpp
+            system/windows/win_window_class_manager.cpp
     )
     set(HEADER_FILES ${HEADER_FILES}
             system/windows/win_application_impl.h
+            system/windows/win_window_impl.h
+            system/windows/win_window_class_manager.h
     )
 endif ()
 

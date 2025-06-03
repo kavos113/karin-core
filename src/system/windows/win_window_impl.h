@@ -30,8 +30,7 @@ public:
     void* handle() const override;
 
 private:
-    void registerClass();
-    void unregisterClass();
+    static void registerClass();
 
     static LRESULT CALLBACK windowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 

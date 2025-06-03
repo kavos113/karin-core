@@ -2,6 +2,8 @@
 
 #include <windows.h>
 
+#include "win_window_class_manager.h"
+
 namespace karin
 {
 WinApplicationImpl::WinApplicationImpl()
@@ -24,6 +26,8 @@ void WinApplicationImpl::run()
     }
 
     m_isRunning = false;
+
+    WinWindowClassManager::unregisterClasses();
 }
 
 void WinApplicationImpl::shutdown()

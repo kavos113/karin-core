@@ -1,5 +1,7 @@
 #include "win_window_impl.h"
 
+#include "win_window_class_manager.h"
+
 namespace karin
 {
 WinWindowImpl::WinWindowImpl(
@@ -81,18 +83,10 @@ void WinWindowImpl::registerClass()
         .hCursor = LoadCursor(nullptr, IDC_ARROW),
         .hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1),
         .lpszMenuName = nullptr,
-        .lpszClassName = CLASS_NAME,
         .hIconSm = LoadIcon(nullptr, IDI_APPLICATION)
     };
 
-    if (!RegisterClassEx(&wc))
-    {
-        throw std::runtime_error("Failed to register window class");
-    }
-}
-
-void WinWindowImpl::unregisterClass()
-{
+    WinWindowClassManager::registerClass(wc, CLASS_NAME);
 }
 
 LRESULT WinWindowImpl::handleMessage(UINT message, WPARAM wParam, LPARAM lParam)

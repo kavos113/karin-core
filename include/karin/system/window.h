@@ -22,7 +22,7 @@ public:
 
     // TODO: size, point, rect classes
     Window(
-        std::wstring title,
+        const std::wstring &title,
         int x = 0,
         int y = 0,
         int width = DEFAULT_WIDTH,
