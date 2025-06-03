@@ -21,4 +21,5 @@ target_include_directories(karin_system PUBLIC ${INCLUDE_DIR})
 
 if (WIN32)
     target_compile_definitions(karin_system PUBLIC KARIN_PLATFORM_WINDOWS)
+    target_compile_definitions(karin_system PUBLIC UNICODE)
 endif ()
