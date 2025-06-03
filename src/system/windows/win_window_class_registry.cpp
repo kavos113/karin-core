@@ -1,11 +1,11 @@
-#include "win_window_class_manager.h"
+#include "win_window_class_registry.h"
 
 #include <iostream>
 
 namespace karin
 {
 
-void WinWindowClassManager::registerClass(WNDCLASSEX &wc, const std::wstring &className)
+void WinWindowClassRegistry::registerClass(WNDCLASSEX &wc, const std::wstring &className)
 {
     wc.lpszClassName = className.c_str();
 
@@ -17,7 +17,7 @@ void WinWindowClassManager::registerClass(WNDCLASSEX &wc, const std::wstring &cl
     m_registeredClasses.push_back(className);
 }
 
-void WinWindowClassManager::unregisterClasses()
+void WinWindowClassRegistry::unregisterClasses()
 {
     for (const auto &className : m_registeredClasses)
     {

@@ -2,7 +2,7 @@
 
 #include <windows.h>
 
-#include "win_window_class_manager.h"
+#include "win_window_class_registry.h"
 
 namespace karin
 {
@@ -27,7 +27,7 @@ void WinApplicationImpl::run()
 
     m_isRunning = false;
 
-    WinWindowClassManager::unregisterClasses();
+    WinWindowClassRegistry::unregisterClasses();
 }
 
 void WinApplicationImpl::shutdown()

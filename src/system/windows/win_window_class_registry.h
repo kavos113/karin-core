@@ -7,7 +7,7 @@
 
 namespace karin {
 
-class WinWindowClassManager
+class WinWindowClassRegistry
 {
 public:
     static void registerClass(WNDCLASSEX& wc, const std::wstring &className);

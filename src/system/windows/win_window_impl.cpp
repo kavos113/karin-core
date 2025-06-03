@@ -1,6 +1,6 @@
 #include "win_window_impl.h"
 
-#include "win_window_class_manager.h"
+#include "win_window_class_registry.h"
 
 namespace karin
 {
@@ -86,7 +86,7 @@ void WinWindowImpl::registerClass()
         .hIconSm = LoadIcon(nullptr, IDI_APPLICATION)
     };
 
-    WinWindowClassManager::registerClass(wc, CLASS_NAME);
+    WinWindowClassRegistry::registerClass(wc, CLASS_NAME);
 }
 
 LRESULT WinWindowImpl::handleMessage(UINT message, WPARAM wParam, LPARAM lParam)

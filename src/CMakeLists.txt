@@ -15,12 +15,12 @@ if (WIN32)
     set(SOURCE_FILES ${SOURCE_FILES}
             system/windows/win_application_impl.cpp
             system/windows/win_window_impl.cpp
-            system/windows/win_window_class_manager.cpp
+            system/windows/win_window_class_registry.cpp
     )
     set(HEADER_FILES ${HEADER_FILES}
             system/windows/win_application_impl.h
             system/windows/win_window_impl.h
-            system/windows/win_window_class_manager.h
+            system/windows/win_window_class_registry.h
     )
 endif ()
 
