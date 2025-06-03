@@ -1,9 +1,7 @@
 #ifndef SRC_SYSTEM_WINDOWS_WIN_APPLICATION_IMPL_H
 #define SRC_SYSTEM_WINDOWS_WIN_APPLICATION_IMPL_H
 
-#include <windows.h>
-
-#include "../application_impl.h"
+#include <application_impl.h>
 
 namespace karin {
 

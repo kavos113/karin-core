@@ -1,5 +1,7 @@
 #include "win_application_impl.h"
 
+#include <windows.h>
+
 namespace karin
 {
 WinApplicationImpl::WinApplicationImpl()
