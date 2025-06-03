@@ -4,6 +4,7 @@
 
 namespace karin
 {
+std::vector<std::wstring> WinWindowClassRegistry::m_registeredClasses;
 
 void WinWindowClassRegistry::registerClass(WNDCLASSEX &wc, const std::wstring &className)
 {
@@ -11,7 +12,8 @@ void WinWindowClassRegistry::registerClass(WNDCLASSEX &wc, const std::wstring &c
 
     if (!RegisterClassEx(&wc))
     {
-        throw std::runtime_error("Failed to register window class: " + std::string(className.begin(), className.end()));
+        std::wcerr << L"Failed to register window class: " << className << std::endl;
+        throw std::runtime_error("Failed to register window class");
     }
 
     m_registeredClasses.push_back(className);
@@ -23,7 +25,7 @@ void WinWindowClassRegistry::unregisterClasses()
     {
         if (!UnregisterClass(className.c_str(), GetModuleHandle(nullptr)))
         {
-            std::cerr << "Failed to unregister window class: " << std::string(className.begin(), className.end()) << std::endl;
+            std::wcerr << L"Failed to unregister window class: " << className << std::endl;
         }
     }
 }

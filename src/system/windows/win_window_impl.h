@@ -27,20 +27,18 @@ public:
     void minimize() override;
     void maximize() override;
 
-    void* handle() const override;
+    [[nodiscard]] void* handle() const override;
 
 private:
     static void registerClass();
+    static std::once_flag m_registerClassFlag;
 
     static LRESULT CALLBACK windowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
-
     LRESULT handleMessage(UINT message, WPARAM wParam, LPARAM lParam);
-
-    static std::once_flag m_registerClassFlag;
 
     HWND m_hwnd;
 
-    static constexpr const wchar_t* CLASS_NAME = L"KarinWindow";
+    static constexpr auto CLASS_NAME = L"KarinWindow";
 };
 
 } // karin

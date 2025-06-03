@@ -4,6 +4,8 @@
 
 namespace karin
 {
+std::once_flag WinWindowImpl::m_registerClassFlag;
+
 WinWindowImpl::WinWindowImpl(
     const std::wstring &title,
     const int x,
@@ -24,7 +26,7 @@ WinWindowImpl::WinWindowImpl(
         nullptr,
         nullptr,
         GetModuleHandle(nullptr),
-        nullptr
+        this
     );
     if (!m_hwnd)
     {

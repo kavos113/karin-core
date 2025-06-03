@@ -7,10 +7,14 @@ namespace karin
 {
 Application& Application::instance()
 {
+    static Application instance;
+
+    return instance;
 }
 
 void Application::run()
 {
+    m_impl->run();
 }
 
 Application::Application()
