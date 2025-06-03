@@ -1,6 +1,7 @@
-#include "application.h"
+#include <karin/system/application.h>
 
 #include "platform.h"
+#include "application_impl.h"
 
 namespace karin
 {
@@ -14,6 +15,6 @@ void Application::run()
 
 Application::Application()
 {
-    impl_ = createApplicationImpl();
+    m_impl = createApplicationImpl();
 }
 }

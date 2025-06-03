@@ -1,5 +1,5 @@
 set(HEADER_FILES
-        system/application.h
+        ${INCLUDE_DIR}/karin/system/application.h
         system/application_impl.h
 )
 
@@ -17,3 +17,8 @@ if (WIN32)
 endif ()
 
 add_library(karin_system STATIC ${SOURCE_FILES} ${HEADER_FILES})
+target_include_directories(karin_system PUBLIC ${INCLUDE_DIR})
+
+if (WIN32)
+    target_compile_definitions(karin_system PUBLIC KARIN_PLATFORM_WINDOWS)
+endif ()

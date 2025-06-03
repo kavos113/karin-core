@@ -2,10 +2,10 @@
 #define SRC_SYSTEM_APPLICATION_H
 #include <memory>
 
-#include "application_impl.h"
-
 namespace karin
 {
+
+class IApplicationImpl;
 
 class Application
 {
@@ -18,7 +18,7 @@ private:
     Application();
     ~Application() = default;
 
-    std::unique_ptr<IApplicationImpl> impl_;
+    std::unique_ptr<IApplicationImpl> m_impl;
 };
 
 } // karin
