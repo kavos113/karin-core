@@ -15,7 +15,7 @@ public:
     void run();
 
 private:
-    Application() = default;
+    Application();
     ~Application() = default;
 
     std::unique_ptr<IApplicationImpl> impl_;
