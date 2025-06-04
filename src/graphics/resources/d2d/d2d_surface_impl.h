@@ -17,13 +17,11 @@ public:
     ~D2DSurfaceImpl() override = default;
 
     void cleanUp() override;
+    void present() override;
 
-    D2D1_BITMAP_PROPERTIES1 bitmapProperties() const
+    Microsoft::WRL::ComPtr<IDXGISurface> backBuffer() const
     {
-        return D2D1::BitmapProperties1(
-            D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
-            D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED),
-            DEFAULT_DPI, DEFAULT_DPI);
+        return m_backBuffer;
     }
 
 private:
@@ -35,8 +33,6 @@ private:
 
     Microsoft::WRL::ComPtr<IDXGISwapChain1> m_swapChain;
     Microsoft::WRL::ComPtr<IDXGISurface> m_backBuffer;
-
-    static constexpr float DEFAULT_DPI = 96.0f; // Default DPI for D2D
 };
 
 } // karin

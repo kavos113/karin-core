@@ -9,6 +9,7 @@ public:
     virtual ~ISurfaceImpl() = default;
 
     virtual void cleanUp() = 0;
+    virtual void present() = 0;
 };
 
 } // karin

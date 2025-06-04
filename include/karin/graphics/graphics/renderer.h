@@ -22,7 +22,7 @@ public:
     ~Renderer() = default;
 
     void addDrawCommand(std::function<void(GraphicsContext&)> command);
-    void update();
+    void update() const;
 
 private:
     Window* m_window;

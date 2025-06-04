@@ -9,6 +9,9 @@ public:
     virtual ~IRendererImpl() = default;
 
     virtual void cleanUp() = 0;
+
+    virtual void beginDraw() = 0;
+    virtual void endDraw() = 0;
 };
 
 } // karin

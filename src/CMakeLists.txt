@@ -30,8 +30,6 @@ platform_definitions(karin_system)
 
 # ----- Graphics modules -----
 set(GRAPHICS_SOURCE
-        graphics/resources/graphics_device.cpp
-        graphics/resources/surface.cpp
         graphics/graphics/renderer.cpp
         graphics/graphics/graphics_context.cpp
 )
@@ -40,6 +38,7 @@ if (WIN32)
     set(GRAPHICS_SOURCE ${GRAPHICS_SOURCE}
             graphics/resources/d2d/d2d_graphics_device.cpp
             graphics/resources/d2d/d2d_surface_impl.cpp
+            graphics/graphics/d2d/d2d_renderer_impl.cpp
     )
 endif ()
 
