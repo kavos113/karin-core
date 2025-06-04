@@ -17,6 +17,9 @@ class IGraphicsDeviceImpl;
 class GraphicsDevice
 {
 public:
+    GraphicsDevice();
+    ~GraphicsDevice() = default;
+
     void cleanUp();
 private:
     std::unique_ptr<IGraphicsDeviceImpl> m_impl;
