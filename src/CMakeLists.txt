@@ -8,11 +8,17 @@ set(HEADER_FILES
         ${INCLUDE_DIR}/karin/common/point.h
         ${INCLUDE_DIR}/karin/common/size.h
         ${INCLUDE_DIR}/karin/common/rectangle.h
+
+        ${INCLUDE_DIR}/karin/graphics/resources/graphics_device.h
+        ${INCLUDE_DIR}/karin/graphics/resources/surface.h
 )
 
 set(SOURCE_FILES
         system/application.cpp
         system/window.cpp
+
+        graphics/resources/graphics_device.cpp
+        graphics/resources/surface.cpp
 )
 
 if (WIN32)
