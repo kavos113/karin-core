@@ -13,10 +13,6 @@ set(HEADER_FILES
 set(SOURCE_FILES
         system/application.cpp
         system/window.cpp
-
-        common/point.cpp
-        common/size.cpp
-        common/rectangle.cpp
 )
 
 if (WIN32)

@@ -9,9 +9,20 @@ struct Point
     float x;
     float y;
 
-    bool operator==(const Point& point) const;
-    Point operator+(const Point& point) const;
-    Point operator-(const Point& point) const;
+    bool operator==(const Point& point) const
+    {
+        return x == point.x && y == point.y;
+    }
+
+    Point operator+(const Point& point) const
+    {
+        return {x + point.x, y + point.y};
+    }
+
+    Point operator-(const Point& point) const
+    {
+        return {x - point.x, y - point.y};
+    }
 };
 
 } // karin

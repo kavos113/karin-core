@@ -9,7 +9,10 @@ struct Size
     float width;
     float height;
 
-    bool operator==(const Size& other) const;
+    bool operator==(const Size& other) const
+    {
+        return width == other.width && height == other.height;
+    }
 };
 
 } // karin

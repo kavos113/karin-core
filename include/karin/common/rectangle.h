@@ -17,7 +17,10 @@ struct Rectangle
     Rectangle(float x, float y, float width, float height)
         : pos{x, y}, size{width, height} {}
 
-    bool operator==(const Rectangle& other) const;
+    bool operator==(const Rectangle& other) const
+    {
+        return pos == other.pos && size == other.size;
+    }
 };
 
 } // karin
