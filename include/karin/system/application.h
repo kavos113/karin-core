@@ -1,5 +1,5 @@
-#ifndef SRC_SYSTEM_APPLICATION_H
-#define SRC_SYSTEM_APPLICATION_H
+#ifndef KARIN_SYSTEM_APPLICATION_H
+#define KARIN_SYSTEM_APPLICATION_H
 #include <memory>
 
 namespace karin
@@ -23,4 +23,4 @@ private:
 
 } // karin
 
-#endif //SRC_SYSTEM_APPLICATION_H
+#endif //KARIN_SYSTEM_APPLICATION_H

@@ -1,5 +1,5 @@
-#ifndef SRC_SYSTEM_WINDOW_H
-#define SRC_SYSTEM_WINDOW_H
+#ifndef KARIN_SYSTEM_WINDOW_H
+#define KARIN_SYSTEM_WINDOW_H
 
 #include <memory>
 #include <string>
@@ -44,4 +44,4 @@ private:
 
 } // karin
 
-#endif //SRC_SYSTEM_WINDOW_H
+#endif //KARIN_SYSTEM_WINDOW_H

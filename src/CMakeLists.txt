@@ -4,11 +4,19 @@ set(HEADER_FILES
         system/application_impl.h
         system/window_impl.h
         system/platform.h
+
+        ${INCLUDE_DIR}/karin/common/point.h
+        ${INCLUDE_DIR}/karin/common/size.h
+        ${INCLUDE_DIR}/karin/common/rectangle.h
 )
 
 set(SOURCE_FILES
         system/application.cpp
         system/window.cpp
+
+        common/point.cpp
+        common/size.cpp
+        common/rectangle.cpp
 )
 
 if (WIN32)
