@@ -38,6 +38,6 @@ jobs:
 
     - name: Run tests
       run: |
-        cd ${{ env.BUILD_DIR }}
+        cd ${{ env.BUILD_DIR }}/test
         ctest --output-on-failure
       shell: bash
