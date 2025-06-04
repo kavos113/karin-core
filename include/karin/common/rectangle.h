@@ -8,14 +8,14 @@ namespace karin
 
 struct Rectangle
 {
-    Point position;
+    Point pos;
     Size size;
 
     Rectangle() = default;
     Rectangle(const Point& position, const Size& size)
-        : position(position), size(size) {}
+        : pos(position), size(size) {}
     Rectangle(float x, float y, float width, float height)
-        : position{x, y}, size{width, height} {}
+        : pos{x, y}, size{width, height} {}
 
     bool operator==(const Rectangle& other) const;
 };

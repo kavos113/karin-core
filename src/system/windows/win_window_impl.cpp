@@ -34,44 +34,6 @@ WinWindowImpl::WinWindowImpl(
     }
 }
 
-void WinWindowImpl::show()
-{
-    if (m_hwnd)
-    {
-        ShowWindow(m_hwnd, SW_SHOW);
-        UpdateWindow(m_hwnd);
-    }
-}
-
-void WinWindowImpl::hide()
-{
-    if (m_hwnd)
-    {
-        ShowWindow(m_hwnd, SW_HIDE);
-    }
-}
-
-void WinWindowImpl::minimize()
-{
-    if (m_hwnd)
-    {
-        ShowWindow(m_hwnd, SW_MINIMIZE);
-    }
-}
-
-void WinWindowImpl::maximize()
-{
-    if (m_hwnd)
-    {
-        ShowWindow(m_hwnd, SW_MAXIMIZE);
-    }
-}
-
-void* WinWindowImpl::handle() const
-{
-    return m_hwnd;
-}
-
 void WinWindowImpl::registerClass()
 {
     WNDCLASSEX wc = {
@@ -133,5 +95,76 @@ LRESULT WinWindowImpl::windowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
     }
 
     return DefWindowProc(hwnd, message, wParam, lParam);
+}
+
+void WinWindowImpl::show()
+{
+    if (m_hwnd)
+    {
+        ShowWindow(m_hwnd, SW_SHOW);
+        UpdateWindow(m_hwnd);
+    }
+}
+
+void WinWindowImpl::hide()
+{
+    if (m_hwnd)
+    {
+        ShowWindow(m_hwnd, SW_HIDE);
+    }
+}
+
+void WinWindowImpl::minimize()
+{
+    if (m_hwnd)
+    {
+        ShowWindow(m_hwnd, SW_MINIMIZE);
+    }
+}
+
+void WinWindowImpl::maximize()
+{
+    if (m_hwnd)
+    {
+        ShowWindow(m_hwnd, SW_MAXIMIZE);
+    }
+}
+
+void WinWindowImpl::setPosition(int x, int y)
+{
+    SetWindowPos(
+        m_hwnd,
+        nullptr,
+        x, y,
+        0, 0,
+        SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE
+    );
+}
+
+void WinWindowImpl::setSize(int width, int height)
+{
+    SetWindowPos(
+        m_hwnd,
+        nullptr,
+        0, 0,
+        width, height,
+        SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE
+    );
+}
+
+void WinWindowImpl::setRect(int x, int y, int width, int height)
+{
+    SetWindowPos(
+        m_hwnd,
+        nullptr,
+        x, y,
+        width, height,
+        SWP_NOZORDER | SWP_NOACTIVATE
+    );
+}
+
+void* WinWindowImpl::handle() const
+{
+    return m_hwnd;
 }
 } // karin

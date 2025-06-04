@@ -13,6 +13,10 @@ public:
     virtual void minimize() = 0;
     virtual void maximize() = 0;
 
+    virtual void setPosition(int x, int y) = 0;
+    virtual void setSize(int width, int height) = 0;
+    virtual void setRect(int x, int y, int width, int height) = 0;
+
     virtual void* handle() const = 0;
 };
 

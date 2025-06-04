@@ -27,6 +27,10 @@ public:
     void minimize() override;
     void maximize() override;
 
+    void setPosition(int x, int y) override;
+    void setSize(int width, int height) override;
+    void setRect(int x, int y, int width, int height) override;
+
     [[nodiscard]] void* handle() const override;
 
 private:

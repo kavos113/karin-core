@@ -4,6 +4,8 @@
 #include <memory>
 #include <string>
 
+#include "karin/common/rectangle.h"
+
 namespace karin
 {
 
@@ -20,21 +22,32 @@ public:
         MAXIMIZE
     };
 
-    // TODO: size, point, rect classes
-    Window(
+    explicit Window(
         const std::wstring &title,
         int x = 0,
         int y = 0,
         int width = DEFAULT_WIDTH,
         int height = DEFAULT_HEIGHT
     );
+    Window(
+        const std::wstring &title,
+        Rectangle rect = Rectangle(0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT)
+    );
     ~Window();
 
     void setStatus(ShowStatus status);
     ShowStatus status() const;
 
+    void setPosition(Point pos);
+    void setSize(Size size);
+    void setRect(Rectangle rect);
+    Point position() const;
+    Size size() const;
+    Rectangle rect() const;
+
 private:
     ShowStatus m_showStatus = ShowStatus::HIDE;
+    Rectangle m_rect;
 
     std::unique_ptr<IWindowImpl> m_impl;
 

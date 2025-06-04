@@ -4,6 +4,6 @@ namespace karin
 {
 bool Rectangle::operator==(const Rectangle &other) const
 {
-    return position == other.position && size == other.size;
+    return pos == other.pos && size == other.size;
 }
 } // karin

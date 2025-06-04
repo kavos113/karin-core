@@ -5,13 +5,27 @@
 namespace karin
 {
 Window::Window(const std::wstring &title, int x, int y, int width, int height)
-{
-    m_impl = createWindowImpl(title, x, y, width, height);
-}
+    : m_rect(Rectangle(
+        static_cast<float>(x),
+        static_cast<float>(y),
+        static_cast<float>(width),
+        static_cast<float>(height)
+    ))
+    , m_impl(createWindowImpl(title, x, y, width, height))
+{}
 
-Window::~Window()
-{
-}
+Window::Window(const std::wstring &title, Rectangle rect)
+    : m_rect(rect)
+    , m_impl(createWindowImpl(
+        title,
+        static_cast<int>(rect.pos.x),
+        static_cast<int>(rect.pos.y),
+        static_cast<int>(rect.size.width),
+        static_cast<int>(rect.size.height)
+    ))
+{}
+
+Window::~Window() = default;
 
 void Window::setStatus(ShowStatus status)
 {
@@ -36,5 +50,43 @@ void Window::setStatus(ShowStatus status)
 Window::ShowStatus Window::status() const
 {
     return m_showStatus;
+}
+
+void Window::setPosition(Point pos)
+{
+    m_rect.pos = pos;
+    m_impl->setPosition(static_cast<int>(pos.x), static_cast<int>(pos.y));
+}
+
+void Window::setSize(Size size)
+{
+    m_rect.size = size;
+    m_impl->setSize(static_cast<int>(size.width), static_cast<int>(size.height));
+}
+
+void Window::setRect(Rectangle rect)
+{
+    m_rect = rect;
+    m_impl->setRect(
+        static_cast<int>(rect.pos.x),
+        static_cast<int>(rect.pos.y),
+        static_cast<int>(rect.size.width),
+        static_cast<int>(rect.size.height)
+    );
+}
+
+Point Window::position() const
+{
+    return m_rect.pos;
+}
+
+Size Window::size() const
+{
+    return m_rect.size;
+}
+
+Rectangle Window::rect() const
+{
+    return m_rect;
 }
 } // karin
