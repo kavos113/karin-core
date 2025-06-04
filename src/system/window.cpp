@@ -89,4 +89,9 @@ Rectangle Window::rect() const
 {
     return m_rect;
 }
+
+void Window::setOnPaint(std::function<void()> onPaint)
+{
+    m_impl->setOnPaint(std::move(onPaint));
+}
 } // karin

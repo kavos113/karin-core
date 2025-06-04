@@ -65,6 +65,13 @@ LRESULT WinWindowImpl::handleMessage(UINT message, WPARAM wParam, LPARAM lParam)
             DestroyWindow(m_hwnd);
             break;
 
+        case WM_PAINT:
+            if (m_onPaint)
+            {
+                m_onPaint();
+            }
+            break;
+
         default:
             break;
     }
@@ -166,5 +173,10 @@ void WinWindowImpl::setRect(int x, int y, int width, int height)
 void* WinWindowImpl::handle() const
 {
     return m_hwnd;
+}
+
+void WinWindowImpl::setOnPaint(std::function<void()> onPaint)
+{
+    m_onPaint = std::move(onPaint);
 }
 } // karin
