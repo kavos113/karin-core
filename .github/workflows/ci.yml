@@ -9,6 +9,7 @@ on:
 env:
   CMAKE_BUILD_TYPE: Release
   CMAKE_EXPORT_COMPILE_COMMANDS: true
+  BUILD_DIR: build
 
 jobs:
   run:
@@ -24,13 +25,19 @@ jobs:
 
     - name: Configure CMake
       run: |
-        mkdir build
-        cd build
+        mkdir ${{ env.BUILD_DIR }}
+        cd ${{ env.BUILD_DIR }}
         cmake -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_EXPORT_COMPILE_COMMANDS=${{ env.CMAKE_EXPORT_COMPILE_COMMANDS }} ..
       shell: bash
 
     - name: Build
       run: |
-          cd build
-          cmake --build .
+        cd ${{ env.BUILD_DIR }}
+        cmake --build .
+      shell: bash
+
+    - name: Run tests
+      run: |
+        cd ${{ env.BUILD_DIR }}
+        ctest --output-on-failure
       shell: bash
