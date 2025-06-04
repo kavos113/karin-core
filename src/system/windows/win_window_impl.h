@@ -33,6 +33,7 @@ public:
     void setRect(int x, int y, int width, int height) override;
 
     void setOnPaint(std::function<void()> onPaint) override;
+    void setOnResize(std::function<void(Size)> onResize) override;
 
     [[nodiscard]] void* handle() const override;
 
@@ -46,6 +47,7 @@ private:
     HWND m_hwnd;
 
     std::function<void()> m_onPaint;
+    std::function<void(Size)> m_onResize;
 
     static constexpr auto CLASS_NAME = L"KarinWindow";
 };

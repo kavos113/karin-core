@@ -18,6 +18,7 @@ public:
 
     void cleanUp() override;
     void present() override;
+    void resize(Size size) override;
 
     Microsoft::WRL::ComPtr<IDXGISurface> backBuffer() const
     {

@@ -33,6 +33,14 @@ void Renderer::update() const
         }
 
         m_impl->endDraw();
+        m_surfaceImpl->present();
+    });
+
+    m_window->setOnResize([this](Size size)
+    {
+        m_impl->reset();
+        m_surfaceImpl->resize(size);
+        m_impl->resize(size);
     });
 }
 

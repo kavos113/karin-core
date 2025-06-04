@@ -49,6 +49,7 @@ public:
     Rectangle rect() const;
 
     void setOnPaint(std::function<void()> onPaint);
+    void setOnResize(std::function<void(Size)> onResize);
 
 private:
     ShowStatus m_showStatus = ShowStatus::HIDE;

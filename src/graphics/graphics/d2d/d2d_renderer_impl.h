@@ -20,8 +20,12 @@ public:
 
     void beginDraw() override;
     void endDraw() override;
+    void resize(Size size) override;
+    void reset() override;
 
 private:
+    void setTargetBitmap();
+
     // weak reference
     D2DGraphicsDevice* m_device;
     D2DSurfaceImpl* m_surface;

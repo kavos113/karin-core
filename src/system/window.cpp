@@ -99,4 +99,9 @@ void Window::setOnPaint(std::function<void()> onPaint)
 {
     m_impl->setOnPaint(std::move(onPaint));
 }
+
+void Window::setOnResize(std::function<void(Size)> onResize)
+{
+    m_impl->setOnResize(std::move(onResize));
+}
 } // karin

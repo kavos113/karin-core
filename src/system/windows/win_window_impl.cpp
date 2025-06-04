@@ -72,6 +72,17 @@ LRESULT WinWindowImpl::handleMessage(UINT message, WPARAM wParam, LPARAM lParam)
             }
             break;
 
+        case WM_SIZE:
+            if (m_onResize)
+            {
+                m_onResize(Size(
+                    static_cast<float>(LOWORD(lParam)),
+                    static_cast<float>(HIWORD(lParam))
+                ));
+                InvalidateRect(m_hwnd, nullptr, FALSE);
+            }
+            break;
+
         default:
             break;
     }
@@ -178,5 +189,10 @@ void* WinWindowImpl::handle() const
 void WinWindowImpl::setOnPaint(std::function<void()> onPaint)
 {
     m_onPaint = std::move(onPaint);
+}
+
+void WinWindowImpl::setOnResize(std::function<void(Size)> onResize)
+{
+    m_onResize = std::move(onResize);
 }
 } // karin

@@ -12,7 +12,10 @@ D2DRendererImpl::D2DRendererImpl(D2DGraphicsDevice *device, D2DSurfaceImpl *surf
     {
         throw std::runtime_error("Failed to create D2D device context");
     }
+}
 
+void D2DRendererImpl::setTargetBitmap()
+{
     Microsoft::WRL::ComPtr<ID2D1Bitmap1> bitmap;
     if (FAILED(m_deviceContext->CreateBitmapFromDxgiSurface(
         m_surface->backBuffer().Get(),
@@ -44,7 +47,16 @@ void D2DRendererImpl::endDraw()
     {
         throw std::runtime_error("Failed to end D2D drawing");
     }
-
-    m_surface->present();
 }
+
+void D2DRendererImpl::resize(Size size)
+{
+    setTargetBitmap();
+}
+
+void D2DRendererImpl::reset()
+{
+    m_deviceContext->SetTarget(nullptr);
+}
+
 } // karin
