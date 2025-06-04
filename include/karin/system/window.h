@@ -1,6 +1,7 @@
 #ifndef KARIN_SYSTEM_WINDOW_H
 #define KARIN_SYSTEM_WINDOW_H
 
+#include <functional>
 #include <memory>
 #include <string>
 
@@ -38,12 +39,17 @@ public:
     void setStatus(ShowStatus status);
     ShowStatus status() const;
 
+    void* handle() const;
+
     void setPosition(Point pos);
     void setSize(Size size);
     void setRect(Rectangle rect);
     Point position() const;
     Size size() const;
     Rectangle rect() const;
+
+    void setOnPaint(std::function<void()> onPaint);
+    void setOnResize(std::function<void(Size)> onResize);
 
 private:
     ShowStatus m_showStatus = ShowStatus::HIDE;

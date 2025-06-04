@@ -52,6 +52,11 @@ Window::ShowStatus Window::status() const
     return m_showStatus;
 }
 
+void* Window::handle() const
+{
+    return m_impl->handle();
+}
+
 void Window::setPosition(Point pos)
 {
     m_rect.pos = pos;
@@ -88,5 +93,15 @@ Size Window::size() const
 Rectangle Window::rect() const
 {
     return m_rect;
+}
+
+void Window::setOnPaint(std::function<void()> onPaint)
+{
+    m_impl->setOnPaint(std::move(onPaint));
+}
+
+void Window::setOnResize(std::function<void(Size)> onResize)
+{
+    m_impl->setOnResize(std::move(onResize));
 }
 } // karin

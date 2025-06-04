@@ -1,5 +1,8 @@
 #ifndef SRC_SYSTEM_WINDOW_IMPL_H
 #define SRC_SYSTEM_WINDOW_IMPL_H
+#include <functional>
+
+#include <karin/common/size.h>
 
 namespace karin {
 
@@ -16,6 +19,9 @@ public:
     virtual void setPosition(int x, int y) = 0;
     virtual void setSize(int width, int height) = 0;
     virtual void setRect(int x, int y, int width, int height) = 0;
+
+    virtual void setOnPaint(std::function<void()> onPaint) = 0;
+    virtual void setOnResize(std::function<void(Size)> onResize) = 0;
 
     virtual void* handle() const = 0;
 };

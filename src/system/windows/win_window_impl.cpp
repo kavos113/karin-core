@@ -1,4 +1,6 @@
-#include "win_window_impl.h"
+    #include "win_window_impl.h"
+
+#include <iostream>
 
 #include "win_window_class_registry.h"
 
@@ -59,27 +61,42 @@ LRESULT WinWindowImpl::handleMessage(UINT message, WPARAM wParam, LPARAM lParam)
     {
         case WM_DESTROY:
             PostQuitMessage(0);
-            break;
+            return 0;
 
         case WM_CLOSE:
             DestroyWindow(m_hwnd);
-            break;
+            return 0;
+
+        case WM_PAINT:
+            if (m_onPaint)
+            {
+                m_onPaint();
+            }
+            return 0;
+
+        case WM_SIZE:
+            if (m_onResize)
+            {
+                m_onResize(Size(
+                    static_cast<float>(LOWORD(lParam)),
+                    static_cast<float>(HIWORD(lParam))
+                ));
+            }
+            return 0;
 
         default:
-            break;
+            return DefWindowProc(m_hwnd, message, wParam, lParam);
     }
-
-    return DefWindowProc(m_hwnd, message, wParam, lParam);
 }
 
 LRESULT WinWindowImpl::windowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     WinWindowImpl* self = nullptr;
 
-    if (message == WM_NCCREATE)
+    if (message == WM_CREATE)
     {
         auto cs = reinterpret_cast<CREATESTRUCT*>(lParam);
-        self = static_cast<WinWindowImpl*>(cs->lpCreateParams);
+        self = reinterpret_cast<WinWindowImpl*>(cs->lpCreateParams);
         SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(self));
 
         self->m_hwnd = hwnd;
@@ -91,7 +108,7 @@ LRESULT WinWindowImpl::windowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
 
     if (self)
     {
-        self->handleMessage(message, wParam, lParam);
+        return self->handleMessage(message, wParam, lParam);
     }
 
     return DefWindowProc(hwnd, message, wParam, lParam);
@@ -166,5 +183,15 @@ void WinWindowImpl::setRect(int x, int y, int width, int height)
 void* WinWindowImpl::handle() const
 {
     return m_hwnd;
+}
+
+void WinWindowImpl::setOnPaint(std::function<void()> onPaint)
+{
+    m_onPaint = std::move(onPaint);
+}
+
+void WinWindowImpl::setOnResize(std::function<void(Size)> onResize)
+{
+    m_onResize = std::move(onResize);
 }
 } // karin

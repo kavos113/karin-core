@@ -7,6 +7,7 @@
 #include <mutex>
 #include <string>
 #include <memory>
+#include <functional>
 
 namespace karin {
 
@@ -31,6 +32,9 @@ public:
     void setSize(int width, int height) override;
     void setRect(int x, int y, int width, int height) override;
 
+    void setOnPaint(std::function<void()> onPaint) override;
+    void setOnResize(std::function<void(Size)> onResize) override;
+
     [[nodiscard]] void* handle() const override;
 
 private:
@@ -41,6 +45,9 @@ private:
     LRESULT handleMessage(UINT message, WPARAM wParam, LPARAM lParam);
 
     HWND m_hwnd;
+
+    std::function<void()> m_onPaint;
+    std::function<void(Size)> m_onResize;
 
     static constexpr auto CLASS_NAME = L"KarinWindow";
 };
