@@ -11,6 +11,8 @@ int main()
     std::unique_ptr<karin::GraphicsDevice> device = karin::GraphicsDevice::create();
     karin::Renderer renderer(device.get(), &window);
 
+    renderer.update();
+
     window.setStatus(karin::Window::ShowStatus::SHOW);
     app.run();
 
