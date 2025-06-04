@@ -25,12 +25,12 @@ void Renderer::update() const
     m_window->setOnPaint([this]
     {
         m_impl->beginDraw();
-        GraphicsContext context;
-
-        for (const auto &command : m_drawCommands)
-        {
-            command(context);
-        }
+        // GraphicsContext context;
+        //
+        // for (const auto &command : m_drawCommands)
+        // {
+        //     command(context);
+        // }
 
         m_impl->endDraw();
         m_surfaceImpl->present();

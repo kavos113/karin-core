@@ -83,6 +83,7 @@ void D2DSurfaceImpl::createSwapChain()
 
 void D2DSurfaceImpl::acquireBackBuffer()
 {
+    m_backBuffer.Reset();
     if (FAILED(m_swapChain->GetBuffer(0, IID_PPV_ARGS(&m_backBuffer))))
     {
         throw std::runtime_error("Failed to get back buffer from swap chain");

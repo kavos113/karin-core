@@ -12,6 +12,8 @@ D2DRendererImpl::D2DRendererImpl(D2DGraphicsDevice *device, D2DSurfaceImpl *surf
     {
         throw std::runtime_error("Failed to create D2D device context");
     }
+
+    setTargetBitmap();
 }
 
 void D2DRendererImpl::setTargetBitmap()

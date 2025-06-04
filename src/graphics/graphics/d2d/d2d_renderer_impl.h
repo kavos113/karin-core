@@ -32,7 +32,7 @@ private:
 
     Microsoft::WRL::ComPtr<ID2D1DeviceContext> m_deviceContext;
 
-    const D2D1_COLOR_F m_clearColor = D2D1::ColorF(D2D1::ColorF::Black);
+    const D2D1_COLOR_F m_clearColor = D2D1::ColorF(D2D1::ColorF::Red);
 
     static constexpr float DEFAULT_DPI = 96.0f; // Default DPI for D2D
     const D2D1_BITMAP_PROPERTIES1 bitmapProperties = D2D1::BitmapProperties1(
