@@ -15,10 +15,11 @@ namespace karin
 class GraphicsDevice
 {
 public:
-    GraphicsDevice();
     virtual ~GraphicsDevice() = default;
 
     virtual void cleanUp() = 0;
+
+    static std::unique_ptr<GraphicsDevice> create();
 };
 
 } // karin

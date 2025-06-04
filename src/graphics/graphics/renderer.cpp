@@ -1,15 +1,19 @@
 #include <karin/graphics/graphics/renderer.h>
 
+#include "platform.h"
 #include "resources/platform.h"
 #include "renderer_impl.h"
 
 namespace karin
 {
-Renderer::Renderer(GraphicsDevice* device, Window &window)
-    : m_window(&window)
+Renderer::Renderer(GraphicsDevice* device, Window* window)
+    : m_window(window)
 {
-    m_surfaceImpl = createSurfaceImpl(device, window.handle());
+    m_surfaceImpl = createSurfaceImpl(device, window->handle());
+    m_impl = createRendererImpl(device, m_surfaceImpl.get());
 }
+
+Renderer::~Renderer() = default;
 
 void Renderer::addDrawCommand(std::function<void(GraphicsContext &)> command)
 {
@@ -30,5 +34,11 @@ void Renderer::update() const
 
         m_impl->endDraw();
     });
+}
+
+void Renderer::cleanUp()
+{
+    m_impl->cleanUp();
+    m_surfaceImpl->cleanUp();
 }
 } // karin

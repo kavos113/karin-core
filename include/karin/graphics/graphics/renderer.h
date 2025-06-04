@@ -18,11 +18,13 @@ class IRendererImpl;
 class Renderer
 {
 public:
-    Renderer(GraphicsDevice *device, Window &window);
-    ~Renderer() = default;
+    Renderer(GraphicsDevice *device, Window *window);
+    ~Renderer();
 
     void addDrawCommand(std::function<void(GraphicsContext&)> command);
     void update() const;
+
+    void cleanUp();
 
 private:
     Window* m_window;

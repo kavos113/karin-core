@@ -13,7 +13,7 @@
 namespace karin
 {
 
-inline std::unique_ptr<GraphicsDevice> createGraphicsDeviceImpl()
+inline std::unique_ptr<GraphicsDevice> createGraphicsDevice()
 {
 #ifdef KARIN_PLATFORM_WINDOWS
     return std::make_unique<D2DGraphicsDevice>();

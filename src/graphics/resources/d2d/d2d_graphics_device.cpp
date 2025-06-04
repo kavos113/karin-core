@@ -77,4 +77,19 @@ void D2DGraphicsDevice::createDXGIDevice()
         throw std::runtime_error("Failed to get DXGI device from D3D11 device");
     }
 }
+
+Microsoft::WRL::ComPtr<ID2D1Factory1> & D2DGraphicsDevice::factory()
+{
+    return m_d2dFactory;
+}
+
+Microsoft::WRL::ComPtr<ID2D1Device> & D2DGraphicsDevice::device()
+{
+    return m_d2dDevice;
+}
+
+Microsoft::WRL::ComPtr<IDXGIDevice4> & D2DGraphicsDevice::dxgiDevice()
+{
+    return m_dxgiDevice;
+}
 } // karin

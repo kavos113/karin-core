@@ -30,6 +30,7 @@ platform_definitions(karin_system)
 
 # ----- Graphics modules -----
 set(GRAPHICS_SOURCE
+        graphics/resources/graphics_device.cpp
         graphics/graphics/renderer.cpp
         graphics/graphics/graphics_context.cpp
 )
@@ -46,3 +47,9 @@ add_library(karin_graphics STATIC ${GRAPHICS_SOURCE})
 target_include_directories(karin_graphics PUBLIC ${INCLUDE_DIR})
 target_include_directories(karin_graphics PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/graphics)
 platform_definitions(karin_graphics)
+
+if (WIN32)
+    target_link_libraries(karin_graphics PRIVATE d2d1.lib)
+    target_link_libraries(karin_graphics PRIVATE dxgi.lib)
+    target_link_libraries(karin_graphics PRIVATE d3d11.lib)
+endif ()

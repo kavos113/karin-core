@@ -31,7 +31,7 @@ private:
     const D2D1_COLOR_F m_clearColor = D2D1::ColorF(D2D1::ColorF::Black);
 
     static constexpr float DEFAULT_DPI = 96.0f; // Default DPI for D2D
-    const auto bitmapProperties = D2D1::BitmapProperties1(
+    const D2D1_BITMAP_PROPERTIES1 bitmapProperties = D2D1::BitmapProperties1(
             D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
             D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED),
             DEFAULT_DPI, DEFAULT_DPI);

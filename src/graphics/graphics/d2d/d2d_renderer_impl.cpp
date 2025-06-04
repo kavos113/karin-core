@@ -15,7 +15,7 @@ D2DRendererImpl::D2DRendererImpl(D2DGraphicsDevice *device, D2DSurfaceImpl *surf
 
     Microsoft::WRL::ComPtr<ID2D1Bitmap1> bitmap;
     if (FAILED(m_deviceContext->CreateBitmapFromDxgiSurface(
-        m_surface->backBuffer(),
+        m_surface->backBuffer().Get(),
         bitmapProperties,
         &bitmap)))
     {
