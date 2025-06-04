@@ -5,14 +5,14 @@ on:
       - main
   pull_request:
     branches:
-    - main
+      - main
 env:
   CMAKE_BUILD_TYPE: Release
   CMAKE_EXPORT_COMPILE_COMMANDS: true
 
 jobs:
-  Build:
-    runs-on: {{ matrix.os }}
+  run:
+    runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
@@ -26,7 +26,7 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake -DCMAKE_BUILD_TYPE={{ env.CMAKE_BUILD_TYPE }} -DCMAKE_EXPORT_COMPILE_COMMANDS={{ env.CMAKE_EXPORT_COMPILE_COMMANDS }} ..
+        cmake -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_EXPORT_COMPILE_COMMANDS=${{ env.CMAKE_EXPORT_COMPILE_COMMANDS }} ..
       shell: bash
 
     - name: Build
