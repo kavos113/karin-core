@@ -18,6 +18,10 @@ public:
 
     void cleanUp() override;
 
+    Microsoft::WRL::ComPtr<ID2D1Factory1>& factory();
+    Microsoft::WRL::ComPtr<ID2D1Device>& device();
+    Microsoft::WRL::ComPtr<IDXGIDevice4>& dxgiDevice();
+
 private:
     void createD2DFactory();
     void createD2DDevice();

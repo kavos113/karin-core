@@ -37,6 +37,7 @@ set(GRAPHICS_SOURCE
 if (WIN32)
     set(GRAPHICS_SOURCE ${GRAPHICS_SOURCE}
             graphics/resources/d2d/d2d_graphics_device_impl.cpp
+            graphics/resources/d2d/d2d_surface_impl.cpp
     )
 endif ()
 
