@@ -32,6 +32,7 @@ platform_definitions(karin_system)
 set(GRAPHICS_SOURCE
         graphics/resources/graphics_device.cpp
         graphics/resources/surface.cpp
+        graphics/graphics/renderer.cpp
 )
 
 if (WIN32)
