@@ -52,6 +52,11 @@ Window::ShowStatus Window::status() const
     return m_showStatus;
 }
 
+void* Window::handle() const
+{
+    return m_impl->handle();
+}
+
 void Window::setPosition(Point pos)
 {
     m_rect.pos = pos;

@@ -1,0 +1,12 @@
+#ifndef SRC_GRAPHICS_GRAPHICS_D2D_D2D_RENDERER_IMPL_H
+#define SRC_GRAPHICS_GRAPHICS_D2D_D2D_RENDERER_IMPL_H
+
+namespace karin {
+
+class d2d_renderer_impl {
+
+};
+
+} // karin
+
+#endif //SRC_GRAPHICS_GRAPHICS_D2D_D2D_RENDERER_IMPL_H

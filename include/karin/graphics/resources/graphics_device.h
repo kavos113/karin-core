@@ -5,8 +5,6 @@
 namespace karin
 {
 
-class IGraphicsDeviceImpl;
-
 /**
  * GraphicsDevice has the responsibility of managing the graphics hardware resources like:
  * - D2DFactory, D2DDevice, D2DDeviceContext, DWriteFactory, DXGIFactory, etc. (Direct2D, DirectWrite, Direct3D).
@@ -18,11 +16,9 @@ class GraphicsDevice
 {
 public:
     GraphicsDevice();
-    ~GraphicsDevice() = default;
+    virtual ~GraphicsDevice() = default;
 
-    void cleanUp();
-private:
-    std::unique_ptr<IGraphicsDeviceImpl> m_impl;
+    virtual void cleanUp() = 0;
 };
 
 } // karin

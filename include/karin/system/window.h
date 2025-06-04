@@ -39,6 +39,8 @@ public:
     void setStatus(ShowStatus status);
     ShowStatus status() const;
 
+    void* handle() const;
+
     void setPosition(Point pos);
     void setSize(Size size);
     void setRect(Rectangle rect);

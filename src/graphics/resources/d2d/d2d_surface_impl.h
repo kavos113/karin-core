@@ -6,14 +6,14 @@
 
 #include <resources/surface_impl.h>
 
-#include "d2d_graphics_device_impl.h"
+#include "d2d_graphics_device.h"
 
 namespace karin {
 
 class D2DSurfaceImpl : public ISurfaceImpl
 {
 public:
-    D2DSurfaceImpl(D2DGraphicsDeviceImpl* device, HWND hwnd);
+    D2DSurfaceImpl(D2DGraphicsDevice* device, HWND hwnd);
     ~D2DSurfaceImpl() override = default;
 
     void cleanUp() override;
@@ -30,7 +30,7 @@ private:
     void createSwapChain();
     void acquireBackBuffer();
 
-    D2DGraphicsDeviceImpl* m_device;
+    D2DGraphicsDevice* m_device;
     HWND m_hwnd;
 
     Microsoft::WRL::ComPtr<IDXGISwapChain1> m_swapChain;

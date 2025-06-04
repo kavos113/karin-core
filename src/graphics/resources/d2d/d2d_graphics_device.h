@@ -5,16 +5,17 @@
 #include <dxgi1_6.h>
 #include <wrl.h>
 
-#include <resources/graphics_device_impl.h>
+#include <karin/graphics/resources/graphics_device.h>
+
 
 namespace karin
 {
 
-class D2DGraphicsDeviceImpl : public IGraphicsDeviceImpl
+class D2DGraphicsDevice : public GraphicsDevice
 {
 public:
-    D2DGraphicsDeviceImpl();
-    ~D2DGraphicsDeviceImpl() override = default;
+    D2DGraphicsDevice();
+    ~D2DGraphicsDevice() override = default;
 
     void cleanUp() override;
 

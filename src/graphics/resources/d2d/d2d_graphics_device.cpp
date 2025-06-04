@@ -1,4 +1,4 @@
-#include "d2d_graphics_device_impl.h"
+#include "d2d_graphics_device.h"
 
 #include <array>
 #include <d3d11.h>
@@ -6,21 +6,21 @@
 
 namespace karin
 {
-D2DGraphicsDeviceImpl::D2DGraphicsDeviceImpl()
+D2DGraphicsDevice::D2DGraphicsDevice()
 {
     createD2DFactory();
     createDXGIDevice();
     createD2DDevice();
 }
 
-void D2DGraphicsDeviceImpl::cleanUp()
+void D2DGraphicsDevice::cleanUp()
 {
     m_d2dDevice.Reset();
     m_d2dFactory.Reset();
     m_dxgiDevice.Reset();
 }
 
-void D2DGraphicsDeviceImpl::createD2DFactory()
+void D2DGraphicsDevice::createD2DFactory()
 {
     if (FAILED(D2D1CreateFactory(
             D2D1_FACTORY_TYPE_SINGLE_THREADED,
@@ -30,7 +30,7 @@ void D2DGraphicsDeviceImpl::createD2DFactory()
     }
 }
 
-void D2DGraphicsDeviceImpl::createD2DDevice()
+void D2DGraphicsDevice::createD2DDevice()
 {
     if (FAILED(m_d2dFactory->CreateDevice(
             m_dxgiDevice.Get(),
@@ -40,7 +40,7 @@ void D2DGraphicsDeviceImpl::createD2DDevice()
     }
 }
 
-void D2DGraphicsDeviceImpl::createDXGIDevice()
+void D2DGraphicsDevice::createDXGIDevice()
 {
     constexpr UINT flags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 

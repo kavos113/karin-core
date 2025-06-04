@@ -5,7 +5,7 @@
 
 namespace karin
 {
-D2DSurfaceImpl::D2DSurfaceImpl(D2DGraphicsDeviceImpl *device, HWND hwnd)
+D2DSurfaceImpl::D2DSurfaceImpl(D2DGraphicsDevice *device, HWND hwnd)
     : m_device(device), m_hwnd(hwnd)
 {
     createSwapChain();
