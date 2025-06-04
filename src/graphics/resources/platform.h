@@ -4,6 +4,7 @@
 #include <memory>
 
 #include <karin/graphics/resources/graphics_device.h>
+#include "surface_impl.h"
 
 #ifdef KARIN_PLATFORM_WINDOWS
 #include "d2d/d2d_graphics_device.h"
