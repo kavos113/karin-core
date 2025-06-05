@@ -1,5 +1,6 @@
 #include <karin/system.h>
 #include <karin/graphics.h>
+#include <karin/common.h>
 
 #include <memory>
 
@@ -10,6 +11,13 @@ int main()
 
     std::unique_ptr<karin::GraphicsDevice> device = karin::GraphicsDevice::create();
     karin::Renderer renderer(device.get(), &window);
+
+    auto cyanPattern = std::make_unique<karin::SolidColorPattern>(karin::Color(0, 255, 255, 255));
+
+    renderer.addDrawCommand([&cyanPattern](karin::GraphicsContext& gc)
+    {
+        gc.fillRect(karin::Rectangle(100, 100, 200, 200), cyanPattern.get());
+    });
 
     renderer.update();
 

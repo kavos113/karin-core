@@ -11,7 +11,12 @@ class SolidColorPattern : public Pattern
 public:
     explicit SolidColorPattern(const Color& color) : m_color(color) {}
 
-    const Color& color() const { return m_color; }
+    [[nodiscard]] const Color& color() const { return m_color; }
+
+    bool operator< (const SolidColorPattern& other) const
+    {
+        return m_color < other.m_color;
+    }
 private:
     Color m_color;
 };

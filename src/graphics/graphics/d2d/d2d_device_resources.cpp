@@ -15,9 +15,9 @@ void D2DDeviceResources::clear()
     }
 }
 
-Microsoft::WRL::ComPtr<ID2D1Brush> D2DDeviceResources::brush(const Pattern &pattern)
+Microsoft::WRL::ComPtr<ID2D1Brush> D2DDeviceResources::brush(Pattern *pattern)
 {
-    if (auto solidColorPattern = dynamic_cast<const SolidColorPattern*>(&pattern))
+    if (auto solidColorPattern = dynamic_cast<SolidColorPattern*>(pattern))
     {
         return solidColorBrush(*solidColorPattern);
     }

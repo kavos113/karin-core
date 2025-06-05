@@ -11,7 +11,7 @@ class IGraphicsContextImpl
 public:
     virtual ~IGraphicsContextImpl() = default;
 
-    virtual void fillRect(Rectangle rect, Pattern pattern, float strokeWidth) = 0;
+    virtual void fillRect(Rectangle rect, Pattern* pattern, float strokeWidth) = 0;
 };
 
 } // karin

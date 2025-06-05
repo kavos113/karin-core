@@ -25,7 +25,7 @@ private:
     friend class Renderer;
 
 public:
-    void fillRect(Rectangle rect, Pattern pattern, float strokeWidth = 1.0f);
+    void fillRect(Rectangle rect, Pattern *pattern, float strokeWidth = 1.0f);
 
 private:
     IRendererImpl* m_rendererImpl;
