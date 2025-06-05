@@ -2,10 +2,11 @@
 #define KARIN_GRAPHICS_GRAPHICS_GRAPHICS_CONTEXT_H
 #include <memory>
 
-#include "../../common/geometry/rectangle.h"
+#include <karin/common/geometry/rectangle.h>
 
-namespace karin {
-
+namespace karin
+{
+class IRendererImpl;
 class IGraphicsContextImpl;
 
 /**
@@ -16,10 +17,8 @@ class IGraphicsContextImpl;
 class GraphicsContext
 {
 private:
-    class IRendererImpl;
-
     explicit GraphicsContext(IRendererImpl* impl);
-    ~GraphicsContext() = default;
+    ~GraphicsContext();
 
     friend class Renderer;
 

@@ -1,8 +1,9 @@
 #ifndef SRC_GRAPHICS_GRAPHICS_GRAPHICS_CONTEXT_IMPL_H
 #define SRC_GRAPHICS_GRAPHICS_GRAPHICS_CONTEXT_IMPL_H
-#include "../../../include/karin/common/geometry/rectangle.h"
+#include <karin/common/geometry/rectangle.h>
 
-namespace karin {
+namespace karin
+{
 
 class IGraphicsContextImpl
 {

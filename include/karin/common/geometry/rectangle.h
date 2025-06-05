@@ -1,7 +1,7 @@
 #ifndef KARIN_COMMON_RECTANGLE_H
 #define KARIN_COMMON_RECTANGLE_H
 #include "point.h"
-#include "../size.h"
+#include "size.h"
 
 namespace karin
 {

@@ -1,7 +1,7 @@
 #ifndef SRC_GRAPHICS_RESOURCES_SURFACE_IMPL_H
 #define SRC_GRAPHICS_RESOURCES_SURFACE_IMPL_H
 
-#include <../../../include/karin/common/geometry/size.h>
+#include <karin/common/geometry/size.h>
 
 namespace karin {
 
