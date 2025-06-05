@@ -68,12 +68,18 @@ LRESULT WinWindowImpl::handleMessage(UINT message, WPARAM wParam, LPARAM lParam)
             return 0;
 
         case WM_PAINT:
+        {
+            PAINTSTRUCT ps;
+            BeginPaint(m_hwnd, &ps);
+
             if (m_onPaint)
             {
                 m_onPaint();
             }
-            return 0;
 
+            EndPaint(m_hwnd, &ps);
+            return 0;
+        }
         case WM_SIZE:
             if (m_onResize)
             {
@@ -81,6 +87,7 @@ LRESULT WinWindowImpl::handleMessage(UINT message, WPARAM wParam, LPARAM lParam)
                     static_cast<float>(LOWORD(lParam)),
                     static_cast<float>(HIWORD(lParam))
                 ));
+                InvalidateRect(m_hwnd, nullptr, FALSE);
             }
             return 0;
 
