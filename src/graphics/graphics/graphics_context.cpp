@@ -12,7 +12,9 @@ GraphicsContext::GraphicsContext(IRendererImpl *impl)
 
 GraphicsContext::~GraphicsContext() = default;
 
-void GraphicsContext::fillRect(Rectangle rect, float strokeWidth)
+void GraphicsContext::fillRect(Rectangle rect, Pattern pattern, float strokeWidth)
 {
+    m_impl->fillRect(rect, pattern, strokeWidth);
 }
+
 } // karin

@@ -5,6 +5,7 @@
 
 #include <graphics/renderer_impl.h>
 
+#include "d2d_device_resources.h"
 #include "resources/d2d/d2d_graphics_device.h"
 #include "resources/d2d/d2d_surface_impl.h"
 
@@ -23,10 +24,13 @@ public:
     void resize(Size size) override;
     void reset() override;
 
-    Microsoft::WRL::ComPtr<ID2D1DeviceContext> deviceContext() const;
+    [[nodiscard]] Microsoft::WRL::ComPtr<ID2D1DeviceContext> deviceContext() const;
+    [[nodiscard]] D2DDeviceResources* deviceResources() const;
 
 private:
     void setTargetBitmap();
+
+    std::unique_ptr<D2DDeviceResources> m_deviceResources;
 
     // weak reference
     D2DGraphicsDevice* m_device;

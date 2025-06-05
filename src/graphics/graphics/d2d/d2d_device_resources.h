@@ -18,9 +18,11 @@ public:
 
     void clear();
 
+    Microsoft::WRL::ComPtr<ID2D1Brush> brush(const Pattern& pattern);
     Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> solidColorBrush(const SolidColorPattern& pattern);
 
 private:
+    // TODO: create before starting draw calls?
     std::map<SolidColorPattern, Microsoft::WRL::ComPtr<ID2D1SolidColorBrush>> m_solidColorBrushes;
 
     Microsoft::WRL::ComPtr<ID2D1DeviceContext> m_deviceContext;

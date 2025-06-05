@@ -8,19 +8,24 @@
 
 #include <karin/common/geometry/rectangle.h>
 
+#include "d2d_device_resources.h"
+
 namespace karin
 {
 
 class D2DGraphicsContextImpl : public IGraphicsContextImpl
 {
 public:
-    D2DGraphicsContextImpl(Microsoft::WRL::ComPtr<ID2D1DeviceContext> deviceContext);
+    D2DGraphicsContextImpl(Microsoft::WRL::ComPtr<ID2D1DeviceContext> deviceContext,
+                           D2DDeviceResources* deviceResources);
+
     ~D2DGraphicsContextImpl() override = default;
 
-    void fillRect(Rectangle rect, float strokeWidth) override;
+    void fillRect(Rectangle rect, Pattern pattern, float strokeWidth) override;
 
 private:
     Microsoft::WRL::ComPtr<ID2D1DeviceContext> m_deviceContext;
+    D2DDeviceResources* m_deviceResources;
 };
 
 } // karin

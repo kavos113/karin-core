@@ -4,6 +4,8 @@
 
 #include <karin/common/geometry/rectangle.h>
 
+#include "karin/common/color/pattern.h"
+
 namespace karin
 {
 class IRendererImpl;
@@ -23,7 +25,7 @@ private:
     friend class Renderer;
 
 public:
-    void fillRect(Rectangle rect, float strokeWidth = 1.0f);
+    void fillRect(Rectangle rect, Pattern pattern, float strokeWidth = 1.0f);
 
 private:
     IRendererImpl* m_rendererImpl;

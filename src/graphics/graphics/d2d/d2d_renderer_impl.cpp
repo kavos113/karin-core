@@ -14,6 +14,8 @@ D2DRendererImpl::D2DRendererImpl(D2DGraphicsDevice *device, D2DSurfaceImpl *surf
     }
 
     setTargetBitmap();
+
+    m_deviceResources = std::make_unique<D2DDeviceResources>(m_deviceContext);
 }
 
 void D2DRendererImpl::setTargetBitmap()
@@ -64,5 +66,10 @@ void D2DRendererImpl::reset()
 Microsoft::WRL::ComPtr<ID2D1DeviceContext> D2DRendererImpl::deviceContext() const
 {
     return m_deviceContext;
+}
+
+D2DDeviceResources* D2DRendererImpl::deviceResources() const
+{
+    return m_deviceResources.get();
 }
 } // karin

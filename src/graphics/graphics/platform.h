@@ -27,7 +27,11 @@ inline std::unique_ptr<IRendererImpl> createRendererImpl(GraphicsDevice* device,
 inline std::unique_ptr<IGraphicsContextImpl> createGraphicsContextImpl(IRendererImpl* impl)
 {
 #ifdef KARIN_PLATFORM_WINDOWS
-    return std::make_unique<D2DGraphicsContextImpl>(dynamic_cast<D2DRendererImpl*>(impl)->deviceContext());
+    auto d2dImpl = dynamic_cast<D2DRendererImpl*>(impl);
+    return std::make_unique<D2DGraphicsContextImpl>(
+        d2dImpl->deviceContext(),
+        d2dImpl->deviceResources()
+    );
 #endif
 
     return nullptr;

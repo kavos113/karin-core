@@ -6,7 +6,8 @@ namespace karin
 
 class Pattern
 {
-
+public:
+    virtual ~Pattern() = default;
 };
 
 }
