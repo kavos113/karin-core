@@ -1,6 +1,6 @@
 #ifndef SRC_GRAPHICS_GRAPHICS_GRAPHICS_CONTEXT_IMPL_H
 #define SRC_GRAPHICS_GRAPHICS_GRAPHICS_CONTEXT_IMPL_H
-#include "karin/common/rectangle.h"
+#include "../../../include/karin/common/geometry/rectangle.h"
 
 namespace karin {
 

@@ -1,4 +1,4 @@
-#include <karin/common/size.h>
+#include <karin/common/geometry/size.h>
 
 #include <gtest/gtest.h>
 

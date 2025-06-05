@@ -6,7 +6,7 @@
 
 #include <graphics/graphics_context_impl.h>
 
-#include <karin/common/rectangle.h>
+#include <../../../../include/karin/common/geometry/rectangle.h>
 
 namespace karin
 {

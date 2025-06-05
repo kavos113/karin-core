@@ -1,4 +1,4 @@
-#include <karin/common/point.h>
+#include <karin/common/geometry/point.h>
 
 #include <gtest/gtest.h>
 

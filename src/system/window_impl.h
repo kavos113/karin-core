@@ -2,7 +2,7 @@
 #define SRC_SYSTEM_WINDOW_IMPL_H
 #include <functional>
 
-#include <karin/common/size.h>
+#include <../../include/karin/common/geometry/size.h>
 
 namespace karin {
 

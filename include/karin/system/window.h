@@ -5,7 +5,7 @@
 #include <memory>
 #include <string>
 
-#include "karin/common/rectangle.h"
+#include "../common/geometry/rectangle.h"
 
 namespace karin
 {

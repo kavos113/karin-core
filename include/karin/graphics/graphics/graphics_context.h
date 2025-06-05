@@ -2,7 +2,7 @@
 #define KARIN_GRAPHICS_GRAPHICS_GRAPHICS_CONTEXT_H
 #include <memory>
 
-#include "karin/common/rectangle.h"
+#include "../../common/geometry/rectangle.h"
 
 namespace karin {
 

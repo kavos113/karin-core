@@ -1,9 +1,9 @@
-#include <karin/common/rectangle.h>
+#include <karin/common/geometry/rectangle.h>
 
 #include <gtest/gtest.h>
 
-#include <karin/common/point.h>
-#include <karin/common/size.h>
+#include <karin/common/geometry/point.h>
+#include <karin/common/geometry/size.h>
 
 class RectangleTest : public testing::Test
 {

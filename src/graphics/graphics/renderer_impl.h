@@ -1,7 +1,7 @@
 #ifndef SRC_GRAPHICS_GRAPHICS_RENDERER_IMPL_H
 #define SRC_GRAPHICS_GRAPHICS_RENDERER_IMPL_H
 
-#include <karin/common/size.h>
+#include <../../../include/karin/common/geometry/size.h>
 
 namespace karin {
 

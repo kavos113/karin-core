@@ -4,9 +4,9 @@ project(karin_test LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 
 set(TEST_SRCS
-    common/point_test.cpp
-        common/size_test.cpp
-        common/rectangle_test.cpp
+        common/geometry/point_test.cpp
+        common/geometry/size_test.cpp
+        common/geometry/rectangle_test.cpp
 )
 
 include(FetchContent)
