@@ -7,6 +7,7 @@ set(TEST_SRCS
         common/geometry/point_test.cpp
         common/geometry/size_test.cpp
         common/geometry/rectangle_test.cpp
+        common/color/color_test.cpp
 )
 
 include(FetchContent)
