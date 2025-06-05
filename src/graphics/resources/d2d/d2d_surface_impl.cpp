@@ -1,5 +1,6 @@
 #include "d2d_surface_impl.h"
 
+#include <iostream>
 #include <stdexcept>
 
 namespace karin
@@ -30,7 +31,7 @@ void D2DSurfaceImpl::resize(Size size)
     m_backBuffer.Reset();
 
     if (FAILED(m_swapChain->ResizeBuffers(
-            0,
+            2,
             static_cast<UINT>(size.width),
             static_cast<UINT>(size.height),
             DXGI_FORMAT_B8G8R8A8_UNORM,
