@@ -1,8 +1,8 @@
 #ifndef SRC_GRAPHICS_GRAPHICS_PLATFORM_H
 #define SRC_GRAPHICS_GRAPHICS_PLATFORM_H
 
-#include <karin/graphics/graphics/renderer.h>
-#include <karin/graphics/graphics/graphics_context.h>
+#include "renderer_impl.h"
+#include "graphics_context_impl.h"
 
 #include <memory>
 
