@@ -41,6 +41,7 @@ if (WIN32)
             graphics/resources/d2d/d2d_surface_impl.cpp
             graphics/graphics/d2d/d2d_renderer_impl.cpp
             graphics/graphics/d2d/d2d_graphics_context_impl.cpp
+            graphics/graphics/d2d/d2d_device_resources.cpp
     )
 endif ()
 
