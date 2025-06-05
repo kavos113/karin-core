@@ -8,7 +8,7 @@ GraphicsContext::GraphicsContext(IRendererImpl *impl)
 {
 }
 
-void GraphicsContext::drawRect(Rectangle rect, float strokeWidth)
+void GraphicsContext::fillRect(Rectangle rect, float strokeWidth)
 {
 }
 } // karin

@@ -9,7 +9,7 @@ class IGraphicsContextImpl
 public:
     virtual ~IGraphicsContextImpl() = default;
 
-    virtual void drawRect(Rectangle rect, float strokeWidth) = 0;
+    virtual void fillRect(Rectangle rect, float strokeWidth) = 0;
 };
 
 } // karin

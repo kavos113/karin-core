@@ -9,7 +9,7 @@ D2DGraphicsContextImpl::D2DGraphicsContextImpl(Microsoft::WRL::ComPtr<ID2D1Devic
 {
 }
 
-void D2DGraphicsContextImpl::drawRect(const Rectangle rect, const float strokeWidth)
+void D2DGraphicsContextImpl::fillRect(const Rectangle rect, const float strokeWidth)
 {
     m_deviceContext->DrawRectangle(
         D2D1::RectF(

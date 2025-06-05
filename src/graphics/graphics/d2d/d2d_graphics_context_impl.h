@@ -17,7 +17,7 @@ public:
     D2DGraphicsContextImpl(Microsoft::WRL::ComPtr<ID2D1DeviceContext> deviceContext);
     ~D2DGraphicsContextImpl() override = default;
 
-    void drawRect(Rectangle rect, float strokeWidth) override;
+    void fillRect(Rectangle rect, float strokeWidth) override;
 
 private:
     Microsoft::WRL::ComPtr<ID2D1DeviceContext> m_deviceContext;
