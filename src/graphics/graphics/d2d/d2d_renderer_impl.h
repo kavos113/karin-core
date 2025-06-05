@@ -23,6 +23,8 @@ public:
     void resize(Size size) override;
     void reset() override;
 
+    Microsoft::WRL::ComPtr<ID2D1DeviceContext> deviceContext() const;
+
 private:
     void setTargetBitmap();
 

@@ -61,4 +61,8 @@ void D2DRendererImpl::reset()
     m_deviceContext->SetTarget(nullptr);
 }
 
+Microsoft::WRL::ComPtr<ID2D1DeviceContext> D2DRendererImpl::deviceContext() const
+{
+    return m_deviceContext;
+}
 } // karin
