@@ -45,14 +45,20 @@ void D2DSurfaceImpl::resize(Size size)
 
 void D2DSurfaceImpl::createSwapChain()
 {
-    constexpr DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {
-        .Width = 0,
-        .Height = 0,
+    RECT rect;
+    if (!GetClientRect(m_hwnd, &rect))
+    {
+        throw std::runtime_error("Failed to get client rectangle");
+    }
+
+    const DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {
+        .Width = static_cast<UINT>(rect.right - rect.left),
+        .Height = static_cast<UINT>(rect.bottom - rect.top),
         .Format = DXGI_FORMAT_B8G8R8A8_UNORM,
         .SampleDesc = {1, 0}, // No multisampling
         .BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
         .BufferCount = 2,
-        .Scaling = DXGI_SCALING_STRETCH,
+        .Scaling = DXGI_SCALING_NONE,
         .SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL,
         .AlphaMode = DXGI_ALPHA_MODE_IGNORE,
         .Flags = 0
