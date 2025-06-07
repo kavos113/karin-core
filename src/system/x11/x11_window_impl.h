@@ -1,5 +1,6 @@
 #ifndef X11_WINDOW_IMPL_H
 #define X11_WINDOW_IMPL_H
+#include <mutex>
 #include <string>
 #include <X11/Xlib.h>
 
@@ -35,9 +36,11 @@ public:
 
     [[nodiscard]] void* handle() const override;
 
-    void handleEvent(XEvent& event);
+    void handleEvent(const XEvent& event);
 
 private:
+    void applyStatus();
+
     Display* m_display;
     Window m_window;
     GC m_gc;
@@ -46,6 +49,17 @@ private:
     std::function<void(Size)> m_onResize;
 
     std::function<void()> m_onClose;
+    std::function<void()> m_onStartMainLoop;
+
+    enum class X11ShowStatus
+    {
+        Maximize,
+        Minimize,
+        NoStatus
+    };
+
+    X11ShowStatus m_status = X11ShowStatus::NoStatus;
+    std::once_flag m_applyStatusFlag;
 };
 
 } // karin

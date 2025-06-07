@@ -53,7 +53,8 @@ X11WindowImpl::X11WindowImpl(
     sizeHints->flags = PPosition | PSize;
 
     XTextProperty windowName;
-    const char *titleStr = toString(title).c_str();
+    std::string titleString = toString(title);
+    const char *titleStr = titleString.c_str();
     if (!XStringListToTextProperty(const_cast<char **>(&titleStr), 1, &windowName))
     {
         XFree(sizeHints);
@@ -78,6 +79,19 @@ X11WindowImpl::X11WindowImpl(
         sizeHints,
         wmHints,
         classHint
+    );
+
+    Atom netWmName = XInternAtom(m_display, "_NET_WM_NAME", False);
+    Atom utf8String = XInternAtom(m_display, "UTF8_STRING", False);
+    XChangeProperty(
+        m_display,
+        m_window,
+        netWmName,
+        utf8String,
+        8,
+        PropModeReplace,
+        reinterpret_cast<const unsigned char *>(titleStr),
+        static_cast<int>(title.length() * sizeof(wchar_t))
     );
 
     XSelectInput(
@@ -127,12 +141,13 @@ X11WindowImpl::~X11WindowImpl()
     XFlush(m_display);
 }
 
-void X11WindowImpl::handleEvent(XEvent &event)
+void X11WindowImpl::handleEvent(const XEvent &event)
 {
     switch (event.type)
     {
         case Expose:
             std::cout << "Expose event received" << std::endl;
+            std::call_once(m_applyStatusFlag, &X11WindowImpl::applyStatus, this);
             if (m_onPaint)
             {
                 m_onPaint();
@@ -185,10 +200,14 @@ void X11WindowImpl::minimize()
 
     XIconifyWindow(m_display, m_window, DefaultScreen(m_display));
     XFlush(m_display);
+
+    m_status = X11ShowStatus::Minimize;
 }
 
 void X11WindowImpl::maximize()
 {
+    XMapWindow(m_display, m_window);
+
     if (!m_window)
     {
         return;
@@ -214,6 +233,20 @@ void X11WindowImpl::maximize()
     );
 
     XFlush(m_display);
+
+    m_status = X11ShowStatus::Maximize;
+}
+
+void X11WindowImpl::applyStatus()
+{
+    if (m_status == X11ShowStatus::Maximize)
+    {
+        maximize();
+    }
+    else if (m_status == X11ShowStatus::Minimize)
+    {
+        minimize();
+    }
 }
 
 void X11WindowImpl::setPosition(int x, int y)
