@@ -23,7 +23,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Install dependencies
+    - name: Install ubuntu dependencies
       run: |
         if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
           wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo tee /etc/apt/trusted.gpg.d/lunarg.asc
@@ -33,11 +33,31 @@ jobs:
         fi
       shell: bash
 
+    - name: Install ninja
+      run: |
+        if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+        sudo apt-get install -y ninja-build
+        elif [ "${{ matrix.os }}" == "windows-latest" ]; then
+        choco install ninja -y
+        fi
+      shell: bash
+
+    - name: Install with vcpkg
+      run: |
+        git clone https://github.com/microsoft/vcpkg.git
+        if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+          ./vcpkg/bootstrap-vcpkg.sh
+        elif [ "${{ matrix.os }}" == "windows-latest" ]; then
+          ./vcpkg/bootstrap-vcpkg.bat
+        fi
+        ./vcpkg/vcpkg install
+      shell: bash
+
     - name: Configure CMake
       run: |
         mkdir ${{ env.BUILD_DIR }}
         cd ${{ env.BUILD_DIR }}
-        cmake -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_EXPORT_COMPILE_COMMANDS=${{ env.CMAKE_EXPORT_COMPILE_COMMANDS }} ..
+        cmake -G Ninja -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_EXPORT_COMPILE_COMMANDS=${{ env.CMAKE_EXPORT_COMPILE_COMMANDS }} ..
       shell: bash
 
     - name: Build
