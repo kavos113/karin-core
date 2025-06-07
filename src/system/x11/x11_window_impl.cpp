@@ -147,7 +147,7 @@ void X11WindowImpl::handleEvent(XEvent &event)
             std::cout << "ClientMessage event received" << std::endl;
             if (event.xclient.data.l[0] == XInternAtom(m_display, "WM_DELETE_WINDOW", False))
             {
-                hide();
+                m_onClose();
             }
             break;
 
