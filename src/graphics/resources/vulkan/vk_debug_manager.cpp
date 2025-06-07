@@ -5,6 +5,7 @@
 #include <string>
 
 #include "vk_debug_utils.h"
+#include "vk_device_utils.h"
 
 namespace karin
 {
@@ -47,7 +48,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 
 VkDebugManager::VkDebugManager(VkInstance instance)
 {
-    if (!checkValidationLayerSupport())
+    if (!VkDeviceUtils::checkValidationLayerSupport())
     {
         throw std::runtime_error("validation layers requested, but not available.");
     }
@@ -76,8 +77,8 @@ void VkDebugManager::addDebugSupportToInstance(
     VkDebugUtilsMessengerCreateInfoEXT &debugCreateInfo
 ) const
 {
-    createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-    createInfo.ppEnabledLayerNames = validationLayers.data();
+    createInfo.enabledLayerCount = static_cast<uint32_t>(VkDeviceUtils::VALIDATION_LAYERS.size());
+    createInfo.ppEnabledLayerNames = VkDeviceUtils::VALIDATION_LAYERS.data();
 
     debugCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
@@ -91,37 +92,7 @@ void VkDebugManager::addDebugSupportToInstance(
 
 void VkDebugManager::addDebugSupportToDevice(VkDeviceCreateInfo &createInfo) const
 {
-    createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-    createInfo.ppEnabledLayerNames = validationLayers.data();
-}
-
-bool VkDebugManager::checkValidationLayerSupport() const
-{
-    uint32_t layerCount;
-    vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
-
-    std::vector<VkLayerProperties> availableLayers(layerCount);
-    vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
-
-    for (const char* layerName: validationLayers)
-    {
-        bool layerFound = false;
-
-        for (const auto& layerProperties : availableLayers)
-        {
-            if (strcmp(layerName, layerProperties.layerName) == 0)
-            {
-                layerFound = true;
-                break;
-            }
-        }
-
-        if (!layerFound)
-        {
-            return false;
-        }
-    }
-
-    return true;
+    createInfo.enabledLayerCount = static_cast<uint32_t>(VkDeviceUtils::VALIDATION_LAYERS.size());
+    createInfo.ppEnabledLayerNames = VkDeviceUtils::VALIDATION_LAYERS.data();
 }
 } // karin

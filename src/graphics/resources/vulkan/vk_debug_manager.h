@@ -17,13 +17,7 @@ public:
     void addDebugSupportToInstance(VkInstanceCreateInfo &createInfo, VkDebugUtilsMessengerCreateInfoEXT &debugCreateInfo) const;
     void addDebugSupportToDevice(VkDeviceCreateInfo &createInfo) const;
 private:
-    bool checkValidationLayerSupport() const;
-
     VkDebugUtilsMessengerEXT debugMessenger = VK_NULL_HANDLE;
-
-    const std::vector<const char*> validationLayers = {
-        "VK_LAYER_KHRONOS_validation",
-    };
 };
 
 } // karin

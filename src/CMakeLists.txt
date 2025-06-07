@@ -53,6 +53,12 @@ if (WIN32)
             graphics/graphics/d2d/d2d_graphics_context_impl.cpp
             graphics/graphics/d2d/d2d_device_resources.cpp
     )
+elseif (UNIX)
+    set(GRAPHICS_SOURCE ${GRAPHICS_SOURCE}
+            graphics/resources/vulkan/vk_graphics_device.cpp
+            graphics/resources/vulkan/vk_debug_manager.cpp
+            graphics/resources/vulkan/vk_device_utils.cpp
+    )
 endif ()
 
 add_library(karin_graphics STATIC ${GRAPHICS_SOURCE})
