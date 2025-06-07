@@ -1,6 +1,11 @@
 #include "vk_device_utils.h"
 
+#include <algorithm>
 #include <cstring>
+#include <limits>
+#include <stdexcept>
+
+#include "../../../system/x11/x11_window_impl.h"
 
 namespace karin
 {
@@ -129,5 +134,80 @@ bool VkDeviceUtils::checkDeviceExtensionSupport(VkPhysicalDevice device)
     }
 
     return true;
+}
+
+VkSurfaceFormatKHR VkDeviceUtils::getBestSwapSurfaceFormat(VkPhysicalDevice device, VkSurfaceKHR surface)
+{
+    uint32_t formatCount;
+    vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
+
+    if (formatCount == 0)
+    {
+        return {VK_FORMAT_UNDEFINED, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
+    }
+
+    std::vector<VkSurfaceFormatKHR> availableFormats(formatCount);
+    vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, availableFormats.data());
+
+    for (const auto& availableFormat : availableFormats)
+    {
+        if (availableFormat.format == VK_FORMAT_B8G8R8A8_UNORM
+            && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+        {
+            return availableFormat;
+        }
+    }
+
+    return availableFormats[0];
+}
+
+VkPresentModeKHR VkDeviceUtils::getBestSwapPresentMode(VkPhysicalDevice device, VkSurfaceKHR surface)
+{
+    uint32_t presentModeCount;
+    vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
+
+    if (presentModeCount == 0)
+    {
+        return VK_PRESENT_MODE_FIFO_KHR; // Default present mode
+    }
+
+    std::vector<VkPresentModeKHR> availablePresentModes(presentModeCount);
+    vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, availablePresentModes.data());
+
+    for (const auto& availablePresentMode : availablePresentModes)
+    {
+        if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
+        {
+            return availablePresentMode;
+        }
+    }
+
+    return VK_PRESENT_MODE_FIFO_KHR;
+}
+
+VkSurfaceCapabilitiesKHR VkDeviceUtils::getSwapCapabilities(VkPhysicalDevice device, VkSurfaceKHR surface)
+{
+    VkSurfaceCapabilitiesKHR capabilities;
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &capabilities);
+
+    return capabilities;
+}
+
+VkExtent2D VkDeviceUtils::getSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities, int width, int height)
+{
+    if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
+    {
+        return capabilities.currentExtent;
+    }
+
+    VkExtent2D actualExtent = {
+        .width = static_cast<uint32_t>(width),
+        .height = static_cast<uint32_t>(height),
+    };
+
+    actualExtent.width = std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
+    actualExtent.height = std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
+
+    return actualExtent;
 }
 } // karin

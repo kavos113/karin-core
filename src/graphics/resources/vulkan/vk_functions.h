@@ -3,7 +3,7 @@
 
 #include <vulkan/vulkan.h>
 
-inline VkResult CreateDebugUtilsMessengerEXT(
+inline VkResult vk_CreateDebugUtilsMessengerEXT(
     VkInstance instance,
     const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
     const VkAllocationCallbacks* pAllocator,
@@ -22,7 +22,7 @@ inline VkResult CreateDebugUtilsMessengerEXT(
     return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
 
-inline void DestroyDebugUtilsMessengerEXT(
+inline void vk_DestroyDebugUtilsMessengerEXT(
     VkInstance instance,
     VkDebugUtilsMessengerEXT debugMessenger,
     const VkAllocationCallbacks* pAllocator

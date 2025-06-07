@@ -1,5 +1,6 @@
 #include "vk_graphics_device.h"
 
+#include <vulkan/vulkan_xlib.h>
 #include <algorithm>
 
 #include "vk_device_utils.h"
@@ -46,7 +47,9 @@ void VkGraphicsDevice::createInstance()
     };
 
     std::vector extensions = {
-        VK_EXT_DEBUG_UTILS_EXTENSION_NAME
+        VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
+        VK_KHR_SURFACE_EXTENSION_NAME,
+        VK_KHR_XLIB_SURFACE_EXTENSION_NAME
     };
 
     createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
@@ -99,6 +102,11 @@ void VkGraphicsDevice::choosePhysicalDevice()
 
 void VkGraphicsDevice::createLogicalDevice(VkSurfaceKHR surface)
 {
+    if (m_device != VK_NULL_HANDLE)
+    {
+        return;
+    }
+
     getQueueFamily(surface);
 
     float queuePriority = 1.0f;
@@ -190,4 +198,28 @@ void VkGraphicsDevice::createVmaAllocator()
     }
 }
 
+VkInstance VkGraphicsDevice::instance() const
+{
+    return m_instance;
+}
+
+VkPhysicalDevice VkGraphicsDevice::physicalDevice() const
+{
+    return m_physicalDevice;
+}
+
+VkDevice VkGraphicsDevice::device() const
+{
+    return m_device;
+}
+
+VmaAllocator VkGraphicsDevice::allocator() const
+{
+    return m_allocator;
+}
+
+uint32_t VkGraphicsDevice::queueFamilyIndex(QueueFamily family) const
+{
+    return m_queueFamilyIndices.at(family);
+}
 } // karin

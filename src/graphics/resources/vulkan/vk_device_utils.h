@@ -12,6 +12,11 @@ public:
     static bool checkValidationLayerSupport();
     static int rateDeviceScore(VkPhysicalDevice device);
 
+    static VkSurfaceFormatKHR getBestSwapSurfaceFormat(VkPhysicalDevice device, VkSurfaceKHR surface);
+    static VkPresentModeKHR getBestSwapPresentMode(VkPhysicalDevice device, VkSurfaceKHR surface);
+    static VkSurfaceCapabilitiesKHR getSwapCapabilities(VkPhysicalDevice device, VkSurfaceKHR surface);
+    static VkExtent2D getSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, int width, int height);
+
     static const std::vector<const char*> VALIDATION_LAYERS;
     static const std::vector<const char*> DEVICE_EXTENSIONS;
 private:

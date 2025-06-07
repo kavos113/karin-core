@@ -30,6 +30,12 @@ public:
 
     void cleanUp() override;
 
+    VkInstance instance() const;
+    VkPhysicalDevice physicalDevice() const;
+    VkDevice device() const;
+    VmaAllocator allocator() const;
+    uint32_t queueFamilyIndex(QueueFamily family) const;
+
 private:
     void createInstance();
     void choosePhysicalDevice();

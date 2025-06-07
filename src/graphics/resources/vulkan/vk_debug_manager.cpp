@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 
-#include "vk_debug_utils.h"
+#include "vk_functions.h"
 #include "vk_device_utils.h"
 
 namespace karin
@@ -59,7 +59,7 @@ VkDebugManager::VkDebugManager(VkInstance instance)
         .messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
         .pfnUserCallback = debugCallback,
     };
-    if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS)
+    if (vk_CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to set up debug messenger");
     }
@@ -69,7 +69,7 @@ VkDebugManager::~VkDebugManager() = default;
 
 void VkDebugManager::cleanup(VkInstance instance)
 {
-    DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
+    vk_DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
 }
 
 void VkDebugManager::addDebugSupportToInstance(

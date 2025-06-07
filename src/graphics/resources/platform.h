@@ -9,6 +9,8 @@
 #ifdef KARIN_PLATFORM_WINDOWS
 #include "d2d/d2d_graphics_device.h"
 #include "d2d/d2d_surface_impl.h"
+#elif KARIN_PLATFORM_UNIX
+#include "vulkan/vk_graphics_device.h"
 #endif
 
 namespace karin
@@ -18,6 +20,8 @@ inline std::unique_ptr<GraphicsDevice> createGraphicsDevice()
 {
 #ifdef KARIN_PLATFORM_WINDOWS
     return std::make_unique<D2DGraphicsDevice>();
+#elif KARIN_PLATFORM_UNIX
+    return std::make_unique<VkGraphicsDevice>();
 #endif
 
     return nullptr;
