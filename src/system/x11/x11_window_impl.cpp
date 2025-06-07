@@ -146,7 +146,6 @@ void X11WindowImpl::handleEvent(const XEvent &event)
     switch (event.type)
     {
         case Expose:
-            std::cout << "Expose event received" << std::endl;
             std::call_once(m_applyStatusFlag, &X11WindowImpl::applyStatus, this);
             if (m_onPaint)
             {
@@ -155,11 +154,9 @@ void X11WindowImpl::handleEvent(const XEvent &event)
             break;
 
         case ConfigureNotify:
-            std::cout << "ConfigureNotify event received" << std::endl;
             break;
 
         case ClientMessage:
-            std::cout << "ClientMessage event received" << std::endl;
             if (event.xclient.data.l[0] == XInternAtom(m_display, "WM_DELETE_WINDOW", False))
             {
                 m_onClose();
