@@ -36,9 +36,9 @@ jobs:
     - name: Install ninja
       run: |
         if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
-        sudo apt-get install -y ninja-build
+          sudo apt-get install -y ninja-build
         elif [ "${{ matrix.os }}" == "windows-latest" ]; then
-        choco install ninja -y
+          choco install ninja -y
         fi
       shell: bash
 

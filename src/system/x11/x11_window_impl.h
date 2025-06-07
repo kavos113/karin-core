@@ -1,5 +1,5 @@
-#ifndef X11_WINDOW_IMPL_H
-#define X11_WINDOW_IMPL_H
+#ifndef SRC_SYSTEM_X11_X11_WINDOW_IMPL_H
+#define SRC_SYSTEM_X11_X11_WINDOW_IMPL_H
 #include <mutex>
 #include <string>
 #include <X11/Xlib.h>
@@ -64,4 +64,4 @@ private:
 
 } // karin
 
-#endif //X11_WINDOW_IMPL_H
+#endif //SRC_SYSTEM_X11_X11_WINDOW_IMPL_H
