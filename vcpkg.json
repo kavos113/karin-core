@@ -1,0 +1,15 @@
+{
+  "name" : "karin",
+  "version-string" : "1.0.0",
+  "builtin-baseline" : "984f9232b2fe0eb94f5e9f161d6c632c581fff0c",
+  "dependencies" : [ {
+    "name" : "vcpkg-cmake-config",
+    "version>=" : "2024-05-23"
+  }, {
+    "name" : "vcpkg-cmake",
+    "version>=" : "2024-04-23"
+  }, {
+    "name" : "vulkan-memory-allocator",
+    "version>=" : "3.3.0"
+  } ]
+}
