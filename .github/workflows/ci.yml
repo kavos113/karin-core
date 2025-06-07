@@ -51,7 +51,6 @@ jobs:
           ./vcpkg/bootstrap-vcpkg.bat
         fi
         ./vcpkg/vcpkg install
-      shell: bash
 
     - name: Configure CMake
       run: |
