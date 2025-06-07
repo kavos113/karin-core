@@ -4,6 +4,9 @@
 #include "renderer_impl.h"
 #include "graphics_context_impl.h"
 
+#include <karin/graphics/resources/graphics_device.h>
+#include <resources/surface_impl.h>
+
 #include <memory>
 
 
