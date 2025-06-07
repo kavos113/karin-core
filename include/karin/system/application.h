@@ -2,6 +2,8 @@
 #define KARIN_SYSTEM_APPLICATION_H
 #include <memory>
 
+#include "window.h"
+
 namespace karin
 {
 
@@ -13,6 +15,19 @@ public:
     static Application& instance();
 
     void run();
+
+    Window createWindow(
+        const std::wstring &title,
+        int x = 0,
+        int y = 0,
+        int width = Window::DEFAULT_WIDTH,
+        int height = Window::DEFAULT_HEIGHT
+    );
+
+    Window createWindow(
+        const std::wstring &title,
+        Rectangle rect = Rectangle(0, 0, Window::DEFAULT_WIDTH, Window::DEFAULT_HEIGHT)
+    );
 
 private:
     Application();

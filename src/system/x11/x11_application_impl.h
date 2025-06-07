@@ -1,0 +1,37 @@
+#ifndef SRC_SYSTEM_X11_APPLICATION_IMPL_H
+#define SRC_SYSTEM_X11_APPLICATION_IMPL_H
+
+#include <X11/Xlib.h>
+
+#include <application_impl.h>
+#include <map>
+
+
+namespace karin {
+
+class X11WindowImpl;
+
+class X11ApplicationImpl : public IApplicationImpl
+{
+public:
+    X11ApplicationImpl();
+    ~X11ApplicationImpl() override;
+
+    void addWindow(Window window, X11WindowImpl *impl);
+
+    void run() override;
+    void shutdown() override;
+
+    Display* display() const { return m_display; }
+
+private:
+    Display* m_display;
+
+    std::map<Window, X11WindowImpl*> m_windows;
+
+    bool m_running = true;
+};
+
+} // karin
+
+#endif //SRC_SYSTEM_X11_APPLICATION_IMPL_H

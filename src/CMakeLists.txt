@@ -5,7 +5,7 @@ macro(platform_definitions target_name)
     elseif (APPLE)
         target_compile_definitions(${target_name} PUBLIC KARIN_PLATFORM_MACOS)
     elseif (UNIX)
-        target_compile_definitions(${target_name} PUBLIC KARIN_PLATFORM_LINUX)
+        target_compile_definitions(${target_name} PUBLIC KARIN_PLATFORM_UNIX)
     endif ()
 endmacro()
 
@@ -21,12 +21,22 @@ if (WIN32)
             system/windows/win_window_impl.cpp
             system/windows/win_window_class_registry.cpp
     )
+elseif (UNIX)
+    set(SYSTEM_SOURCE ${SYSTEM_SOURCE}
+            system/x11/x11_application_impl.cpp
+            system/x11/x11_window_impl.cpp
+    )
 endif ()
 
 add_library(karin_system STATIC ${SYSTEM_SOURCE})
 target_include_directories(karin_system PUBLIC ${INCLUDE_DIR})
 target_include_directories(karin_system PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/system)
+target_include_directories(karin_system PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/common)
 platform_definitions(karin_system)
+
+if (UNIX)
+    target_link_libraries(karin_system PRIVATE X11)
+endif ()
 
 # ----- Graphics modules -----
 set(GRAPHICS_SOURCE

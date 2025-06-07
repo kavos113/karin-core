@@ -11,6 +11,7 @@ namespace karin
 {
 
 class IWindowImpl;
+class IApplicationImpl;
 
 class Window
 {
@@ -24,13 +25,15 @@ public:
     };
 
     explicit Window(
+        IApplicationImpl *applicationImpl,
         const std::wstring &title,
         int x = 0,
         int y = 0,
         int width = DEFAULT_WIDTH,
         int height = DEFAULT_HEIGHT
     );
-    Window(
+    explicit Window(
+        IApplicationImpl *applicationImpl,
         const std::wstring &title,
         Rectangle rect = Rectangle(0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT)
     );
@@ -51,14 +54,14 @@ public:
     void setOnPaint(std::function<void()> onPaint);
     void setOnResize(std::function<void(Size)> onResize);
 
+    static constexpr int DEFAULT_WIDTH = 800;
+    static constexpr int DEFAULT_HEIGHT = 600;
+
 private:
     ShowStatus m_showStatus = ShowStatus::HIDE;
     Rectangle m_rect;
 
     std::unique_ptr<IWindowImpl> m_impl;
-
-    static constexpr int DEFAULT_WIDTH = 800;
-    static constexpr int DEFAULT_HEIGHT = 600;
 };
 
 } // karin
