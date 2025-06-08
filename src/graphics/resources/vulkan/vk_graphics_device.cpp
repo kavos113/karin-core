@@ -114,7 +114,7 @@ void VkGraphicsDevice::initDevices(VkSurfaceKHR surface)
 
     getQueueFamily(surface);
 
-    createLogicalDevice(surface);
+    createLogicalDevice();
 
     vkGetDeviceQueue(m_device, m_queueFamilyIndices[QueueFamily::Graphics], 0, &m_graphicsQueue);
     vkGetDeviceQueue(m_device, m_queueFamilyIndices[QueueFamily::Present], 0, &m_presentQueue);
@@ -122,7 +122,11 @@ void VkGraphicsDevice::initDevices(VkSurfaceKHR surface)
     createVmaAllocator();
 
     createCommandPool();
-    createRenderPass();
+}
+
+void VkGraphicsDevice::initRenderResources(VkFormat swapChainImageFormat)
+{
+    createRenderPass(swapChainImageFormat);
     createPipeline();
 }
 
@@ -169,7 +173,7 @@ void VkGraphicsDevice::createVmaAllocator()
     }
 }
 
-void VkGraphicsDevice::createLogicalDevice(VkSurfaceKHR surface)
+void VkGraphicsDevice::createLogicalDevice()
 {
     std::set uniqueQueueFamilies = {
         m_queueFamilyIndices[QueueFamily::Graphics],
@@ -232,10 +236,10 @@ void VkGraphicsDevice::createCommandPool()
     }
 }
 
-void VkGraphicsDevice::createRenderPass()
+void VkGraphicsDevice::createRenderPass(VkFormat swapChainImageFormat)
 {
     VkAttachmentDescription colorAttachment = {
-        .format = VK_FORMAT_B8G8R8A8_SRGB, // Assuming SRGB format for swapchain
+        .format = swapChainImageFormat,
         .samples = VK_SAMPLE_COUNT_1_BIT,
         .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
         .storeOp = VK_ATTACHMENT_STORE_OP_STORE,

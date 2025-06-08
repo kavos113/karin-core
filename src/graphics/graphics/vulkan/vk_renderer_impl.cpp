@@ -12,6 +12,8 @@ VkRendererImpl::VkRendererImpl(VkGraphicsDevice *device, VkSurfaceImpl *surface)
 
     createVertexBuffer();
     createIndexBuffer();
+
+    m_surface->setRendererImpl(this);
 }
 
 void VkRendererImpl::cleanUp()
@@ -226,5 +228,10 @@ void VkRendererImpl::createIndexBuffer()
     }
 
     m_indexMapPoint = memoryInfo.pMappedData;
+}
+
+VkSemaphore VkRendererImpl::finishQueueSemaphore() const
+{
+    return m_finishQueueSemaphores[m_surface->currentFrame()];
 }
 } // karin

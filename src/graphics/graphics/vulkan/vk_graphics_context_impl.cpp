@@ -1,5 +1,6 @@
 #include "vk_graphics_context_impl.h"
 
+#include <iostream>
 #include <resources/vulkan/vk_graphics_device.h>
 
 namespace karin
@@ -12,6 +13,11 @@ VkGraphicsContextImpl::VkGraphicsContextImpl(VkRendererImpl *renderer)
 void VkGraphicsContextImpl::fillRect(Rectangle rect, Pattern *pattern, float strokeWidth)
 {
     Rectangle normalizedRect = m_renderer->normalize(rect);
+
+    std::cout << "Normalized Rectangle: "
+              << "Position(" << normalizedRect.pos.x << ", " << normalizedRect.pos.y << "), "
+              << "Size(" << normalizedRect.size.width << ", " << normalizedRect.size.height << ")"
+              << std::endl;
 
     std::vector<VkGraphicsDevice::Vertex> vertices = {
         {
@@ -35,5 +41,8 @@ void VkGraphicsContextImpl::fillRect(Rectangle rect, Pattern *pattern, float str
     std::vector<uint16_t> indices = {
         0, 1, 2, 2, 3, 0
     };
+
+    // TODO
+    m_renderer->addBuffer(vertices, indices);
 }
 } // karin

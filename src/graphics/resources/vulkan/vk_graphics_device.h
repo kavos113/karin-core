@@ -29,6 +29,7 @@ public:
     ~VkGraphicsDevice() override;
 
     void initDevices(VkSurfaceKHR surface);
+    void initRenderResources(VkFormat swapChainImageFormat);
 
     void cleanUp() override;
 
@@ -84,10 +85,10 @@ private:
     void choosePhysicalDevice();
     void createVmaAllocator();
 
-    void createLogicalDevice(VkSurfaceKHR surface);
+    void createLogicalDevice();
     void getQueueFamily(VkSurfaceKHR surface);
     void createCommandPool();
-    void createRenderPass();
+    void createRenderPass(VkFormat swapChainImageFormat);
     void createPipeline();
 
     std::unique_ptr<VkDebugManager> m_debugManager;

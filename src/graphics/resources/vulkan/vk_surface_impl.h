@@ -12,6 +12,8 @@
 namespace karin
 {
 
+class VkRendererImpl;
+
 class VkSurfaceImpl : public ISurfaceImpl
 {
 public:
@@ -31,6 +33,8 @@ public:
     VkSemaphore swapChainSemaphore() const;
     VkFence swapChainFence() const;
 
+    void setRendererImpl(VkRendererImpl* rendererImpl);
+
     static constexpr uint32_t MAX_FRAMES_IN_FLIGHT = 2;
 
 private:
@@ -44,6 +48,8 @@ private:
     VkGraphicsDevice* m_device;
     Window m_window;
     Display* m_display;
+
+    VkRendererImpl* m_rendererImpl;
 
     VkSurfaceKHR m_surface = VK_NULL_HANDLE;
     VkSwapchainKHR m_swapChain = VK_NULL_HANDLE;

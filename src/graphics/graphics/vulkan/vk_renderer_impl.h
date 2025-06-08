@@ -28,6 +28,8 @@ public:
     // pixel coordinates -> normalized coordinates [-1, 1]
     Rectangle normalize(Rectangle rect);
 
+    VkSemaphore finishQueueSemaphore() const;
+
 private:
     void createCommandBuffers();
     void createSemaphores();

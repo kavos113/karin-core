@@ -3,6 +3,8 @@
 #include <vulkan/vulkan_xlib.h>
 #include <array>
 
+#include <graphics/vulkan/vk_renderer_impl.h>
+
 #include "vk_device_utils.h"
 
 namespace karin
@@ -11,7 +13,13 @@ VkSurfaceImpl::VkSurfaceImpl(VkGraphicsDevice *device, XlibWindow window, Displa
     : m_device(device), m_window(window), m_display(display)
 {
     createSurface();
+
+    m_device->initDevices(m_surface);
+
     createSwapChain();
+
+    m_device->initRenderResources(m_swapChainImageFormat);
+
     createImageView();
     createFramebuffers();
     createSyncObjects();
@@ -56,11 +64,14 @@ void VkSurfaceImpl::cleanUp()
 
 void VkSurfaceImpl::present()
 {
+    VkSemaphore waitSemaphore = m_rendererImpl->finishQueueSemaphore();
+    std::array semaphores = {waitSemaphore};
+
     std::array swapChains = { m_swapChain };
     VkPresentInfoKHR presentInfo = {
         .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-        .waitSemaphoreCount = 1,
-        .pWaitSemaphores = &m_swapChainSemaphores[m_currentFrame],
+        .waitSemaphoreCount = semaphores.size(),
+        .pWaitSemaphores = semaphores.data(),
         .swapchainCount = static_cast<uint32_t>(swapChains.size()),
         .pSwapchains = swapChains.data(),
         .pImageIndices = &m_imageIndex,
@@ -136,8 +147,6 @@ void VkSurfaceImpl::createSurface()
     {
         throw std::runtime_error("failed to create surface");
     }
-
-    m_device->initDevices(m_surface);
 }
 
 void VkSurfaceImpl::createSwapChain()
@@ -337,5 +346,10 @@ VkSemaphore VkSurfaceImpl::swapChainSemaphore() const
 VkFence VkSurfaceImpl::swapChainFence() const
 {
     return m_swapChainFences[m_currentFrame];
+}
+
+void VkSurfaceImpl::setRendererImpl(VkRendererImpl *rendererImpl)
+{
+    m_rendererImpl = rendererImpl;
 }
 } // karin
