@@ -13,6 +13,8 @@ VkSurfaceImpl::VkSurfaceImpl(VkGraphicsDevice *device, Window window, Display *d
     createSurface();
     createSwapChain();
     createImageView();
+    createFramebuffers();
+    createSyncObjects();
 }
 
 void VkSurfaceImpl::cleanUp()
@@ -162,6 +164,56 @@ void VkSurfaceImpl::createImageView()
         if (vkCreateImageView(m_device->device(), &viewInfo, nullptr, &m_swapChainImageViews[i]) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create image views");
+        }
+    }
+}
+
+void VkSurfaceImpl::createFramebuffers()
+{
+    m_swapChainFramebuffers.resize(m_swapChainImageViews.size());
+
+    for (size_t i = 0; i < m_swapChainImageViews.size(); i++)
+    {
+        std::array attachments = {
+            m_swapChainImageViews[i]
+        };
+
+        VkFramebufferCreateInfo framebufferInfo = {
+            .sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
+            .renderPass = m_device->renderPass(),
+            .attachmentCount = 1,
+            .pAttachments = attachments.data(),
+            .width = m_swapChainExtent.width,
+            .height = m_swapChainExtent.height,
+            .layers = 1
+        };
+
+        if (vkCreateFramebuffer(m_device->device(), &framebufferInfo, nullptr, &m_swapChainFramebuffers[i]) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to create framebuffer");
+        }
+    }
+}
+
+void VkSurfaceImpl::createSyncObjects()
+{
+    m_swapchainSemaphores.resize(m_swapChainImages.size());
+    m_swapchainFences.resize(m_swapChainImages.size());
+
+    VkSemaphoreCreateInfo semaphoreInfo = {
+        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+    };
+    VkFenceCreateInfo fenceInfo = {
+        .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+        .flags = VK_FENCE_CREATE_SIGNALED_BIT,
+    };
+
+    for (size_t i = 0; i < m_swapChainImages.size(); i++)
+    {
+        if (vkCreateSemaphore(m_device->device(), &semaphoreInfo, nullptr, &m_swapchainSemaphores[i]) != VK_SUCCESS ||
+            vkCreateFence(m_device->device(), &fenceInfo, nullptr, &m_swapchainFences[i]) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to create swap chain sync objects");
         }
     }
 }

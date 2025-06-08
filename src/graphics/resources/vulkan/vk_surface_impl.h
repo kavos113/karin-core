@@ -25,6 +25,8 @@ private:
     void createSurface();
     void createSwapChain();
     void createImageView();
+    void createFramebuffers();
+    void createSyncObjects();
 
     VkGraphicsDevice* m_device;
     Window m_window;
@@ -36,6 +38,13 @@ private:
     std::vector<VkImageView> m_swapChainImageViews;
     VkFormat m_swapChainImageFormat = VK_FORMAT_UNDEFINED;
     VkExtent2D m_swapChainExtent = {};
+
+    std::vector<VkFramebuffer> m_swapChainFramebuffers;
+    std::vector<VkSemaphore> m_swapchainSemaphores;
+    std::vector<VkFence> m_swapchainFences;
+
+    VkViewport m_viewport = {};
+    VkRect2D m_scissor = {};
 };
 
 } // karin
