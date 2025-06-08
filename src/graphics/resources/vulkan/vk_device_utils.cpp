@@ -2,10 +2,10 @@
 
 #include <algorithm>
 #include <cstring>
+#include <fstream>
+#include <ios>
 #include <limits>
 #include <stdexcept>
-
-#include "../../../system/x11/x11_window_impl.h"
 
 namespace karin
 {
@@ -209,5 +209,37 @@ VkExtent2D VkDeviceUtils::getSwapExtent(const VkSurfaceCapabilitiesKHR &capabili
     actualExtent.height = std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
 
     return actualExtent;
+}
+
+VkShaderModule VkDeviceUtils::loadShader(VkDevice device, const std::string &filename)
+{
+    std::ifstream file(filename, std::ios::ate | std::ios::binary);
+
+    if (!file.is_open())
+    {
+        throw std::runtime_error("failed to open shader file: " + filename);
+    }
+
+    long fileSize = file.tellg();
+    std::vector<char> buffer(fileSize);
+
+    file.seekg(0);
+    file.read(buffer.data(), fileSize);
+
+    file.close();
+
+    VkShaderModuleCreateInfo createInfo = {
+        .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+        .codeSize = buffer.size(),
+        .pCode = reinterpret_cast<const uint32_t*>(buffer.data()),
+    };
+
+    VkShaderModule shaderModule;
+    if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create shader module: " + filename);
+    }
+
+    return shaderModule;
 }
 } // karin

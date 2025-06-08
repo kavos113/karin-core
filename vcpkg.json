@@ -11,5 +11,8 @@
   }, {
     "name" : "vulkan-memory-allocator",
     "version>=" : "3.3.0"
+  }, {
+    "name" : "glm",
+    "version>=" : "1.0.1#3"
   } ]
 }

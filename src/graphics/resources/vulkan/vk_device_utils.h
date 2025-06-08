@@ -1,5 +1,6 @@
 #ifndef SRC_GRAPHICS_RESOURCES_VULKAN_VK_DEVICE_UTILS_H
 #define SRC_GRAPHICS_RESOURCES_VULKAN_VK_DEVICE_UTILS_H
+#include <string>
 #include <vulkan/vulkan.h>
 #include <vector>
 
@@ -16,6 +17,8 @@ public:
     static VkPresentModeKHR getBestSwapPresentMode(VkPhysicalDevice device, VkSurfaceKHR surface);
     static VkSurfaceCapabilitiesKHR getSwapCapabilities(VkPhysicalDevice device, VkSurfaceKHR surface);
     static VkExtent2D getSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, int width, int height);
+
+    static VkShaderModule loadShader(VkDevice device, const std::string& filename);
 
     static const std::vector<const char*> VALIDATION_LAYERS;
     static const std::vector<const char*> DEVICE_EXTENSIONS;

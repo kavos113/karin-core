@@ -9,6 +9,20 @@ macro(platform_definitions target_name)
     endif ()
 endmacro()
 
+macro(compile_glsl src_file dest_file bin_file target_name shader_target_name)
+    add_custom_command(
+            OUTPUT ${dest_file}
+            COMMAND glslc ${src_file} -o ${dest_file}
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${dest_file} ${bin_file}
+            DEPENDS ${src_file}
+            COMMENT "Compiling shader: ${src_file}"
+    )
+    add_custom_target(${shader_target_name} ALL
+            DEPENDS ${dest_file}
+    )
+    add_dependencies(${target_name} ${shader_target_name})
+endmacro()
+
 # ----- System modules -----
 set(SYSTEM_SOURCE
         system/application.cpp
@@ -72,4 +86,19 @@ if (WIN32)
     target_link_libraries(karin_graphics PRIVATE d2d1.lib)
     target_link_libraries(karin_graphics PRIVATE dxgi.lib)
     target_link_libraries(karin_graphics PRIVATE d3d11.lib)
+elseif (UNIX)
+    compile_glsl(
+            ${CMAKE_CURRENT_SOURCE_DIR}/graphics/shaders/vert.vert
+            ${CMAKE_CURRENT_SOURCE_DIR}/graphics/shaders/vert.spv
+            ${CMAKE_CURRENT_BINARY_DIR}/shaders/vert.spv
+            karin_graphics
+            karin_graphics_vert
+    )
+    compile_glsl(
+            ${CMAKE_CURRENT_SOURCE_DIR}/graphics/shaders/frag.frag
+            ${CMAKE_CURRENT_SOURCE_DIR}/graphics/shaders/frag.spv
+            ${CMAKE_CURRENT_BINARY_DIR}/shaders/frag.spv
+            karin_graphics
+            karin_graphics_frag
+    )
 endif ()

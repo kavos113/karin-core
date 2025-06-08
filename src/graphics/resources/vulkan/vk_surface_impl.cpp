@@ -38,7 +38,15 @@ void VkSurfaceImpl::cleanUp()
 
 void VkSurfaceImpl::present()
 {
-
+    VkPresentInfoKHR presentInfo = {
+        .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+        .waitSemaphoreCount = 0,
+        .pWaitSemaphores = nullptr,
+        .swapchainCount = 1,
+        .pSwapchains = &m_swapChain,
+        .pImageIndices = nullptr,
+        .pResults = nullptr
+    };
 }
 
 void VkSurfaceImpl::resize(Size size)
@@ -58,7 +66,7 @@ void VkSurfaceImpl::createSurface()
         throw std::runtime_error("failed to create surface");
     }
 
-    m_device->createLogicalDevice(m_surface);
+    m_device->initDevices(m_surface);
 }
 
 void VkSurfaceImpl::createSwapChain()
