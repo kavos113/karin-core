@@ -89,14 +89,14 @@ if (WIN32)
     target_link_libraries(karin_graphics PRIVATE d3d11.lib)
 elseif (UNIX)
     compile_glsl(
-            ${CMAKE_CURRENT_SOURCE_DIR}/graphics/shaders/vert.vert
+            ${CMAKE_CURRENT_SOURCE_DIR}/graphics/shaders/vert.glsl
             ${CMAKE_CURRENT_SOURCE_DIR}/graphics/shaders/vert.spv
             ${CMAKE_CURRENT_BINARY_DIR}/shaders/vert.spv
             karin_graphics
             karin_graphics_vert
     )
     compile_glsl(
-            ${CMAKE_CURRENT_SOURCE_DIR}/graphics/shaders/frag.frag
+            ${CMAKE_CURRENT_SOURCE_DIR}/graphics/shaders/frag.glsl
             ${CMAKE_CURRENT_SOURCE_DIR}/graphics/shaders/frag.spv
             ${CMAKE_CURRENT_BINARY_DIR}/shaders/frag.spv
             karin_graphics

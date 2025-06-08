@@ -187,9 +187,12 @@ void WinWindowImpl::setRect(int x, int y, int width, int height)
     );
 }
 
-void* WinWindowImpl::handle() const
+Window::NativeHandle WinWindowImpl::handle() const
 {
-    return m_hwnd;
+    return Window::NativeHandle{
+        .hwnd = m_hwnd,
+        .hinstance = GetModuleHandle(nullptr)
+    };
 }
 
 void WinWindowImpl::setOnPaint(std::function<void()> onPaint)

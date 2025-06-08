@@ -4,6 +4,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <X11/Xlib.h>
 
 #include "../common/geometry/rectangle.h"
 
@@ -24,6 +25,17 @@ public:
         MAXIMIZE
     };
 
+    struct NativeHandle
+    {
+        // WIN32
+        void* hwnd = nullptr;
+        void* hinstance = nullptr;
+
+        // X11
+        Display *display = nullptr;
+        uint64_t window = 0;
+    };
+
     explicit Window(
         IApplicationImpl *applicationImpl,
         const std::wstring &title,
@@ -42,7 +54,7 @@ public:
     void setStatus(ShowStatus status);
     ShowStatus status() const;
 
-    void* handle() const;
+    NativeHandle handle() const;
 
     void setPosition(Point pos);
     void setSize(Size size);

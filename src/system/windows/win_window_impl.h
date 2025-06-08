@@ -4,6 +4,7 @@
 #include <windows.h>
 #include <window_impl.h>
 
+#include <karin/system/window.h>
 #include <mutex>
 #include <string>
 #include <memory>
@@ -35,7 +36,7 @@ public:
     void setOnPaint(std::function<void()> onPaint) override;
     void setOnResize(std::function<void(Size)> onResize) override;
 
-    [[nodiscard]] void* handle() const override;
+    [[nodiscard]] Window::NativeHandle handle() const override;
 
 private:
     static void registerClass();

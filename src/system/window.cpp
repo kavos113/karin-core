@@ -56,7 +56,7 @@ Window::ShowStatus Window::status() const
     return m_showStatus;
 }
 
-void* Window::handle() const
+Window::NativeHandle Window::handle() const
 {
     return m_impl->handle();
 }

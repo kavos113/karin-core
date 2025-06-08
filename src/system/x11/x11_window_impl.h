@@ -4,6 +4,8 @@
 #include <string>
 #include <X11/Xlib.h>
 
+#include <karin/system/window.h>
+#include <x11/window.h>
 #include <window_impl.h>
 #include "x11_application_impl.h"
 
@@ -34,7 +36,7 @@ public:
     void setOnPaint(std::function<void()> onPaint) override;
     void setOnResize(std::function<void(Size)> onResize) override;
 
-    [[nodiscard]] void* handle() const override;
+    [[nodiscard]] Window::NativeHandle handle() const override;
 
     void handleEvent(const XEvent& event);
 
@@ -42,7 +44,7 @@ private:
     void applyStatus();
 
     Display* m_display;
-    Window m_window;
+    XlibWindow m_window;
     GC m_gc;
 
     std::function<void()> m_onPaint;

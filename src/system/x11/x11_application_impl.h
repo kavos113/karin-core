@@ -4,8 +4,8 @@
 #include <X11/Xlib.h>
 
 #include <application_impl.h>
+#include <x11/window.h>
 #include <map>
-
 
 namespace karin {
 
@@ -17,7 +17,7 @@ public:
     X11ApplicationImpl();
     ~X11ApplicationImpl() override;
 
-    void addWindow(Window window, X11WindowImpl *impl);
+    void addWindow(XlibWindow window, X11WindowImpl *impl);
 
     void run() override;
     void shutdown() override;
@@ -27,7 +27,7 @@ public:
 private:
     Display* m_display;
 
-    std::map<Window, X11WindowImpl*> m_windows;
+    std::map<XlibWindow, X11WindowImpl*> m_windows;
 
     bool m_running = true;
 };

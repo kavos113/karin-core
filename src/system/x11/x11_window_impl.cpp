@@ -271,8 +271,11 @@ void X11WindowImpl::setOnResize(std::function<void(Size)> onResize)
     m_onResize = std::move(onResize);
 }
 
-void* X11WindowImpl::handle() const
+Window::NativeHandle X11WindowImpl::handle() const
 {
-    return reinterpret_cast<void*>(m_window);
+    return Window::NativeHandle{
+        .display = m_display,
+        .window = static_cast<uint64_t>(m_window)
+    };
 }
 } // karin

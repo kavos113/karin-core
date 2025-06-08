@@ -7,7 +7,7 @@
 
 namespace karin
 {
-VkSurfaceImpl::VkSurfaceImpl(VkGraphicsDevice *device, Window window, Display *display)
+VkSurfaceImpl::VkSurfaceImpl(VkGraphicsDevice *device, XlibWindow window, Display *display)
     : m_device(device), m_window(window), m_display(display)
 {
     createSurface();

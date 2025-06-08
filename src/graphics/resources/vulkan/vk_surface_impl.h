@@ -5,6 +5,7 @@
 #include <X11/Xlib.h>
 
 #include <resources/surface_impl.h>
+#include <x11/window.h>
 
 #include "vk_graphics_device.h"
 
@@ -14,7 +15,7 @@ namespace karin
 class VkSurfaceImpl : public ISurfaceImpl
 {
 public:
-    VkSurfaceImpl(VkGraphicsDevice* device, Window window, Display* display);
+    VkSurfaceImpl(VkGraphicsDevice* device, XlibWindow window, Display* display);
     ~VkSurfaceImpl() override = default;
 
     void cleanUp() override;

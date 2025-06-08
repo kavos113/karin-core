@@ -21,7 +21,7 @@ X11ApplicationImpl::~X11ApplicationImpl()
     XCloseDisplay(m_display);
 }
 
-void X11ApplicationImpl::addWindow(Window window, X11WindowImpl *impl)
+void X11ApplicationImpl::addWindow(XlibWindow window, X11WindowImpl *impl)
 {
     m_windows[window] = impl;
 }
