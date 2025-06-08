@@ -1,5 +1,7 @@
 #include "vk_renderer_impl.h"
 
+#include <cstring>
+
 namespace karin
 {
 VkRendererImpl::VkRendererImpl(VkGraphicsDevice *device, VkSurfaceImpl *surface)
@@ -115,6 +117,37 @@ void VkRendererImpl::reset()
     vkDeviceWaitIdle(m_device->device());
 }
 
+void VkRendererImpl::addBuffer(std::vector<VkGraphicsDevice::Vertex> vertices, std::vector<uint16_t> indices)
+{
+    memcpy(m_vertexMapPoint, vertices.data(), vertices.size() * sizeof(VkGraphicsDevice::Vertex));
+    m_vertexMapPoint += vertices.size() * sizeof(VkGraphicsDevice::Vertex);
+    m_vertexCount += static_cast<uint16_t>(vertices.size());
+
+    for (uint16_t & index : indices)
+    {
+        index += m_vertexCount;
+    }
+
+    memcpy(m_indexMapPoint, indices.data(), indices.size() * sizeof(uint16_t));
+    m_indexMapPoint += indices.size() * sizeof(uint16_t);
+}
+
+Rectangle VkRendererImpl::normalize(Rectangle rect)
+{
+    VkExtent2D extent = m_surface->extent();
+
+    return {
+        {
+            (rect.pos.x / static_cast<float>(extent.width)) * 2.0f - 1.0f,
+            1.0f - (rect.pos.y / static_cast<float>(extent.height)) * 2.0f
+        },
+        {
+            (rect.size.width / static_cast<float>(extent.width)) * 2.0f,
+            (rect.size.height / static_cast<float>(extent.height)) * 2.0f
+        }
+    };
+}
+
 void VkRendererImpl::createCommandBuffers()
 {
     m_commandBuffers.resize(VkSurfaceImpl::MAX_FRAMES_IN_FLIGHT);
@@ -152,7 +185,7 @@ void VkRendererImpl::createSemaphores()
 void VkRendererImpl::createVertexBuffer()
 {
     VmaAllocationCreateInfo allocInfo = {
-        .flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT,
+        .flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT,
         .usage = VMA_MEMORY_USAGE_AUTO,
     };
 
@@ -163,16 +196,19 @@ void VkRendererImpl::createVertexBuffer()
         .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
     };
 
-    if (vmaCreateBuffer(m_device->allocator(), &bufferInfo, &allocInfo, &m_vertexBuffer, &m_vertexAllocation, nullptr) != VK_SUCCESS)
+    VmaAllocationInfo memoryInfo;
+    if (vmaCreateBuffer(m_device->allocator(), &bufferInfo, &allocInfo, &m_vertexBuffer, &m_vertexAllocation, &memoryInfo) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create vertex buffer");
     }
+
+    m_vertexMapPoint = memoryInfo.pMappedData;
 }
 
 void VkRendererImpl::createIndexBuffer()
 {
     VmaAllocationCreateInfo allocInfo = {
-        .flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT,
+        .flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT,
         .usage = VMA_MEMORY_USAGE_AUTO,
     };
 
@@ -183,9 +219,12 @@ void VkRendererImpl::createIndexBuffer()
         .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
     };
 
-    if (vmaCreateBuffer(m_device->allocator(), &bufferInfo, &allocInfo, &m_indexBuffer, &m_indexAllocation, nullptr) != VK_SUCCESS)
+    VmaAllocationInfo memoryInfo;
+    if (vmaCreateBuffer(m_device->allocator(), &bufferInfo, &allocInfo, &m_indexBuffer, &m_indexAllocation, &memoryInfo) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create index buffer");
     }
+
+    m_indexMapPoint = memoryInfo.pMappedData;
 }
 } // karin

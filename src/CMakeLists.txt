@@ -9,20 +9,6 @@ macro(platform_definitions target_name)
     endif ()
 endmacro()
 
-macro(compile_glsl src_file dest_file bin_file target_name shader_stage)
-    add_custom_command(
-            OUTPUT ${dest_file}
-            COMMAND glslc -fshader-stage=${shader_stage} ${src_file} -o ${dest_file}
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${dest_file} ${bin_file}
-            DEPENDS ${src_file}
-            COMMENT "Compiling shader: ${src_file}"
-    )
-    add_custom_target(${target_name}_${shader_stage} ALL
-            DEPENDS ${dest_file}
-    )
-    add_dependencies(${target_name} ${target_name}_${shader_stage})
-endmacro()
-
 # ----- System modules -----
 set(SYSTEM_SOURCE
         system/application.cpp
@@ -74,6 +60,7 @@ elseif (UNIX)
             graphics/resources/vulkan/vk_device_utils.cpp
             graphics/resources/vulkan/vk_surface_impl.cpp
             graphics/graphics/vulkan/vk_renderer_impl.cpp
+            graphics/graphics/vulkan/vk_graphics_context_impl.cpp
             common/vulkan/vma_impl.cpp
     )
 endif ()
@@ -89,20 +76,20 @@ if (WIN32)
     target_link_libraries(karin_graphics PRIVATE dxgi.lib)
     target_link_libraries(karin_graphics PRIVATE d3d11.lib)
 elseif (UNIX)
-    compile_glsl(
-            ${CMAKE_CURRENT_SOURCE_DIR}/graphics/shaders/vert.glsl
-            ${CMAKE_CURRENT_SOURCE_DIR}/graphics/shaders/vert.spv
-            ${CMAKE_CURRENT_BINARY_DIR}/shaders/vert.spv
-            karin_graphics
-            vert
+    add_custom_command(
+            OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/graphics/shaders/shaders.h
+            COMMAND ${SCRIPTS_DIR}/shader.sh ${CMAKE_CURRENT_SOURCE_DIR}/graphics/shaders SRC_GRAPHICS_SHADERS_SHADER_H
+            DEPENDS
+                ${CMAKE_CURRENT_SOURCE_DIR}/graphics/shaders/shader.vert
+                ${CMAKE_CURRENT_SOURCE_DIR}/graphics/shaders/shader.frag
+            COMMENT "Compiling graphics shaders"
     )
-    compile_glsl(
-            ${CMAKE_CURRENT_SOURCE_DIR}/graphics/shaders/frag.glsl
-            ${CMAKE_CURRENT_SOURCE_DIR}/graphics/shaders/frag.spv
-            ${CMAKE_CURRENT_BINARY_DIR}/shaders/frag.spv
-            karin_graphics
-            frag
+    add_custom_target(
+            shaders_graphics ALL
+            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/graphics/shaders/shaders.h
     )
+
+    add_dependencies(karin_graphics shaders_graphics)
 
     target_link_libraries(karin_graphics PRIVATE vulkan)
 endif ()

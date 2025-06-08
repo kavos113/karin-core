@@ -10,7 +10,7 @@
 #ifdef KARIN_PLATFORM_WINDOWS
 #include "d2d/d2d_graphics_device.h"
 #include "d2d/d2d_surface_impl.h"
-#elif KARIN_PLATFORM_UNIX
+#elifdef KARIN_PLATFORM_UNIX
 #include "vulkan/vk_graphics_device.h"
 #include "vulkan/vk_surface_impl.h"
 #endif
@@ -22,7 +22,7 @@ inline std::unique_ptr<GraphicsDevice> createGraphicsDevice()
 {
 #ifdef KARIN_PLATFORM_WINDOWS
     return std::make_unique<D2DGraphicsDevice>();
-#elif KARIN_PLATFORM_UNIX
+#elifdef KARIN_PLATFORM_UNIX
     return std::make_unique<VkGraphicsDevice>();
 #endif
 
@@ -33,7 +33,7 @@ inline std::unique_ptr<ISurfaceImpl> createSurfaceImpl(GraphicsDevice* device, W
 {
 #ifdef KARIN_PLATFORM_WINDOWS
     return std::make_unique<D2DSurfaceImpl>(dynamic_cast<D2DGraphicsDevice*>(device), static_cast<HWND>(handle.hwnd));
-#elif KARIN_PLATFORM_UNIX
+#elifdef KARIN_PLATFORM_UNIX
     return std::make_unique<VkSurfaceImpl>(dynamic_cast<VkGraphicsDevice*>(device), handle.window, handle.display);
 #endif
 

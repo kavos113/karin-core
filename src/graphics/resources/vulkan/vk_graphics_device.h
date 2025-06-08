@@ -43,7 +43,6 @@ public:
     VkQueue graphicsQueue() const;
     VkQueue presentQueue() const;
 
-private:
     struct Vertex
     {
         glm::vec2 pos;
@@ -78,6 +77,8 @@ private:
             return attributeDescriptions;
         }
     };
+
+private:
 
     void createInstance();
     void choosePhysicalDevice();

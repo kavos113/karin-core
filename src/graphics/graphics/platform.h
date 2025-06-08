@@ -15,6 +15,11 @@
 
 #include "d2d/d2d_renderer_impl.h"
 #include "d2d/d2d_graphics_context_impl.h"
+#elifdef KARIN_PLATFORM_UNIX
+#include <resources/vulkan/vk_graphics_device.h>
+
+#include "vulkan/vk_renderer_impl.h"
+#include "vulkan/vk_graphics_context_impl.h"
 #endif
 
 namespace karin
@@ -23,7 +28,10 @@ inline std::unique_ptr<IRendererImpl> createRendererImpl(GraphicsDevice* device,
 {
 #ifdef KARIN_PLATFORM_WINDOWS
     return std::make_unique<D2DRendererImpl>(dynamic_cast<D2DGraphicsDevice*>(device), dynamic_cast<D2DSurfaceImpl*>(surface));
+#elifdef KARIN_PLATFORM_UNIX
+    return std::make_unique<VkRendererImpl>(dynamic_cast<VkGraphicsDevice*>(device), dynamic_cast<VkSurfaceImpl*>(surface));
 #endif
+
     return nullptr;
 }
 
@@ -34,6 +42,10 @@ inline std::unique_ptr<IGraphicsContextImpl> createGraphicsContextImpl(IRenderer
     return std::make_unique<D2DGraphicsContextImpl>(
         d2dImpl->deviceContext(),
         d2dImpl->deviceResources()
+    );
+#elifdef KARIN_PLATFORM_UNIX
+    return std::make_unique<VkGraphicsContextImpl>(
+        dynamic_cast<VkRendererImpl*>(impl)
     );
 #endif
 

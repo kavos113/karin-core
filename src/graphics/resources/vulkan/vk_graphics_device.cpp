@@ -4,6 +4,9 @@
 #include <vulkan/vulkan_xlib.h>
 #include <algorithm>
 #include <array>
+#include <set>
+
+#include <shaders/shaders.h>
 
 #include "vk_device_utils.h"
 
@@ -14,7 +17,6 @@ VkGraphicsDevice::VkGraphicsDevice()
     createInstance();
     m_debugManager = std::make_unique<VkDebugManager>(m_instance);
     choosePhysicalDevice();
-    createVmaAllocator();
 }
 
 VkGraphicsDevice::~VkGraphicsDevice()
@@ -102,6 +104,7 @@ void VkGraphicsDevice::choosePhysicalDevice()
     m_physicalDevice = devices[std::distance(deviceScores.begin(), bestDeviceIt)];
 }
 
+// TODO: should initialize first?
 void VkGraphicsDevice::initDevices(VkSurfaceKHR surface)
 {
     if (m_device != VK_NULL_HANDLE)
@@ -115,6 +118,8 @@ void VkGraphicsDevice::initDevices(VkSurfaceKHR surface)
 
     vkGetDeviceQueue(m_device, m_queueFamilyIndices[QueueFamily::Graphics], 0, &m_graphicsQueue);
     vkGetDeviceQueue(m_device, m_queueFamilyIndices[QueueFamily::Present], 0, &m_presentQueue);
+
+    createVmaAllocator();
 
     createCommandPool();
     createRenderPass();
@@ -166,21 +171,22 @@ void VkGraphicsDevice::createVmaAllocator()
 
 void VkGraphicsDevice::createLogicalDevice(VkSurfaceKHR surface)
 {
-    float queuePriority = 1.0f;
-    std::vector queueCreateInfos = {
-        VkDeviceQueueCreateInfo{
-            .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-            .queueFamilyIndex = m_queueFamilyIndices[QueueFamily::Graphics],
-            .queueCount = 1,
-            .pQueuePriorities = &queuePriority
-        },
-        VkDeviceQueueCreateInfo{
-            .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-            .queueFamilyIndex = m_queueFamilyIndices[QueueFamily::Present],
-            .queueCount = 1,
-            .pQueuePriorities = &queuePriority
-        }
+    std::set uniqueQueueFamilies = {
+        m_queueFamilyIndices[QueueFamily::Graphics],
+        m_queueFamilyIndices[QueueFamily::Present]
     };
+    float queuePriority = 1.0f;
+    std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+    for (uint32_t queueFamily : uniqueQueueFamilies)
+    {
+        VkDeviceQueueCreateInfo queueCreateInfo = {
+            .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+            .queueFamilyIndex = queueFamily,
+            .queueCount = 1,
+            .pQueuePriorities = &queuePriority,
+        };
+        queueCreateInfos.push_back(queueCreateInfo);
+    }
 
     VkPhysicalDeviceFeatures deviceFeatures = {
         .sampleRateShading = VK_TRUE,
@@ -277,8 +283,8 @@ void VkGraphicsDevice::createRenderPass()
 
 void VkGraphicsDevice::createPipeline()
 {
-    auto vertShader = VkDeviceUtils::loadShader(m_device, "./shaders/vert.spv");
-    auto fragShader = VkDeviceUtils::loadShader(m_device, "./shaders/frag.spv");
+    auto vertShader = VkDeviceUtils::loadShader(m_device, shader_vert_spv, shader_vert_spv_len);
+    auto fragShader = VkDeviceUtils::loadShader(m_device, shader_frag_spv, shader_frag_spv_len);
 
     VkPipelineShaderStageCreateInfo vertShaderStageInfo = {
         .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,

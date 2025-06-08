@@ -6,6 +6,8 @@
 #include <resources/vulkan/vk_graphics_device.h>
 #include <resources/vulkan/vk_surface_impl.h>
 
+#include <karin/common/geometry/rectangle.h>
+
 namespace karin {
 
 class VkRendererImpl : public IRendererImpl
@@ -21,6 +23,11 @@ public:
     void resize(Size size) override;
     void reset() override;
 
+    void addBuffer(std::vector<VkGraphicsDevice::Vertex> vertices, std::vector<uint16_t> indices);
+
+    // pixel coordinates -> normalized coordinates [-1, 1]
+    Rectangle normalize(Rectangle rect);
+
 private:
     void createCommandBuffers();
     void createSemaphores();
@@ -35,11 +42,14 @@ private:
 
     VkBuffer m_vertexBuffer;
     VmaAllocation m_vertexAllocation;
+    void* m_vertexMapPoint;
     VkBuffer m_indexBuffer;
     VmaAllocation m_indexAllocation;
+    void* m_indexMapPoint;
+    uint16_t m_vertexCount;
 
-    static constexpr VkDeviceSize vertexBufferSize = 1024 * 1024; // 1 MB
-    static constexpr VkDeviceSize indexBufferSize = 1024 * 1024; // 1 MB
+    static constexpr VkDeviceSize vertexBufferSize = 1024 * 128; // 2MB
+    static constexpr VkDeviceSize indexBufferSize = 1024 * 512; // 2MB
 
     VkClearValue m_clearColor = { { 1.0f, 1.0f, 1.0f, 1.0f } };
 };

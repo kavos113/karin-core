@@ -18,7 +18,7 @@ public:
     static VkSurfaceCapabilitiesKHR getSwapCapabilities(VkPhysicalDevice device, VkSurfaceKHR surface);
     static VkExtent2D getSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, int width, int height);
 
-    static VkShaderModule loadShader(VkDevice device, const std::string& filename);
+    static VkShaderModule loadShader(VkDevice device, const unsigned char* code, unsigned int codeSize);
 
     static const std::vector<const char*> VALIDATION_LAYERS;
     static const std::vector<const char*> DEVICE_EXTENSIONS;

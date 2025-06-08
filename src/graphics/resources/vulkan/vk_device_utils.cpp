@@ -78,8 +78,8 @@ int VkDeviceUtils::rateDeviceScore(VkPhysicalDevice device)
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
     VkBool32 hasGraphicsFamily = false;
-    VkBool32 hasPresentFamily = false;
 
+    // TODO: hasPresentFamily (requires a surface)
     for (const auto& queueFamily : queueFamilies)
     {
         if (queueFamily.queueCount == 0)
@@ -90,15 +90,9 @@ int VkDeviceUtils::rateDeviceScore(VkPhysicalDevice device)
         {
             hasGraphicsFamily = true;
         }
-        VkBool32 presentSupport = false;
-        vkGetPhysicalDeviceSurfaceSupportKHR(device, 0, VK_NULL_HANDLE, &presentSupport);
-        if (presentSupport)
-        {
-            hasPresentFamily = true;
-        }
     }
 
-    if (!hasGraphicsFamily || !hasPresentFamily)
+    if (!hasGraphicsFamily)
     {
         return 0;
     }
@@ -211,33 +205,18 @@ VkExtent2D VkDeviceUtils::getSwapExtent(const VkSurfaceCapabilitiesKHR &capabili
     return actualExtent;
 }
 
-VkShaderModule VkDeviceUtils::loadShader(VkDevice device, const std::string &filename)
+VkShaderModule VkDeviceUtils::loadShader(VkDevice device, const unsigned char *code, unsigned int codeSize)
 {
-    std::ifstream file(filename, std::ios::ate | std::ios::binary);
-
-    if (!file.is_open())
-    {
-        throw std::runtime_error("failed to open shader file: " + filename);
-    }
-
-    long fileSize = file.tellg();
-    std::vector<char> buffer(fileSize);
-
-    file.seekg(0);
-    file.read(buffer.data(), fileSize);
-
-    file.close();
-
     VkShaderModuleCreateInfo createInfo = {
         .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
-        .codeSize = buffer.size(),
-        .pCode = reinterpret_cast<const uint32_t*>(buffer.data()),
+        .codeSize = codeSize,
+        .pCode = reinterpret_cast<const uint32_t*>(code),
     };
 
     VkShaderModule shaderModule;
     if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create shader module: " + filename);
+        throw std::runtime_error("failed to create shader module");
     }
 
     return shaderModule;
