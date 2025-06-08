@@ -1,5 +1,6 @@
 #include "vk_graphics_device.h"
 
+#include <X11/Xlib.h>
 #include <vulkan/vulkan_xlib.h>
 #include <algorithm>
 #include <array>
@@ -182,17 +183,17 @@ void VkGraphicsDevice::createLogicalDevice(VkSurfaceKHR surface)
     };
 
     VkPhysicalDeviceFeatures deviceFeatures = {
+        .sampleRateShading = VK_TRUE,
         .samplerAnisotropy = VK_TRUE,
-        .sampleRateShading = VK_TRUE
     };
 
     VkDeviceCreateInfo createInfo = {
         .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
-        .pQueueCreateInfos = queueCreateInfos.data(),
         .queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size()),
-        .pEnabledFeatures = &deviceFeatures,
+        .pQueueCreateInfos = queueCreateInfos.data(),
         .enabledExtensionCount = static_cast<uint32_t>(VkDeviceUtils::DEVICE_EXTENSIONS.size()),
-        .ppEnabledExtensionNames = VkDeviceUtils::DEVICE_EXTENSIONS.data()
+        .ppEnabledExtensionNames = VkDeviceUtils::DEVICE_EXTENSIONS.data(),
+        .pEnabledFeatures = &deviceFeatures,
     };
 
     if (m_enableValidationLayers)
@@ -215,8 +216,8 @@ void VkGraphicsDevice::createCommandPool()
 {
     VkCommandPoolCreateInfo poolInfo = {
         .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+        .flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
         .queueFamilyIndex = m_queueFamilyIndices[QueueFamily::Graphics],
-        .flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT
     };
 
     if (vkCreateCommandPool(m_device, &poolInfo, nullptr, &m_commandPool) != VK_SUCCESS)
@@ -337,19 +338,19 @@ void VkGraphicsDevice::createPipeline()
         .depthClampEnable = VK_FALSE,
         .rasterizerDiscardEnable = VK_FALSE,
         .polygonMode = VK_POLYGON_MODE_FILL,
-        .lineWidth = 1.0f,
         .cullMode = VK_CULL_MODE_BACK_BIT,
         .frontFace = VK_FRONT_FACE_CLOCKWISE,
         .depthBiasEnable = VK_FALSE,
         .depthBiasConstantFactor = 0.0f,
         .depthBiasClamp = 0.0f,
-        .depthBiasSlopeFactor = 0.0f
+        .depthBiasSlopeFactor = 0.0f,
+        .lineWidth = 1.0f,
     };
 
     VkPipelineMultisampleStateCreateInfo multisampling = {
         .sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
-        .sampleShadingEnable = VK_FALSE,
         .rasterizationSamples = VK_SAMPLE_COUNT_1_BIT,
+        .sampleShadingEnable = VK_FALSE,
         .minSampleShading = 1.0f,
         .pSampleMask = nullptr,
         .alphaToCoverageEnable = VK_FALSE,

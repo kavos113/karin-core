@@ -9,18 +9,18 @@ macro(platform_definitions target_name)
     endif ()
 endmacro()
 
-macro(compile_glsl src_file dest_file bin_file target_name shader_target_name)
+macro(compile_glsl src_file dest_file bin_file target_name shader_stage)
     add_custom_command(
             OUTPUT ${dest_file}
-            COMMAND glslc ${src_file} -o ${dest_file}
+            COMMAND glslc -fshader-stage=${shader_stage} ${src_file} -o ${dest_file}
             COMMAND ${CMAKE_COMMAND} -E copy_if_different ${dest_file} ${bin_file}
             DEPENDS ${src_file}
             COMMENT "Compiling shader: ${src_file}"
     )
-    add_custom_target(${shader_target_name} ALL
+    add_custom_target(${target_name}_${shader_stage} ALL
             DEPENDS ${dest_file}
     )
-    add_dependencies(${target_name} ${shader_target_name})
+    add_dependencies(${target_name} ${target_name}_${shader_stage})
 endmacro()
 
 # ----- System modules -----
@@ -74,6 +74,7 @@ elseif (UNIX)
             graphics/resources/vulkan/vk_device_utils.cpp
             graphics/resources/vulkan/vk_surface_impl.cpp
             graphics/graphics/vulkan/vk_renderer_impl.cpp
+            common/vulkan/vma_impl.cpp
     )
 endif ()
 
@@ -93,13 +94,15 @@ elseif (UNIX)
             ${CMAKE_CURRENT_SOURCE_DIR}/graphics/shaders/vert.spv
             ${CMAKE_CURRENT_BINARY_DIR}/shaders/vert.spv
             karin_graphics
-            karin_graphics_vert
+            vert
     )
     compile_glsl(
             ${CMAKE_CURRENT_SOURCE_DIR}/graphics/shaders/frag.glsl
             ${CMAKE_CURRENT_SOURCE_DIR}/graphics/shaders/frag.spv
             ${CMAKE_CURRENT_BINARY_DIR}/shaders/frag.spv
             karin_graphics
-            karin_graphics_frag
+            frag
     )
+
+    target_link_libraries(karin_graphics PRIVATE vulkan)
 endif ()
