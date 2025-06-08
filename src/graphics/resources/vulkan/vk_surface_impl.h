@@ -20,6 +20,15 @@ public:
     void cleanUp() override;
     void present() override;
     void resize(Size size) override;
+    void beforeFrame() override;
+
+    VkViewport viewport() const;
+    VkRect2D scissor() const;
+    uint8_t currentFrame() const;
+    VkFramebuffer currentFramebuffer() const;
+    VkExtent2D extent() const;
+    VkSemaphore swapChainSemaphore() const;
+    VkFence swapChainFence() const;
 
     static constexpr uint32_t MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -29,6 +38,7 @@ private:
     void createImageView();
     void createFramebuffers();
     void createSyncObjects();
+    void createViewport();
 
     VkGraphicsDevice* m_device;
     Window m_window;
@@ -42,11 +52,14 @@ private:
     VkExtent2D m_swapChainExtent = {};
 
     std::vector<VkFramebuffer> m_swapChainFramebuffers;
-    std::vector<VkSemaphore> m_swapchainSemaphores;
-    std::vector<VkFence> m_swapchainFences;
+    std::vector<VkSemaphore> m_swapChainSemaphores;
+    std::vector<VkFence> m_swapChainFences;
 
     VkViewport m_viewport = {};
     VkRect2D m_scissor = {};
+
+    uint8_t m_currentFrame = 0;
+    uint32_t m_imageIndex = 0;
 };
 
 } // karin

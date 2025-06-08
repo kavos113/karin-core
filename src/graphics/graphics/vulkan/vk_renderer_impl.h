@@ -40,6 +40,8 @@ private:
 
     static constexpr VkDeviceSize vertexBufferSize = 1024 * 1024; // 1 MB
     static constexpr VkDeviceSize indexBufferSize = 1024 * 1024; // 1 MB
+
+    VkClearValue m_clearColor = { { 1.0f, 1.0f, 1.0f, 1.0f } };
 };
 
 } // karin

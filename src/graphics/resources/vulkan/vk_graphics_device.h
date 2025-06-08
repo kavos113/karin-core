@@ -40,6 +40,8 @@ public:
     VkRenderPass renderPass() const;
     VkCommandPool commandPool() const;
     VkPipeline graphicsPipeline() const;
+    VkQueue graphicsQueue() const;
+    VkQueue presentQueue() const;
 
 private:
     struct Vertex

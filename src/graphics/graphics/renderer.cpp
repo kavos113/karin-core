@@ -24,7 +24,9 @@ void Renderer::update() const
 {
     m_window->setOnPaint([this]
     {
+        m_surfaceImpl->beforeFrame();
         m_impl->beginDraw();
+
         GraphicsContext context(m_impl.get());
 
         for (const auto &command : m_drawCommands)

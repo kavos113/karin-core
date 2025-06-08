@@ -450,4 +450,14 @@ VkPipeline VkGraphicsDevice::graphicsPipeline() const
 {
     return m_graphicsPipeline;
 }
+
+VkQueue VkGraphicsDevice::graphicsQueue() const
+{
+    return m_graphicsQueue;
+}
+
+VkQueue VkGraphicsDevice::presentQueue() const
+{
+    return m_presentQueue;
+}
 } // karin
