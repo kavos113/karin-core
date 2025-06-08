@@ -21,6 +21,8 @@ public:
     void present() override;
     void resize(Size size) override;
 
+    static constexpr uint32_t MAX_FRAMES_IN_FLIGHT = 2;
+
 private:
     void createSurface();
     void createSwapChain();

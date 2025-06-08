@@ -73,6 +73,7 @@ elseif (UNIX)
             graphics/resources/vulkan/vk_debug_manager.cpp
             graphics/resources/vulkan/vk_device_utils.cpp
             graphics/resources/vulkan/vk_surface_impl.cpp
+            graphics/graphics/vulkan/vk_renderer_impl.cpp
     )
 endif ()
 

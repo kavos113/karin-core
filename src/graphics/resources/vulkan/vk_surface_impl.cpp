@@ -197,8 +197,8 @@ void VkSurfaceImpl::createFramebuffers()
 
 void VkSurfaceImpl::createSyncObjects()
 {
-    m_swapchainSemaphores.resize(m_swapChainImages.size());
-    m_swapchainFences.resize(m_swapChainImages.size());
+    m_swapchainSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+    m_swapchainFences.resize(MAX_FRAMES_IN_FLIGHT);
 
     VkSemaphoreCreateInfo semaphoreInfo = {
         .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
@@ -208,7 +208,7 @@ void VkSurfaceImpl::createSyncObjects()
         .flags = VK_FENCE_CREATE_SIGNALED_BIT,
     };
 
-    for (size_t i = 0; i < m_swapChainImages.size(); i++)
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
     {
         if (vkCreateSemaphore(m_device->device(), &semaphoreInfo, nullptr, &m_swapchainSemaphores[i]) != VK_SUCCESS ||
             vkCreateFence(m_device->device(), &fenceInfo, nullptr, &m_swapchainFences[i]) != VK_SUCCESS)
