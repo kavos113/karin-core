@@ -34,7 +34,7 @@ inline std::unique_ptr<ISurfaceImpl> createSurfaceImpl(GraphicsDevice* device, W
 #ifdef KARIN_PLATFORM_WINDOWS
     return std::make_unique<D2DSurfaceImpl>(dynamic_cast<D2DGraphicsDevice*>(device), static_cast<HWND>(handle.hwnd));
 #elifdef KARIN_PLATFORM_UNIX
-    return std::make_unique<VkSurfaceImpl>(dynamic_cast<VkGraphicsDevice*>(device), handle.window, handle.display);
+    return std::make_unique<VkSurfaceImpl>(dynamic_cast<VkGraphicsDevice*>(device), handle.window, reinterpret_cast<Display *>(handle.display));
 #endif
 
     return nullptr;

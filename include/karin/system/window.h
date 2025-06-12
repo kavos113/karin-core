@@ -32,7 +32,7 @@ public:
         void* hinstance = nullptr;
 
         // X11
-        Display *display = nullptr;
+        void *display = nullptr;
         uint64_t window = 0;
     };
 
