@@ -25,6 +25,11 @@ VkGraphicsDevice::~VkGraphicsDevice()
 
 void VkGraphicsDevice::cleanUp()
 {
+    vkDestroyRenderPass(m_device, m_renderPass, nullptr);
+    vkDestroyPipeline(m_device, m_graphicsPipeline, nullptr);
+    vkDestroyPipelineLayout(m_device, m_pipelineLayout, nullptr);
+    vkDestroyCommandPool(m_device, m_commandPool, nullptr);
+
     vmaDestroyAllocator(m_allocator);
     vkDestroyDevice(m_device, nullptr);
     if (m_enableValidationLayers)

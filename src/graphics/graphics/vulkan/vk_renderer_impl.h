@@ -23,7 +23,7 @@ public:
     void resize(Size size) override;
     void reset() override;
 
-    void addBuffer(std::vector<VkGraphicsDevice::Vertex> vertices, std::vector<uint16_t> indices);
+    void addBuffer(const std::vector<VkGraphicsDevice::Vertex> &vertices, std::vector<uint16_t> &indices);
 
     // pixel coordinates -> normalized coordinates [-1, 1]
     Rectangle normalize(Rectangle rect);
@@ -45,10 +45,13 @@ private:
     VkBuffer m_vertexBuffer;
     VmaAllocation m_vertexAllocation;
     void* m_vertexMapPoint;
+    void* m_vertexStartPoint;
     VkBuffer m_indexBuffer;
     VmaAllocation m_indexAllocation;
     void* m_indexMapPoint;
-    uint16_t m_vertexCount;
+    void* m_indexStartPoint;
+    uint16_t m_vertexOffset;
+    size_t m_indexCount;
 
     static constexpr VkDeviceSize vertexBufferSize = 1024 * 128; // 2MB
     static constexpr VkDeviceSize indexBufferSize = 1024 * 512; // 2MB

@@ -1,6 +1,7 @@
 #include "vk_renderer_impl.h"
 
 #include <cstring>
+#include <iostream>
 
 namespace karin
 {
@@ -18,6 +19,7 @@ VkRendererImpl::VkRendererImpl(VkGraphicsDevice *device, VkSurfaceImpl *surface)
 
 void VkRendererImpl::cleanUp()
 {
+    vkDeviceWaitIdle(m_device->device());
     for (auto &commandBuffer: m_commandBuffers)
     {
         vkFreeCommandBuffers(m_device->device(), m_device->commandPool(), 1, &commandBuffer);
@@ -36,6 +38,11 @@ void VkRendererImpl::cleanUp()
 
 void VkRendererImpl::beginDraw()
 {
+    m_vertexMapPoint = m_vertexStartPoint;
+    m_indexMapPoint = m_indexStartPoint;
+    m_vertexOffset = 0;
+    m_indexCount = 0;
+
     uint8_t currentFrame = m_surface->currentFrame();
 
     vkResetCommandBuffer(m_commandBuffers[currentFrame], 0);
@@ -65,13 +72,6 @@ void VkRendererImpl::beginDraw()
 
     vkCmdBeginRenderPass(m_commandBuffers[currentFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-    vkCmdBindPipeline(m_commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, m_device->graphicsPipeline());
-
-    std::array vertexBuffers = {m_vertexBuffer};
-    std::array<VkDeviceSize, 1> offsets = {0};
-    vkCmdBindVertexBuffers(m_commandBuffers[currentFrame], 0, vertexBuffers.size(), vertexBuffers.data(), offsets.data());
-    vkCmdBindIndexBuffer(m_commandBuffers[currentFrame], m_indexBuffer, 0, VK_INDEX_TYPE_UINT16);
-
     auto viewport = m_surface->viewport();
     vkCmdSetViewport(m_commandBuffers[currentFrame], 0, 1, &viewport);
 
@@ -82,6 +82,15 @@ void VkRendererImpl::beginDraw()
 void VkRendererImpl::endDraw()
 {
     uint8_t currentFrame = m_surface->currentFrame();
+
+    std::array vertexBuffers = {m_vertexBuffer};
+    std::array<VkDeviceSize, 1> offsets = {0};
+    vkCmdBindVertexBuffers(m_commandBuffers[currentFrame], 0, vertexBuffers.size(), vertexBuffers.data(), offsets.data());
+    vkCmdBindIndexBuffer(m_commandBuffers[currentFrame], m_indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+
+    vkCmdBindPipeline(m_commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, m_device->graphicsPipeline());
+
+    vkCmdDrawIndexed(m_commandBuffers[currentFrame], m_indexCount, 1, 0, 0, 0);
 
     vkCmdEndRenderPass(m_commandBuffers[currentFrame]);
 
@@ -119,19 +128,21 @@ void VkRendererImpl::reset()
     vkDeviceWaitIdle(m_device->device());
 }
 
-void VkRendererImpl::addBuffer(std::vector<VkGraphicsDevice::Vertex> vertices, std::vector<uint16_t> indices)
+void VkRendererImpl::addBuffer(const std::vector<VkGraphicsDevice::Vertex> &vertices, std::vector<uint16_t> &indices)
 {
     memcpy(m_vertexMapPoint, vertices.data(), vertices.size() * sizeof(VkGraphicsDevice::Vertex));
     m_vertexMapPoint += vertices.size() * sizeof(VkGraphicsDevice::Vertex);
-    m_vertexCount += static_cast<uint16_t>(vertices.size());
 
     for (uint16_t & index : indices)
     {
-        index += m_vertexCount;
+        index += m_vertexOffset;
     }
 
     memcpy(m_indexMapPoint, indices.data(), indices.size() * sizeof(uint16_t));
     m_indexMapPoint += indices.size() * sizeof(uint16_t);
+    m_indexCount += indices.size();
+
+    m_vertexOffset += static_cast<uint16_t>(vertices.size());
 }
 
 Rectangle VkRendererImpl::normalize(Rectangle rect)
@@ -141,7 +152,7 @@ Rectangle VkRendererImpl::normalize(Rectangle rect)
     return {
         {
             (rect.pos.x / static_cast<float>(extent.width)) * 2.0f - 1.0f,
-            1.0f - (rect.pos.y / static_cast<float>(extent.height)) * 2.0f
+            (rect.pos.y / static_cast<float>(extent.height)) * 2.0f - 1.0f
         },
         {
             (rect.size.width / static_cast<float>(extent.width)) * 2.0f,
@@ -205,6 +216,7 @@ void VkRendererImpl::createVertexBuffer()
     }
 
     m_vertexMapPoint = memoryInfo.pMappedData;
+    m_vertexStartPoint = m_vertexMapPoint;
 }
 
 void VkRendererImpl::createIndexBuffer()
@@ -228,6 +240,7 @@ void VkRendererImpl::createIndexBuffer()
     }
 
     m_indexMapPoint = memoryInfo.pMappedData;
+    m_indexStartPoint = m_indexMapPoint;
 }
 
 VkSemaphore VkRendererImpl::finishQueueSemaphore() const
