@@ -1,5 +1,6 @@
 #include "x11_application_impl.h"
 
+#include <iostream>
 #include <stdexcept>
 
 #include "x11_window_impl.h"
@@ -14,6 +15,9 @@ X11ApplicationImpl::X11ApplicationImpl()
     {
         throw std::runtime_error("Failed to open X11 display");
     }
+
+    XSetErrorHandler(errorHandler);
+    XSynchronize(m_display, True);
 }
 
 X11ApplicationImpl::~X11ApplicationImpl()
@@ -42,4 +46,14 @@ void X11ApplicationImpl::shutdown()
     m_running = false;
 }
 
+int X11ApplicationImpl::errorHandler(Display *display, XErrorEvent *error)
+{
+    char errorText[256];
+    XGetErrorText(display, error->error_code, errorText, sizeof(errorText));
+
+    std::cerr << "X11 Error: " << errorText << " (request code: " << error->request_code
+              << ", minor code: " << error->minor_code << ")" << std::endl;
+
+    return 0;
+}
 } // karin

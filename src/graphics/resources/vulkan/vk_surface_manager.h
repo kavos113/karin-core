@@ -4,8 +4,6 @@
 #include <vulkan/vulkan.h>
 #include <X11/Xlib.h>
 
-#include <karin/common/geometry/size.h>
-
 #include <x11/window.h>
 
 #include "vk_graphics_device.h"
@@ -20,11 +18,12 @@ public:
     ~VkSurfaceManager() = default;
 
     void cleanUp();
-    void resize(Size size);
+    void resize();
 
     uint32_t acquireNextImage(VkSemaphore semaphore);
     void setViewPorts(VkCommandBuffer commandBuffer) const;
-    void present(VkSemaphore waitSemaphore, uint32_t imageIndex) const;
+
+    bool present(VkSemaphore waitSemaphore, uint32_t imageIndex) const;
 
     VkExtent2D extent() const;
     VkFormat format() const;

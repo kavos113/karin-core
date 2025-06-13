@@ -23,7 +23,11 @@ void Renderer::update() const
 {
     m_window->setOnPaint([this]
     {
-        m_impl->beginDraw();
+        bool res = m_impl->beginDraw();
+        if (!res)
+        {
+            return false;
+        }
 
         GraphicsContext context(m_impl.get());
 
@@ -33,11 +37,12 @@ void Renderer::update() const
         }
 
         m_impl->endDraw();
+
+        return true;
     });
 
     m_window->setOnResize([this](Size size)
     {
-        m_impl->reset();
         m_impl->resize(size);
     });
 }

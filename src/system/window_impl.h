@@ -21,7 +21,7 @@ public:
     virtual void setSize(int width, int height) = 0;
     virtual void setRect(int x, int y, int width, int height) = 0;
 
-    virtual void setOnPaint(std::function<void()> onPaint) = 0;
+    virtual void setOnPaint(std::function<bool()> onPaint) = 0;
     virtual void setOnResize(std::function<void(Size)> onResize) = 0;
 
     virtual Window::NativeHandle handle() const = 0;

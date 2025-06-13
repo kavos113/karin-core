@@ -21,10 +21,9 @@ public:
 
     void cleanUp() override;
 
-    void beginDraw() override;
+    bool beginDraw() override;
     void endDraw() override;
     void resize(Size size) override;
-    void reset() override;
 
     void addBuffer(const std::vector<VkPipelineManager::Vertex> &vertices, std::vector<uint16_t> &indices);
 
@@ -37,6 +36,8 @@ private:
     void createIndexBuffer();
     void createRenderPass();
     void createFrameBuffers();
+
+    void doResize();
 
     VkGraphicsDevice* m_device;
     std::unique_ptr<VkSurfaceManager> m_surface;

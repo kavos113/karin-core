@@ -33,7 +33,7 @@ public:
     void setSize(int width, int height) override;
     void setRect(int x, int y, int width, int height) override;
 
-    void setOnPaint(std::function<void()> onPaint) override;
+    void setOnPaint(std::function<bool()> onPaint) override;
     void setOnResize(std::function<void(Size)> onResize) override;
 
     [[nodiscard]] Window::NativeHandle handle() const override;
@@ -47,7 +47,7 @@ private:
     XlibWindow m_window;
     GC m_gc;
 
-    std::function<void()> m_onPaint;
+    std::function<bool()> m_onPaint;
     std::function<void(Size)> m_onResize;
 
     std::function<void()> m_onClose;

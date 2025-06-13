@@ -99,7 +99,7 @@ Rectangle Window::rect() const
     return m_rect;
 }
 
-void Window::setOnPaint(std::function<void()> onPaint)
+void Window::setOnPaint(std::function<bool()> onPaint)
 {
     m_impl->setOnPaint(std::move(onPaint));
 }

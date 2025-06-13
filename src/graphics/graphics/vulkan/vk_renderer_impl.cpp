@@ -66,8 +66,9 @@ void VkRendererImpl::cleanUp()
     m_surface->cleanUp();
 }
 
-void VkRendererImpl::beginDraw()
+bool VkRendererImpl::beginDraw()
 {
+    std::cout << "[Renderer] begin draw" << std::endl;
     m_vertexMapPoint = m_vertexStartPoint;
     m_indexMapPoint = m_indexStartPoint;
     m_vertexOffset = 0;
@@ -75,8 +76,13 @@ void VkRendererImpl::beginDraw()
 
     vkWaitForFences(m_device->device(), 1, &m_swapChainFences[m_currentFrame], VK_TRUE, UINT64_MAX);
     m_imageIndex = m_surface->acquireNextImage(m_swapChainSemaphores[m_currentFrame]);
+    if (m_imageIndex == -1)
+    {
+        doResize();
+        return false;
+    }
     vkResetFences(m_device->device(), 1, &m_swapChainFences[m_currentFrame]);
-    
+
     vkResetCommandBuffer(m_commandBuffers[m_currentFrame], 0);
 
     VkCommandBufferBeginInfo beginInfo = {
@@ -92,7 +98,7 @@ void VkRendererImpl::beginDraw()
     VkRenderPassBeginInfo renderPassInfo = {
         .sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
         .renderPass = m_renderPass,
-        .framebuffer = m_swapChainFramebuffers[m_currentFrame],
+        .framebuffer = m_swapChainFramebuffers[m_imageIndex],
         .renderArea = {
             .offset = {0, 0},
             .extent = m_surface->extent(),
@@ -103,6 +109,8 @@ void VkRendererImpl::beginDraw()
     vkCmdBeginRenderPass(m_commandBuffers[m_currentFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
     m_surface->setViewPorts(m_commandBuffers[m_currentFrame]);
+
+    return true;
 }
 
 void VkRendererImpl::endDraw()
@@ -141,19 +149,17 @@ void VkRendererImpl::endDraw()
         throw std::runtime_error("failed to submit draw command buffer");
     }
 
-    m_surface->present(m_finishQueueSemaphores[m_currentFrame], m_imageIndex);
+    bool ret = m_surface->present(m_finishQueueSemaphores[m_currentFrame], m_imageIndex);
+    if (!ret)
+    {
+        doResize();
+    }
 
     m_currentFrame = (m_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
 void VkRendererImpl::resize(Size size)
 {
-
-}
-
-void VkRendererImpl::reset()
-{
-    vkDeviceWaitIdle(m_device->device());
 }
 
 void VkRendererImpl::addBuffer(const std::vector<VkPipelineManager::Vertex> &vertices, std::vector<uint16_t> &indices)
@@ -354,5 +360,23 @@ void VkRendererImpl::createFrameBuffers()
             throw std::runtime_error("failed to create framebuffer");
         }
     }
+}
+
+void VkRendererImpl::doResize()
+{
+    std::cout << "[Renderer] resize" << std::endl;
+
+    vkDeviceWaitIdle(m_device->device());
+
+    for (const auto & framebuffer : m_swapChainFramebuffers)
+    {
+        vkDestroyFramebuffer(m_device->device(), framebuffer, nullptr);
+    }
+
+    m_surface->resize();
+    m_extent = m_surface->extent();
+    std::cout << "[Renderer] new extent: " << m_extent.width << "x" << m_extent.height << std::endl;
+
+    createFrameBuffers();
 }
 } // karin

@@ -62,7 +62,8 @@ public:
     Size size() const;
     Rectangle rect() const;
 
-    void setOnPaint(std::function<void()> onPaint);
+    // expected to return false if it should redraw
+    void setOnPaint(std::function<bool()> onPaint);
     void setOnResize(std::function<void(Size)> onResize);
 
     static constexpr int DEFAULT_WIDTH = 800;

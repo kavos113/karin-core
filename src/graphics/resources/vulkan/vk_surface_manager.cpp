@@ -2,10 +2,11 @@
 
 #include <vulkan/vulkan_xlib.h>
 #include <array>
+#include <iostream>
 
 #include <graphics/vulkan/vk_renderer_impl.h>
 
-#include "../../../common/vulkan/vk_utils.h"
+#include <vulkan/vk_utils.h>
 
 namespace karin
 {
@@ -43,7 +44,7 @@ void VkSurfaceManager::cleanUp()
     }
 }
 
-void VkSurfaceManager::resize(Size size)
+void VkSurfaceManager::resize()
 {
     for (auto &imageView : m_swapChainImageViews)
     {
@@ -54,6 +55,7 @@ void VkSurfaceManager::resize(Size size)
 
     createSwapChain();
     createImageView();
+    createViewport();
 }
 
 uint32_t VkSurfaceManager::acquireNextImage(VkSemaphore semaphore)
@@ -69,8 +71,8 @@ uint32_t VkSurfaceManager::acquireNextImage(VkSemaphore semaphore)
     );
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
     {
-        // recreate swapchain
-        return imageIndex;
+        std::cout << "[VkSurfaceManager] Swap chain out of date, resizing..." << std::endl;
+        return -1;
     }
     if (result != VK_SUCCESS)
     {
@@ -86,7 +88,7 @@ void VkSurfaceManager::setViewPorts(const VkCommandBuffer commandBuffer) const
     vkCmdSetScissor(commandBuffer, 0, 1, &m_scissor);
 }
 
-void VkSurfaceManager::present(VkSemaphore waitSemaphore, uint32_t imageIndex) const
+bool VkSurfaceManager::present(VkSemaphore waitSemaphore, uint32_t imageIndex) const
 {
     std::array semaphores = {waitSemaphore};
 
@@ -104,12 +106,14 @@ void VkSurfaceManager::present(VkSemaphore waitSemaphore, uint32_t imageIndex) c
     VkResult result = vkQueuePresentKHR(m_device->presentQueue(), &presentInfo);
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
     {
-        // recreate swapchain
+        return false;
     }
-    else if (result != VK_SUCCESS)
+    if (result != VK_SUCCESS)
     {
         throw std::runtime_error("failed to present swap chain image");
     }
+
+    return true;
 }
 
 void VkSurfaceManager::createSurface()

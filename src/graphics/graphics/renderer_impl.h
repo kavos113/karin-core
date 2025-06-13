@@ -12,10 +12,10 @@ public:
 
     virtual void cleanUp() = 0;
 
-    virtual void beginDraw() = 0;
+    // return false if the draw operation should be skipped
+    virtual bool beginDraw() = 0;
     virtual void endDraw() = 0;
     virtual void resize(Size size) = 0;
-    virtual void reset() = 0;
 };
 
 } // karin
