@@ -5,7 +5,7 @@
 #include <string>
 
 #include "vk_functions.h"
-#include "vk_device_utils.h"
+#include "../../../common/vulkan/vk_utils.h"
 
 namespace karin
 {
@@ -48,7 +48,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 
 VkDebugManager::VkDebugManager(VkInstance instance)
 {
-    if (!VkDeviceUtils::checkValidationLayerSupport())
+    if (!VkUtils::checkValidationLayerSupport())
     {
         throw std::runtime_error("validation layers requested, but not available.");
     }
@@ -77,8 +77,8 @@ void VkDebugManager::addDebugSupportToInstance(
     VkDebugUtilsMessengerCreateInfoEXT &debugCreateInfo
 ) const
 {
-    createInfo.enabledLayerCount = static_cast<uint32_t>(VkDeviceUtils::VALIDATION_LAYERS.size());
-    createInfo.ppEnabledLayerNames = VkDeviceUtils::VALIDATION_LAYERS.data();
+    createInfo.enabledLayerCount = static_cast<uint32_t>(VkUtils::VALIDATION_LAYERS.size());
+    createInfo.ppEnabledLayerNames = VkUtils::VALIDATION_LAYERS.data();
 
     debugCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
@@ -92,7 +92,7 @@ void VkDebugManager::addDebugSupportToInstance(
 
 void VkDebugManager::addDebugSupportToDevice(VkDeviceCreateInfo &createInfo) const
 {
-    createInfo.enabledLayerCount = static_cast<uint32_t>(VkDeviceUtils::VALIDATION_LAYERS.size());
-    createInfo.ppEnabledLayerNames = VkDeviceUtils::VALIDATION_LAYERS.data();
+    createInfo.enabledLayerCount = static_cast<uint32_t>(VkUtils::VALIDATION_LAYERS.size());
+    createInfo.ppEnabledLayerNames = VkUtils::VALIDATION_LAYERS.data();
 }
 } // karin

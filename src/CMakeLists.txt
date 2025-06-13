@@ -57,10 +57,11 @@ elseif (UNIX)
     set(GRAPHICS_SOURCE ${GRAPHICS_SOURCE}
             graphics/resources/vulkan/vk_graphics_device.cpp
             graphics/resources/vulkan/vk_debug_manager.cpp
-            graphics/resources/vulkan/vk_device_utils.cpp
+            common/vulkan/vk_utils.cpp
             graphics/resources/vulkan/vk_surface_impl.cpp
             graphics/graphics/vulkan/vk_renderer_impl.cpp
             graphics/graphics/vulkan/vk_graphics_context_impl.cpp
+            graphics/graphics/vulkan/vk_pipeline_manager.cpp
             common/vulkan/vma_impl.cpp
     )
 endif ()

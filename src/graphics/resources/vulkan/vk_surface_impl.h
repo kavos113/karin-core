@@ -12,8 +12,6 @@
 namespace karin
 {
 
-class VkRendererImpl;
-
 class VkSurfaceImpl : public ISurfaceImpl
 {
 public:
@@ -25,31 +23,24 @@ public:
     void resize(Size size) override;
     void beforeFrame() override;
 
-    VkViewport viewport() const;
-    VkRect2D scissor() const;
-    uint8_t currentFrame() const;
-    VkFramebuffer currentFramebuffer() const;
+    uint32_t acquireNextImage(VkSemaphore semaphore);
+    void setViewPorts(VkCommandBuffer commandBuffer) const;
+    void present(VkSemaphore waitSemaphore, uint32_t imageIndex) const;
+
     VkExtent2D extent() const;
-    VkSemaphore swapChainSemaphore() const;
-    VkFence swapChainFence() const;
+    VkFormat format() const;
 
-    void setRendererImpl(VkRendererImpl* rendererImpl);
-
-    static constexpr uint32_t MAX_FRAMES_IN_FLIGHT = 2;
+    std::vector<VkImageView> swapChainImageViews() const;
 
 private:
     void createSurface();
     void createSwapChain();
     void createImageView();
-    void createFramebuffers();
-    void createSyncObjects();
     void createViewport();
 
     VkGraphicsDevice* m_device;
     Window m_window;
     Display* m_display;
-
-    VkRendererImpl* m_rendererImpl;
 
     VkSurfaceKHR m_surface = VK_NULL_HANDLE;
     VkSwapchainKHR m_swapChain = VK_NULL_HANDLE;
@@ -58,15 +49,9 @@ private:
     VkFormat m_swapChainImageFormat = VK_FORMAT_UNDEFINED;
     VkExtent2D m_swapChainExtent = {};
 
-    std::vector<VkFramebuffer> m_swapChainFramebuffers;
-    std::vector<VkSemaphore> m_swapChainSemaphores;
-    std::vector<VkFence> m_swapChainFences;
-
     VkViewport m_viewport = {};
     VkRect2D m_scissor = {};
 
-    uint8_t m_currentFrame = 0;
-    uint32_t m_imageIndex = 0;
 };
 
 } // karin

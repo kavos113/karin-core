@@ -7,7 +7,7 @@
 namespace karin
 {
 
-class VkDeviceUtils
+class VkUtils
 {
 public:
     static bool checkValidationLayerSupport();

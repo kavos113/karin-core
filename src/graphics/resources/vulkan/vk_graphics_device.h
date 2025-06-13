@@ -29,7 +29,6 @@ public:
     ~VkGraphicsDevice() override;
 
     void initDevices(VkSurfaceKHR surface);
-    void initRenderResources(VkFormat swapChainImageFormat);
 
     void cleanUp() override;
 
@@ -38,46 +37,9 @@ public:
     VkDevice device() const;
     VmaAllocator allocator() const;
     uint32_t queueFamilyIndex(QueueFamily family) const;
-    VkRenderPass renderPass() const;
     VkCommandPool commandPool() const;
-    VkPipeline graphicsPipeline() const;
     VkQueue graphicsQueue() const;
     VkQueue presentQueue() const;
-
-    struct Vertex
-    {
-        glm::vec2 pos;
-        glm::vec3 color;
-
-        static VkVertexInputBindingDescription getBindingDescription()
-        {
-            VkVertexInputBindingDescription bindingDescription = {
-                .binding = 0,
-                .stride = sizeof(Vertex),
-                .inputRate = VK_VERTEX_INPUT_RATE_VERTEX
-            };
-            return bindingDescription;
-        }
-
-        static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions()
-        {
-            std::array attributeDescriptions = {
-                VkVertexInputAttributeDescription{
-                    .location = 0,
-                    .binding = 0,
-                    .format = VK_FORMAT_R32G32_SFLOAT,
-                    .offset = offsetof(Vertex, pos)
-                },
-                VkVertexInputAttributeDescription{
-                    .location = 1,
-                    .binding = 0,
-                    .format = VK_FORMAT_R32G32B32_SFLOAT,
-                    .offset = offsetof(Vertex, color)
-                }
-            };
-            return attributeDescriptions;
-        }
-    };
 
 private:
 
@@ -88,8 +50,6 @@ private:
     void createLogicalDevice();
     void getQueueFamily(VkSurfaceKHR surface);
     void createCommandPool();
-    void createRenderPass(VkFormat swapChainImageFormat);
-    void createPipeline();
 
     std::unique_ptr<VkDebugManager> m_debugManager;
 
@@ -103,11 +63,8 @@ private:
     VkQueue m_graphicsQueue = VK_NULL_HANDLE;
     VkQueue m_presentQueue = VK_NULL_HANDLE;
 
-    VkRenderPass m_renderPass = VK_NULL_HANDLE;
     VkCommandPool m_commandPool = VK_NULL_HANDLE;
-
-    VkPipelineLayout m_pipelineLayout = VK_NULL_HANDLE;
-    VkPipeline m_graphicsPipeline = VK_NULL_HANDLE;
+    VkDescriptorPool m_descriptorPool = VK_NULL_HANDLE;
 
     const bool m_enableValidationLayers = true;
 
