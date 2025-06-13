@@ -4,7 +4,8 @@
 #include <vulkan/vulkan.h>
 #include <X11/Xlib.h>
 
-#include <resources/surface_impl.h>
+#include <karin/common/geometry/size.h>
+
 #include <x11/window.h>
 
 #include "vk_graphics_device.h"
@@ -12,14 +13,14 @@
 namespace karin
 {
 
-class VkSurfaceImpl : public ISurfaceImpl
+class VkSurfaceManager
 {
 public:
-    VkSurfaceImpl(VkGraphicsDevice* device, XlibWindow window, Display* display);
-    ~VkSurfaceImpl() override = default;
+    VkSurfaceManager(VkGraphicsDevice* device, XlibWindow window, Display* display);
+    ~VkSurfaceManager() = default;
 
-    void cleanUp() override;
-    void resize(Size size) override;
+    void cleanUp();
+    void resize(Size size);
 
     uint32_t acquireNextImage(VkSemaphore semaphore);
     void setViewPorts(VkCommandBuffer commandBuffer) const;

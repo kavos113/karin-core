@@ -58,7 +58,7 @@ elseif (UNIX)
             graphics/resources/vulkan/vk_graphics_device.cpp
             graphics/resources/vulkan/vk_debug_manager.cpp
             common/vulkan/vk_utils.cpp
-            graphics/resources/vulkan/vk_surface_impl.cpp
+            graphics/resources/vulkan/vk_surface_manager.cpp
             graphics/graphics/vulkan/vk_renderer_impl.cpp
             graphics/graphics/vulkan/vk_graphics_context_impl.cpp
             graphics/graphics/vulkan/vk_pipeline_manager.cpp

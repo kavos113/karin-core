@@ -9,7 +9,7 @@ namespace karin
 VkRendererImpl::VkRendererImpl(VkGraphicsDevice *device, Window window, Display *display)
     : m_device(device)
 {
-    m_surface = std::make_unique<VkSurfaceImpl>(m_device, window, display);
+    m_surface = std::make_unique<VkSurfaceManager>(m_device, window, display);
     m_extent = m_surface->extent();
 
     createCommandBuffers();

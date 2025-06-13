@@ -4,7 +4,7 @@
 #include <graphics/renderer_impl.h>
 
 #include <resources/vulkan/vk_graphics_device.h>
-#include <resources/vulkan/vk_surface_impl.h>
+#include <resources/vulkan/vk_surface_manager.h>
 #include <x11/window.h>
 
 #include <karin/common/geometry/rectangle.h>
@@ -39,7 +39,7 @@ private:
     void createFrameBuffers();
 
     VkGraphicsDevice* m_device;
-    std::unique_ptr<VkSurfaceImpl> m_surface;
+    std::unique_ptr<VkSurfaceManager> m_surface;
     std::unique_ptr<VkPipelineManager> m_pipelineManager;
 
     uint8_t m_currentFrame = 0;
