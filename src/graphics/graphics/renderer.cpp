@@ -9,8 +9,7 @@ namespace karin
 Renderer::Renderer(GraphicsDevice* device, Window* window)
     : m_window(window)
 {
-    m_surfaceImpl = createSurfaceImpl(device, window->handle());
-    m_impl = createRendererImpl(device, m_surfaceImpl.get());
+    m_impl = createRendererImpl(device, window->handle());
 }
 
 Renderer::~Renderer() = default;
@@ -24,7 +23,6 @@ void Renderer::update() const
 {
     m_window->setOnPaint([this]
     {
-        m_surfaceImpl->beforeFrame();
         m_impl->beginDraw();
 
         GraphicsContext context(m_impl.get());
@@ -35,13 +33,11 @@ void Renderer::update() const
         }
 
         m_impl->endDraw();
-        m_surfaceImpl->present();
     });
 
     m_window->setOnResize([this](Size size)
     {
         m_impl->reset();
-        m_surfaceImpl->resize(size);
         m_impl->resize(size);
     });
 }
@@ -49,6 +45,5 @@ void Renderer::update() const
 void Renderer::cleanUp()
 {
     m_impl->cleanUp();
-    m_surfaceImpl->cleanUp();
 }
 } // karin

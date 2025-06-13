@@ -5,6 +5,7 @@
 
 #include <resources/vulkan/vk_graphics_device.h>
 #include <resources/vulkan/vk_surface_impl.h>
+#include <x11/window.h>
 
 #include <karin/common/geometry/rectangle.h>
 
@@ -15,7 +16,7 @@ namespace karin {
 class VkRendererImpl : public IRendererImpl
 {
 public:
-    VkRendererImpl(VkGraphicsDevice* device, VkSurfaceImpl* surface);
+    VkRendererImpl(VkGraphicsDevice* device, XlibWindow window, Display* display);
     ~VkRendererImpl() override = default;
 
     void cleanUp() override;
@@ -38,7 +39,7 @@ private:
     void createFrameBuffers();
 
     VkGraphicsDevice* m_device;
-    VkSurfaceImpl* m_surface;
+    std::unique_ptr<VkSurfaceImpl> m_surface;
     std::unique_ptr<VkPipelineManager> m_pipelineManager;
 
     uint8_t m_currentFrame = 0;

@@ -2,12 +2,16 @@
 
 #include <cstring>
 #include <iostream>
+#include <X11/Xlib.h>
 
 namespace karin
 {
-VkRendererImpl::VkRendererImpl(VkGraphicsDevice *device, VkSurfaceImpl *surface)
-    : m_device(device), m_surface(surface), m_extent(m_surface->extent())
+VkRendererImpl::VkRendererImpl(VkGraphicsDevice *device, Window window, Display *display)
+    : m_device(device)
 {
+    m_surface = std::make_unique<VkSurfaceImpl>(m_device, window, display);
+    m_extent = m_surface->extent();
+
     createCommandBuffers();
     createSyncObjects();
     createRenderPass();
@@ -58,6 +62,8 @@ void VkRendererImpl::cleanUp()
 
     m_pipelineManager->cleanUp(m_device->device());
     vkDestroyRenderPass(m_device->device(), m_renderPass, nullptr);
+
+    m_surface->cleanUp();
 }
 
 void VkRendererImpl::beginDraw()

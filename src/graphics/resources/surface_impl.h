@@ -11,9 +11,7 @@ public:
     virtual ~ISurfaceImpl() = default;
 
     virtual void cleanUp() = 0;
-    virtual void present() = 0;
     virtual void resize(Size size) = 0;
-    virtual void beforeFrame() = 0;
 };
 
 } // karin

@@ -12,7 +12,6 @@
 namespace karin
 {
 
-class ISurfaceImpl;
 class IRendererImpl;
 
 /**
@@ -52,7 +51,6 @@ private:
     std::vector<std::function<void(GraphicsContext&)>> m_drawCommands;
 
     std::unique_ptr<IRendererImpl> m_impl;
-    std::unique_ptr<ISurfaceImpl> m_surfaceImpl;
 };
 
 } // karin

@@ -19,9 +19,7 @@ public:
     ~VkSurfaceImpl() override = default;
 
     void cleanUp() override;
-    void present() override;
     void resize(Size size) override;
-    void beforeFrame() override;
 
     uint32_t acquireNextImage(VkSemaphore semaphore);
     void setViewPorts(VkCommandBuffer commandBuffer) const;

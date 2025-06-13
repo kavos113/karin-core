@@ -43,10 +43,6 @@ void VkSurfaceImpl::cleanUp()
     }
 }
 
-void VkSurfaceImpl::present()
-{
-}
-
 void VkSurfaceImpl::resize(Size size)
 {
     for (auto &imageView : m_swapChainImageViews)
@@ -58,11 +54,6 @@ void VkSurfaceImpl::resize(Size size)
 
     createSwapChain();
     createImageView();
-}
-
-void VkSurfaceImpl::beforeFrame()
-{
-
 }
 
 uint32_t VkSurfaceImpl::acquireNextImage(VkSemaphore semaphore)
