@@ -7,7 +7,6 @@
 
 #ifdef KARIN_PLATFORM_WINDOWS
 #include "d2d/d2d_graphics_device.h"
-#include "d2d/d2d_surface_impl.h"
 #elifdef KARIN_PLATFORM_UNIX
 #include "vulkan/vk_graphics_device.h"
 #include "vulkan/vk_surface_manager.h"

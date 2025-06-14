@@ -4,9 +4,11 @@
 
 namespace karin
 {
-D2DRendererImpl::D2DRendererImpl(D2DGraphicsDevice *device, D2DSurfaceImpl *surface)
-    : m_device(device), m_surface(surface)
+D2DRendererImpl::D2DRendererImpl(D2DGraphicsDevice* device, HWND hwnd)
+    : m_device(device)
 {
+    m_surface = std::make_unique<D2DSurfaceManager>(device, hwnd);
+
     if (FAILED(m_device->device()->CreateDeviceContext(
         D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &m_deviceContext)))
     {
@@ -39,10 +41,12 @@ void D2DRendererImpl::cleanUp()
     m_device = nullptr;
 }
 
-void D2DRendererImpl::beginDraw()
+bool D2DRendererImpl::beginDraw()
 {
     m_deviceContext->BeginDraw();
     m_deviceContext->Clear(m_clearColor);
+
+    return true;
 }
 
 void D2DRendererImpl::endDraw()
@@ -51,16 +55,15 @@ void D2DRendererImpl::endDraw()
     {
         throw std::runtime_error("Failed to end D2D drawing");
     }
+
+    m_surface->present();
 }
 
 void D2DRendererImpl::resize(Size size)
 {
-    setTargetBitmap();
-}
-
-void D2DRendererImpl::reset()
-{
     m_deviceContext->SetTarget(nullptr);
+    m_surface->resize(size);
+    setTargetBitmap();
 }
 
 Microsoft::WRL::ComPtr<ID2D1DeviceContext> D2DRendererImpl::deviceContext() const

@@ -48,7 +48,7 @@ set(GRAPHICS_SOURCE
 if (WIN32)
     set(GRAPHICS_SOURCE ${GRAPHICS_SOURCE}
             graphics/resources/d2d/d2d_graphics_device.cpp
-            graphics/resources/d2d/d2d_surface_impl.cpp
+            graphics/resources/d2d/d2d_surface_manager.cpp
             graphics/graphics/d2d/d2d_renderer_impl.cpp
             graphics/graphics/d2d/d2d_graphics_context_impl.cpp
             graphics/graphics/d2d/d2d_device_resources.cpp

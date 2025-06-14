@@ -28,7 +28,7 @@ namespace karin
 inline std::unique_ptr<IRendererImpl> createRendererImpl(GraphicsDevice* device, Window::NativeHandle handle)
 {
 #ifdef KARIN_PLATFORM_WINDOWS
-    return std::make_unique<D2DRendererImpl>(dynamic_cast<D2DGraphicsDevice*>(device), dynamic_cast<D2DSurfaceImpl*>(surface));
+    return std::make_unique<D2DRendererImpl>(dynamic_cast<D2DGraphicsDevice*>(device), static_cast<HWND>(handle.hwnd));
 #elifdef KARIN_PLATFORM_UNIX
     return std::make_unique<VkRendererImpl>(dynamic_cast<VkGraphicsDevice*>(device), handle.window, reinterpret_cast<Display*>(handle.display));
 #endif

@@ -1,24 +1,24 @@
-#include "d2d_surface_impl.h"
+#include "d2d_surface_manager.h"
 
 #include <iostream>
 #include <stdexcept>
 
 namespace karin
 {
-D2DSurfaceImpl::D2DSurfaceImpl(D2DGraphicsDevice *device, HWND hwnd)
+D2DSurfaceManager::D2DSurfaceManager(D2DGraphicsDevice *device, HWND hwnd)
     : m_device(device), m_hwnd(hwnd)
 {
     createSwapChain();
     acquireBackBuffer();
 }
 
-void D2DSurfaceImpl::cleanUp()
+void D2DSurfaceManager::cleanUp()
 {
     m_backBuffer.Reset();
     m_swapChain.Reset();
 }
 
-void D2DSurfaceImpl::present()
+void D2DSurfaceManager::present()
 {
     if (FAILED(m_swapChain->Present(1, 0)))
     {
@@ -26,7 +26,7 @@ void D2DSurfaceImpl::present()
     }
 }
 
-void D2DSurfaceImpl::resize(Size size)
+void D2DSurfaceManager::resize(Size size)
 {
     m_backBuffer.Reset();
 
@@ -43,7 +43,7 @@ void D2DSurfaceImpl::resize(Size size)
     acquireBackBuffer();
 }
 
-void D2DSurfaceImpl::createSwapChain()
+void D2DSurfaceManager::createSwapChain()
 {
     RECT rect;
     if (!GetClientRect(m_hwnd, &rect))
@@ -88,7 +88,7 @@ void D2DSurfaceImpl::createSwapChain()
     }
 }
 
-void D2DSurfaceImpl::acquireBackBuffer()
+void D2DSurfaceManager::acquireBackBuffer()
 {
     m_backBuffer.Reset();
     if (FAILED(m_swapChain->GetBuffer(0, IID_PPV_ARGS(&m_backBuffer))))

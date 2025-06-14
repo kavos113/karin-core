@@ -4,22 +4,21 @@
 #include <wrl.h>
 #include <dxgi1_6.h>
 
-#include <resources/surface_impl.h>
+#include <karin/common/geometry/size.h>
 
 #include "d2d_graphics_device.h"
 
 namespace karin {
 
-class D2DSurfaceImpl : public ISurfaceImpl
+class D2DSurfaceManager
 {
 public:
-    D2DSurfaceImpl(D2DGraphicsDevice* device, HWND hwnd);
-    ~D2DSurfaceImpl() override = default;
+    D2DSurfaceManager(D2DGraphicsDevice* device, HWND hwnd);
+    ~D2DSurfaceManager() = default;
 
-    void cleanUp() override;
-    void present() override;
-    void resize(Size size) override;
-    void beforeFrame() override {}
+    void cleanUp();
+    void present();
+    void resize(Size size);
 
     Microsoft::WRL::ComPtr<IDXGISurface> backBuffer() const
     {

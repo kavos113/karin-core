@@ -195,7 +195,7 @@ Window::NativeHandle WinWindowImpl::handle() const
     };
 }
 
-void WinWindowImpl::setOnPaint(std::function<void()> onPaint)
+void WinWindowImpl::setOnPaint(std::function<bool()> onPaint)
 {
     m_onPaint = std::move(onPaint);
 }

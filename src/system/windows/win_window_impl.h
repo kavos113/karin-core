@@ -33,7 +33,7 @@ public:
     void setSize(int width, int height) override;
     void setRect(int x, int y, int width, int height) override;
 
-    void setOnPaint(std::function<void()> onPaint) override;
+    void setOnPaint(std::function<bool()> onPaint) override;
     void setOnResize(std::function<void(Size)> onResize) override;
 
     [[nodiscard]] Window::NativeHandle handle() const override;
