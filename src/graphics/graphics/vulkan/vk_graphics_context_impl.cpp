@@ -1,6 +1,7 @@
 #include "vk_graphics_context_impl.h"
 
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <stdexcept>
 
 #include "vk_pipeline_manager.h"
@@ -19,16 +20,16 @@ void VkGraphicsContextImpl::fillRect(Rectangle rect, Pattern *pattern)
 
     std::vector<VkPipelineManager::Vertex> vertices = {
         {
-            {normalizedRect.pos.x, normalizedRect.pos.y},
+            .pos = {normalizedRect.pos.x, normalizedRect.pos.y},
         },
         {
-            {normalizedRect.pos.x + normalizedRect.size.width, normalizedRect.pos.y},
+            .pos = {normalizedRect.pos.x + normalizedRect.size.width, normalizedRect.pos.y},
         },
         {
-            {normalizedRect.pos.x + normalizedRect.size.width, normalizedRect.pos.y + normalizedRect.size.height},
+            .pos = {normalizedRect.pos.x + normalizedRect.size.width, normalizedRect.pos.y + normalizedRect.size.height},
         },
         {
-            {normalizedRect.pos.x, normalizedRect.pos.y + normalizedRect.size.height},
+            .pos = {normalizedRect.pos.x, normalizedRect.pos.y + normalizedRect.size.height},
         }
     };
 
@@ -42,10 +43,46 @@ void VkGraphicsContextImpl::fillRect(Rectangle rect, Pattern *pattern)
         throw std::runtime_error("VkGraphicsContextImpl::fillRect: pattern must be SolidColorPattern");
     }
     Color color = solidColorPattern->color();
-    VkPipelineManager::ColorData colorData = {
+    VkPipelineManager::FragPushConstantData fragData = {
         glm::vec4(color.r, color.g, color.b, color.a)
     };
 
-    m_renderer->addCommand(vertices, indices, colorData);
+    VkPipelineManager::VertPushConstantData vertData = {
+        .normalize = glm::ortho(normalizedRect.pos.x, normalizedRect.pos.y,
+                                normalizedRect.pos.x + normalizedRect.size.width,
+                                normalizedRect.pos.y + normalizedRect.size.height)
+    };
+
+    m_renderer->addCommand(vertices, indices, vertData, fragData);
+}
+
+void VkGraphicsContextImpl::fillEllipse(Point center, float radiusX, float radiusY, Pattern *pattern)
+{
+}
+
+void VkGraphicsContextImpl::fillRoundedRect(Rectangle rect, float radiusX, float radiusY, Pattern *pattern)
+{
+}
+
+void VkGraphicsContextImpl::drawLine(Point start, Point end, Pattern *pattern, float strokeWidth)
+{
+}
+
+void VkGraphicsContextImpl::drawRect(Rectangle rect, Pattern *pattern, float strokeWidth)
+{
+}
+
+void VkGraphicsContextImpl::drawEllipse(Point center, float radiusX, float radiusY, Pattern *pattern, float strokeWidth)
+{
+}
+
+void VkGraphicsContextImpl::drawRoundedRect(
+    Rectangle rect,
+    float radiusX,
+    float radiusY,
+    Pattern *pattern,
+    float strokeWidth
+)
+{
 }
 } // karin

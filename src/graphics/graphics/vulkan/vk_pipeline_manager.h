@@ -13,14 +13,28 @@ public:
     VkPipelineManager(VkDevice device, VkRenderPass renderPass);
     ~VkPipelineManager();
 
-    struct ColorData
+    enum class ShapeType : uint32_t
+    {
+        Nothing = 0,
+        Ellipse = 1,
+        RoundedRectangle = 2,
+    };
+
+    struct VertPushConstantData
+    {
+        glm::mat4 normalize;
+    };
+
+    struct FragPushConstantData
     {
         glm::vec4 color;
+        glm::vec3 shapeParams;
+        ShapeType shapeType = ShapeType::Nothing;
     };
 
 
     void cleanUp(VkDevice device);
-    void bindColorData(VkCommandBuffer commandBuffer, ColorData colorData) const;
+    void bindData(VkCommandBuffer commandBuffer, FragPushConstantData fragData, VertPushConstantData vertData) const;
 
     VkPipeline graphicsPipeline() const;
 

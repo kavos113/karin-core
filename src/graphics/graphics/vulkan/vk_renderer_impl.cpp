@@ -123,7 +123,7 @@ void VkRendererImpl::endDraw()
 
     for (const auto & command : m_drawCommands)
     {
-        m_pipelineManager->bindColorData(m_commandBuffers[m_currentFrame], command.colorData);
+        m_pipelineManager->bindData(m_commandBuffers[m_currentFrame], command.fragData, command.vertData);
         vkCmdDrawIndexed(m_commandBuffers[m_currentFrame], command.indexCount, 1, command.indexOffset, 0, 0);
     }
 
@@ -174,7 +174,12 @@ void VkRendererImpl::setClearColor(const Color &color)
     };
 }
 
-void VkRendererImpl::addCommand(const std::vector<VkPipelineManager::Vertex> &vertices, std::vector<uint16_t> &indices, VkPipelineManager::ColorData colorData)
+void VkRendererImpl::addCommand(
+    const std::vector<VkPipelineManager::Vertex> &vertices,
+    std::vector<uint16_t> &indices,
+    const VkPipelineManager::VertPushConstantData &vertData,
+    const VkPipelineManager::FragPushConstantData &fragData
+)
 {
     memcpy(m_vertexMapPoint, vertices.data(), vertices.size() * sizeof(VkPipelineManager::Vertex));
     m_vertexMapPoint += vertices.size() * sizeof(VkPipelineManager::Vertex);
@@ -193,7 +198,8 @@ void VkRendererImpl::addCommand(const std::vector<VkPipelineManager::Vertex> &ve
     m_drawCommands.push_back({
         .indexCount = static_cast<uint32_t>(indices.size()),
         .indexOffset = static_cast<uint32_t>(m_indexCount - indices.size()),
-        .colorData = colorData
+        .vertData = vertData,
+        .fragData = fragData
     });
 }
 

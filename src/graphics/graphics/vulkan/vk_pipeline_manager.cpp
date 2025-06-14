@@ -15,9 +15,10 @@ VkPipelineManager::VkPipelineManager(VkDevice device, VkRenderPass renderPass)
 VkPipelineManager::~VkPipelineManager()
 = default;
 
-void VkPipelineManager::bindColorData(VkCommandBuffer commandBuffer, ColorData colorData) const
+void VkPipelineManager::bindData(VkCommandBuffer commandBuffer, FragPushConstantData fragData, VertPushConstantData vertData) const
 {
-    vkCmdPushConstants(commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(ColorData), &colorData);
+    vkCmdPushConstants(commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(VertPushConstantData), &vertData);
+    vkCmdPushConstants(commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, sizeof(VertPushConstantData), sizeof(FragPushConstantData), &fragData);
 }
 
 VkPipeline VkPipelineManager::graphicsPipeline() const
@@ -136,18 +137,25 @@ void VkPipelineManager::createPipeline(VkDevice device, VkRenderPass renderPass)
         .pAttachments = &colorBlendAttachment
     };
 
-    VkPushConstantRange pushConstantRange = {
-        .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
-        .offset = 0,
-        .size = sizeof(ColorData)
+    std::array pushConstantRanges = {
+        VkPushConstantRange{
+            .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
+            .offset = 0,
+            .size = sizeof(VertPushConstantData)
+        },
+        VkPushConstantRange{
+            .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
+            .offset = sizeof(VertPushConstantData),
+            .size = sizeof(FragPushConstantData)
+        }
     };
 
     VkPipelineLayoutCreateInfo layoutCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
         .setLayoutCount = 0,
         .pSetLayouts = nullptr,
-        .pushConstantRangeCount = 1,
-        .pPushConstantRanges = &pushConstantRange
+        .pushConstantRangeCount = static_cast<uint32_t>(pushConstantRanges.size()),
+        .pPushConstantRanges = pushConstantRanges.data()
     };
     if (vkCreatePipelineLayout(device, &layoutCreateInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS)
     {
