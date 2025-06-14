@@ -68,7 +68,6 @@ void VkRendererImpl::cleanUp()
 
 bool VkRendererImpl::beginDraw()
 {
-    std::cout << "[Renderer] begin draw" << std::endl;
     m_vertexMapPoint = m_vertexStartPoint;
     m_indexMapPoint = m_indexStartPoint;
     m_vertexOffset = 0;
@@ -132,7 +131,7 @@ void VkRendererImpl::endDraw()
     }
 
     std::array semaphores = {m_swapChainSemaphores[m_currentFrame]};
-    std::array signalSemaphores = {m_finishQueueSemaphores[m_currentFrame]};
+    std::array signalSemaphores = {m_finishQueueSemaphores[m_imageIndex]};
     std::array<VkPipelineStageFlags, 1> waitStages = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
     VkSubmitInfo submitInfo = {
         .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
@@ -149,7 +148,7 @@ void VkRendererImpl::endDraw()
         throw std::runtime_error("failed to submit draw command buffer");
     }
 
-    bool ret = m_surface->present(m_finishQueueSemaphores[m_currentFrame], m_imageIndex);
+    bool ret = m_surface->present(m_finishQueueSemaphores[m_imageIndex], m_imageIndex);
     if (!ret)
     {
         doResize();
@@ -215,7 +214,7 @@ void VkRendererImpl::createCommandBuffers()
 void VkRendererImpl::createSyncObjects()
 {
     m_swapChainSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-    m_finishQueueSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+    m_finishQueueSemaphores.resize(m_surface->imageCount());
     m_swapChainFences.resize(MAX_FRAMES_IN_FLIGHT);
 
     VkSemaphoreCreateInfo semaphoreInfo = {
@@ -229,10 +228,17 @@ void VkRendererImpl::createSyncObjects()
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
     {
         if (vkCreateSemaphore(m_device->device(), &semaphoreInfo, nullptr, &m_swapChainSemaphores[i]) != VK_SUCCESS ||
-            vkCreateSemaphore(m_device->device(), &semaphoreInfo, nullptr, &m_finishQueueSemaphores[i]) != VK_SUCCESS ||
             vkCreateFence(m_device->device(), &fenceInfo, nullptr, &m_swapChainFences[i]) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create swap chain sync objects");
+        }
+    }
+
+    for (size_t i = 0; i < m_surface->imageCount(); i++)
+    {
+        if (vkCreateSemaphore(m_device->device(), &semaphoreInfo, nullptr, &m_finishQueueSemaphores[i]) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to create finish queue semaphore");
         }
     }
 }
@@ -364,8 +370,6 @@ void VkRendererImpl::createFrameBuffers()
 
 void VkRendererImpl::doResize()
 {
-    std::cout << "[Renderer] resize" << std::endl;
-
     vkDeviceWaitIdle(m_device->device());
 
     for (const auto & framebuffer : m_swapChainFramebuffers)
@@ -375,7 +379,6 @@ void VkRendererImpl::doResize()
 
     m_surface->resize();
     m_extent = m_surface->extent();
-    std::cout << "[Renderer] new extent: " << m_extent.width << "x" << m_extent.height << std::endl;
 
     createFrameBuffers();
 }

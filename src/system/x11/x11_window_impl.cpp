@@ -146,7 +146,6 @@ void X11WindowImpl::handleEvent(const XEvent &event)
     switch (event.type)
     {
         case Expose:
-            std::cout << "[X11WindowImpl] Expose event received: " << event.xexpose.count << std::endl;
             std::call_once(m_applyStatusFlag, &X11WindowImpl::applyStatus, this);
             if (m_onPaint)
             {

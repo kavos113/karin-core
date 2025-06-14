@@ -27,6 +27,7 @@ public:
 
     VkExtent2D extent() const;
     VkFormat format() const;
+    uint32_t imageCount() const;
 
     std::vector<VkImageView> swapChainImageViews() const;
 

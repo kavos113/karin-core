@@ -69,12 +69,12 @@ uint32_t VkSurfaceManager::acquireNextImage(VkSemaphore semaphore)
         VK_NULL_HANDLE,
         &imageIndex
     );
-    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
+    if (result == VK_ERROR_OUT_OF_DATE_KHR)
     {
         std::cout << "[VkSurfaceManager] Swap chain out of date, resizing..." << std::endl;
         return -1;
     }
-    if (result != VK_SUCCESS)
+    if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
     {
         throw std::runtime_error("failed to acquire next image from swap chain");
     }
@@ -257,5 +257,10 @@ std::vector<VkImageView> VkSurfaceManager::swapChainImageViews() const
 VkFormat VkSurfaceManager::format() const
 {
     return m_swapChainImageFormat;
+}
+
+uint32_t VkSurfaceManager::imageCount() const
+{
+    return static_cast<uint32_t>(m_swapChainImages.size());
 }
 } // karin
