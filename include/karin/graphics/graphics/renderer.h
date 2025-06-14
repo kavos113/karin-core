@@ -6,6 +6,7 @@
 
 #include <karin/graphics/resources/graphics_device.h>
 #include <karin/system/window.h>
+#include <karin/common/color/color.h>
 
 #include "graphics_context.h"
 
@@ -42,6 +43,7 @@ public:
      */
     void addDrawCommand(std::function<void(GraphicsContext&)> command);
     void update() const;
+    void setClearColor(const Color& color);
 
     void cleanUp();
 

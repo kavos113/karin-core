@@ -165,6 +165,15 @@ void VkRendererImpl::resize(Size size)
 {
 }
 
+void VkRendererImpl::setClearColor(const Color &color)
+{
+    m_clearColor = {
+        .color = {
+            .float32 = {color.r, color.g, color.b, color.a}
+        }
+    };
+}
+
 void VkRendererImpl::addCommand(const std::vector<VkPipelineManager::Vertex> &vertices, std::vector<uint16_t> &indices, VkPipelineManager::ColorData colorData)
 {
     memcpy(m_vertexMapPoint, vertices.data(), vertices.size() * sizeof(VkPipelineManager::Vertex));

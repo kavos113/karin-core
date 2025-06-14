@@ -2,6 +2,8 @@
 
 #include <stdexcept>
 
+#include <color/d2d_color.h>
+
 namespace karin
 {
 D2DRendererImpl::D2DRendererImpl(D2DGraphicsDevice* device, HWND hwnd)
@@ -64,6 +66,11 @@ void D2DRendererImpl::resize(Size size)
     m_deviceContext->SetTarget(nullptr);
     m_surface->resize(size);
     setTargetBitmap();
+}
+
+void D2DRendererImpl::setClearColor(const Color& color)
+{
+    m_clearColor = toD2DColor(color);
 }
 
 Microsoft::WRL::ComPtr<ID2D1DeviceContext> D2DRendererImpl::deviceContext() const

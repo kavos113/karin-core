@@ -51,4 +51,9 @@ void Renderer::cleanUp()
 {
     m_impl->cleanUp();
 }
+
+void Renderer::setClearColor(const Color &color)
+{
+    m_impl->setClearColor(color);
+}
 } // karin

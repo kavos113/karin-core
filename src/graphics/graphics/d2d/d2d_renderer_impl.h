@@ -22,6 +22,7 @@ public:
     bool beginDraw() override;
     void endDraw() override;
     void resize(Size size) override;
+    void setClearColor(const Color& color) override;
 
     [[nodiscard]] Microsoft::WRL::ComPtr<ID2D1DeviceContext> deviceContext() const;
     [[nodiscard]] D2DDeviceResources* deviceResources() const;
@@ -37,7 +38,7 @@ private:
 
     Microsoft::WRL::ComPtr<ID2D1DeviceContext> m_deviceContext;
 
-    const D2D1_COLOR_F m_clearColor = D2D1::ColorF(D2D1::ColorF::Chartreuse);
+    const D2D1_COLOR_F m_clearColor = D2D1::ColorF(D2D1::ColorF::White);
 
     static constexpr float DEFAULT_DPI = 96.0f; // Default DPI for D2D
     const D2D1_BITMAP_PROPERTIES1 bitmapProperties = D2D1::BitmapProperties1(

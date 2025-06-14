@@ -24,6 +24,7 @@ public:
     bool beginDraw() override;
     void endDraw() override;
     void resize(Size size) override;
+    void setClearColor(const Color &color) override;
 
     void addCommand(const std::vector<VkPipelineManager::Vertex> &vertices, std::vector<uint16_t> &indices, VkPipelineManager::ColorData colorData);
 
