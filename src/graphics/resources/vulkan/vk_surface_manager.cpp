@@ -1,15 +1,16 @@
-#include "vk_surface_impl.h"
+#include "vk_surface_manager.h"
 
 #include <vulkan/vulkan_xlib.h>
 #include <array>
+#include <iostream>
 
 #include <graphics/vulkan/vk_renderer_impl.h>
 
-#include "vk_device_utils.h"
+#include <vulkan/vk_utils.h>
 
 namespace karin
 {
-VkSurfaceImpl::VkSurfaceImpl(VkGraphicsDevice *device, XlibWindow window, Display *display)
+VkSurfaceManager::VkSurfaceManager(VkGraphicsDevice *device, XlibWindow window, Display *display)
     : m_device(device), m_window(window), m_display(display)
 {
     createSurface();
@@ -18,31 +19,12 @@ VkSurfaceImpl::VkSurfaceImpl(VkGraphicsDevice *device, XlibWindow window, Displa
 
     createSwapChain();
 
-    m_device->initRenderResources(m_swapChainImageFormat);
-
     createImageView();
-    createFramebuffers();
-    createSyncObjects();
     createViewport();
 }
 
-void VkSurfaceImpl::cleanUp()
+void VkSurfaceManager::cleanUp()
 {
-    for (auto &semafore : m_swapChainSemaphores)
-    {
-        vkDestroySemaphore(m_device->device(), semafore, nullptr);
-    }
-
-    for (auto &fence : m_swapChainFences)
-    {
-        vkDestroyFence(m_device->device(), fence, nullptr);
-    }
-
-    for (auto &framebuffer : m_swapChainFramebuffers)
-    {
-        vkDestroyFramebuffer(m_device->device(), framebuffer, nullptr);
-    }
-
     for (auto &imageView : m_swapChainImageViews)
     {
         vkDestroyImageView(m_device->device(), imageView, nullptr);
@@ -62,42 +44,8 @@ void VkSurfaceImpl::cleanUp()
     }
 }
 
-void VkSurfaceImpl::present()
+void VkSurfaceManager::resize()
 {
-    VkSemaphore waitSemaphore = m_rendererImpl->finishQueueSemaphore();
-    std::array semaphores = {waitSemaphore};
-
-    std::array swapChains = { m_swapChain };
-    VkPresentInfoKHR presentInfo = {
-        .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-        .waitSemaphoreCount = semaphores.size(),
-        .pWaitSemaphores = semaphores.data(),
-        .swapchainCount = static_cast<uint32_t>(swapChains.size()),
-        .pSwapchains = swapChains.data(),
-        .pImageIndices = &m_imageIndex,
-        .pResults = nullptr
-    };
-
-    VkResult result = vkQueuePresentKHR(m_device->presentQueue(), &presentInfo);
-    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
-    {
-        // recreate swapchain
-    }
-    else if (result != VK_SUCCESS)
-    {
-        throw std::runtime_error("failed to present swap chain image");
-    }
-
-    m_currentFrame = (m_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
-}
-
-void VkSurfaceImpl::resize(Size size)
-{
-    for (auto &framebuffer : m_swapChainFramebuffers)
-    {
-        vkDestroyFramebuffer(m_device->device(), framebuffer, nullptr);
-    }
-
     for (auto &imageView : m_swapChainImageViews)
     {
         vkDestroyImageView(m_device->device(), imageView, nullptr);
@@ -107,35 +55,68 @@ void VkSurfaceImpl::resize(Size size)
 
     createSwapChain();
     createImageView();
-    createFramebuffers();
+    createViewport();
 }
 
-void VkSurfaceImpl::beforeFrame()
+uint32_t VkSurfaceManager::acquireNextImage(VkSemaphore semaphore)
 {
-    vkWaitForFences(m_device->device(), 1, &m_swapChainFences[m_currentFrame], VK_TRUE, UINT64_MAX);
-
+    uint32_t imageIndex = 0;
     VkResult result = vkAcquireNextImageKHR(
         m_device->device(),
         m_swapChain,
         UINT64_MAX,
-        m_swapChainSemaphores[m_currentFrame],
+        semaphore,
         VK_NULL_HANDLE,
-        &m_imageIndex
+        &imageIndex
     );
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
     {
-        // recreate swapchain
-        return;
+        std::cout << "[VkSurfaceManager] Swap chain out of date, resizing..." << std::endl;
+        return -1;
     }
     if (result != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to acquire swap chain image");
+        throw std::runtime_error("failed to acquire next image from swap chain");
     }
 
-    vkResetFences(m_device->device(), 1, &m_swapChainFences[m_currentFrame]);
+    return imageIndex;
 }
 
-void VkSurfaceImpl::createSurface()
+void VkSurfaceManager::setViewPorts(const VkCommandBuffer commandBuffer) const
+{
+    vkCmdSetViewport(commandBuffer, 0, 1, &m_viewport);
+    vkCmdSetScissor(commandBuffer, 0, 1, &m_scissor);
+}
+
+bool VkSurfaceManager::present(VkSemaphore waitSemaphore, uint32_t imageIndex) const
+{
+    std::array semaphores = {waitSemaphore};
+
+    std::array swapChains = { m_swapChain };
+    VkPresentInfoKHR presentInfo = {
+        .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+        .waitSemaphoreCount = semaphores.size(),
+        .pWaitSemaphores = semaphores.data(),
+        .swapchainCount = static_cast<uint32_t>(swapChains.size()),
+        .pSwapchains = swapChains.data(),
+        .pImageIndices = &imageIndex,
+        .pResults = nullptr
+    };
+
+    VkResult result = vkQueuePresentKHR(m_device->presentQueue(), &presentInfo);
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
+    {
+        return false;
+    }
+    if (result != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to present swap chain image");
+    }
+
+    return true;
+}
+
+void VkSurfaceManager::createSurface()
 {
     VkXlibSurfaceCreateInfoKHR createInfo = {
         .sType = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR,
@@ -149,15 +130,15 @@ void VkSurfaceImpl::createSurface()
     }
 }
 
-void VkSurfaceImpl::createSwapChain()
+void VkSurfaceManager::createSwapChain()
 {
-    VkSurfaceFormatKHR surfaceFormat = VkDeviceUtils::getBestSwapSurfaceFormat(m_device->physicalDevice(), m_surface);
-    VkPresentModeKHR presentMode = VkDeviceUtils::getBestSwapPresentMode(m_device->physicalDevice(), m_surface);
-    VkSurfaceCapabilitiesKHR capabilities = VkDeviceUtils::getSwapCapabilities(m_device->physicalDevice(), m_surface);
+    VkSurfaceFormatKHR surfaceFormat = VkUtils::getBestSwapSurfaceFormat(m_device->physicalDevice(), m_surface);
+    VkPresentModeKHR presentMode = VkUtils::getBestSwapPresentMode(m_device->physicalDevice(), m_surface);
+    VkSurfaceCapabilitiesKHR capabilities = VkUtils::getSwapCapabilities(m_device->physicalDevice(), m_surface);
 
     XWindowAttributes attributes;
     XGetWindowAttributes(m_display, m_window, &attributes);
-    VkExtent2D extent = VkDeviceUtils::getSwapExtent(capabilities, attributes.width, attributes.height);
+    VkExtent2D extent = VkUtils::getSwapExtent(capabilities, attributes.width, attributes.height);
 
     uint32_t imageCount = capabilities.minImageCount + 1;
     if (capabilities.maxImageCount > 0 && imageCount > capabilities.maxImageCount)
@@ -213,7 +194,7 @@ void VkSurfaceImpl::createSwapChain()
     m_swapChainExtent = extent;
 }
 
-void VkSurfaceImpl::createImageView()
+void VkSurfaceManager::createImageView()
 {
     m_swapChainImageViews.resize(m_swapChainImages.size());
 
@@ -246,57 +227,7 @@ void VkSurfaceImpl::createImageView()
     }
 }
 
-void VkSurfaceImpl::createFramebuffers()
-{
-    m_swapChainFramebuffers.resize(m_swapChainImageViews.size());
-
-    for (size_t i = 0; i < m_swapChainImageViews.size(); i++)
-    {
-        std::array attachments = {
-            m_swapChainImageViews[i]
-        };
-
-        VkFramebufferCreateInfo framebufferInfo = {
-            .sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
-            .renderPass = m_device->renderPass(),
-            .attachmentCount = 1,
-            .pAttachments = attachments.data(),
-            .width = m_swapChainExtent.width,
-            .height = m_swapChainExtent.height,
-            .layers = 1
-        };
-
-        if (vkCreateFramebuffer(m_device->device(), &framebufferInfo, nullptr, &m_swapChainFramebuffers[i]) != VK_SUCCESS)
-        {
-            throw std::runtime_error("failed to create framebuffer");
-        }
-    }
-}
-
-void VkSurfaceImpl::createSyncObjects()
-{
-    m_swapChainSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-    m_swapChainFences.resize(MAX_FRAMES_IN_FLIGHT);
-
-    VkSemaphoreCreateInfo semaphoreInfo = {
-        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
-    };
-    VkFenceCreateInfo fenceInfo = {
-        .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
-        .flags = VK_FENCE_CREATE_SIGNALED_BIT,
-    };
-
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-    {
-        if (vkCreateSemaphore(m_device->device(), &semaphoreInfo, nullptr, &m_swapChainSemaphores[i]) != VK_SUCCESS ||
-            vkCreateFence(m_device->device(), &fenceInfo, nullptr, &m_swapChainFences[i]) != VK_SUCCESS)
-        {
-            throw std::runtime_error("failed to create swap chain sync objects");
-        }
-    }
-}
-
-void VkSurfaceImpl::createViewport()
+void VkSurfaceManager::createViewport()
 {
     m_viewport = {
         .x = 0.0f,
@@ -313,43 +244,18 @@ void VkSurfaceImpl::createViewport()
     };
 }
 
-VkViewport VkSurfaceImpl::viewport() const
-{
-    return m_viewport;
-}
-
-VkRect2D VkSurfaceImpl::scissor() const
-{
-    return m_scissor;
-}
-
-uint8_t VkSurfaceImpl::currentFrame() const
-{
-    return m_currentFrame;
-}
-
-VkFramebuffer VkSurfaceImpl::currentFramebuffer() const
-{
-    return m_swapChainFramebuffers[m_currentFrame];
-}
-
-VkExtent2D VkSurfaceImpl::extent() const
+VkExtent2D VkSurfaceManager::extent() const
 {
     return m_swapChainExtent;
 }
 
-VkSemaphore VkSurfaceImpl::swapChainSemaphore() const
+std::vector<VkImageView> VkSurfaceManager::swapChainImageViews() const
 {
-    return m_swapChainSemaphores[m_currentFrame];
+    return m_swapChainImageViews;
 }
 
-VkFence VkSurfaceImpl::swapChainFence() const
+VkFormat VkSurfaceManager::format() const
 {
-    return m_swapChainFences[m_currentFrame];
-}
-
-void VkSurfaceImpl::setRendererImpl(VkRendererImpl *rendererImpl)
-{
-    m_rendererImpl = rendererImpl;
+    return m_swapChainImageFormat;
 }
 } // karin

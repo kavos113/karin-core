@@ -146,14 +146,26 @@ void X11WindowImpl::handleEvent(const XEvent &event)
     switch (event.type)
     {
         case Expose:
+            std::cout << "[X11WindowImpl] Expose event received: " << event.xexpose.count << std::endl;
             std::call_once(m_applyStatusFlag, &X11WindowImpl::applyStatus, this);
             if (m_onPaint)
             {
-                m_onPaint();
+                bool ret = m_onPaint();
+                if (!ret)
+                {
+                    m_onPaint(); // redraw
+                }
             }
             break;
 
         case ConfigureNotify:
+            if (m_onResize)
+            {
+                m_onResize(Size(
+                    event.xconfigure.width,
+                    event.xconfigure.height
+                ));
+            }
             break;
 
         case ClientMessage:
@@ -261,7 +273,7 @@ void X11WindowImpl::setRect(int x, int y, int width, int height)
     XMoveResizeWindow(m_display, m_window, x, y, width, height);
 }
 
-void X11WindowImpl::setOnPaint(std::function<void()> onPaint)
+void X11WindowImpl::setOnPaint(std::function<bool()> onPaint)
 {
     m_onPaint = std::move(onPaint);
 }

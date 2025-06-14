@@ -5,9 +5,10 @@
 #include "graphics_context_impl.h"
 
 #include <karin/graphics/resources/graphics_device.h>
-#include <resources/surface_impl.h>
+#include <karin/system/window.h>
 
 #include <memory>
+
 
 
 #ifdef KARIN_PLATFORM_WINDOWS
@@ -24,12 +25,12 @@
 
 namespace karin
 {
-inline std::unique_ptr<IRendererImpl> createRendererImpl(GraphicsDevice* device, ISurfaceImpl* surface)
+inline std::unique_ptr<IRendererImpl> createRendererImpl(GraphicsDevice* device, Window::NativeHandle handle)
 {
 #ifdef KARIN_PLATFORM_WINDOWS
-    return std::make_unique<D2DRendererImpl>(dynamic_cast<D2DGraphicsDevice*>(device), dynamic_cast<D2DSurfaceImpl*>(surface));
+    return std::make_unique<D2DRendererImpl>(dynamic_cast<D2DGraphicsDevice*>(device), static_cast<HWND>(handle.hwnd));
 #elifdef KARIN_PLATFORM_UNIX
-    return std::make_unique<VkRendererImpl>(dynamic_cast<VkGraphicsDevice*>(device), dynamic_cast<VkSurfaceImpl*>(surface));
+    return std::make_unique<VkRendererImpl>(dynamic_cast<VkGraphicsDevice*>(device), handle.window, reinterpret_cast<Display*>(handle.display));
 #endif
 
     return nullptr;

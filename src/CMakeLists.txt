@@ -48,7 +48,7 @@ set(GRAPHICS_SOURCE
 if (WIN32)
     set(GRAPHICS_SOURCE ${GRAPHICS_SOURCE}
             graphics/resources/d2d/d2d_graphics_device.cpp
-            graphics/resources/d2d/d2d_surface_impl.cpp
+            graphics/resources/d2d/d2d_surface_manager.cpp
             graphics/graphics/d2d/d2d_renderer_impl.cpp
             graphics/graphics/d2d/d2d_graphics_context_impl.cpp
             graphics/graphics/d2d/d2d_device_resources.cpp
@@ -57,10 +57,11 @@ elseif (UNIX)
     set(GRAPHICS_SOURCE ${GRAPHICS_SOURCE}
             graphics/resources/vulkan/vk_graphics_device.cpp
             graphics/resources/vulkan/vk_debug_manager.cpp
-            graphics/resources/vulkan/vk_device_utils.cpp
-            graphics/resources/vulkan/vk_surface_impl.cpp
+            common/vulkan/vk_utils.cpp
+            graphics/resources/vulkan/vk_surface_manager.cpp
             graphics/graphics/vulkan/vk_renderer_impl.cpp
             graphics/graphics/vulkan/vk_graphics_context_impl.cpp
+            graphics/graphics/vulkan/vk_pipeline_manager.cpp
             common/vulkan/vma_impl.cpp
     )
 endif ()

@@ -1,6 +1,6 @@
 #include "vk_graphics_context_impl.h"
 
-#include <resources/vulkan/vk_graphics_device.h>
+#include "vk_pipeline_manager.h"
 
 namespace karin
 {
@@ -13,7 +13,7 @@ void VkGraphicsContextImpl::fillRect(Rectangle rect, Pattern *pattern, float str
 {
     Rectangle normalizedRect = m_renderer->normalize(rect);
 
-    std::vector<VkGraphicsDevice::Vertex> vertices = {
+    std::vector<VkPipelineManager::Vertex> vertices = {
         {
             {normalizedRect.pos.x, normalizedRect.pos.y},
             {1.0f, 0.0f, 0.0f}

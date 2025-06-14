@@ -7,22 +7,21 @@
 
 #include "d2d_device_resources.h"
 #include "resources/d2d/d2d_graphics_device.h"
-#include "resources/d2d/d2d_surface_impl.h"
+#include "resources/d2d/d2d_surface_manager.h"
 
 namespace karin {
 
 class D2DRendererImpl : public IRendererImpl
 {
 public:
-    D2DRendererImpl(D2DGraphicsDevice* device, D2DSurfaceImpl* surface);
+    D2DRendererImpl(D2DGraphicsDevice* device, HWND hwnd);
     ~D2DRendererImpl() override = default;
 
     void cleanUp() override;
 
-    void beginDraw() override;
+    bool beginDraw() override;
     void endDraw() override;
     void resize(Size size) override;
-    void reset() override;
 
     [[nodiscard]] Microsoft::WRL::ComPtr<ID2D1DeviceContext> deviceContext() const;
     [[nodiscard]] D2DDeviceResources* deviceResources() const;
@@ -31,10 +30,10 @@ private:
     void setTargetBitmap();
 
     std::unique_ptr<D2DDeviceResources> m_deviceResources;
+    std::unique_ptr<D2DSurfaceManager> m_surface;
 
     // weak reference
     D2DGraphicsDevice* m_device;
-    D2DSurfaceImpl* m_surface;
 
     Microsoft::WRL::ComPtr<ID2D1DeviceContext> m_deviceContext;
 
