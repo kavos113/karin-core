@@ -13,7 +13,7 @@ public:
     VkGraphicsContextImpl(VkRendererImpl *renderer);
     ~VkGraphicsContextImpl() override = default;
 
-    void fillRect(Rectangle rect, Pattern *pattern, float strokeWidth) override;
+    void fillRect(Rectangle rect, Pattern *pattern) override;
 
 private:
     VkRendererImpl* m_renderer;

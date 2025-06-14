@@ -13,7 +13,7 @@ VkGraphicsContextImpl::VkGraphicsContextImpl(VkRendererImpl *renderer)
 {
 }
 
-void VkGraphicsContextImpl::fillRect(Rectangle rect, Pattern *pattern, float strokeWidth)
+void VkGraphicsContextImpl::fillRect(Rectangle rect, Pattern *pattern)
 {
     Rectangle normalizedRect = m_renderer->normalize(rect);
 

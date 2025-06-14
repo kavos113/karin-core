@@ -16,7 +16,7 @@ D2DGraphicsContextImpl::D2DGraphicsContextImpl(
 {
 }
 
-void D2DGraphicsContextImpl::fillRect(const Rectangle rect, Pattern* pattern, const float strokeWidth)
+void D2DGraphicsContextImpl::fillRect(const Rectangle rect, Pattern* pattern)
 {
     auto brush = m_deviceResources->brush(pattern);
     if (!brush)
