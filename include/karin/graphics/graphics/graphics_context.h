@@ -3,8 +3,8 @@
 #include <memory>
 
 #include <karin/common/geometry/rectangle.h>
-
-#include "karin/common/color/pattern.h"
+#include <karin/common/geometry/point.h>
+#include <karin/common/color/pattern.h>
 
 namespace karin
 {
@@ -26,6 +26,13 @@ private:
 
 public:
     void fillRect(Rectangle rect, Pattern *pattern);
+    void fillEllipse(Point center, float radiusX, float radiusY, Pattern *pattern);
+    void fillRoundedRect(Rectangle rect, float radiusX, float radiusY, Pattern *pattern);
+
+    void drawLine(Point start, Point end, Pattern *pattern, float strokeWidth = 1.0f);
+    void drawRect(Rectangle rect, Pattern *pattern, float strokeWidth = 1.0f);
+    void drawEllipse(Point center, float radiusX, float radiusY, Pattern *pattern, float strokeWidth = 1.0f);
+    void drawRoundedRect(Rectangle rect, float radiusX, float radiusY, Pattern *pattern, float strokeWidth = 1.0f);
 
 private:
     IRendererImpl* m_rendererImpl;
