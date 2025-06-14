@@ -1,6 +1,10 @@
 #include "vk_graphics_context_impl.h"
 
+#include <glm/glm.hpp>
+#include <stdexcept>
+
 #include "vk_pipeline_manager.h"
+#include "karin/common/color/solid_color_pattern.h"
 
 namespace karin
 {
@@ -16,19 +20,15 @@ void VkGraphicsContextImpl::fillRect(Rectangle rect, Pattern *pattern, float str
     std::vector<VkPipelineManager::Vertex> vertices = {
         {
             {normalizedRect.pos.x, normalizedRect.pos.y},
-            {1.0f, 0.0f, 0.0f}
         },
         {
             {normalizedRect.pos.x + normalizedRect.size.width, normalizedRect.pos.y},
-            {0.0f, 1.0f, 0.0f}
         },
         {
             {normalizedRect.pos.x + normalizedRect.size.width, normalizedRect.pos.y + normalizedRect.size.height},
-            {0.0f, 0.0f, 1.0f}
         },
         {
             {normalizedRect.pos.x, normalizedRect.pos.y + normalizedRect.size.height},
-            {1.0f, 1.0f, 1.0f}
         }
     };
 
@@ -36,6 +36,16 @@ void VkGraphicsContextImpl::fillRect(Rectangle rect, Pattern *pattern, float str
         0, 1, 2, 2, 3, 0
     };
 
-    m_renderer->addBuffer(vertices, indices);
+    auto *solidColorPattern = dynamic_cast<SolidColorPattern *>(pattern);
+    if (!solidColorPattern)
+    {
+        throw std::runtime_error("VkGraphicsContextImpl::fillRect: pattern must be SolidColorPattern");
+    }
+    Color color = solidColorPattern->color();
+    VkPipelineManager::ColorData colorData = {
+        glm::vec4(color.r, color.g, color.b, color.a)
+    };
+
+    m_renderer->addCommand(vertices, indices, colorData);
 }
 } // karin

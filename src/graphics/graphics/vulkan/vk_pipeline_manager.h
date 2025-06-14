@@ -13,14 +13,20 @@ public:
     VkPipelineManager(VkDevice device, VkRenderPass renderPass);
     ~VkPipelineManager();
 
+    struct ColorData
+    {
+        glm::vec4 color;
+    };
+
+
     void cleanUp(VkDevice device);
+    void bindColorData(VkCommandBuffer commandBuffer, ColorData colorData) const;
 
     VkPipeline graphicsPipeline() const;
 
     struct Vertex
     {
         glm::vec2 pos;
-        glm::vec3 color;
 
         static VkVertexInputBindingDescription getBindingDescription()
         {
@@ -32,7 +38,7 @@ public:
             return bindingDescription;
         }
 
-        static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions()
+        static std::array<VkVertexInputAttributeDescription, 1> getAttributeDescriptions()
         {
             std::array attributeDescriptions = {
                 VkVertexInputAttributeDescription{
@@ -40,18 +46,11 @@ public:
                     .binding = 0,
                     .format = VK_FORMAT_R32G32_SFLOAT,
                     .offset = offsetof(Vertex, pos)
-                },
-                VkVertexInputAttributeDescription{
-                    .location = 1,
-                    .binding = 0,
-                    .format = VK_FORMAT_R32G32B32_SFLOAT,
-                    .offset = offsetof(Vertex, color)
                 }
             };
             return attributeDescriptions;
         }
     };
-
 private:
     void createPipeline(VkDevice device, VkRenderPass renderPass);
 

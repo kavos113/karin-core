@@ -40,6 +40,7 @@ public:
     VkCommandPool commandPool() const;
     VkQueue graphicsQueue() const;
     VkQueue presentQueue() const;
+    VkDescriptorPool descriptorPool() const;
 
 private:
 
@@ -50,6 +51,7 @@ private:
     void createLogicalDevice();
     void getQueueFamily(VkSurfaceKHR surface);
     void createCommandPool();
+    void createDescriptorPool();
 
     std::unique_ptr<VkDebugManager> m_debugManager;
 

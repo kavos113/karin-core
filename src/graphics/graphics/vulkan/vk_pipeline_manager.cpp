@@ -13,7 +13,11 @@ VkPipelineManager::VkPipelineManager(VkDevice device, VkRenderPass renderPass)
 }
 
 VkPipelineManager::~VkPipelineManager()
+= default;
+
+void VkPipelineManager::bindColorData(VkCommandBuffer commandBuffer, ColorData colorData) const
 {
+    vkCmdPushConstants(commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(ColorData), &colorData);
 }
 
 VkPipeline VkPipelineManager::graphicsPipeline() const
@@ -132,12 +136,18 @@ void VkPipelineManager::createPipeline(VkDevice device, VkRenderPass renderPass)
         .pAttachments = &colorBlendAttachment
     };
 
+    VkPushConstantRange pushConstantRange = {
+        .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
+        .offset = 0,
+        .size = sizeof(ColorData)
+    };
+
     VkPipelineLayoutCreateInfo layoutCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
         .setLayoutCount = 0,
         .pSetLayouts = nullptr,
-        .pushConstantRangeCount = 0,
-        .pPushConstantRanges = nullptr
+        .pushConstantRangeCount = 1,
+        .pPushConstantRanges = &pushConstantRange
     };
     if (vkCreatePipelineLayout(device, &layoutCreateInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS)
     {

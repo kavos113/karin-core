@@ -25,11 +25,18 @@ public:
     void endDraw() override;
     void resize(Size size) override;
 
-    void addBuffer(const std::vector<VkPipelineManager::Vertex> &vertices, std::vector<uint16_t> &indices);
+    void addCommand(const std::vector<VkPipelineManager::Vertex> &vertices, std::vector<uint16_t> &indices, VkPipelineManager::ColorData colorData);
 
     // pixel coordinates -> normalized coordinates [-1, 1]
     Rectangle normalize(Rectangle rect) const;
 private:
+    struct DrawCommand
+    {
+        uint32_t indexCount;
+        uint32_t indexOffset;
+        VkPipelineManager::ColorData colorData;
+    };
+
     void createCommandBuffers();
     void createSyncObjects();
     void createVertexBuffer();
@@ -43,6 +50,8 @@ private:
     std::unique_ptr<VkSurfaceManager> m_surface;
     std::unique_ptr<VkPipelineManager> m_pipelineManager;
 
+    std::vector<DrawCommand> m_drawCommands;
+
     uint8_t m_currentFrame = 0;
     uint32_t m_imageIndex = 0;
 
@@ -54,18 +63,18 @@ private:
 
     VkRenderPass m_renderPass = VK_NULL_HANDLE;
 
-    VkExtent2D m_extent;
+    VkExtent2D m_extent = {};
 
-    VkBuffer m_vertexBuffer;
-    VmaAllocation m_vertexAllocation;
-    void* m_vertexMapPoint;
-    void* m_vertexStartPoint;
-    VkBuffer m_indexBuffer;
-    VmaAllocation m_indexAllocation;
-    void* m_indexMapPoint;
-    void* m_indexStartPoint;
-    uint16_t m_vertexOffset;
-    size_t m_indexCount;
+    VkBuffer m_vertexBuffer = VK_NULL_HANDLE;
+    VmaAllocation m_vertexAllocation = VK_NULL_HANDLE;
+    void* m_vertexMapPoint = nullptr;
+    void* m_vertexStartPoint = nullptr;
+    VkBuffer m_indexBuffer = VK_NULL_HANDLE;
+    VmaAllocation m_indexAllocation = VK_NULL_HANDLE;
+    void* m_indexMapPoint = nullptr;
+    void* m_indexStartPoint = nullptr;
+    uint16_t m_vertexOffset = 0;
+    size_t m_indexCount = 0;
 
     static constexpr VkDeviceSize vertexBufferSize = 1024 * 128; // 2MB
     static constexpr VkDeviceSize indexBufferSize = 1024 * 512; // 2MB

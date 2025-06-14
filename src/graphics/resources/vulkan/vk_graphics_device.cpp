@@ -231,6 +231,9 @@ void VkGraphicsDevice::createCommandPool()
         throw std::runtime_error("failed to create command pool");
     }
 }
+void VkGraphicsDevice::createDescriptorPool()
+{
+}
 
 VkInstance VkGraphicsDevice::instance() const
 {
@@ -270,5 +273,10 @@ VkQueue VkGraphicsDevice::graphicsQueue() const
 VkQueue VkGraphicsDevice::presentQueue() const
 {
     return m_presentQueue;
+}
+
+VkDescriptorPool VkGraphicsDevice::descriptorPool() const
+{
+    return m_descriptorPool;
 }
 } // karin

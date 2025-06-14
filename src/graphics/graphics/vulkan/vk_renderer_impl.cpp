@@ -121,7 +121,11 @@ void VkRendererImpl::endDraw()
 
     vkCmdBindPipeline(m_commandBuffers[m_currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineManager->graphicsPipeline());
 
-    vkCmdDrawIndexed(m_commandBuffers[m_currentFrame], m_indexCount, 1, 0, 0, 0);
+    for (const auto & command : m_drawCommands)
+    {
+        m_pipelineManager->bindColorData(m_commandBuffers[m_currentFrame], command.colorData);
+        vkCmdDrawIndexed(m_commandBuffers[m_currentFrame], command.indexCount, 1, command.indexOffset, 0, 0);
+    }
 
     vkCmdEndRenderPass(m_commandBuffers[m_currentFrame]);
 
@@ -161,7 +165,7 @@ void VkRendererImpl::resize(Size size)
 {
 }
 
-void VkRendererImpl::addBuffer(const std::vector<VkPipelineManager::Vertex> &vertices, std::vector<uint16_t> &indices)
+void VkRendererImpl::addCommand(const std::vector<VkPipelineManager::Vertex> &vertices, std::vector<uint16_t> &indices, VkPipelineManager::ColorData colorData)
 {
     memcpy(m_vertexMapPoint, vertices.data(), vertices.size() * sizeof(VkPipelineManager::Vertex));
     m_vertexMapPoint += vertices.size() * sizeof(VkPipelineManager::Vertex);
@@ -176,6 +180,12 @@ void VkRendererImpl::addBuffer(const std::vector<VkPipelineManager::Vertex> &ver
     m_indexCount += indices.size();
 
     m_vertexOffset += static_cast<uint16_t>(vertices.size());
+
+    m_drawCommands.push_back({
+        .indexCount = static_cast<uint32_t>(indices.size()),
+        .indexOffset = static_cast<uint32_t>(m_indexCount - indices.size()),
+        .colorData = colorData
+    });
 }
 
 Rectangle VkRendererImpl::normalize(Rectangle rect) const
