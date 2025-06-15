@@ -27,23 +27,23 @@ void GraphicsContext::fillRoundedRect(Rectangle rect, float radiusX, float radiu
     m_impl->fillRoundedRect(rect, radiusX, radiusY, pattern);
 }
 
-void GraphicsContext::drawLine(Point start, Point end, Pattern *pattern, float strokeWidth)
+void GraphicsContext::drawLine(Point start, Point end, Pattern *pattern, StrokeStyle strokeStyle)
 {
-    m_impl->drawLine(start, end, pattern, strokeWidth);
+    m_impl->drawLine(start, end, pattern, strokeStyle);
 }
 
-void GraphicsContext::drawRect(Rectangle rect, Pattern *pattern, float strokeWidth)
+void GraphicsContext::drawRect(Rectangle rect, Pattern *pattern, StrokeStyle strokeStyle)
 {
-    m_impl->drawRect(rect, pattern, strokeWidth);
+    m_impl->drawRect(rect, pattern, strokeStyle);
 }
 
-void GraphicsContext::drawEllipse(Point center, float radiusX, float radiusY, Pattern *pattern, float strokeWidth)
+void GraphicsContext::drawEllipse(Point center, float radiusX, float radiusY, Pattern *pattern, StrokeStyle strokeStyle)
 {
-    m_impl->drawEllipse(center, radiusX, radiusY, pattern, strokeWidth);
+    m_impl->drawEllipse(center, radiusX, radiusY, pattern, strokeStyle);
 }
 
-void GraphicsContext::drawRoundedRect(Rectangle rect, float radiusX, float radiusY, Pattern *pattern, float strokeWidth)
+void GraphicsContext::drawRoundedRect(Rectangle rect, float radiusX, float radiusY, Pattern *pattern, StrokeStyle strokeStyle)
 {
-    m_impl->drawRoundedRect(rect, radiusX, radiusY, pattern, strokeWidth);
+    m_impl->drawRoundedRect(rect, radiusX, radiusY, pattern, strokeStyle);
 }
 } // karin

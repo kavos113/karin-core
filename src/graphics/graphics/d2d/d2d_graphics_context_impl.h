@@ -9,6 +9,7 @@
 #include <karin/common/geometry/rectangle.h>
 
 #include "d2d_device_resources.h"
+#include "karin/graphics/graphics/stroke_style.h"
 
 namespace karin
 {
@@ -25,10 +26,10 @@ public:
     void fillEllipse(Point center, float radiusX, float radiusY, Pattern *pattern) override;
     void fillRoundedRect(Rectangle rect, float radiusX, float radiusY, Pattern *pattern) override;
 
-    void drawLine(Point start, Point end, Pattern *pattern, float strokeWidth) override;
-    void drawRect(Rectangle rect, Pattern *pattern, float strokeWidth) override;
-    void drawEllipse(Point center, float radiusX, float radiusY, Pattern *pattern, float strokeWidth) override;
-    void drawRoundedRect(Rectangle rect, float radiusX, float radiusY, Pattern *pattern, float strokeWidth) override;
+    void drawLine(Point start, Point end, Pattern *pattern, StrokeStyle strokeStyle) override;
+    void drawRect(Rectangle rect, Pattern *pattern, StrokeStyle strokeStyle) override;
+    void drawEllipse(Point center, float radiusX, float radiusY, Pattern *pattern, StrokeStyle strokeStyle) override;
+    void drawRoundedRect(Rectangle rect, float radiusX, float radiusY, Pattern *pattern, StrokeStyle strokeStyle) override;
 
 private:
     Microsoft::WRL::ComPtr<ID2D1DeviceContext> m_deviceContext;
