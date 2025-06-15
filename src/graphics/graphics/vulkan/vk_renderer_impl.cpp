@@ -123,7 +123,7 @@ void VkRendererImpl::endDraw()
 
     for (const auto & command : m_drawCommands)
     {
-        m_pipelineManager->bindData(m_commandBuffers[m_currentFrame], command.fragData, command.vertData);
+        m_pipelineManager->bindData(m_commandBuffers[m_currentFrame], command.fragData);
         vkCmdDrawIndexed(m_commandBuffers[m_currentFrame], command.indexCount, 1, command.indexOffset, 0, 0);
     }
 
@@ -177,7 +177,6 @@ void VkRendererImpl::setClearColor(const Color &color)
 void VkRendererImpl::addCommand(
     const std::vector<VkPipelineManager::Vertex> &vertices,
     std::vector<uint16_t> &indices,
-    const VkPipelineManager::VertPushConstantData &vertData,
     const VkPipelineManager::FragPushConstantData &fragData
 )
 {
@@ -198,7 +197,6 @@ void VkRendererImpl::addCommand(
     m_drawCommands.push_back({
         .indexCount = static_cast<uint32_t>(indices.size()),
         .indexOffset = static_cast<uint32_t>(m_indexCount - indices.size()),
-        .vertData = vertData,
         .fragData = fragData
     });
 }

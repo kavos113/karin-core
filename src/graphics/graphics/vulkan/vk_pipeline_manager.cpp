@@ -1,7 +1,9 @@
 #include "vk_pipeline_manager.h"
 
+#include <iostream>
 #include <stdexcept>
 
+#include "glm/ext/matrix_clip_space.hpp"
 #include "shaders/shaders.h"
 #include "vulkan/vk_utils.h"
 
@@ -15,10 +17,9 @@ VkPipelineManager::VkPipelineManager(VkDevice device, VkRenderPass renderPass)
 VkPipelineManager::~VkPipelineManager()
 = default;
 
-void VkPipelineManager::bindData(VkCommandBuffer commandBuffer, FragPushConstantData fragData, VertPushConstantData vertData) const
+void VkPipelineManager::bindData(VkCommandBuffer commandBuffer, const FragPushConstantData &fragData) const
 {
-    vkCmdPushConstants(commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(VertPushConstantData), &vertData);
-    vkCmdPushConstants(commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, sizeof(VertPushConstantData), sizeof(FragPushConstantData), &fragData);
+    vkCmdPushConstants(commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(FragPushConstantData), &fragData);
 }
 
 VkPipeline VkPipelineManager::graphicsPipeline() const
@@ -124,7 +125,13 @@ void VkPipelineManager::createPipeline(VkDevice device, VkRenderPass renderPass)
     };
 
     VkPipelineColorBlendAttachmentState colorBlendAttachment = {
-        .blendEnable = VK_FALSE,
+        .blendEnable = VK_TRUE,
+        .srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA,
+        .dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
+        .colorBlendOp = VK_BLEND_OP_ADD,
+        .srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE,
+        .dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO,
+        .alphaBlendOp = VK_BLEND_OP_ADD,
         .colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
                           VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT
     };
@@ -139,13 +146,8 @@ void VkPipelineManager::createPipeline(VkDevice device, VkRenderPass renderPass)
 
     std::array pushConstantRanges = {
         VkPushConstantRange{
-            .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
-            .offset = 0,
-            .size = sizeof(VertPushConstantData)
-        },
-        VkPushConstantRange{
             .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
-            .offset = sizeof(VertPushConstantData),
+            .offset = 0,
             .size = sizeof(FragPushConstantData)
         }
     };

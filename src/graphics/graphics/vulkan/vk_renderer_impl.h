@@ -26,9 +26,10 @@ public:
     void resize(Size size) override;
     void setClearColor(const Color &color) override;
 
-    void addCommand(const std::vector<VkPipelineManager::Vertex> &vertices, std::vector<uint16_t> &indices, const VkPipelineManager::
-                    VertPushConstantData &vertData,
-                    const VkPipelineManager::FragPushConstantData &fragData
+    void addCommand(
+        const std::vector<VkPipelineManager::Vertex> &vertices,
+        std::vector<uint16_t> &indices,
+        const VkPipelineManager::FragPushConstantData &fragData
     );
 
     // pixel coordinates -> normalized coordinates [-1, 1]
@@ -38,7 +39,6 @@ private:
     {
         uint32_t indexCount{};
         uint32_t indexOffset{};
-        VkPipelineManager::VertPushConstantData vertData{};
         VkPipelineManager::FragPushConstantData fragData;
     };
 

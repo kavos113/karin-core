@@ -20,11 +20,6 @@ public:
         RoundedRectangle = 2,
     };
 
-    struct VertPushConstantData
-    {
-        glm::mat4 normalize;
-    };
-
     struct FragPushConstantData
     {
         glm::vec4 color;
@@ -34,13 +29,14 @@ public:
 
 
     void cleanUp(VkDevice device);
-    void bindData(VkCommandBuffer commandBuffer, FragPushConstantData fragData, VertPushConstantData vertData) const;
+    void bindData(VkCommandBuffer commandBuffer, const FragPushConstantData &fragData) const;
 
     VkPipeline graphicsPipeline() const;
 
     struct Vertex
     {
         glm::vec2 pos;
+        glm::vec2 uv;
 
         static VkVertexInputBindingDescription getBindingDescription()
         {
@@ -52,7 +48,7 @@ public:
             return bindingDescription;
         }
 
-        static std::array<VkVertexInputAttributeDescription, 1> getAttributeDescriptions()
+        static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions()
         {
             std::array attributeDescriptions = {
                 VkVertexInputAttributeDescription{
@@ -60,6 +56,12 @@ public:
                     .binding = 0,
                     .format = VK_FORMAT_R32G32_SFLOAT,
                     .offset = offsetof(Vertex, pos)
+                },
+                VkVertexInputAttributeDescription{
+                    .location = 1,
+                    .binding = 0,
+                    .format = VK_FORMAT_R32G32_SFLOAT,
+                    .offset = offsetof(Vertex, uv)
                 }
             };
             return attributeDescriptions;
