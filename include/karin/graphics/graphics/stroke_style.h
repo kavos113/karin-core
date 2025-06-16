@@ -2,6 +2,8 @@
 #define KARIN_GRAPHICS_GRAPHICS_STROKE_STYLE_H
 #include <vector>
 
+namespace karin
+{
 struct StrokeStyle
 {
     enum class CapStyle
@@ -27,6 +29,13 @@ struct StrokeStyle
 
     std::vector<float> dash_pattern;
     float dash_offset = 0.0f;
+
+    bool operator< (const StrokeStyle& other) const
+    {
+        return std::tie(start_cap_style, end_cap_style, dash_cap_style, join_style, miter_limit, dash_pattern, dash_offset) <
+               std::tie(other.start_cap_style, other.end_cap_style, other.dash_cap_style, other.join_style, other.miter_limit, other.dash_pattern, other.dash_offset);
+    }
 };
+}
 
 #endif //KARIN_GRAPHICS_GRAPHICS_STROKE_STYLE_H

@@ -17,9 +17,20 @@ int main()
 
     renderer.addDrawCommand([&redPattern, &bluePattern](karin::GraphicsContext& gc)
     {
-        gc.fillRect(karin::Rectangle(100, 100, 200, 200), redPattern.get());
-        gc.fillEllipse(karin::Point(400, 300), 100, 50, bluePattern.get());
-        gc.fillRoundedRect(karin::Rectangle(500, 100, 200, 200), 20, 50, redPattern.get());
+        gc.drawRect(karin::Rectangle(100, 100, 200, 200), redPattern.get());
+        gc.drawEllipse(karin::Point(400, 300), 100, 50, bluePattern.get());
+        gc.drawRoundedRect(karin::Rectangle(500, 100, 200, 200), 20, 50, redPattern.get());
+
+        karin::StrokeStyle strokeStyle = {
+            .width = 15.0f,
+            .start_cap_style = karin::StrokeStyle::CapStyle::Round,
+            .end_cap_style = karin::StrokeStyle::CapStyle::Round,
+            .join_style = karin::StrokeStyle::JoinStyle::Round,
+            .miter_limit = 10.0f,
+            .dash_pattern = { 5.0f, 2.0f },
+            .dash_offset = 0.0f
+        };
+        gc.drawLine(karin::Point(100, 400), karin::Point(300, 500), redPattern.get(), strokeStyle);
     });
 
     renderer.update();
