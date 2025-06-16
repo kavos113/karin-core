@@ -33,14 +33,77 @@ Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> D2DDeviceResources::solidColorBrush
     }
 
     Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> brush;
-    if (SUCCEEDED(m_deviceContext->CreateSolidColorBrush(
-            toD2DColor(pattern.color()),
-            &brush)))
+    HRESULT hr = m_deviceContext->CreateSolidColorBrush(
+        toD2DColor(pattern.color()),
+        &brush
+    );
+    if (FAILED(hr))
     {
-        m_solidColorBrushes[pattern] = brush;
-        return brush;
+        throw std::runtime_error("Failed to create solid color brush");
     }
 
-    throw std::runtime_error("Failed to create solid color brush");
+    m_solidColorBrushes[pattern] = brush;
+    return brush;
+}
+
+Microsoft::WRL::ComPtr<ID2D1StrokeStyle> D2DDeviceResources::strokeStyle(const StrokeStyle &style)
+{
+    if (auto it = m_strokeStyles.find(style); it != m_strokeStyles.end())
+    {
+        return it->second;
+    }
+
+    D2D1_STROKE_STYLE_PROPERTIES properties = {
+        .startCap = toD2DCapStyle(style.start_cap_style),
+        .endCap = toD2DCapStyle(style.end_cap_style),
+        .dashCap = toD2DCapStyle(style.dash_cap_style),
+        .lineJoin = toD2DJoinStyle(style.join_style),
+        .miterLimit = style.miter_limit,
+        .dashOffset = style.dash_offset,
+    };
+    Microsoft::WRL::ComPtr<ID2D1StrokeStyle> strokeStyle;
+    HRESULT hr = m_factory->CreateStrokeStyle(
+        properties,
+        style.dash_pattern.data(),
+        static_cast<UINT32>(style.dash_pattern.size()),
+        &strokeStyle
+    );
+    if (FAILED(hr))
+    {
+        throw std::runtime_error("Failed to create D2D stroke style");
+    }
+
+    m_strokeStyles[style] = strokeStyle;
+    return strokeStyle;
+}
+
+D2D1_CAP_STYLE D2DDeviceResources::toD2DCapStyle(StrokeStyle::CapStyle capStyle)
+{
+    switch (capStyle)
+    {
+        case StrokeStyle::CapStyle::Butt:
+            return D2D1_CAP_STYLE_FLAT;
+        case StrokeStyle::CapStyle::Round:
+            return D2D1_CAP_STYLE_ROUND;
+        case StrokeStyle::CapStyle::Square:
+            return D2D1_CAP_STYLE_SQUARE;
+        default:
+            throw std::invalid_argument("Unknown cap style");
+    }
+}
+
+D2D1_LINE_JOIN D2DDeviceResources::toD2DJoinStyle(StrokeStyle::JoinStyle joinStyle)
+{
+    switch (joinStyle)
+    {
+        case StrokeStyle::JoinStyle::Miter:
+            return D2D1_LINE_JOIN_MITER;
+        case StrokeStyle::JoinStyle::Round:
+            return D2D1_LINE_JOIN_ROUND;
+        case StrokeStyle::JoinStyle::Bevel:
+            return D2D1_LINE_JOIN_BEVEL;
+        default:
+            throw std::invalid_argument("Unknown join style");
+    }
 }
 } // karin

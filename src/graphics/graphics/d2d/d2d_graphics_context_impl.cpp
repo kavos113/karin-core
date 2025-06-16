@@ -70,7 +70,7 @@ void D2DGraphicsContextImpl::fillRoundedRect(Rectangle rect, float radiusX, floa
     );
 }
 
-void D2DGraphicsContextImpl::drawLine(Point start, Point end, Pattern *pattern, StrokeStyle strokeStyle)
+void D2DGraphicsContextImpl::drawLine(Point start, Point end, Pattern *pattern, const StrokeStyle& strokeStyle)
 {
     auto brush = m_deviceResources->brush(pattern);
     if (!brush)
@@ -82,11 +82,11 @@ void D2DGraphicsContextImpl::drawLine(Point start, Point end, Pattern *pattern, 
         toD2DPoint(start),
         toD2DPoint(end),
         brush.Get(),
-        strokeStyle
+        strokeStyle.width
     );
 }
 
-void D2DGraphicsContextImpl::drawRect(Rectangle rect, Pattern *pattern, StrokeStyle strokeStyle)
+void D2DGraphicsContextImpl::drawRect(Rectangle rect, Pattern *pattern, const StrokeStyle& strokeStyle)
 {
     auto brush = m_deviceResources->brush(pattern);
     if (!brush)
@@ -97,7 +97,8 @@ void D2DGraphicsContextImpl::drawRect(Rectangle rect, Pattern *pattern, StrokeSt
     m_deviceContext->DrawRectangle(
         toD2DRect(rect),
         brush.Get(),
-        strokeStyle
+        strokeStyle.width,
+        m_deviceResources->strokeStyle(strokeStyle).Get()
     );
 }
 
@@ -106,7 +107,7 @@ void D2DGraphicsContextImpl::drawEllipse(
     float radiusX,
     float radiusY,
     Pattern *pattern,
-    StrokeStyle strokeStyle
+    const StrokeStyle& strokeStyle
 )
 {
     auto brush = m_deviceResources->brush(pattern);
@@ -123,7 +124,8 @@ void D2DGraphicsContextImpl::drawEllipse(
     m_deviceContext->DrawEllipse(
         ellipse,
         brush.Get(),
-        strokeStyle
+        strokeStyle.width,
+        m_deviceResources->strokeStyle(strokeStyle).Get()
     );
 }
 
@@ -132,7 +134,7 @@ void D2DGraphicsContextImpl::drawRoundedRect(
     float radiusX,
     float radiusY,
     Pattern *pattern,
-    StrokeStyle strokeStyle
+    const StrokeStyle& strokeStyle
 )
 {
     auto brush = m_deviceResources->brush(pattern);
@@ -149,7 +151,8 @@ void D2DGraphicsContextImpl::drawRoundedRect(
     m_deviceContext->DrawRoundedRectangle(
         roundedRect,
         brush.Get(),
-        strokeStyle
+        strokeStyle.width,
+        m_deviceResources->strokeStyle(strokeStyle).Get()
     );
 }
 } // karin

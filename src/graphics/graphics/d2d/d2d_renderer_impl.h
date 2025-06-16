@@ -28,7 +28,7 @@ public:
     [[nodiscard]] D2DDeviceResources* deviceResources() const;
 
 private:
-    void setTargetBitmap();
+    void setTargetBitmap() const;
 
     std::unique_ptr<D2DDeviceResources> m_deviceResources;
     std::unique_ptr<D2DSurfaceManager> m_surface;

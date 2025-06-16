@@ -19,7 +19,8 @@ struct StrokeStyle
     };
 
     float width = 1.0f;
-    CapStyle cap_style = CapStyle::Butt;
+    CapStyle start_cap_style = CapStyle::Butt;
+    CapStyle end_cap_style = CapStyle::Butt;
     CapStyle dash_cap_style = CapStyle::Butt;
     JoinStyle join_style = JoinStyle::Miter;
     float miter_limit = 10.0f; // Only used if join_style is Miter

@@ -19,10 +19,10 @@ D2DRendererImpl::D2DRendererImpl(D2DGraphicsDevice* device, HWND hwnd)
 
     setTargetBitmap();
 
-    m_deviceResources = std::make_unique<D2DDeviceResources>(m_deviceContext);
+    m_deviceResources = std::make_unique<D2DDeviceResources>(m_deviceContext, m_device->factory());
 }
 
-void D2DRendererImpl::setTargetBitmap()
+void D2DRendererImpl::setTargetBitmap() const
 {
     Microsoft::WRL::ComPtr<ID2D1Bitmap1> bitmap;
     if (FAILED(m_deviceContext->CreateBitmapFromDxgiSurface(
