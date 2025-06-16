@@ -1,6 +1,7 @@
 #ifndef KARIN_GRAPHICS_GRAPHICS_STROKE_STYLE_H
 #define KARIN_GRAPHICS_GRAPHICS_STROKE_STYLE_H
 #include <vector>
+#include <tuple>
 
 namespace karin
 {
