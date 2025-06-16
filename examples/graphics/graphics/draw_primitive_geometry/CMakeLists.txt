@@ -1,0 +1,9 @@
+cmake_minimum_required(VERSION 3.28)
+project(karin_examples_draw_primitive_geometry)
+
+set(CMAKE_CXX_STANDARD 20)
+
+add_executable(karin_examples_draw_primitive_geometry main.cpp)
+add_dependencies(karin_examples_draw_primitive_geometry karin_system karin_graphics)
+target_link_libraries(karin_examples_draw_primitive_geometry PRIVATE karin_system karin_graphics)
+target_include_directories(karin_examples_draw_primitive_geometry PRIVATE ${INCLUDE_DIR})
