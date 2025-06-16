@@ -82,7 +82,8 @@ void D2DGraphicsContextImpl::drawLine(Point start, Point end, Pattern *pattern, 
         toD2DPoint(start),
         toD2DPoint(end),
         brush.Get(),
-        strokeStyle.width
+        strokeStyle.width,
+        m_deviceResources->strokeStyle(strokeStyle).Get()
     );
 }
 

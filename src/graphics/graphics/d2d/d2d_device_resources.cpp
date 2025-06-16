@@ -59,12 +59,14 @@ Microsoft::WRL::ComPtr<ID2D1StrokeStyle> D2DDeviceResources::strokeStyle(const S
         .dashCap = toD2DCapStyle(style.dash_cap_style),
         .lineJoin = toD2DJoinStyle(style.join_style),
         .miterLimit = style.miter_limit,
+        .dashStyle = style.dash_pattern.empty() ? D2D1_DASH_STYLE_SOLID : D2D1_DASH_STYLE_CUSTOM,
         .dashOffset = style.dash_offset,
     };
     Microsoft::WRL::ComPtr<ID2D1StrokeStyle> strokeStyle;
+    const FLOAT* dashes = style.dash_pattern.empty() ? nullptr : style.dash_pattern.data();
     HRESULT hr = m_factory->CreateStrokeStyle(
         properties,
-        style.dash_pattern.data(),
+        dashes,
         static_cast<UINT32>(style.dash_pattern.size()),
         &strokeStyle
     );
