@@ -143,15 +143,15 @@ void VkGraphicsContextImpl::fillRoundedRect(Rectangle rect, float radiusX, float
     m_renderer->addCommand(vertices, indices, fragData);
 }
 
-void VkGraphicsContextImpl::drawLine(Point start, Point end, Pattern *pattern, float strokeWidth)
+void VkGraphicsContextImpl::drawLine(Point start, Point end, Pattern *pattern, const StrokeStyle& strokeStyle)
 {
 }
 
-void VkGraphicsContextImpl::drawRect(Rectangle rect, Pattern *pattern, float strokeWidth)
+void VkGraphicsContextImpl::drawRect(Rectangle rect, Pattern *pattern, const StrokeStyle& strokeStyle)
 {
 }
 
-void VkGraphicsContextImpl::drawEllipse(Point center, float radiusX, float radiusY, Pattern *pattern, float strokeWidth)
+void VkGraphicsContextImpl::drawEllipse(Point center, float radiusX, float radiusY, Pattern *pattern, const StrokeStyle& strokeStyle)
 {
 }
 
@@ -160,7 +160,7 @@ void VkGraphicsContextImpl::drawRoundedRect(
     float radiusX,
     float radiusY,
     Pattern *pattern,
-    float strokeWidth
+    const StrokeStyle& strokeStyle
 )
 {
 }
