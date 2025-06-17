@@ -6,6 +6,7 @@
 #include <stdexcept>
 
 #include "vk_pipeline_manager.h"
+#include "geometry/glm_geometry.h"
 #include "karin/common/color/solid_color_pattern.h"
 
 namespace karin
@@ -145,6 +146,48 @@ void VkGraphicsContextImpl::fillRoundedRect(Rectangle rect, float radiusX, float
 
 void VkGraphicsContextImpl::drawLine(Point start, Point end, Pattern *pattern, const StrokeStyle& strokeStyle)
 {
+    auto startVec = toGlmVec2(m_renderer->normalize(start));
+    auto endVec = toGlmVec2(m_renderer->normalize(end));
+    
+    auto direction = end - start;
+    auto normalVec = glm::normalize(glm::vec2(-direction.y, direction.x)) * strokeStyle.width / 2.0f;
+
+    auto normal = m_renderer->normalizeVec(normalVec);
+
+    std::vector<VkPipelineManager::Vertex> vertices = {
+        {
+            .pos = startVec + normal,
+            .uv = {-1.0f, -1.0f},
+        },
+        {
+            .pos = startVec - normal,
+            .uv = {1.0f, -1.0f},
+        },
+        {
+            .pos = endVec - normal,
+            .uv = {1.0f, 1.0f},
+        },
+        {
+            .pos = endVec + normal,
+            .uv = {-1.0f, 1.0f},
+        }
+    };
+
+    std::vector<uint16_t> indices = {
+        0, 1, 2, 2, 3, 0
+    };
+
+    auto *solidColorPattern = dynamic_cast<SolidColorPattern *>(pattern);
+    if (!solidColorPattern)
+    {
+        throw std::runtime_error("VkGraphicsContextImpl::drawLine: pattern must be SolidColorPattern");
+    }
+    Color color = solidColorPattern->color();
+    VkPipelineManager::FragPushConstantData fragData = {
+        .color = glm::vec4(color.r, color.g, color.b, color.a),
+    };
+
+    m_renderer->addCommand(vertices, indices, fragData);
 }
 
 void VkGraphicsContextImpl::drawRect(Rectangle rect, Pattern *pattern, const StrokeStyle& strokeStyle)

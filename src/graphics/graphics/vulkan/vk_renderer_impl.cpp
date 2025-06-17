@@ -217,6 +217,26 @@ Rectangle VkRendererImpl::normalize(Rectangle rect) const
     };
 }
 
+Point VkRendererImpl::normalize(Point point) const
+{
+    VkExtent2D extent = m_surface->extent();
+
+    return {
+        (point.x / static_cast<float>(extent.width)) * 2.0f - 1.0f,
+        (point.y / static_cast<float>(extent.height)) * 2.0f - 1.0f
+    };
+}
+
+glm::vec2 VkRendererImpl::normalizeVec(glm::vec2 vec) const
+{
+    VkExtent2D extent = m_surface->extent();
+
+    return {
+        (vec.x / static_cast<float>(extent.width)) * 2.0f,
+        (vec.y / static_cast<float>(extent.height)) * 2.0f
+    };
+}
+
 void VkRendererImpl::createCommandBuffers()
 {
     m_commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);

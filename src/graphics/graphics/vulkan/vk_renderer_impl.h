@@ -34,6 +34,8 @@ public:
 
     // pixel coordinates -> normalized coordinates [-1, 1]
     Rectangle normalize(Rectangle rect) const;
+    Point normalize(Point point) const;
+    glm::vec2 normalizeVec(glm::vec2 vec) const;
 private:
     struct DrawCommand
     {
