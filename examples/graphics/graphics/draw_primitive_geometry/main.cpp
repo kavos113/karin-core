@@ -25,6 +25,7 @@ int main()
             .width = 15.0f,
             .start_cap_style = karin::StrokeStyle::CapStyle::Round,
             .end_cap_style = karin::StrokeStyle::CapStyle::Round,
+            .dash_cap_style = karin::StrokeStyle::CapStyle::Round,
             .join_style = karin::StrokeStyle::JoinStyle::Round,
             .miter_limit = 10.0f,
             .dash_pattern = { 5.0f, 2.0f },

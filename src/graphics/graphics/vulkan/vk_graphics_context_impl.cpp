@@ -154,28 +154,74 @@ void VkGraphicsContextImpl::drawLine(Point start, Point end, Pattern *pattern, c
 
     auto normal = m_renderer->normalizeVec(normalVec);
 
-    std::vector<VkPipelineManager::Vertex> vertices = {
-        {
-            .pos = startVec + normal,
-            .uv = {-1.0f, -1.0f},
-        },
-        {
-            .pos = startVec - normal,
-            .uv = {1.0f, -1.0f},
-        },
-        {
-            .pos = endVec - normal,
-            .uv = {1.0f, 1.0f},
-        },
-        {
-            .pos = endVec + normal,
-            .uv = {-1.0f, 1.0f},
-        }
-    };
+    auto dirUnitVec = m_renderer->normalizeVec(glm::normalize(toGlmVec2(direction)) * strokeStyle.width);
 
-    std::vector<uint16_t> indices = {
-        0, 1, 2, 2, 3, 0
-    };
+    std::vector<std::pair<glm::vec2, glm::vec2>> lines;
+    auto current = startVec;
+    auto dashPatternIndex = 0;
+    while (true)
+    {
+        std::pair<glm::vec2, glm::vec2> line;
+        line.first = current;
+        if ((endVec.x - current.x) / dirUnitVec.x < strokeStyle.dash_pattern[dashPatternIndex])
+        {
+            line.second = endVec;
+            lines.push_back(line);
+            break;
+        }
+
+        line.second = current + dirUnitVec * strokeStyle.dash_pattern[dashPatternIndex];
+        lines.push_back(line);
+
+        current = line.second;
+        dashPatternIndex = (dashPatternIndex + 1) % strokeStyle.dash_pattern.size();
+    }
+
+    std::vector<VkPipelineManager::Vertex> vertices;
+    std::vector<uint16_t> indices;
+
+    for (int i = 0; i < lines.size(); ++i)
+    {
+        if (i % 2 == 1)
+        {
+            continue;
+        }
+
+        vertices.insert(
+            vertices.end(),
+            {
+                {
+                    .pos = lines[i].first + normal,
+                    .uv = {-1.0f, -1.0f},
+                },
+                {
+                    .pos = lines[i].first - normal,
+                    .uv = {1.0f, -1.0f},
+                },
+                {
+                    .pos = lines[i].second - normal,
+                    .uv = {1.0f, 1.0f},
+                },
+                {
+                    .pos = lines[i].second + normal,
+                    .uv = {-1.0f, 1.0f},
+                }
+            }
+        );
+
+        auto baseIndex = static_cast<uint16_t>(vertices.size() - 4);
+        indices.insert(
+            indices.end(),
+            {
+                baseIndex,
+                static_cast<uint16_t>(baseIndex + 1),
+                static_cast<uint16_t>(baseIndex + 2),
+                static_cast<uint16_t>(baseIndex + 2),
+                static_cast<uint16_t>(baseIndex + 3),
+                baseIndex
+            }
+        );
+    }
 
     auto *solidColorPattern = dynamic_cast<SolidColorPattern *>(pattern);
     if (!solidColorPattern)
