@@ -262,7 +262,8 @@ float VkGraphicsContextImpl::addLine(
         {
             std::pair<glm::vec2, glm::vec2> line;
             line.first = current;
-            if ((endVec.x - current.x) / dirUnitVec.x < strokeStyle.dash_pattern[dashPatternIndex])
+            if ((endVec.x - current.x) / dirUnitVec.x < strokeStyle.dash_pattern[dashPatternIndex]
+                || (endVec.y - current.y) / dirUnitVec.y < strokeStyle.dash_pattern[dashPatternIndex])
             {
                 line.second = endVec;
                 lines.push_back(line);
@@ -341,7 +342,7 @@ float VkGraphicsContextImpl::addLine(
         endVec,
         direction,
         strokeStyle.width,
-        dirUnitVec,
+        -dirUnitVec,
         normalUnitVec
     );
 
@@ -354,7 +355,7 @@ float VkGraphicsContextImpl::addLine(
           lines[i - 1].second,
           direction,
           strokeStyle.width,
-          dirUnitVec,
+          -dirUnitVec,
           normalUnitVec
         );
         addCapStyle(

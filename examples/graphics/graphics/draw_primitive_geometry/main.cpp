@@ -32,6 +32,8 @@ int main()
             .dash_offset = 1.0f
         };
         gc.drawLine(karin::Point(100, 400), karin::Point(300, 500), redPattern.get(), strokeStyle);
+        strokeStyle.dash_cap_style = karin::StrokeStyle::CapStyle::Triangle;
+        gc.drawRect(karin::Rectangle(400, 400, 200, 200), redPattern.get(), strokeStyle);
     });
 
     renderer.update();
