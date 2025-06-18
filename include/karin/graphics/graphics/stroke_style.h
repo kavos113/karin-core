@@ -11,7 +11,8 @@ struct StrokeStyle
     {
         Butt,
         Round,
-        Square
+        Square,
+        Triangle,
     };
 
     enum class JoinStyle

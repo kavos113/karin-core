@@ -1,5 +1,6 @@
 #include "vk_graphics_context_impl.h"
 
+#include <cmath>
 #include <iostream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -221,6 +222,122 @@ void VkGraphicsContextImpl::drawLine(Point start, Point end, Pattern *pattern, c
                 baseIndex
             }
         );
+    }
+
+    switch (strokeStyle.start_cap_style)
+    {
+        case StrokeStyle::CapStyle::Butt:
+            break;
+
+        case StrokeStyle::CapStyle::Round:
+        {
+            float baseAngle = std::atan2(-direction.y, -direction.x);
+            float startAngle = baseAngle - M_PI / 2.0f;
+            float endAngle = baseAngle + M_PI / 2.0f;
+            float angleStep = (endAngle - startAngle) / ROUND_SEGMENTS;
+            float radius = strokeStyle.width / 2.0f;
+            auto pixStart = toGlmVec2(start);
+
+            for (int i = 0; i <= ROUND_SEGMENTS; ++i)
+            {
+                float angle = startAngle + i * angleStep;
+
+                auto pos = pixStart + glm::vec2(std::cos(angle), std::sin(angle)) * radius;
+
+                vertices.push_back({
+                    .pos = m_renderer->normalize(pos),
+                    .uv = {-1.0f, -1.0f},
+                });
+            }
+            vertices.push_back({
+                .pos = startVec,
+                .uv = {0.0f, 0.0f},
+            });
+
+            auto baseIndex = static_cast<uint16_t>(vertices.size() - ROUND_SEGMENTS - 2);
+            for (int i = 0; i < ROUND_SEGMENTS; ++i)
+            {
+                indices.insert(
+                    indices.end(),
+                    {
+                        baseIndex + i,
+                        baseIndex + i + 1,
+                        static_cast<uint16_t>(baseIndex + ROUND_SEGMENTS + 1)
+                    }
+                );
+            }
+        }
+            break;
+
+        case StrokeStyle::CapStyle::Square:
+        {
+            vertices.insert(
+                vertices.end(),
+                {
+                    {
+                        .pos = startVec - dirUnitVec + normal,
+                        .uv = {-1.0f, -1.0f},
+                    },
+                    {
+                        .pos = startVec - dirUnitVec - normal,
+                        .uv = {1.0f, -1.0f},
+                    },
+                    {
+                        .pos = startVec + normal,
+                        .uv = {1.0f, 1.0f},
+                    },
+                    {
+                        .pos = startVec - normal,
+                        .uv = {-1.0f, 1.0f},
+                    }
+                }
+            );
+            auto baseIndex = static_cast<uint16_t>(vertices.size() - 4);
+            indices.insert(
+                indices.end(),
+                {
+                    baseIndex,
+                    static_cast<uint16_t>(baseIndex + 1),
+                    static_cast<uint16_t>(baseIndex + 2),
+                    static_cast<uint16_t>(baseIndex + 2),
+                    static_cast<uint16_t>(baseIndex + 3),
+                    baseIndex
+                }
+            );
+        }
+            break;
+
+        case StrokeStyle::CapStyle::Triangle:
+        {
+            vertices.insert(
+                vertices.end(),
+                {
+                    {
+                        .pos = startVec + normal,
+                        .uv = {-1.0f, -1.0f},
+                    },
+                    {
+                        .pos = startVec - normal,
+                        .uv = {1.0f, -1.0f},
+                    },
+                    {
+                        .pos = startVec - dirUnitVec / 2.0f,
+                        .uv = {1.0f, 1.0f},
+                    },
+                }
+            );
+
+            auto baseIndex = static_cast<uint16_t>(vertices.size() - 3);
+            indices.insert(
+                indices.end(),
+                {
+                    baseIndex,
+                    static_cast<uint16_t>(baseIndex + 1),
+                    static_cast<uint16_t>(baseIndex + 2),
+                }
+            );
+        }
+            break;
     }
 
     auto *solidColorPattern = dynamic_cast<SolidColorPattern *>(pattern);

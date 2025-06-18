@@ -25,6 +25,8 @@ public:
 
 private:
     VkRendererImpl* m_renderer;
+
+    static constexpr int ROUND_SEGMENTS = 16;
 };
 
 } // karin
