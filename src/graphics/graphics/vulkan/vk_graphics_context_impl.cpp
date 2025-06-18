@@ -158,23 +158,31 @@ void VkGraphicsContextImpl::drawLine(Point start, Point end, Pattern *pattern, c
 
     std::vector<std::pair<glm::vec2, glm::vec2>> lines;
     auto current = startVec;
-    auto dashPatternIndex = 0;
-    while (true)
+    if (strokeStyle.dash_pattern.empty())
     {
-        std::pair<glm::vec2, glm::vec2> line;
-        line.first = current;
-        if ((endVec.x - current.x) / dirUnitVec.x < strokeStyle.dash_pattern[dashPatternIndex])
+        lines.push_back({startVec, endVec});
+    }
+    else
+    {
+        auto dashPatternIndex = 0;
+        while (true)
         {
-            line.second = endVec;
+            std::pair<glm::vec2, glm::vec2> line;
+            line.first = current;
+            if ((endVec.x - current.x) / dirUnitVec.x < strokeStyle.dash_pattern[dashPatternIndex])
+            {
+                line.second = endVec;
+                lines.push_back(line);
+                break;
+            }
+
+            line.second = current + dirUnitVec * strokeStyle.dash_pattern[dashPatternIndex];
             lines.push_back(line);
-            break;
+
+            current = line.second;
+            dashPatternIndex = (dashPatternIndex + 1) % strokeStyle.dash_pattern.size();
         }
 
-        line.second = current + dirUnitVec * strokeStyle.dash_pattern[dashPatternIndex];
-        lines.push_back(line);
-
-        current = line.second;
-        dashPatternIndex = (dashPatternIndex + 1) % strokeStyle.dash_pattern.size();
     }
 
     std::vector<VkPipelineManager::Vertex> vertices;
