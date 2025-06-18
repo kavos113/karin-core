@@ -24,6 +24,13 @@ public:
     void drawRoundedRect(Rectangle rect, float radiusX, float radiusY, Pattern *pattern, const StrokeStyle& strokeStyle) override;
 
 private:
+    void addLine(
+        Point start,
+        Point end,
+        const StrokeStyle& strokeStyle,
+        std::vector<VkPipelineManager::Vertex>& vertices,
+        std::vector<uint16_t>& indices
+    ) const;
     void addCapStyle(
         StrokeStyle::CapStyle capStyle,
         std::vector<VkPipelineManager::Vertex>& vertices,

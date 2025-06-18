@@ -147,9 +147,53 @@ void VkGraphicsContextImpl::fillRoundedRect(Rectangle rect, float radiusX, float
 
 void VkGraphicsContextImpl::drawLine(Point start, Point end, Pattern *pattern, const StrokeStyle& strokeStyle)
 {
+    std::vector<VkPipelineManager::Vertex> vertices;
+    std::vector<uint16_t> indices;
+
+    addLine(start, end, strokeStyle, vertices, indices);
+
+    auto *solidColorPattern = dynamic_cast<SolidColorPattern *>(pattern);
+    if (!solidColorPattern)
+    {
+        throw std::runtime_error("VkGraphicsContextImpl::drawLine: pattern must be SolidColorPattern");
+    }
+    Color color = solidColorPattern->color();
+    VkPipelineManager::FragPushConstantData fragData = {
+        .color = glm::vec4(color.r, color.g, color.b, color.a),
+    };
+
+    m_renderer->addCommand(vertices, indices, fragData);
+}
+
+void VkGraphicsContextImpl::drawRect(Rectangle rect, Pattern *pattern, const StrokeStyle& strokeStyle)
+{
+}
+
+void VkGraphicsContextImpl::drawEllipse(Point center, float radiusX, float radiusY, Pattern *pattern, const StrokeStyle& strokeStyle)
+{
+}
+
+void VkGraphicsContextImpl::drawRoundedRect(
+    Rectangle rect,
+    float radiusX,
+    float radiusY,
+    Pattern *pattern,
+    const StrokeStyle& strokeStyle
+)
+{
+}
+
+void VkGraphicsContextImpl::addLine(
+    Point start,
+    Point end,
+    const StrokeStyle &strokeStyle,
+    std::vector<VkPipelineManager::Vertex> &vertices,
+    std::vector<uint16_t> &indices
+) const
+{
     auto startVec = toGlmVec2(m_renderer->normalize(start));
     auto endVec = toGlmVec2(m_renderer->normalize(end));
-    
+
     auto direction = end - start;
     auto normalVec = glm::normalize(glm::vec2(-direction.y, direction.x)) * strokeStyle.width / 2.0f;
 
@@ -185,9 +229,6 @@ void VkGraphicsContextImpl::drawLine(Point start, Point end, Pattern *pattern, c
 
         lines[0].first += dirUnitVec * strokeStyle.dash_offset;
     }
-
-    std::vector<VkPipelineManager::Vertex> vertices;
-    std::vector<uint16_t> indices;
 
     for (int i = 0; i < lines.size(); ++i)
     {
@@ -277,36 +318,6 @@ void VkGraphicsContextImpl::drawLine(Point start, Point end, Pattern *pattern, c
           normalUnitVec
         );
     }
-
-    auto *solidColorPattern = dynamic_cast<SolidColorPattern *>(pattern);
-    if (!solidColorPattern)
-    {
-        throw std::runtime_error("VkGraphicsContextImpl::drawLine: pattern must be SolidColorPattern");
-    }
-    Color color = solidColorPattern->color();
-    VkPipelineManager::FragPushConstantData fragData = {
-        .color = glm::vec4(color.r, color.g, color.b, color.a),
-    };
-
-    m_renderer->addCommand(vertices, indices, fragData);
-}
-
-void VkGraphicsContextImpl::drawRect(Rectangle rect, Pattern *pattern, const StrokeStyle& strokeStyle)
-{
-}
-
-void VkGraphicsContextImpl::drawEllipse(Point center, float radiusX, float radiusY, Pattern *pattern, const StrokeStyle& strokeStyle)
-{
-}
-
-void VkGraphicsContextImpl::drawRoundedRect(
-    Rectangle rect,
-    float radiusX,
-    float radiusY,
-    Pattern *pattern,
-    const StrokeStyle& strokeStyle
-)
-{
 }
 
 void VkGraphicsContextImpl::addCapStyle(
