@@ -167,6 +167,53 @@ void VkGraphicsContextImpl::drawLine(Point start, Point end, Pattern *pattern, c
 
 void VkGraphicsContextImpl::drawRect(Rectangle rect, Pattern *pattern, const StrokeStyle& strokeStyle)
 {
+    std::vector<VkPipelineManager::Vertex> vertices;
+    std::vector<uint16_t> indices;
+
+    StrokeStyle style = strokeStyle;
+    float dashOffset = addLine(
+        Point(rect.pos.x, rect.pos.y),
+        Point(rect.pos.x + rect.size.width, rect.pos.y),
+        style,
+        vertices,
+        indices
+    );
+    style.dash_offset = dashOffset;
+    addLine(
+        Point(rect.pos.x + rect.size.width, rect.pos.y),
+        Point(rect.pos.x + rect.size.width, rect.pos.y + rect.size.height),
+        style,
+        vertices,
+        indices
+    );
+    style.dash_offset = dashOffset;
+    addLine(
+        Point(rect.pos.x + rect.size.width, rect.pos.y + rect.size.height),
+        Point(rect.pos.x, rect.pos.y + rect.size.height),
+        style,
+        vertices,
+        indices
+    );
+    style.dash_offset = dashOffset;
+    addLine(
+        Point(rect.pos.x, rect.pos.y + rect.size.height),
+        Point(rect.pos.x, rect.pos.y),
+        style,
+        vertices,
+        indices
+    );
+
+    auto *solidColorPattern = dynamic_cast<SolidColorPattern *>(pattern);
+    if (!solidColorPattern)
+    {
+        throw std::runtime_error("VkGraphicsContextImpl::drawRect: pattern must be SolidColorPattern");
+    }
+    Color color = solidColorPattern->color();
+    VkPipelineManager::FragPushConstantData fragData = {
+        .color = glm::vec4(color.r, color.g, color.b, color.a),
+    };
+
+    m_renderer->addCommand(vertices, indices, fragData);
 }
 
 void VkGraphicsContextImpl::drawEllipse(Point center, float radiusX, float radiusY, Pattern *pattern, const StrokeStyle& strokeStyle)
@@ -183,7 +230,7 @@ void VkGraphicsContextImpl::drawRoundedRect(
 {
 }
 
-void VkGraphicsContextImpl::addLine(
+float VkGraphicsContextImpl::addLine(
     Point start,
     Point end,
     const StrokeStyle &strokeStyle,
@@ -191,6 +238,8 @@ void VkGraphicsContextImpl::addLine(
     std::vector<uint16_t> &indices
 ) const
 {
+    float dashOffset = 0.0f;
+
     auto startVec = toGlmVec2(m_renderer->normalize(start));
     auto endVec = toGlmVec2(m_renderer->normalize(end));
 
@@ -217,6 +266,7 @@ void VkGraphicsContextImpl::addLine(
             {
                 line.second = endVec;
                 lines.push_back(line);
+                dashOffset = (endVec.x - current.x) / dirUnitVec.x;
                 break;
             }
 
@@ -318,6 +368,8 @@ void VkGraphicsContextImpl::addLine(
           normalUnitVec
         );
     }
+
+    return dashOffset;
 }
 
 void VkGraphicsContextImpl::addCapStyle(
