@@ -23,6 +23,11 @@ struct Point
     {
         return {x - point.x, y - point.y};
     }
+
+    Point operator-() const
+    {
+        return {-x, -y};
+    }
 };
 
 } // karin

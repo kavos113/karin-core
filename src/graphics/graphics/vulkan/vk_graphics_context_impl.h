@@ -1,5 +1,5 @@
-#ifndef VK_GRAPHICS_CONTEXT_IMPL_H
-#define VK_GRAPHICS_CONTEXT_IMPL_H
+#ifndef SRC_GRAPHICS_GRAPHICS_VULKAN_VK_GRAPHICS_CONTEXT_IMPL_H
+#define SRC_GRAPHICS_GRAPHICS_VULKAN_VK_GRAPHICS_CONTEXT_IMPL_H
 
 #include <graphics/graphics_context_impl.h>
 
@@ -24,6 +24,17 @@ public:
     void drawRoundedRect(Rectangle rect, float radiusX, float radiusY, Pattern *pattern, const StrokeStyle& strokeStyle) override;
 
 private:
+    void addCapStyle(
+        StrokeStyle::CapStyle capStyle,
+        std::vector<VkPipelineManager::Vertex>& vertices,
+        std::vector<uint16_t>& indices,
+        const Point& center,
+        const Point& direction,
+        float width, // pixel
+        glm::vec2 dirUnitVec,
+        glm::vec2 normalUnitVec
+    );
+
     VkRendererImpl* m_renderer;
 
     static constexpr int ROUND_SEGMENTS = 16;
@@ -31,4 +42,4 @@ private:
 
 } // karin
 
-#endif //VK_GRAPHICS_CONTEXT_IMPL_H
+#endif //SRC_GRAPHICS_GRAPHICS_VULKAN_VK_GRAPHICS_CONTEXT_IMPL_H

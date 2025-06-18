@@ -153,8 +153,7 @@ void VkGraphicsContextImpl::drawLine(Point start, Point end, Pattern *pattern, c
     auto direction = end - start;
     auto normalVec = glm::normalize(glm::vec2(-direction.y, direction.x)) * strokeStyle.width / 2.0f;
 
-    auto normal = m_renderer->normalizeVec(normalVec);
-
+    auto normalUnitVec = m_renderer->normalizeVec(normalVec);
     auto dirUnitVec = m_renderer->normalizeVec(glm::normalize(toGlmVec2(direction)) * strokeStyle.width);
 
     std::vector<std::pair<glm::vec2, glm::vec2>> lines;
@@ -192,19 +191,19 @@ void VkGraphicsContextImpl::drawLine(Point start, Point end, Pattern *pattern, c
             vertices.end(),
             {
                 {
-                    .pos = lines[i].first + normal,
+                    .pos = lines[i].first + normalUnitVec,
                     .uv = {-1.0f, -1.0f},
                 },
                 {
-                    .pos = lines[i].first - normal,
+                    .pos = lines[i].first - normalUnitVec,
                     .uv = {1.0f, -1.0f},
                 },
                 {
-                    .pos = lines[i].second - normal,
+                    .pos = lines[i].second - normalUnitVec,
                     .uv = {1.0f, 1.0f},
                 },
                 {
-                    .pos = lines[i].second + normal,
+                    .pos = lines[i].second + normalUnitVec,
                     .uv = {-1.0f, 1.0f},
                 }
             }
@@ -224,121 +223,27 @@ void VkGraphicsContextImpl::drawLine(Point start, Point end, Pattern *pattern, c
         );
     }
 
-    switch (strokeStyle.start_cap_style)
-    {
-        case StrokeStyle::CapStyle::Butt:
-            break;
+    addCapStyle(
+        strokeStyle.start_cap_style,
+        vertices,
+        indices,
+        start,
+        -direction,
+        strokeStyle.width,
+        dirUnitVec,
+        normalUnitVec
+    );
 
-        case StrokeStyle::CapStyle::Round:
-        {
-            float baseAngle = std::atan2(-direction.y, -direction.x);
-            float startAngle = baseAngle - M_PI / 2.0f;
-            float endAngle = baseAngle + M_PI / 2.0f;
-            float angleStep = (endAngle - startAngle) / ROUND_SEGMENTS;
-            float radius = strokeStyle.width / 2.0f;
-            auto pixStart = toGlmVec2(start);
-
-            for (int i = 0; i <= ROUND_SEGMENTS; ++i)
-            {
-                float angle = startAngle + i * angleStep;
-
-                auto pos = pixStart + glm::vec2(std::cos(angle), std::sin(angle)) * radius;
-
-                vertices.push_back({
-                    .pos = m_renderer->normalize(pos),
-                    .uv = {-1.0f, -1.0f},
-                });
-            }
-            vertices.push_back({
-                .pos = startVec,
-                .uv = {0.0f, 0.0f},
-            });
-
-            auto baseIndex = static_cast<uint16_t>(vertices.size() - ROUND_SEGMENTS - 2);
-            for (int i = 0; i < ROUND_SEGMENTS; ++i)
-            {
-                indices.insert(
-                    indices.end(),
-                    {
-                        baseIndex + i,
-                        baseIndex + i + 1,
-                        static_cast<uint16_t>(baseIndex + ROUND_SEGMENTS + 1)
-                    }
-                );
-            }
-        }
-            break;
-
-        case StrokeStyle::CapStyle::Square:
-        {
-            vertices.insert(
-                vertices.end(),
-                {
-                    {
-                        .pos = startVec - dirUnitVec + normal,
-                        .uv = {-1.0f, -1.0f},
-                    },
-                    {
-                        .pos = startVec - dirUnitVec - normal,
-                        .uv = {1.0f, -1.0f},
-                    },
-                    {
-                        .pos = startVec + normal,
-                        .uv = {1.0f, 1.0f},
-                    },
-                    {
-                        .pos = startVec - normal,
-                        .uv = {-1.0f, 1.0f},
-                    }
-                }
-            );
-            auto baseIndex = static_cast<uint16_t>(vertices.size() - 4);
-            indices.insert(
-                indices.end(),
-                {
-                    baseIndex,
-                    static_cast<uint16_t>(baseIndex + 1),
-                    static_cast<uint16_t>(baseIndex + 2),
-                    static_cast<uint16_t>(baseIndex + 2),
-                    static_cast<uint16_t>(baseIndex + 3),
-                    baseIndex
-                }
-            );
-        }
-            break;
-
-        case StrokeStyle::CapStyle::Triangle:
-        {
-            vertices.insert(
-                vertices.end(),
-                {
-                    {
-                        .pos = startVec + normal,
-                        .uv = {-1.0f, -1.0f},
-                    },
-                    {
-                        .pos = startVec - normal,
-                        .uv = {1.0f, -1.0f},
-                    },
-                    {
-                        .pos = startVec - dirUnitVec / 2.0f,
-                        .uv = {1.0f, 1.0f},
-                    },
-                }
-            );
-
-            auto baseIndex = static_cast<uint16_t>(vertices.size() - 3);
-            indices.insert(
-                indices.end(),
-                {
-                    baseIndex,
-                    static_cast<uint16_t>(baseIndex + 1),
-                    static_cast<uint16_t>(baseIndex + 2),
-                }
-            );
-        }
-            break;
-    }
+    addCapStyle(
+        strokeStyle.end_cap_style,
+        vertices,
+        indices,
+        end,
+        direction,
+        strokeStyle.width,
+        dirUnitVec,
+        normalUnitVec
+    );
 
     auto *solidColorPattern = dynamic_cast<SolidColorPattern *>(pattern);
     if (!solidColorPattern)
@@ -369,5 +274,135 @@ void VkGraphicsContextImpl::drawRoundedRect(
     const StrokeStyle& strokeStyle
 )
 {
+}
+
+void VkGraphicsContextImpl::addCapStyle(
+    StrokeStyle::CapStyle capStyle,
+    std::vector<VkPipelineManager::Vertex> &vertices,
+    std::vector<uint16_t> &indices,
+    const Point &center,
+    const Point &direction,
+    float width,
+    glm::vec2 dirUnitVec,
+    glm::vec2 normalUnitVec
+)
+{
+    auto centerVec = toGlmVec2(m_renderer->normalize(center));
+
+    switch (capStyle)
+    {
+        case StrokeStyle::CapStyle::Butt:
+            break;
+
+        case StrokeStyle::CapStyle::Round:
+        {
+            float baseAngle = std::atan2(direction.y, direction.x);
+            float startAngle = baseAngle - M_PI / 2.0f;
+            float endAngle = baseAngle + M_PI / 2.0f;
+            float angleStep = (endAngle - startAngle) / ROUND_SEGMENTS;
+            float radius = width / 2.0f;
+            auto pixStart = toGlmVec2(center);
+
+            for (int i = 0; i <= ROUND_SEGMENTS; ++i)
+            {
+                float angle = startAngle + i * angleStep;
+
+                auto pos = pixStart + glm::vec2(std::cos(angle), std::sin(angle)) * radius;
+
+                vertices.push_back({
+                    .pos = m_renderer->normalize(pos),
+                    .uv = {-1.0f, -1.0f},
+                });
+            }
+            vertices.push_back({
+                .pos = centerVec,
+                .uv = {0.0f, 0.0f},
+            });
+
+            auto baseIndex = static_cast<uint16_t>(vertices.size() - ROUND_SEGMENTS - 2);
+            for (int i = 0; i < ROUND_SEGMENTS; ++i)
+            {
+                indices.insert(
+                    indices.end(),
+                    {
+                        baseIndex + i,
+                        baseIndex + i + 1,
+                        static_cast<uint16_t>(baseIndex + ROUND_SEGMENTS + 1)
+                    }
+                );
+            }
+        }
+            break;
+
+        case StrokeStyle::CapStyle::Square:
+        {
+            vertices.insert(
+                vertices.end(),
+                {
+                    {
+                        .pos = centerVec - dirUnitVec + normalUnitVec,
+                        .uv = {-1.0f, -1.0f},
+                    },
+                    {
+                        .pos = centerVec - dirUnitVec - normalUnitVec,
+                        .uv = {1.0f, -1.0f},
+                    },
+                    {
+                        .pos = centerVec + normalUnitVec,
+                        .uv = {1.0f, 1.0f},
+                    },
+                    {
+                        .pos = centerVec - normalUnitVec,
+                        .uv = {-1.0f, 1.0f},
+                    }
+                }
+            );
+            auto baseIndex = static_cast<uint16_t>(vertices.size() - 4);
+            indices.insert(
+                indices.end(),
+                {
+                    baseIndex,
+                    static_cast<uint16_t>(baseIndex + 1),
+                    static_cast<uint16_t>(baseIndex + 2),
+                    static_cast<uint16_t>(baseIndex + 2),
+                    static_cast<uint16_t>(baseIndex + 3),
+                    baseIndex
+                }
+            );
+        }
+            break;
+
+        case StrokeStyle::CapStyle::Triangle:
+        {
+            vertices.insert(
+                vertices.end(),
+                {
+                    {
+                        .pos = centerVec + normalUnitVec,
+                        .uv = {-1.0f, -1.0f},
+                    },
+                    {
+                        .pos = centerVec - normalUnitVec,
+                        .uv = {1.0f, -1.0f},
+                    },
+                    {
+                        .pos = centerVec - dirUnitVec / 2.0f,
+                        .uv = {1.0f, 1.0f},
+                    },
+                }
+            );
+
+            auto baseIndex = static_cast<uint16_t>(vertices.size() - 3);
+            indices.insert(
+                indices.end(),
+                {
+                    baseIndex,
+                    static_cast<uint16_t>(baseIndex + 1),
+                    static_cast<uint16_t>(baseIndex + 2),
+                }
+            );
+        }
+            break;
+    }
 }
 } // karin
