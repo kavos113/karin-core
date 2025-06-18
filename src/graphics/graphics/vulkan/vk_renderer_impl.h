@@ -36,6 +36,8 @@ public:
     Rectangle normalize(Rectangle rect) const;
     Point normalize(Point point) const;
     glm::vec2 normalize(glm::vec2 v) const;
+    glm::vec2 unNormalize(glm::vec2 v) const;
+    // only change scale
     glm::vec2 normalizeVec(glm::vec2 vec) const;
 private:
     struct DrawCommand

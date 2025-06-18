@@ -123,20 +123,6 @@ void VkRendererImpl::endDraw()
 
     for (const auto & command : m_drawCommands)
     {
-        for (int i = 0; i < m_vertexOffset; i++)
-        {
-            std::cout << "Vertex " << i << ": "
-                      << "Pos: (" << reinterpret_cast<VkPipelineManager::Vertex *>(m_vertexStartPoint)[i].pos.x << ", " << reinterpret_cast<VkPipelineManager::Vertex *>(m_vertexStartPoint)[i].pos.y << ")" << std::endl;
-        }
-
-        for (int i = 0; i < command.indexCount; i += 3)
-        {
-            std::cout << "Index " << i << ": "
-                      << "Indices: (" << reinterpret_cast<uint16_t *>(m_indexStartPoint)[command.indexOffset + i] << ", "
-                      << reinterpret_cast<uint16_t *>(m_indexStartPoint)[command.indexOffset + i + 1] << ", "
-                      << reinterpret_cast<uint16_t *>(m_indexStartPoint)[command.indexOffset + i + 2] << ")" << std::endl;
-        }
-
         m_pipelineManager->bindData(m_commandBuffers[m_currentFrame], command.fragData);
         vkCmdDrawIndexed(m_commandBuffers[m_currentFrame], command.indexCount, 1, command.indexOffset, 0, 0);
     }
@@ -248,6 +234,16 @@ glm::vec2 VkRendererImpl::normalize(glm::vec2 v) const
     return {
         (v.x / static_cast<float>(extent.width)) * 2.0f - 1.0f,
         (v.y / static_cast<float>(extent.height)) * 2.0f - 1.0f
+    };
+}
+
+glm::vec2 VkRendererImpl::unNormalize(glm::vec2 v) const
+{
+    VkExtent2D extent = m_surface->extent();
+
+    return {
+        (v.x + 1.0f) / 2.0f * static_cast<float>(extent.width),
+        (v.y + 1.0f) / 2.0f * static_cast<float>(extent.height)
     };
 }
 

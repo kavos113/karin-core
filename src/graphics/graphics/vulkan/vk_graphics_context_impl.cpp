@@ -227,7 +227,7 @@ void VkGraphicsContextImpl::drawLine(Point start, Point end, Pattern *pattern, c
         strokeStyle.start_cap_style,
         vertices,
         indices,
-        start,
+        startVec,
         -direction,
         strokeStyle.width,
         dirUnitVec,
@@ -238,12 +238,36 @@ void VkGraphicsContextImpl::drawLine(Point start, Point end, Pattern *pattern, c
         strokeStyle.end_cap_style,
         vertices,
         indices,
-        end,
+        endVec,
         direction,
         strokeStyle.width,
         dirUnitVec,
         normalUnitVec
     );
+
+    for (int i = 1; i < lines.size(); i++)
+    {
+        addCapStyle(
+          strokeStyle.dash_cap_style,
+          vertices,
+          indices,
+          lines[i - 1].second,
+          direction,
+          strokeStyle.width,
+          dirUnitVec,
+          normalUnitVec
+        );
+        addCapStyle(
+          strokeStyle.dash_cap_style,
+          vertices,
+          indices,
+          lines[i].first,
+          -direction,
+          strokeStyle.width,
+          dirUnitVec,
+          normalUnitVec
+        );
+    }
 
     auto *solidColorPattern = dynamic_cast<SolidColorPattern *>(pattern);
     if (!solidColorPattern)
@@ -280,15 +304,13 @@ void VkGraphicsContextImpl::addCapStyle(
     StrokeStyle::CapStyle capStyle,
     std::vector<VkPipelineManager::Vertex> &vertices,
     std::vector<uint16_t> &indices,
-    const Point &center,
+    const glm::vec2 &centerVec,
     const Point &direction,
     float width,
     glm::vec2 dirUnitVec,
     glm::vec2 normalUnitVec
-)
+) const
 {
-    auto centerVec = toGlmVec2(m_renderer->normalize(center));
-
     switch (capStyle)
     {
         case StrokeStyle::CapStyle::Butt:
@@ -301,7 +323,7 @@ void VkGraphicsContextImpl::addCapStyle(
             float endAngle = baseAngle + M_PI / 2.0f;
             float angleStep = (endAngle - startAngle) / ROUND_SEGMENTS;
             float radius = width / 2.0f;
-            auto pixStart = toGlmVec2(center);
+            auto pixStart = m_renderer->unNormalize(centerVec);
 
             for (int i = 0; i <= ROUND_SEGMENTS; ++i)
             {

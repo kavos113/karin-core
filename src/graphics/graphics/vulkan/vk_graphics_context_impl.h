@@ -28,12 +28,12 @@ private:
         StrokeStyle::CapStyle capStyle,
         std::vector<VkPipelineManager::Vertex>& vertices,
         std::vector<uint16_t>& indices,
-        const Point& center,
+        const glm::vec2& centerVec,
         const Point& direction,
         float width, // pixel
         glm::vec2 dirUnitVec,
         glm::vec2 normalUnitVec
-    );
+    ) const;
 
     VkRendererImpl* m_renderer;
 
