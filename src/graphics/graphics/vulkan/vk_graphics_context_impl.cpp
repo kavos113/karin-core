@@ -157,7 +157,7 @@ void VkGraphicsContextImpl::drawLine(Point start, Point end, Pattern *pattern, c
     auto dirUnitVec = m_renderer->normalizeVec(glm::normalize(toGlmVec2(direction)) * strokeStyle.width);
 
     std::vector<std::pair<glm::vec2, glm::vec2>> lines;
-    auto current = startVec;
+    auto current = startVec - dirUnitVec * strokeStyle.dash_offset;
     if (strokeStyle.dash_pattern.empty())
     {
         lines.push_back({startVec, endVec});
@@ -183,6 +183,7 @@ void VkGraphicsContextImpl::drawLine(Point start, Point end, Pattern *pattern, c
             dashPatternIndex = (dashPatternIndex + 1) % strokeStyle.dash_pattern.size();
         }
 
+        lines[0].first += dirUnitVec * strokeStyle.dash_offset;
     }
 
     std::vector<VkPipelineManager::Vertex> vertices;

@@ -29,7 +29,7 @@ int main()
             .join_style = karin::StrokeStyle::JoinStyle::Round,
             .miter_limit = 10.0f,
             .dash_pattern = { 5.0f, 2.0f },
-            .dash_offset = 0.0f
+            .dash_offset = 1.0f
         };
         gc.drawLine(karin::Point(100, 400), karin::Point(300, 500), redPattern.get(), strokeStyle);
     });
