@@ -89,6 +89,8 @@ D2D1_CAP_STYLE D2DDeviceResources::toD2DCapStyle(StrokeStyle::CapStyle capStyle)
             return D2D1_CAP_STYLE_ROUND;
         case StrokeStyle::CapStyle::Square:
             return D2D1_CAP_STYLE_SQUARE;
+        case StrokeStyle::CapStyle::Triangle:
+            return D2D1_CAP_STYLE_TRIANGLE;
         default:
             throw std::invalid_argument("Unknown cap style");
     }
