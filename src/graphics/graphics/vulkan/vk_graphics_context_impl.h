@@ -44,6 +44,17 @@ private:
         glm::vec2 normalUnitVec
     ) const;
 
+    float addArc(
+        Point center,
+        float radiusX,
+        float radiusY,
+        float startAngle,
+        float endAngle,
+        const StrokeStyle& strokeStyle,
+        std::vector<VkPipelineManager::Vertex>& vertices,
+        std::vector<uint16_t>& indices
+    ) const;
+
     // should start < end
     std::vector<Point> splitArc(
         Point center,

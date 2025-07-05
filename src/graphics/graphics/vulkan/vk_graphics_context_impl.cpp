@@ -227,29 +227,16 @@ void VkGraphicsContextImpl::drawEllipse(Point center, float radiusX, float radiu
     style.start_cap_style = style.dash_cap_style;
     style.end_cap_style = style.dash_cap_style;
 
-    std::vector<Point> arcPoints = splitArc(center, radiusX, radiusY, 0.0f, 2.0f * M_PI);
-    for (size_t i = 0; i < arcPoints.size() - 1; ++i)
-    {
-        float dashOffset = addLine(
-            arcPoints[i],
-            arcPoints[i + 1],
-            style,
-            vertices,
-            indices
-        );
-        style.dash_offset = dashOffset;
-    }
-    if (arcPoints.size() > 1)
-    {
-        // Connect the last point to the first point
-        addLine(
-            arcPoints.back(),
-            arcPoints.front(),
-            style,
-            vertices,
-            indices
-        );
-    }
+    addArc(
+        center,
+        radiusX,
+        radiusY,
+        0.0f,
+        2.0f * M_PI,
+        style,
+        vertices,
+        indices
+    );
 
     auto *solidColorPattern = dynamic_cast<SolidColorPattern *>(pattern);
     if (!solidColorPattern)
@@ -271,6 +258,14 @@ void VkGraphicsContextImpl::drawRoundedRect(
     const StrokeStyle& strokeStyle
 )
 {
+    std::vector<VkPipelineManager::Vertex> vertices;
+    std::vector<uint16_t> indices;
+
+    StrokeStyle style = strokeStyle;
+    style.start_cap_style = style.dash_cap_style;
+    style.end_cap_style = style.dash_cap_style;
+
+
 }
 
 float VkGraphicsContextImpl::addLine(
@@ -549,6 +544,53 @@ void VkGraphicsContextImpl::addCapStyle(
         }
             break;
     }
+}
+
+float VkGraphicsContextImpl::addArc(
+    Point center,
+    float radiusX,
+    float radiusY,
+    float startAngle,
+    float endAngle,
+    const StrokeStyle &strokeStyle,
+    std::vector<VkPipelineManager::Vertex> &vertices,
+    std::vector<uint16_t> &indices
+) const
+{
+    if (startAngle > endAngle)
+    {
+        endAngle += 2.0f * M_PI;
+    }
+
+    StrokeStyle style = strokeStyle;
+
+    auto arcPoints = splitArc(center, radiusX, radiusY, startAngle, endAngle);
+    for (size_t i = 0; i < arcPoints.size() - 1; ++i)
+    {
+        float dashOffset = addLine(
+            arcPoints[i],
+            arcPoints[i + 1],
+            style,
+            vertices,
+            indices
+        );
+        style.dash_offset = dashOffset;
+    }
+
+    if (arcPoints.size() > 1)
+    {
+        // Connect the last point to the first point
+        float dashOffset = addLine(
+            arcPoints.back(),
+            arcPoints.front(),
+            style,
+            vertices,
+            indices
+        );
+        style.dash_offset = dashOffset;
+    }
+
+    return style.dash_offset;
 }
 
 std::vector<Point> VkGraphicsContextImpl::splitArc(
