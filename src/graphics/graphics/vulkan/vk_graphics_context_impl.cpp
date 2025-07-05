@@ -265,7 +265,92 @@ void VkGraphicsContextImpl::drawRoundedRect(
     style.start_cap_style = style.dash_cap_style;
     style.end_cap_style = style.dash_cap_style;
 
+    float offset = addArc(
+        Point(rect.pos.x + radiusX, rect.pos.y + radiusY),
+        radiusX,
+        radiusY,
+        M_PI,
+        1.5f * M_PI,
+        style,
+        vertices,
+        indices
+    );
+    style.dash_offset = offset;
+    offset = addLine(
+        Point(rect.pos.x + radiusX, rect.pos.y),
+        Point(rect.pos.x + rect.size.width - radiusX, rect.pos.y),
+        style,
+        vertices,
+        indices
+    );
+    style.dash_offset = offset;
+    offset = addArc(
+        Point(rect.pos.x + rect.size.width - radiusX, rect.pos.y + radiusY),
+        radiusX,
+        radiusY,
+        1.5f * M_PI,
+        2.0f * M_PI,
+        style,
+        vertices,
+        indices
+    );
+    style.dash_offset = offset;
+    offset = addLine(
+        Point(rect.pos.x + rect.size.width, rect.pos.y + radiusY),
+        Point(rect.pos.x + rect.size.width, rect.pos.y + rect.size.height - radiusY),
+        style,
+        vertices,
+        indices
+    );
+    style.dash_offset = offset;
+    offset = addArc(
+        Point(rect.pos.x + rect.size.width - radiusX, rect.pos.y + rect.size.height - radiusY),
+        radiusX,
+        radiusY,
+        0.0f,
+        0.5f * M_PI,
+        style,
+        vertices,
+        indices
+    );
+    style.dash_offset = offset;
+    offset = addLine(
+        Point(rect.pos.x + rect.size.width - radiusX, rect.pos.y + rect.size.height),
+        Point(rect.pos.x + radiusX, rect.pos.y + rect.size.height),
+        style,
+        vertices,
+        indices
+    );
+    style.dash_offset = offset;
+    offset = addArc(
+        Point(rect.pos.x + radiusX, rect.pos.y + rect.size.height - radiusY),
+        radiusX,
+        radiusY,
+        0.5f * M_PI,
+        M_PI,
+        style,
+        vertices,
+        indices
+    );
+    style.dash_offset = offset;
+    addLine(
+        Point(rect.pos.x, rect.pos.y + rect.size.height - radiusY),
+        Point(rect.pos.x, rect.pos.y + radiusY),
+        style,
+        vertices,
+        indices
+    );
 
+    auto *solidColorPattern = dynamic_cast<SolidColorPattern *>(pattern);
+    if (!solidColorPattern)
+    {
+        throw std::runtime_error("VkGraphicsContextImpl::drawRoundedRect: pattern must be SolidColorPattern");
+    }
+    Color color = solidColorPattern->color();
+    VkPipelineManager::FragPushConstantData fragData = {
+        .color = glm::vec4(color.r, color.g, color.b, color.a),
+    };
+    m_renderer->addCommand(vertices, indices, fragData);
 }
 
 float VkGraphicsContextImpl::addLine(
@@ -577,19 +662,6 @@ float VkGraphicsContextImpl::addArc(
         style.dash_offset = dashOffset;
     }
 
-    if (arcPoints.size() > 1)
-    {
-        // Connect the last point to the first point
-        float dashOffset = addLine(
-            arcPoints.back(),
-            arcPoints.front(),
-            style,
-            vertices,
-            indices
-        );
-        style.dash_offset = dashOffset;
-    }
-
     return style.dash_offset;
 }
 
@@ -609,9 +681,9 @@ std::vector<Point> VkGraphicsContextImpl::splitArc(
         segments = 1;
     }
 
-    std::vector<Point> points(segments);
+    std::vector<Point> points(segments + 1);
 
-    for (int i = 0; i < segments; ++i)
+    for (int i = 0; i <= segments; ++i)
     {
         float angle = startAngle + i * angleStep;
         if (angle > endAngle)
