@@ -44,6 +44,7 @@ set(GRAPHICS_SOURCE
         graphics/resources/graphics_device.cpp
         graphics/graphics/renderer.cpp
         graphics/graphics/graphics_context.cpp
+        graphics/graphics/path.cpp
 )
 
 if (WIN32)
