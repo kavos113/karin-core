@@ -227,7 +227,7 @@ void VkGraphicsContextImpl::drawEllipse(Point center, float radiusX, float radiu
     style.start_cap_style = style.dash_cap_style;
     style.end_cap_style = style.dash_cap_style;
 
-    std::vector<Point> arcPoints = splitArc(center, radiusX, radiusY);
+    std::vector<Point> arcPoints = splitArc(center, radiusX, radiusY, 0.0f, 2.0f * M_PI);
     for (size_t i = 0; i < arcPoints.size() - 1; ++i)
     {
         float dashOffset = addLine(
@@ -551,15 +551,31 @@ void VkGraphicsContextImpl::addCapStyle(
     }
 }
 
-std::vector<Point> VkGraphicsContextImpl::splitArc(Point center, float radiusX, float radiusY) const
+std::vector<Point> VkGraphicsContextImpl::splitArc(
+    Point center,
+    float radiusX,
+    float radiusY,
+    float startAngle,
+    float endAngle
+) const
 {
-    std::vector<Point> points(ELLIPSE_SEGMENTS);
-
     constexpr float angleStep = 2.0f * M_PI / ELLIPSE_SEGMENTS;
 
-    for (int i = 0; i < ELLIPSE_SEGMENTS; ++i)
+    int segments = static_cast<int>(std::ceil((endAngle - startAngle) / angleStep));
+    if (segments < 1)
     {
-        const float angle = i * angleStep;
+        segments = 1;
+    }
+
+    std::vector<Point> points(segments);
+
+    for (int i = 0; i < segments; ++i)
+    {
+        float angle = startAngle + i * angleStep;
+        if (angle > endAngle)
+        {
+            angle = endAngle;
+        }
         points[i] = {
             center.x + radiusX * std::cos(angle),
             center.y + radiusY * std::sin(angle)

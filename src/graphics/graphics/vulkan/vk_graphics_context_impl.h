@@ -44,10 +44,13 @@ private:
         glm::vec2 normalUnitVec
     ) const;
 
+    // should start < end
     std::vector<Point> splitArc(
         Point center,
         float radiusX,
-        float radiusY
+        float radiusY,
+        float startAngle,
+        float endAngle
     ) const;
 
     VkRendererImpl* m_renderer;
