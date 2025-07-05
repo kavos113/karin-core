@@ -171,6 +171,8 @@ void VkGraphicsContextImpl::drawRect(Rectangle rect, Pattern *pattern, const Str
     std::vector<uint16_t> indices;
 
     StrokeStyle style = strokeStyle;
+    style.start_cap_style = style.dash_cap_style;
+    style.end_cap_style = style.dash_cap_style;
     float dashOffset = addLine(
         Point(rect.pos.x, rect.pos.y),
         Point(rect.pos.x + rect.size.width, rect.pos.y),
@@ -179,7 +181,7 @@ void VkGraphicsContextImpl::drawRect(Rectangle rect, Pattern *pattern, const Str
         indices
     );
     style.dash_offset = dashOffset;
-    addLine(
+    dashOffset = addLine(
         Point(rect.pos.x + rect.size.width, rect.pos.y),
         Point(rect.pos.x + rect.size.width, rect.pos.y + rect.size.height),
         style,
@@ -187,7 +189,7 @@ void VkGraphicsContextImpl::drawRect(Rectangle rect, Pattern *pattern, const Str
         indices
     );
     style.dash_offset = dashOffset;
-    addLine(
+    dashOffset = addLine(
         Point(rect.pos.x + rect.size.width, rect.pos.y + rect.size.height),
         Point(rect.pos.x, rect.pos.y + rect.size.height),
         style,
@@ -218,6 +220,47 @@ void VkGraphicsContextImpl::drawRect(Rectangle rect, Pattern *pattern, const Str
 
 void VkGraphicsContextImpl::drawEllipse(Point center, float radiusX, float radiusY, Pattern *pattern, const StrokeStyle& strokeStyle)
 {
+    std::vector<VkPipelineManager::Vertex> vertices;
+    std::vector<uint16_t> indices;
+
+    StrokeStyle style = strokeStyle;
+    style.start_cap_style = style.dash_cap_style;
+    style.end_cap_style = style.dash_cap_style;
+
+    std::vector<Point> arcPoints = splitArc(center, radiusX, radiusY);
+    for (size_t i = 0; i < arcPoints.size() - 1; ++i)
+    {
+        float dashOffset = addLine(
+            arcPoints[i],
+            arcPoints[i + 1],
+            style,
+            vertices,
+            indices
+        );
+        style.dash_offset = dashOffset;
+    }
+    if (arcPoints.size() > 1)
+    {
+        // Connect the last point to the first point
+        addLine(
+            arcPoints.back(),
+            arcPoints.front(),
+            style,
+            vertices,
+            indices
+        );
+    }
+
+    auto *solidColorPattern = dynamic_cast<SolidColorPattern *>(pattern);
+    if (!solidColorPattern)
+    {
+        throw std::runtime_error("VkGraphicsContextImpl::drawEllipse: pattern must be SolidColorPattern");
+    }
+    Color color = solidColorPattern->color();
+    VkPipelineManager::FragPushConstantData fragData = {
+        .color = glm::vec4(color.r, color.g, color.b, color.a),
+    };
+    m_renderer->addCommand(vertices, indices, fragData);
 }
 
 void VkGraphicsContextImpl::drawRoundedRect(
@@ -267,7 +310,14 @@ float VkGraphicsContextImpl::addLine(
             {
                 line.second = endVec;
                 lines.push_back(line);
-                dashOffset = (endVec.x - current.x) / dirUnitVec.x;
+                if (dirUnitVec.x != 0.0f)
+                {
+                    dashOffset = (endVec.x - current.x) / dirUnitVec.x;
+                }
+                else if (dirUnitVec.y != 0.0f)
+                {
+                    dashOffset = (endVec.y - current.y) / dirUnitVec.y;
+                }
                 break;
             }
 
@@ -394,11 +444,11 @@ void VkGraphicsContextImpl::addCapStyle(
             float baseAngle = std::atan2(direction.y, direction.x);
             float startAngle = baseAngle - M_PI / 2.0f;
             float endAngle = baseAngle + M_PI / 2.0f;
-            float angleStep = (endAngle - startAngle) / ROUND_SEGMENTS;
+            float angleStep = (endAngle - startAngle) / CAP_ROUND_SEGMENTS;
             float radius = width / 2.0f;
             auto pixStart = m_renderer->unNormalize(centerVec);
 
-            for (int i = 0; i <= ROUND_SEGMENTS; ++i)
+            for (int i = 0; i <= CAP_ROUND_SEGMENTS; ++i)
             {
                 float angle = startAngle + i * angleStep;
 
@@ -414,15 +464,15 @@ void VkGraphicsContextImpl::addCapStyle(
                 .uv = {0.0f, 0.0f},
             });
 
-            auto baseIndex = static_cast<uint16_t>(vertices.size() - ROUND_SEGMENTS - 2);
-            for (int i = 0; i < ROUND_SEGMENTS; ++i)
+            auto baseIndex = static_cast<uint16_t>(vertices.size() - CAP_ROUND_SEGMENTS - 2);
+            for (int i = 0; i < CAP_ROUND_SEGMENTS; ++i)
             {
                 indices.insert(
                     indices.end(),
                     {
                         baseIndex + i,
                         baseIndex + i + 1,
-                        static_cast<uint16_t>(baseIndex + ROUND_SEGMENTS + 1)
+                        static_cast<uint16_t>(baseIndex + CAP_ROUND_SEGMENTS + 1)
                     }
                 );
             }
@@ -499,5 +549,23 @@ void VkGraphicsContextImpl::addCapStyle(
         }
             break;
     }
+}
+
+std::vector<Point> VkGraphicsContextImpl::splitArc(Point center, float radiusX, float radiusY) const
+{
+    std::vector<Point> points(ELLIPSE_SEGMENTS);
+
+    constexpr float angleStep = 2.0f * M_PI / ELLIPSE_SEGMENTS;
+
+    for (int i = 0; i < ELLIPSE_SEGMENTS; ++i)
+    {
+        const float angle = i * angleStep;
+        points[i] = {
+            center.x + radiusX * std::cos(angle),
+            center.y + radiusY * std::sin(angle)
+        };
+    }
+
+    return points;
 }
 } // karin

@@ -44,9 +44,16 @@ private:
         glm::vec2 normalUnitVec
     ) const;
 
+    std::vector<Point> splitArc(
+        Point center,
+        float radiusX,
+        float radiusY
+    ) const;
+
     VkRendererImpl* m_renderer;
 
-    static constexpr int ROUND_SEGMENTS = 8;
+    static constexpr int CAP_ROUND_SEGMENTS = 8;
+    static constexpr int ELLIPSE_SEGMENTS = 32;
 };
 
 } // karin
