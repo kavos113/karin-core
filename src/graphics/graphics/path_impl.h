@@ -1,26 +1,43 @@
 #ifndef SRC_GRAPHICS_GRAPHICS_PATH_IMPL_H
 #define SRC_GRAPHICS_GRAPHICS_PATH_IMPL_H
 
+#include <variant>
+#include <vector>
+
 #include <karin/common/geometry/point.h>
 
-namespace karin
-{
+namespace karin {
 
-class IPathImpl
+class PathImpl
 {
 public:
-    virtual ~IPathImpl() = default;
+    struct LineArgs
+    {
+        Point start;
+        Point end;
+    };
 
-    virtual void start(Point start) = 0;
-    virtual void lineTo(Point end) = 0;
-    virtual void arcTo(
-        Point center,
-        float radiusX,
-        float radiusY,
-        float startAngle,
-        float endAngle
-    ) = 0;
-    virtual void close() = 0;
+    struct ArcArgs
+    {
+        Point center;
+        float radiusX;
+        float radiusY;
+        float startAngle;
+        float endAngle;
+    };
+
+    PathImpl() = default;
+    ~PathImpl() = default;
+
+    void start(Point start);
+    void lineTo(Point end);
+    void arcTo(Point center, float radiusX, float radiusY, float startAngle, float endAngle);
+    void close();
+
+private:
+    std::vector<std::variant<LineArgs, ArcArgs>> m_commands;
+    Point m_startPoint;
+    Point m_currentPoint;
 };
 
 } // karin

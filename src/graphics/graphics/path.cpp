@@ -1,17 +1,31 @@
 #include <karin/graphics/graphics/path.h>
 
-void karin::Path::start(Point start)
+#include "path_impl.h"
+
+namespace karin
 {
+Path::Path()
+{
+    m_impl = std::make_unique<PathImpl>();
 }
 
-void karin::Path::lineTo(Point end)
+void Path::start(Point start)
 {
+    m_impl->start(start);
 }
 
-void karin::Path::arcTo(Point center, float radiusX, float radiusY, float startAngle, float endAngle)
+void Path::lineTo(Point end)
 {
+    m_impl->lineTo(end);
 }
 
-void karin::Path::close()
+void Path::arcTo(Point center, float radiusX, float radiusY, float startAngle, float endAngle)
 {
+    m_impl->arcTo(center, radiusX, radiusY, startAngle, endAngle);
 }
+
+void Path::close()
+{
+    m_impl->close();
+}
+} // karin

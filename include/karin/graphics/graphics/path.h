@@ -6,12 +6,13 @@
 
 namespace karin
 {
-class IPathImpl;
+
+class PathImpl;
 
 class Path
 {
 public:
-    Path() = default;
+    Path();
     ~Path() = default;
 
     void start(Point start);
@@ -26,7 +27,7 @@ public:
     void close();
 
 private:
-    std::unique_ptr<IPathImpl> m_impl;
+    std::unique_ptr<PathImpl> m_impl;
 };
 
 } // karin
