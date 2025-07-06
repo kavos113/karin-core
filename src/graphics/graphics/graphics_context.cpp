@@ -46,4 +46,14 @@ void GraphicsContext::drawRoundedRect(Rectangle rect, float radiusX, float radiu
 {
     m_impl->drawRoundedRect(rect, radiusX, radiusY, pattern, strokeStyle);
 }
+
+void GraphicsContext::fillPath(const Path &path, Pattern *pattern)
+{
+    m_impl->fillPath(path, pattern);
+}
+
+void GraphicsContext::drawPath(const Path &path, Pattern *pattern, StrokeStyle strokeStyle)
+{
+    m_impl->drawPath(path, pattern, strokeStyle);
+}
 } // karin
