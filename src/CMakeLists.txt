@@ -54,6 +54,7 @@ if (WIN32)
             graphics/graphics/d2d/d2d_renderer_impl.cpp
             graphics/graphics/d2d/d2d_graphics_context_impl.cpp
             graphics/graphics/d2d/d2d_device_resources.cpp
+            graphics/graphics/d2d/d2d_path_impl.cpp
     )
 elseif (UNIX)
     set(GRAPHICS_SOURCE ${GRAPHICS_SOURCE}
