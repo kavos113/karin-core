@@ -7,6 +7,8 @@
 #include <karin/common/color/solid_color_pattern.h>
 #include <karin/graphics/graphics/stroke_style.h>
 
+#include <graphics/path_impl.h>
+
 namespace karin
 {
 
@@ -25,14 +27,16 @@ public:
     Microsoft::WRL::ComPtr<ID2D1Brush> brush(Pattern *pattern);
     Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> solidColorBrush(const SolidColorPattern& pattern);
     Microsoft::WRL::ComPtr<ID2D1StrokeStyle> strokeStyle(const StrokeStyle& style);
+    Microsoft::WRL::ComPtr<ID2D1PathGeometry> pathGeometry(PathImpl *path);
 
 private:
     static D2D1_CAP_STYLE toD2DCapStyle(StrokeStyle::CapStyle capStyle);
-    static D2D1_LINE_JOIN toD2DJoinStyle(StrokeStyle::JoinStyle joinStyle) ;
+    static D2D1_LINE_JOIN toD2DJoinStyle(StrokeStyle::JoinStyle joinStyle);
 
     // TODO: create before starting draw calls?
     std::map<SolidColorPattern, Microsoft::WRL::ComPtr<ID2D1SolidColorBrush>> m_solidColorBrushes;
     std::map<StrokeStyle, Microsoft::WRL::ComPtr<ID2D1StrokeStyle>> m_strokeStyles;
+    std::map<PathImpl*, Microsoft::WRL::ComPtr<ID2D1PathGeometry>> m_pathGeometries;
 
     Microsoft::WRL::ComPtr<ID2D1DeviceContext> m_deviceContext;
     Microsoft::WRL::ComPtr<ID2D1Factory1> m_factory;

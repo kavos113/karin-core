@@ -3,6 +3,7 @@
 #include <karin/common/geometry/rectangle.h>
 #include <karin/common/color/pattern.h>
 #include <karin/graphics/graphics/stroke_style.h>
+#include <karin/graphics/graphics/path.h>
 
 namespace karin
 {

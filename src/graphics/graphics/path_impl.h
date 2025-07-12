@@ -13,7 +13,6 @@ class PathImpl
 public:
     struct LineArgs
     {
-        Point start;
         Point end;
     };
 
@@ -33,6 +32,9 @@ public:
     void lineTo(Point end);
     void arcTo(Point center, float radiusX, float radiusY, float startAngle, float endAngle);
     void close();
+
+    std::vector<std::variant<LineArgs, ArcArgs>> commands() const;
+    Point startPoint() const;
 
 private:
     std::vector<std::variant<LineArgs, ArcArgs>> m_commands;

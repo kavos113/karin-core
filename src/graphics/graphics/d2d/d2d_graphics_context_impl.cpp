@@ -156,4 +156,12 @@ void D2DGraphicsContextImpl::drawRoundedRect(
         m_deviceResources->strokeStyle(strokeStyle).Get()
     );
 }
+
+void D2DGraphicsContextImpl::fillPath(const Path &path, Pattern *pattern)
+{
+}
+
+void D2DGraphicsContextImpl::drawPath(const Path &path, Pattern *pattern, const StrokeStyle &strokeStyle)
+{
+}
 } // karin

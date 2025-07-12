@@ -1,9 +1,12 @@
 #include "d2d_device_resources.h"
 
+#include <cmath>
 #include <color/d2d_color.h>
 
 #include <ranges>
 #include <stdexcept>
+
+#include <geometry/d2d_geometry.h>
 
 namespace karin
 {
@@ -77,6 +80,59 @@ Microsoft::WRL::ComPtr<ID2D1StrokeStyle> D2DDeviceResources::strokeStyle(const S
 
     m_strokeStyles[style] = strokeStyle;
     return strokeStyle;
+}
+
+Microsoft::WRL::ComPtr<ID2D1PathGeometry> D2DDeviceResources::pathGeometry(PathImpl *path)
+{
+    if (auto it = m_pathGeometries.find(path); it != m_pathGeometries.end())
+    {
+        return it->second;
+    }
+
+    Microsoft::WRL::ComPtr<ID2D1PathGeometry> geometry;
+    HRESULT hr = m_factory->CreatePathGeometry(&geometry);
+    if (FAILED(hr))
+    {
+        throw std::runtime_error("Failed to create D2D path geometry");
+    }
+
+    auto commands = path->commands();
+
+    Microsoft::WRL::ComPtr<ID2D1GeometrySink> sink;
+    hr = geometry->Open(&sink);
+    if (FAILED(hr))
+    {
+        throw std::runtime_error("Failed to open D2D geometry sink");
+    }
+
+    sink->SetFillMode(D2D1_FILL_MODE_ALTERNATE);
+    sink->BeginFigure(toD2DPoint(path->startPoint()), D2D1_FIGURE_BEGIN_FILLED);
+    for (const auto &command : commands)
+    {
+        std::visit([&sink](const auto &args) {
+            using T = std::decay_t<decltype(args)>;
+            if constexpr (std::is_same_v<T, PathImpl::LineArgs>)
+            {
+                sink->AddLine(toD2DPoint(args.end));
+            }
+            else if constexpr (std::is_same_v<T, PathImpl::ArcArgs>)
+            {
+                auto end = Point(
+                    args.center.x + args.radiusX * std::cos(args.endAngle),
+                    args.center.y + args.radiusY * std::sin(args.endAngle)
+                );
+                sink->AddArc(D2D1::ArcSegment(
+                    toD2DPoint(end),
+                    D2D1::SizeF(args.radiusX, args.radiusY),
+                    0.0f, // rotation angle
+                    D2D1_SWEEP_DIRECTION_CLOCKWISE,
+                    D2D1_ARC_SIZE_SMALL
+                ));
+            }
+        }, command);
+    }
+
+    return geometry;
 }
 
 D2D1_CAP_STYLE D2DDeviceResources::toD2DCapStyle(StrokeStyle::CapStyle capStyle)
