@@ -1,4 +1,4 @@
-#include "d2d_device_resources.h"
+#include "../graphics/d2d/d2d_device_resources.h"
 
 #include <cmath>
 #include <color/d2d_color.h>

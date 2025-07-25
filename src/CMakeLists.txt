@@ -41,31 +41,31 @@ endif ()
 
 # ----- Graphics modules -----
 set(GRAPHICS_SOURCE
-        graphics/resources/graphics_device.cpp
-        graphics/graphics/renderer.cpp
-        graphics/graphics/graphics_context.cpp
-        graphics/graphics/path.cpp
-        graphics/graphics/path_impl.cpp
+        graphics/graphics_device.cpp
+        graphics/renderer.cpp
+        graphics/graphics_context.cpp
+        graphics/path.cpp
+        graphics/path_impl.cpp
 )
 
 if (WIN32)
     set(GRAPHICS_SOURCE ${GRAPHICS_SOURCE}
-            graphics/resources/d2d/d2d_graphics_device.cpp
-            graphics/resources/d2d/d2d_surface_manager.cpp
-            graphics/graphics/d2d/d2d_renderer_impl.cpp
-            graphics/graphics/d2d/d2d_graphics_context_impl.cpp
-            graphics/graphics/d2d/d2d_device_resources.cpp
+            graphics/d2d/d2d_graphics_device.cpp
+            graphics/d2d/d2d_surface_manager.cpp
+            graphics/d2d/d2d_renderer_impl.cpp
+            graphics/d2d/d2d_graphics_context_impl.cpp
+            graphics/d2d/d2d_device_resources.cpp
     )
 elseif (UNIX)
     set(GRAPHICS_SOURCE ${GRAPHICS_SOURCE}
-            graphics/resources/vulkan/vk_graphics_device.cpp
-            graphics/resources/vulkan/vk_debug_manager.cpp
-            common/vulkan/vk_utils.cpp
-            graphics/resources/vulkan/vk_surface_manager.cpp
-            graphics/graphics/vulkan/vk_renderer_impl.cpp
-            graphics/graphics/vulkan/vk_graphics_context_impl.cpp
-            graphics/graphics/vulkan/vk_pipeline_manager.cpp
-            common/vulkan/vma_impl.cpp
+            graphics/vulkan/vk_graphics_device.cpp
+            graphics/vulkan/vk_debug_manager.cpp
+            graphics/vulkan/vk_utils.cpp
+            graphics/vulkan/vk_surface_manager.cpp
+            graphics/vulkan/vk_renderer_impl.cpp
+            graphics/vulkan/vk_graphics_context_impl.cpp
+            graphics/vulkan/vk_pipeline_manager.cpp
+            graphics/vulkan/vma_impl.cpp
     )
 endif ()
 
@@ -82,16 +82,16 @@ if (WIN32)
     target_link_libraries(karin_graphics PRIVATE d3d11.lib)
 elseif (UNIX)
     add_custom_command(
-            OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/graphics/shaders/shaders.h
-            COMMAND ${SCRIPTS_DIR}/shader.sh ${CMAKE_CURRENT_SOURCE_DIR}/graphics/shaders SRC_GRAPHICS_SHADERS_SHADER_H
+            OUTPUT graphics/vulkan/shaders/shaders.h
+            COMMAND ${SCRIPTS_DIR}/shader.sh graphics/vulkan/shaders SRC_GRAPHICS_SHADERS_SHADER_H
             DEPENDS
-                ${CMAKE_CURRENT_SOURCE_DIR}/graphics/shaders/shader.vert
-                ${CMAKE_CURRENT_SOURCE_DIR}/graphics/shaders/shader.frag
+            graphics/vulkan/shaders/shader.vert
+            graphics/vulkan/shaders/shader.frag
             COMMENT "Compiling graphics shaders"
     )
     add_custom_target(
             shaders_graphics ALL
-            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/graphics/shaders/shaders.h
+            DEPENDS graphics/vulkan/shaders/shaders.h
     )
 
     add_dependencies(karin_graphics shaders_graphics)

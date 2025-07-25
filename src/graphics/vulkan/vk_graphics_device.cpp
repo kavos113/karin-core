@@ -1,4 +1,4 @@
-#include "vk_graphics_device.h"
+#include "../resources/vulkan/vk_graphics_device.h"
 
 #include <X11/Xlib.h>
 #include <vulkan/vulkan_xlib.h>
@@ -8,7 +8,7 @@
 
 #include <shaders/shaders.h>
 
-#include "../../../common/vulkan/vk_utils.h"
+#include "vk_utils.h"
 
 namespace karin
 {

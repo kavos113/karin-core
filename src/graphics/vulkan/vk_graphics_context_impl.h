@@ -5,7 +5,7 @@
 
 #include <karin/graphics/graphics/stroke_style.h>
 
-#include "vk_renderer_impl.h"
+#include "../graphics/vulkan/vk_renderer_impl.h"
 
 namespace karin {
 

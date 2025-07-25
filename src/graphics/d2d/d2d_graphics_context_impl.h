@@ -4,7 +4,7 @@
 #include <d2d1_1.h>
 #include <wrl/client.h>
 
-#include <graphics/graphics_context_impl.h>
+#include <../graphics_context_impl.h>
 
 #include <karin/common/geometry/rectangle.h>
 #include <karin/graphics/graphics/stroke_style.h>

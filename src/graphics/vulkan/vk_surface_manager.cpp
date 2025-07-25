@@ -1,4 +1,4 @@
-#include "vk_surface_manager.h"
+#include "../resources/vulkan/vk_surface_manager.h"
 
 #include <vulkan/vulkan_xlib.h>
 #include <array>

@@ -3,11 +3,11 @@
 
 #include <d2d1_1.h>
 
-#include <graphics/renderer_impl.h>
+#include <../renderer_impl.h>
 
 #include "d2d_device_resources.h"
-#include "resources/d2d/d2d_graphics_device.h"
-#include "resources/d2d/d2d_surface_manager.h"
+#include "d2d_graphics_device.h"
+#include "d2d_surface_manager.h"
 
 namespace karin {
 

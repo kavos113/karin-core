@@ -1,4 +1,4 @@
-#include "vk_graphics_context_impl.h"
+#include "../graphics/vulkan/vk_graphics_context_impl.h"
 
 #include <cmath>
 #include <iostream>
@@ -6,7 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <stdexcept>
 
-#include "vk_pipeline_manager.h"
+#include "../graphics/vulkan/vk_pipeline_manager.h"
 #include "geometry/glm_geometry.h"
 #include "karin/common/color/solid_color_pattern.h"
 
