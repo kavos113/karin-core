@@ -1,8 +1,7 @@
-#include <karin/graphics/graphics/renderer.h>
+#include <karin/graphics/renderer.h>
 
 #include "platform.h"
-#include "platform.h"
-#include "graphics/renderer_impl.h"
+#include "renderer_impl.h"
 
 namespace karin
 {

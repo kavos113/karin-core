@@ -5,7 +5,7 @@
 #include <dxgi1_6.h>
 #include <wrl.h>
 
-#include <karin/graphics/resources/graphics_device.h>
+#include <karin/graphics/graphics_device.h>
 
 
 namespace karin

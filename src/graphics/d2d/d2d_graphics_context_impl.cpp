@@ -1,11 +1,9 @@
-#include "../graphics/d2d/d2d_graphics_context_impl.h"
+#include "d2d_graphics_context_impl.h"
 
 #include <geometry/d2d_geometry.h>
 
 #include <algorithm>
 #include <stdexcept>
-
-#include "karin/graphics/graphics/stroke_style.h"
 
 namespace karin
 {

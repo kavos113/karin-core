@@ -1,6 +1,7 @@
-#include <karin/graphics/graphics/graphics_context.h>
+#include <karin/graphics/graphics_context.h>
 
 #include "platform.h"
+#include "graphics_context_impl.h"
 
 namespace karin
 {

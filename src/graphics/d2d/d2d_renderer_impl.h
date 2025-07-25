@@ -3,7 +3,7 @@
 
 #include <d2d1_1.h>
 
-#include <../renderer_impl.h>
+#include <renderer_impl.h>
 
 #include "d2d_device_resources.h"
 #include "d2d_graphics_device.h"

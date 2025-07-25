@@ -1,4 +1,4 @@
-#include "../resources/d2d/d2d_graphics_device.h"
+#include "d2d_graphics_device.h"
 
 #include <array>
 #include <d3d11.h>

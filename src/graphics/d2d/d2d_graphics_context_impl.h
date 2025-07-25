@@ -4,11 +4,13 @@
 #include <d2d1_1.h>
 #include <wrl/client.h>
 
-#include <../graphics_context_impl.h>
+#include <graphics_context_impl.h>
 
 #include <karin/common/geometry/rectangle.h>
-#include <karin/graphics/graphics/stroke_style.h>
-#include <karin/graphics/graphics/path.h>
+#include <karin/common/geometry/point.h>
+#include <karin/common/color/pattern.h>
+#include <karin/graphics/path.h>
+#include <karin/graphics/stroke_style.h>
 
 #include "d2d_device_resources.h"
 

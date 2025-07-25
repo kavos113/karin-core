@@ -1,6 +1,6 @@
-#include <karin/graphics/resources/graphics_device.h>
+#include <karin/graphics/graphics_device.h>
 
-#include "resources/platform.h"
+#include "platform.h"
 
 namespace karin
 {

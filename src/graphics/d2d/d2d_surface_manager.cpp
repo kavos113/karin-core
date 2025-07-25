@@ -1,4 +1,4 @@
-#include "../resources/d2d/d2d_surface_manager.h"
+#include "d2d_surface_manager.h"
 
 #include <iostream>
 #include <stdexcept>

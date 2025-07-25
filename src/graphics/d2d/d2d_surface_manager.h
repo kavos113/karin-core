@@ -1,7 +1,7 @@
 #ifndef SRC_GRAPHICS_RESOURCES_D2D_D2D_SURFACE_IMPL_H
 #define SRC_GRAPHICS_RESOURCES_D2D_D2D_SURFACE_IMPL_H
 
-#include <wrl.h>
+#include <wrl/client.h>
 #include <dxgi1_6.h>
 
 #include <karin/common/geometry/size.h>

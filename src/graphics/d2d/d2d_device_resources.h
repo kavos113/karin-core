@@ -5,9 +5,9 @@
 #include <wrl/client.h>
 
 #include <karin/common/color/solid_color_pattern.h>
-#include <karin/graphics/graphics/stroke_style.h>
+#include <karin/graphics/stroke_style.h>
 
-#include <../path_impl.h>
+#include <path_impl.h>
 
 namespace karin
 {

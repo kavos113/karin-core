@@ -1,4 +1,4 @@
-#include <karin/graphics/graphics/path.h>
+#include <karin/graphics/path.h>
 
 #include "path_impl.h"
 
