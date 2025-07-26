@@ -1,6 +1,7 @@
 #include "vulkan_renderer_impl.h"
 
 #include <iostream>
+#include <cstring>
 
 namespace karin
 {
