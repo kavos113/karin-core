@@ -35,7 +35,7 @@ inline std::unique_ptr<IRendererImpl> createRendererImpl(GraphicsDevice* device,
 #ifdef KARIN_PLATFORM_DIRECTX
     return std::make_unique<D2DRendererImpl>(dynamic_cast<D2DGraphicsDevice*>(device), static_cast<HWND>(handle.hwnd));
 #elifdef KARIN_PLATFORM_VULKAN
-    return std::make_unique<VulkanRendererImpl>(dynamic_cast<VulkanGraphicsDevice*>(device), handle.window, reinterpret_cast<Display*>(handle.display));
+    return std::make_unique<VulkanRendererImpl>(dynamic_cast<VulkanGraphicsDevice*>(device), handle);
 #endif
     return nullptr;
 }

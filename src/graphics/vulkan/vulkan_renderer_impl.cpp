@@ -180,7 +180,7 @@ void VulkanRendererImpl::addCommand(
 )
 {
     memcpy(m_vertexMapPoint, vertices.data(), vertices.size() * sizeof(VulkanPipeline::Vertex));
-    m_vertexMapPoint += vertices.size() * sizeof(VulkanPipeline::Vertex);
+    m_vertexMapPoint += vertices.size();
 
     for (uint16_t & index : indices)
     {
@@ -188,7 +188,7 @@ void VulkanRendererImpl::addCommand(
     }
 
     memcpy(m_indexMapPoint, indices.data(), indices.size() * sizeof(uint16_t));
-    m_indexMapPoint += indices.size() * sizeof(uint16_t);
+    m_indexMapPoint += indices.size();
     m_indexCount += indices.size();
 
     m_vertexOffset += static_cast<uint16_t>(vertices.size());
@@ -325,7 +325,7 @@ void VulkanRendererImpl::createVertexBuffer()
         throw std::runtime_error("failed to create vertex buffer");
     }
 
-    m_vertexMapPoint = memoryInfo.pMappedData;
+    m_vertexMapPoint = static_cast<VulkanPipeline::Vertex*>(memoryInfo.pMappedData);
     m_vertexStartPoint = m_vertexMapPoint;
 }
 
@@ -349,7 +349,7 @@ void VulkanRendererImpl::createIndexBuffer()
         throw std::runtime_error("failed to create index buffer");
     }
 
-    m_indexMapPoint = memoryInfo.pMappedData;
+    m_indexMapPoint = static_cast<uint16_t*>(memoryInfo.pMappedData);
     m_indexStartPoint = m_indexMapPoint;
 }
 

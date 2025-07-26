@@ -2,12 +2,18 @@
 
 #include "vulkan_utils.h"
 
-#include <X11/Xlib.h>
-#include <vulkan/vulkan_xlib.h>
 #include <algorithm>
 #include <set>
 #include <memory>
 #include <stdexcept>
+
+#ifdef KARIN_PLATFORM_WINDOWS
+#include <windows.h>
+#include <vulkan/vulkan_win32.h>
+#elifdef KARIN_PLATFORM_UNIX
+#include <X11/Xlib.h>
+#include <vulkan/vulkan_xlib.h>
+#endif
 
 namespace karin
 {
@@ -54,7 +60,11 @@ void VulkanGraphicsDevice::createInstance()
     std::vector extensions = {
         VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
         VK_KHR_SURFACE_EXTENSION_NAME,
-        VK_KHR_XLIB_SURFACE_EXTENSION_NAME
+#ifdef KARIN_PLATFORM_WINDOWS
+        VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
+#elifdef KARIN_PLATFORM_UNIX
+        VK_KHR_XLIB_SURFACE_EXTENSION_NAME,
+#endif
     };
 
     createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());

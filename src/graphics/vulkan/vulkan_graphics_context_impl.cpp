@@ -361,6 +361,14 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
     m_renderer->addCommand(vertices, indices, fragData);
 }
 
+void VulkanGraphicsContextImpl::fillPath(const Path& path, Pattern* pattern)
+{
+}
+
+void VulkanGraphicsContextImpl::drawPath(const Path& path, Pattern* pattern, const StrokeStyle& strokeStyle)
+{
+}
+
 float VulkanGraphicsContextImpl::addLine(
     Point start,
     Point end,
@@ -558,8 +566,8 @@ void VulkanGraphicsContextImpl::addCapStyle(
                 indices.insert(
                     indices.end(),
                     {
-                        baseIndex + i,
-                        baseIndex + i + 1,
+                        static_cast<uint16_t>(baseIndex + i),
+                        static_cast<uint16_t>(baseIndex + i + 1),
                         static_cast<uint16_t>(baseIndex + CAP_ROUND_SEGMENTS + 1)
                     }
                 );

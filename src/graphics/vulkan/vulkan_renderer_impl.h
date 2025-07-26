@@ -78,12 +78,12 @@ private:
 
     VkBuffer m_vertexBuffer = VK_NULL_HANDLE;
     VmaAllocation m_vertexAllocation = VK_NULL_HANDLE;
-    void* m_vertexMapPoint = nullptr;
-    void* m_vertexStartPoint = nullptr;
+    VulkanPipeline::Vertex* m_vertexMapPoint = nullptr;
+    VulkanPipeline::Vertex* m_vertexStartPoint = nullptr;
     VkBuffer m_indexBuffer = VK_NULL_HANDLE;
     VmaAllocation m_indexAllocation = VK_NULL_HANDLE;
-    void* m_indexMapPoint = nullptr;
-    void* m_indexStartPoint = nullptr;
+    uint16_t* m_indexMapPoint = nullptr;
+    uint16_t* m_indexStartPoint = nullptr;
     uint16_t m_vertexOffset = 0;
     size_t m_indexCount = 0;
 

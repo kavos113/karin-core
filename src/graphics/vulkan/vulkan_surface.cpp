@@ -1,10 +1,18 @@
 #include "vulkan_surface.h"
 
-#include <vulkan/vulkan_xlib.h>
 #include <array>
 #include <iostream>
 
 #include "vulkan_utils.h"
+
+
+#ifdef KARIN_PLATFORM_WINDOWS
+#include <windows.h>
+#include <vulkan/vulkan_win32.h>
+#elifdef KARIN_PLATFORM_UNIX
+#include <X11/Xlib.h>
+#include <vulkan/vulkan_xlib.h>
+#endif
 
 namespace karin
 {
@@ -116,16 +124,33 @@ bool VulkanSurface::present(VkSemaphore waitSemaphore, uint32_t imageIndex) cons
 
 void VulkanSurface::createSurface()
 {
+#ifdef KARIN_PLATFORM_WINDOWS
+    VkWin32SurfaceCreateInfoKHR createInfo = {
+        .sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
+        .pNext = nullptr,
+        .flags = 0,
+        .hinstance = static_cast<HINSTANCE>(m_window.hinstance),
+        .hwnd = static_cast<HWND>(m_window.hwnd)
+    };
+
+    VkResult result = vkCreateWin32SurfaceKHR(m_device->instance(), &createInfo, nullptr, &m_surface);
+    if (result != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create surface");
+    }
+
+#elifdef KARIN_PLATFORM_UNIX
     VkXlibSurfaceCreateInfoKHR createInfo = {
         .sType = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR,
-        .dpy = m_display,
-        .window = m_window,
+        .dpy = reinterpret_cast<Display *>(m_window.display),
+        .window = m_window.window,
     };
 
     if (vkCreateXlibSurfaceKHR(m_device->instance(), &createInfo, nullptr, &m_surface) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create surface");
     }
+#endif
 }
 
 void VulkanSurface::createSwapChain()
@@ -134,9 +159,19 @@ void VulkanSurface::createSwapChain()
     VkPresentModeKHR presentMode = VulkanUtils::getBestSwapPresentMode(m_device->physicalDevice(), m_surface);
     VkSurfaceCapabilitiesKHR capabilities = VulkanUtils::getSwapCapabilities(m_device->physicalDevice(), m_surface);
 
+    int width, height;
+#ifdef KARIN_PLATFORM_WINDOWS
+    RECT rc;
+    GetClientRect(reinterpret_cast<HWND>(m_window.window), &rc);
+    width = rc.right - rc.left;
+    height = rc.bottom - rc.top;
+#elifdef KARIN_PLATFORM_UNIX
     XWindowAttributes attributes;
-    XGetWindowAttributes(m_display, m_window, &attributes);
-    VkExtent2D extent = VulkanUtils::getSwapExtent(capabilities, attributes.width, attributes.height);
+    XGetWindowAttributes(reinterpret_cast<Display *>(m_window.display), m_window.window, &attributes);
+    width = attributes.width;
+    height = attributes.height;
+#endif
+    VkExtent2D extent = VulkanUtils::getSwapExtent(capabilities, width, height);
 
     uint32_t imageCount = capabilities.minImageCount + 1;
     if (capabilities.maxImageCount > 0 && imageCount > capabilities.maxImageCount)

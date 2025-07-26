@@ -40,10 +40,22 @@ if (DIRECTX)
     target_compile_definitions(karin_graphics PUBLIC KARIN_PLATFORM_DIRECTX)
     target_compile_definitions(karin_graphics PUBLIC UNICODE)
     target_compile_definitions(karin_graphics PUBLIC NOMINMAX)
+    target_compile_definitions(karin_graphics PUBLIC WIN32_LEAN_AND_MEAN)
 elseif (VULKAN)
+    if (WIN32)
+        find_program(
+                BASH_EXECUTABLE bash
+                HINTS "C:\\Program Files\\Git\\bin" "C:\\Program Files (x86)\\Git\\bin"
+        )
+
+        if (NOT BASH_EXECUTABLE)
+            message(FATAL_ERROR "git bash has not found.")
+        endif ()
+    endif ()
+
     add_custom_command(
             OUTPUT vulkan/shaders/shaders.h
-            COMMAND ${SCRIPTS_DIR}/shader.sh vulkan/shaders SRC_GRAPHICS_VULKAN_SHADERS_SHADER_H
+            COMMAND ${BASH_EXECUTABLE} ${SCRIPTS_DIR}/shader.sh vulkan/shaders SRC_GRAPHICS_VULKAN_SHADERS_SHADER_H
             DEPENDS
             vulkan/shaders/shader.vert
             vulkan/shaders/shader.frag
