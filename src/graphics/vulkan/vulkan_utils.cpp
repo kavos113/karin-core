@@ -52,7 +52,7 @@ int VulkanUtils::rateDeviceScore(VkPhysicalDevice device)
     vkGetPhysicalDeviceProperties(device, &deviceProperties);
     vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
 
-    int score = 0;
+    int score = 100;
 
     if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
     {
