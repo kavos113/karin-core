@@ -13,11 +13,24 @@ env:
 
 jobs:
   run:
+    name: ${{ matrix.os }} ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
 
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            cmake_options: ""
+            name: "ubuntu"
+          - os: windows-latest
+            cmake_options: ""
+            name: "windows"
+          - os: windows-latest
+            cmake_options: "-DWINDOWS_VULKAN=ON"
+            name: "windows vulkan"
+            vulkan_version: "1.4.321.1"
 
     steps:
     - name: Checkout code
@@ -42,6 +55,30 @@ jobs:
         fi
       shell: bash
 
+    - name: Download and Install Vulkan SDK
+      if: contains(matrix.name, 'vulkan')
+      shell: bash
+      run: |
+        INSTALLER_URL="https://sdk.lunarg.com/sdk/download/${{ matrix.vulkan_version }}/windows/vulkansdk-windows-X64-${{ matrix.vulkan_version }}.exe"
+        INSTALLER_PATH="$TEMP/VulkanSDK-Installer.exe"
+        INSTALL_DIR="C:/VulkanSDK/${{ matrix.vulkan_version }}"
+        
+        echo "Downloading Vulkan SDK version ${{ matrix.vulkan_version }}..."
+        curl -L -o "$INSTALLER_PATH" "$INSTALLER_URL"
+        
+        echo "Installing Vulkan SDK to $INSTALL_DIR..."
+        "$INSTALLER_PATH" --root "$INSTALL_DIR" --accept-licenses --default-answer --confirm-command install
+        
+        echo "Setting VULKAN_SDK environment variable..."
+        echo "VULKAN_SDK=$INSTALL_DIR" >> $GITHUB_ENV
+        
+        echo "Adding Vulkan SDK Bin directory to PATH..."
+        echo "$INSTALL_DIR/Bin" >> $GITHUB_PATH
+        
+        rm "$INSTALLER_PATH"
+        
+        echo "Vulkan SDK setup complete."
+
     - name: Install with vcpkg
       run: |
         git clone https://github.com/microsoft/vcpkg.git
@@ -57,7 +94,7 @@ jobs:
       run: |
         mkdir ${{ env.BUILD_DIR }}
         cd ${{ env.BUILD_DIR }}
-        cmake -G Ninja -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_EXPORT_COMPILE_COMMANDS=${{ env.CMAKE_EXPORT_COMPILE_COMMANDS }} ..
+        cmake -G Ninja -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_EXPORT_COMPILE_COMMANDS=${{ env.CMAKE_EXPORT_COMPILE_COMMANDS }} -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake ${{ matrix.cmake_options }} ..
       shell: bash
 
     - name: Build
