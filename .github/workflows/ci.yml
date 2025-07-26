@@ -67,7 +67,7 @@ jobs:
         curl -L -o "$INSTALLER_PATH" "$INSTALLER_URL"
         
         echo "Installing Vulkan SDK to $INSTALL_DIR..."
-        "$INSTALLER_PATH" --headless --root "$INSTALL_DIR" --accept-licenses --default-answer --confirm-command
+        "$INSTALLER_PATH" --root "$INSTALL_DIR" --accept-licenses --default-answer --confirm-command install
         
         echo "Setting VULKAN_SDK environment variable..."
         echo "VULKAN_SDK=$INSTALL_DIR" >> $GITHUB_ENV
