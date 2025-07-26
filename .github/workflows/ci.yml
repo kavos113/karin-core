@@ -22,6 +22,9 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         include:
           - os: windows-latest
+            cmake_options: ""
+            name: ""
+          - os: windows-latest
             cmake_options: "-DWINDOWS_VULKAN=ON"
             name: "Vulkan"
 
