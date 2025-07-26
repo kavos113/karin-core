@@ -29,7 +29,6 @@ endif ()
 
 add_library(karin_graphics STATIC ${GRAPHICS_SOURCE})
 target_include_directories(karin_graphics PUBLIC ${INCLUDE_DIR})
-target_include_directories(karin_graphics PRIVATE ${THIRD_PARTY_DIR}/include)
 target_include_directories(karin_graphics PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/graphics)
 target_include_directories(karin_graphics PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/common)
 
@@ -57,7 +56,14 @@ elseif (VULKAN)
 
     add_dependencies(karin_graphics shaders_graphics)
 
-    target_link_libraries(karin_graphics PRIVATE vulkan)
+    find_package(Vulkan REQUIRED)
+    target_link_libraries(karin_graphics PRIVATE Vulkan::Vulkan)
+
+    find_package(VulkanMemoryAllocator CONFIG REQUIRED)
+    target_link_libraries(karin_graphics PRIVATE GPUOpen::VulkanMemoryAllocator)
+
+    find_package(glm CONFIG REQUIRED)
+    target_link_libraries(karin_graphics PRIVATE glm::glm)
     
     target_compile_definitions(karin_graphics PUBLIC KARIN_PLATFORM_VULKAN)
 endif ()
