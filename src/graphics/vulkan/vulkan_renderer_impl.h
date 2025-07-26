@@ -1,9 +1,9 @@
 #ifndef SRC_GRAPHICS_GRAPHICS_VULKAN_VK_RENDERER_IMPL_H
 #define SRC_GRAPHICS_GRAPHICS_VULKAN_VK_RENDERER_IMPL_H
 
-#include "vk_graphics_device.h"
-#include "vk_pipeline_manager.h"
-#include "vk_surface_manager.h"
+#include "vulkan_graphics_device.h"
+#include "vulkan_pipeline.h"
+#include "vulkan_surface.h"
 
 #include <renderer_impl.h>
 #include <karin/common/geometry/point.h>
@@ -14,11 +14,11 @@
 
 namespace karin {
 
-class VkRendererImpl : public IRendererImpl
+class VulkanRendererImpl : public IRendererImpl
 {
 public:
-    VkRendererImpl(VkGraphicsDevice* device, XlibWindow window, Display* display);
-    ~VkRendererImpl() override = default;
+    VulkanRendererImpl(VuklanGraphicsDevice* device, XlibWindow window, Display* display);
+    ~VulkanRendererImpl() override = default;
 
     void cleanUp() override;
 
@@ -28,9 +28,9 @@ public:
     void setClearColor(const Color &color) override;
 
     void addCommand(
-        const std::vector<VkPipelineManager::Vertex> &vertices,
+        const std::vector<VulkanPipeline::Vertex> &vertices,
         std::vector<uint16_t> &indices,
-        const VkPipelineManager::FragPushConstantData &fragData
+        const VulkanPipeline::FragPushConstantData &fragData
     );
 
     // pixel coordinates -> normalized coordinates [-1, 1]
@@ -45,7 +45,7 @@ private:
     {
         uint32_t indexCount{};
         uint32_t indexOffset{};
-        VkPipelineManager::FragPushConstantData fragData;
+        VulkanPipeline::FragPushConstantData fragData;
     };
 
     void createCommandBuffers();
@@ -57,9 +57,9 @@ private:
 
     void doResize();
 
-    VkGraphicsDevice* m_device;
-    std::unique_ptr<VkSurfaceManager> m_surface;
-    std::unique_ptr<VkPipelineManager> m_pipelineManager;
+    VuklanGraphicsDevice* m_device;
+    std::unique_ptr<VulkanSurface> m_surface;
+    std::unique_ptr<VulkanPipeline> m_pipelineManager;
 
     std::vector<DrawCommand> m_drawCommands;
 

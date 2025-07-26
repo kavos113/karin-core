@@ -1,14 +1,14 @@
-#include "vk_renderer_impl.h"
+#include "vulkan_renderer_impl.h"
 
 #include <iostream>
 #include <X11/Xlib.h>
 
 namespace karin
 {
-VkRendererImpl::VkRendererImpl(VkGraphicsDevice *device, Window window, Display *display)
+VulkanRendererImpl::VulkanRendererImpl(VuklanGraphicsDevice *device, Window window, Display *display)
     : m_device(device)
 {
-    m_surface = std::make_unique<VkSurfaceManager>(m_device, window, display);
+    m_surface = std::make_unique<VulkanSurface>(m_device, window, display);
     m_extent = m_surface->extent();
 
     createCommandBuffers();
@@ -19,10 +19,10 @@ VkRendererImpl::VkRendererImpl(VkGraphicsDevice *device, Window window, Display 
     createVertexBuffer();
     createIndexBuffer();
 
-    m_pipelineManager = std::make_unique<VkPipelineManager>(m_device->device(), m_renderPass);
+    m_pipelineManager = std::make_unique<VulkanPipeline>(m_device->device(), m_renderPass);
 }
 
-void VkRendererImpl::cleanUp()
+void VulkanRendererImpl::cleanUp()
 {
     vkDeviceWaitIdle(m_device->device());
 
@@ -65,7 +65,7 @@ void VkRendererImpl::cleanUp()
     m_surface->cleanUp();
 }
 
-bool VkRendererImpl::beginDraw()
+bool VulkanRendererImpl::beginDraw()
 {
     m_vertexMapPoint = m_vertexStartPoint;
     m_indexMapPoint = m_indexStartPoint;
@@ -111,7 +111,7 @@ bool VkRendererImpl::beginDraw()
     return true;
 }
 
-void VkRendererImpl::endDraw()
+void VulkanRendererImpl::endDraw()
 {
     std::array vertexBuffers = {m_vertexBuffer};
     std::array<VkDeviceSize, 1> offsets = {0};
@@ -161,11 +161,11 @@ void VkRendererImpl::endDraw()
     m_currentFrame = (m_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
-void VkRendererImpl::resize(Size size)
+void VulkanRendererImpl::resize(Size size)
 {
 }
 
-void VkRendererImpl::setClearColor(const Color &color)
+void VulkanRendererImpl::setClearColor(const Color &color)
 {
     m_clearColor = {
         .color = {
@@ -174,14 +174,14 @@ void VkRendererImpl::setClearColor(const Color &color)
     };
 }
 
-void VkRendererImpl::addCommand(
-    const std::vector<VkPipelineManager::Vertex> &vertices,
+void VulkanRendererImpl::addCommand(
+    const std::vector<VulkanPipeline::Vertex> &vertices,
     std::vector<uint16_t> &indices,
-    const VkPipelineManager::FragPushConstantData &fragData
+    const VulkanPipeline::FragPushConstantData &fragData
 )
 {
-    memcpy(m_vertexMapPoint, vertices.data(), vertices.size() * sizeof(VkPipelineManager::Vertex));
-    m_vertexMapPoint += vertices.size() * sizeof(VkPipelineManager::Vertex);
+    memcpy(m_vertexMapPoint, vertices.data(), vertices.size() * sizeof(VulkanPipeline::Vertex));
+    m_vertexMapPoint += vertices.size() * sizeof(VulkanPipeline::Vertex);
 
     for (uint16_t & index : indices)
     {
@@ -201,7 +201,7 @@ void VkRendererImpl::addCommand(
     });
 }
 
-Rectangle VkRendererImpl::normalize(Rectangle rect) const
+Rectangle VulkanRendererImpl::normalize(Rectangle rect) const
 {
     VkExtent2D extent = m_surface->extent();
 
@@ -217,7 +217,7 @@ Rectangle VkRendererImpl::normalize(Rectangle rect) const
     };
 }
 
-Point VkRendererImpl::normalize(Point point) const
+Point VulkanRendererImpl::normalize(Point point) const
 {
     VkExtent2D extent = m_surface->extent();
 
@@ -227,7 +227,7 @@ Point VkRendererImpl::normalize(Point point) const
     };
 }
 
-glm::vec2 VkRendererImpl::normalize(glm::vec2 v) const
+glm::vec2 VulkanRendererImpl::normalize(glm::vec2 v) const
 {
     VkExtent2D extent = m_surface->extent();
 
@@ -237,7 +237,7 @@ glm::vec2 VkRendererImpl::normalize(glm::vec2 v) const
     };
 }
 
-glm::vec2 VkRendererImpl::unNormalize(glm::vec2 v) const
+glm::vec2 VulkanRendererImpl::unNormalize(glm::vec2 v) const
 {
     VkExtent2D extent = m_surface->extent();
 
@@ -247,7 +247,7 @@ glm::vec2 VkRendererImpl::unNormalize(glm::vec2 v) const
     };
 }
 
-glm::vec2 VkRendererImpl::normalizeVec(glm::vec2 vec) const
+glm::vec2 VulkanRendererImpl::normalizeVec(glm::vec2 vec) const
 {
     VkExtent2D extent = m_surface->extent();
 
@@ -257,7 +257,7 @@ glm::vec2 VkRendererImpl::normalizeVec(glm::vec2 vec) const
     };
 }
 
-void VkRendererImpl::createCommandBuffers()
+void VulkanRendererImpl::createCommandBuffers()
 {
     m_commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
 
@@ -274,7 +274,7 @@ void VkRendererImpl::createCommandBuffers()
     }
 }
 
-void VkRendererImpl::createSyncObjects()
+void VulkanRendererImpl::createSyncObjects()
 {
     m_swapChainSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
     m_finishQueueSemaphores.resize(m_surface->imageCount());
@@ -306,7 +306,7 @@ void VkRendererImpl::createSyncObjects()
     }
 }
 
-void VkRendererImpl::createVertexBuffer()
+void VulkanRendererImpl::createVertexBuffer()
 {
     VmaAllocationCreateInfo allocInfo = {
         .flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT,
@@ -330,7 +330,7 @@ void VkRendererImpl::createVertexBuffer()
     m_vertexStartPoint = m_vertexMapPoint;
 }
 
-void VkRendererImpl::createIndexBuffer()
+void VulkanRendererImpl::createIndexBuffer()
 {
     VmaAllocationCreateInfo allocInfo = {
         .flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT,
@@ -354,7 +354,7 @@ void VkRendererImpl::createIndexBuffer()
     m_indexStartPoint = m_indexMapPoint;
 }
 
-void VkRendererImpl::createRenderPass()
+void VulkanRendererImpl::createRenderPass()
 {
     VkAttachmentDescription colorAttachment = {
         .format = m_surface->format(),
@@ -403,7 +403,7 @@ void VkRendererImpl::createRenderPass()
     }
 }
 
-void VkRendererImpl::createFrameBuffers()
+void VulkanRendererImpl::createFrameBuffers()
 {
     auto swapChainImageViews = m_surface->swapChainImageViews();
     m_swapChainFramebuffers.resize(swapChainImageViews.size());
@@ -431,7 +431,7 @@ void VkRendererImpl::createFrameBuffers()
     }
 }
 
-void VkRendererImpl::doResize()
+void VulkanRendererImpl::doResize()
 {
     vkDeviceWaitIdle(m_device->device());
 

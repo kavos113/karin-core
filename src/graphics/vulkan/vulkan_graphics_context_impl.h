@@ -1,7 +1,7 @@
 #ifndef SRC_GRAPHICS_GRAPHICS_VULKAN_VK_GRAPHICS_CONTEXT_IMPL_H
 #define SRC_GRAPHICS_GRAPHICS_VULKAN_VK_GRAPHICS_CONTEXT_IMPL_H
 
-#include "vk_renderer_impl.h"
+#include "vulkan_renderer_impl.h"
 
 #include <graphics_context_impl.h>
 #include <karin/graphics/stroke_style.h>
@@ -11,11 +11,11 @@
 
 namespace karin {
 
-class VkGraphicsContextImpl : public IGraphicsContextImpl
+class VulkanGraphicsContextImpl : public IGraphicsContextImpl
 {
 public:
-    VkGraphicsContextImpl(VkRendererImpl *renderer);
-    ~VkGraphicsContextImpl() override = default;
+    VulkanGraphicsContextImpl(VulkanRendererImpl *renderer);
+    ~VulkanGraphicsContextImpl() override = default;
 
     void fillRect(Rectangle rect, Pattern *pattern) override;
     void fillEllipse(Point center, float radiusX, float radiusY, Pattern *pattern) override;
@@ -31,13 +31,13 @@ private:
         Point start,
         Point end,
         const StrokeStyle& strokeStyle,
-        std::vector<VkPipelineManager::Vertex>& vertices,
+        std::vector<VulkanPipeline::Vertex>& vertices,
         std::vector<uint16_t>& indices
     ) const;
 
     void addCapStyle(
         StrokeStyle::CapStyle capStyle,
-        std::vector<VkPipelineManager::Vertex>& vertices,
+        std::vector<VulkanPipeline::Vertex>& vertices,
         std::vector<uint16_t>& indices,
         const glm::vec2& centerVec,
         const Point& direction,
@@ -53,7 +53,7 @@ private:
         float startAngle,
         float endAngle,
         const StrokeStyle& strokeStyle,
-        std::vector<VkPipelineManager::Vertex>& vertices,
+        std::vector<VulkanPipeline::Vertex>& vertices,
         std::vector<uint16_t>& indices
     ) const;
 
@@ -66,7 +66,7 @@ private:
         float endAngle
     ) const;
 
-    VkRendererImpl* m_renderer;
+    VulkanRendererImpl* m_renderer;
 
     static constexpr int CAP_ROUND_SEGMENTS = 8;
     static constexpr int ELLIPSE_SEGMENTS = 32;

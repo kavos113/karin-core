@@ -1,4 +1,4 @@
-#include "vk_utils.h"
+#include "vulkan_utils.h"
 
 #include <algorithm>
 #include <cstring>
@@ -7,15 +7,15 @@
 
 namespace karin
 {
-const std::vector<const char*> VkUtils::VALIDATION_LAYERS = {
+const std::vector<const char*> VulkanUtils::VALIDATION_LAYERS = {
     "VK_LAYER_KHRONOS_validation",
 };
 
-const std::vector<const char*> VkUtils::DEVICE_EXTENSIONS = {
+const std::vector<const char*> VulkanUtils::DEVICE_EXTENSIONS = {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 };
 
-bool VkUtils::checkValidationLayerSupport()
+bool VulkanUtils::checkValidationLayerSupport()
 {
     uint32_t layerCount;
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
@@ -45,7 +45,7 @@ bool VkUtils::checkValidationLayerSupport()
     return true;
 }
 
-int VkUtils::rateDeviceScore(VkPhysicalDevice device)
+int VulkanUtils::rateDeviceScore(VkPhysicalDevice device)
 {
     VkPhysicalDeviceProperties deviceProperties;
     VkPhysicalDeviceFeatures deviceFeatures;
@@ -98,7 +98,7 @@ int VkUtils::rateDeviceScore(VkPhysicalDevice device)
     return score;
 }
 
-bool VkUtils::checkDeviceExtensionSupport(VkPhysicalDevice device)
+bool VulkanUtils::checkDeviceExtensionSupport(VkPhysicalDevice device)
 {
     uint32_t extensionCount;
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
@@ -128,7 +128,7 @@ bool VkUtils::checkDeviceExtensionSupport(VkPhysicalDevice device)
     return true;
 }
 
-VkSurfaceFormatKHR VkUtils::getBestSwapSurfaceFormat(VkPhysicalDevice device, VkSurfaceKHR surface)
+VkSurfaceFormatKHR VulkanUtils::getBestSwapSurfaceFormat(VkPhysicalDevice device, VkSurfaceKHR surface)
 {
     uint32_t formatCount;
     vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
@@ -153,7 +153,7 @@ VkSurfaceFormatKHR VkUtils::getBestSwapSurfaceFormat(VkPhysicalDevice device, Vk
     return availableFormats[0];
 }
 
-VkPresentModeKHR VkUtils::getBestSwapPresentMode(VkPhysicalDevice device, VkSurfaceKHR surface)
+VkPresentModeKHR VulkanUtils::getBestSwapPresentMode(VkPhysicalDevice device, VkSurfaceKHR surface)
 {
     uint32_t presentModeCount;
     vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
@@ -177,7 +177,7 @@ VkPresentModeKHR VkUtils::getBestSwapPresentMode(VkPhysicalDevice device, VkSurf
     return VK_PRESENT_MODE_FIFO_KHR;
 }
 
-VkSurfaceCapabilitiesKHR VkUtils::getSwapCapabilities(VkPhysicalDevice device, VkSurfaceKHR surface)
+VkSurfaceCapabilitiesKHR VulkanUtils::getSwapCapabilities(VkPhysicalDevice device, VkSurfaceKHR surface)
 {
     VkSurfaceCapabilitiesKHR capabilities;
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &capabilities);
@@ -185,7 +185,7 @@ VkSurfaceCapabilitiesKHR VkUtils::getSwapCapabilities(VkPhysicalDevice device, V
     return capabilities;
 }
 
-VkExtent2D VkUtils::getSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities, int width, int height)
+VkExtent2D VulkanUtils::getSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities, int width, int height)
 {
     if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
     {
@@ -203,7 +203,7 @@ VkExtent2D VkUtils::getSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities, 
     return actualExtent;
 }
 
-VkShaderModule VkUtils::loadShader(VkDevice device, const unsigned char *code, unsigned int codeSize)
+VkShaderModule VulkanUtils::loadShader(VkDevice device, const unsigned char *code, unsigned int codeSize)
 {
     VkShaderModuleCreateInfo createInfo = {
         .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,

@@ -1,31 +1,31 @@
-#include "vk_pipeline_manager.h"
+#include "vulkan_pipeline.h"
 
 #include <stdexcept>
 
 #include "shaders/shaders.h"
-#include "vulkan/vk_utils.h"
+#include "vulkan/vulkan_utils.h"
 
 namespace karin
 {
-VkPipelineManager::VkPipelineManager(VkDevice device, VkRenderPass renderPass)
+VulkanPipeline::VulkanPipeline(VkDevice device, VkRenderPass renderPass)
 {
     createPipeline(device, renderPass);
 }
 
-VkPipelineManager::~VkPipelineManager()
+VulkanPipeline::~VulkanPipeline()
 = default;
 
-void VkPipelineManager::bindData(VkCommandBuffer commandBuffer, const FragPushConstantData &fragData) const
+void VulkanPipeline::bindData(VkCommandBuffer commandBuffer, const FragPushConstantData &fragData) const
 {
     vkCmdPushConstants(commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(FragPushConstantData), &fragData);
 }
 
-VkPipeline VkPipelineManager::graphicsPipeline() const
+VkPipeline VulkanPipeline::graphicsPipeline() const
 {
     return m_graphicsPipeline;
 }
 
-void VkPipelineManager::cleanUp(VkDevice device)
+void VulkanPipeline::cleanUp(VkDevice device)
 {
     if (m_graphicsPipeline != VK_NULL_HANDLE)
     {
@@ -40,10 +40,10 @@ void VkPipelineManager::cleanUp(VkDevice device)
     }
 }
 
-void VkPipelineManager::createPipeline(VkDevice device, VkRenderPass renderPass)
+void VulkanPipeline::createPipeline(VkDevice device, VkRenderPass renderPass)
 {
-    auto vertShader = VkUtils::loadShader(device, shader_vert_spv, shader_vert_spv_len);
-    auto fragShader = VkUtils::loadShader(device, shader_frag_spv, shader_frag_spv_len);
+    auto vertShader = VulkanUtils::loadShader(device, shader_vert_spv, shader_vert_spv_len);
+    auto fragShader = VulkanUtils::loadShader(device, shader_frag_spv, shader_frag_spv_len);
 
     VkPipelineShaderStageCreateInfo vertShaderStageInfo = {
         .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,

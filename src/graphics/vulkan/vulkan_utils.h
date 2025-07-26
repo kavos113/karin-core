@@ -7,7 +7,7 @@
 namespace karin
 {
 
-class VkUtils
+class VulkanUtils
 {
 public:
     static bool checkValidationLayerSupport();

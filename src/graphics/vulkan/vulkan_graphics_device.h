@@ -2,7 +2,7 @@
 #define SRC_GRAPHICS_RESOURCES_VULKAN_VK_GRAPHICS_DEVICE_H
 
 #include "vma.h"
-#include "vk_debug_manager.h"
+#include "vulkan_debug_manager.h"
 
 #include <karin/graphics/graphics_device.h>
 
@@ -14,7 +14,7 @@ namespace karin
 {
 
 // TODO? options for enabling/disabling validation layers, debug utils, etc.
-class VkGraphicsDevice : public GraphicsDevice
+class VuklanGraphicsDevice : public GraphicsDevice
 {
 public:
     enum class QueueFamily : uint8_t
@@ -23,8 +23,8 @@ public:
         Present
     };
 
-    VkGraphicsDevice();
-    ~VkGraphicsDevice() override;
+    VuklanGraphicsDevice();
+    ~VuklanGraphicsDevice() override;
 
     void initDevices(VkSurfaceKHR surface);
 
@@ -51,7 +51,7 @@ private:
     void createCommandPool();
     void createDescriptorPool();
 
-    std::unique_ptr<VkDebugManager> m_debugManager;
+    std::unique_ptr<VulkanDebugManager> m_debugManager;
 
     VkInstance m_instance = VK_NULL_HANDLE;
     VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;

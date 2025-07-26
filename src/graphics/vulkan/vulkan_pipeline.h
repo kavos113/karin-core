@@ -7,11 +7,11 @@
 
 namespace karin {
 
-class VkPipelineManager
+class VulkanPipeline
 {
 public:
-    VkPipelineManager(VkDevice device, VkRenderPass renderPass);
-    ~VkPipelineManager();
+    VulkanPipeline(VkDevice device, VkRenderPass renderPass);
+    ~VulkanPipeline();
 
     enum class ShapeType : uint32_t
     {

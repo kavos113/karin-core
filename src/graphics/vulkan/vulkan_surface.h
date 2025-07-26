@@ -1,21 +1,21 @@
 #ifndef SRC_GRAPHICS_RESOURCES_VULKAN_VK_SURFACE_IMPL_H
 #define SRC_GRAPHICS_RESOURCES_VULKAN_VK_SURFACE_IMPL_H
 
+#include "vulkan_graphics_device.h"
+
 #include <vulkan/vulkan.h>
 #include <X11/Xlib.h>
-
 #include <x11/window.h>
-
-#include "vk_graphics_device.h"
+#include <vector>
 
 namespace karin
 {
 
-class VkSurfaceManager
+class VulkanSurface
 {
 public:
-    VkSurfaceManager(VkGraphicsDevice* device, XlibWindow window, Display* display);
-    ~VkSurfaceManager() = default;
+    VulkanSurface(VuklanGraphicsDevice* device, XlibWindow window, Display* display);
+    ~VulkanSurface() = default;
 
     void cleanUp();
     void resize();
@@ -37,7 +37,7 @@ private:
     void createImageView();
     void createViewport();
 
-    VkGraphicsDevice* m_device;
+    VuklanGraphicsDevice* m_device;
     Window m_window;
     Display* m_display;
 

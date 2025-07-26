@@ -6,11 +6,11 @@
 namespace karin
 {
 
-class VkDebugManager
+class VulkanDebugManager
 {
 public:
-    explicit VkDebugManager(VkInstance instance);
-    ~VkDebugManager();
+    explicit VulkanDebugManager(VkInstance instance);
+    ~VulkanDebugManager();
 
     void cleanup(VkInstance instance);
     void addDebugSupportToInstance(VkInstanceCreateInfo &createInfo, VkDebugUtilsMessengerCreateInfoEXT &debugCreateInfo) const;

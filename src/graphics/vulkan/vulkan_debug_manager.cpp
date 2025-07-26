@@ -1,10 +1,10 @@
-#include "vk_debug_manager.h"
+#include "vulkan_debug_manager.h"
 
 #include <iostream>
 #include <string>
 
-#include "vk_utils.h"
-#include "vk_functions.h"
+#include "vulkan_utils.h"
+#include "vulakn_functions.h"
 
 namespace karin
 {
@@ -45,9 +45,9 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
     return VK_FALSE;
 }
 
-VkDebugManager::VkDebugManager(VkInstance instance)
+VulkanDebugManager::VulkanDebugManager(VkInstance instance)
 {
-    if (!VkUtils::checkValidationLayerSupport())
+    if (!VulkanUtils::checkValidationLayerSupport())
     {
         throw std::runtime_error("validation layers requested, but not available.");
     }
@@ -64,20 +64,20 @@ VkDebugManager::VkDebugManager(VkInstance instance)
     }
 }
 
-VkDebugManager::~VkDebugManager() = default;
+VulkanDebugManager::~VulkanDebugManager() = default;
 
-void VkDebugManager::cleanup(VkInstance instance)
+void VulkanDebugManager::cleanup(VkInstance instance)
 {
     vk_DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
 }
 
-void VkDebugManager::addDebugSupportToInstance(
+void VulkanDebugManager::addDebugSupportToInstance(
     VkInstanceCreateInfo &createInfo,
     VkDebugUtilsMessengerCreateInfoEXT &debugCreateInfo
 ) const
 {
-    createInfo.enabledLayerCount = static_cast<uint32_t>(VkUtils::VALIDATION_LAYERS.size());
-    createInfo.ppEnabledLayerNames = VkUtils::VALIDATION_LAYERS.data();
+    createInfo.enabledLayerCount = static_cast<uint32_t>(VulkanUtils::VALIDATION_LAYERS.size());
+    createInfo.ppEnabledLayerNames = VulkanUtils::VALIDATION_LAYERS.data();
 
     debugCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
@@ -89,9 +89,9 @@ void VkDebugManager::addDebugSupportToInstance(
     createInfo.pNext = &debugCreateInfo;
 }
 
-void VkDebugManager::addDebugSupportToDevice(VkDeviceCreateInfo &createInfo) const
+void VulkanDebugManager::addDebugSupportToDevice(VkDeviceCreateInfo &createInfo) const
 {
-    createInfo.enabledLayerCount = static_cast<uint32_t>(VkUtils::VALIDATION_LAYERS.size());
-    createInfo.ppEnabledLayerNames = VkUtils::VALIDATION_LAYERS.data();
+    createInfo.enabledLayerCount = static_cast<uint32_t>(VulkanUtils::VALIDATION_LAYERS.size());
+    createInfo.ppEnabledLayerNames = VulkanUtils::VALIDATION_LAYERS.data();
 }
 } // karin

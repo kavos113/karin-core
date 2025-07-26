@@ -1,6 +1,6 @@
-#include "vk_graphics_context_impl.h"
+#include "vulkan_graphics_context_impl.h"
 
-#include "vk_renderer_impl.h"
+#include "vulkan_renderer_impl.h"
 #include "glm_geometry.h"
 
 #include <karin/common/color/color.h>
@@ -20,16 +20,16 @@
 
 namespace karin
 {
-VkGraphicsContextImpl::VkGraphicsContextImpl(VkRendererImpl *renderer)
+VulkanGraphicsContextImpl::VulkanGraphicsContextImpl(VulkanRendererImpl *renderer)
     : m_renderer(renderer)
 {
 }
 
-void VkGraphicsContextImpl::fillRect(Rectangle rect, Pattern *pattern)
+void VulkanGraphicsContextImpl::fillRect(Rectangle rect, Pattern *pattern)
 {
     Rectangle normalizedRect = m_renderer->normalize(rect);
 
-    std::vector<VkPipelineManager::Vertex> vertices = {
+    std::vector<VulkanPipeline::Vertex> vertices = {
         {
             .pos = {normalizedRect.pos.x, normalizedRect.pos.y},
             .uv = {-1.0f, -1.0f},
@@ -58,14 +58,14 @@ void VkGraphicsContextImpl::fillRect(Rectangle rect, Pattern *pattern)
         throw std::runtime_error("VkGraphicsContextImpl::fillRect: pattern must be SolidColorPattern");
     }
     Color color = solidColorPattern->color();
-    VkPipelineManager::FragPushConstantData fragData = {
+    VulkanPipeline::FragPushConstantData fragData = {
         glm::vec4(color.r, color.g, color.b, color.a)
     };
 
     m_renderer->addCommand(vertices, indices, fragData);
 }
 
-void VkGraphicsContextImpl::fillEllipse(Point center, float radiusX, float radiusY, Pattern *pattern)
+void VulkanGraphicsContextImpl::fillEllipse(Point center, float radiusX, float radiusY, Pattern *pattern)
 {
     Rectangle rect = m_renderer->normalize(Rectangle(
         center.x - radiusX,
@@ -74,7 +74,7 @@ void VkGraphicsContextImpl::fillEllipse(Point center, float radiusX, float radiu
         radiusY * 2.0f
     ));
 
-    std::vector<VkPipelineManager::Vertex> vertices = {
+    std::vector<VulkanPipeline::Vertex> vertices = {
         {
             .pos = {rect.pos.x, rect.pos.y},
             .uv = {-1.0f, -1.0f},
@@ -103,19 +103,19 @@ void VkGraphicsContextImpl::fillEllipse(Point center, float radiusX, float radiu
         throw std::runtime_error("VkGraphicsContextImpl::fillEllipse: pattern must be SolidColorPattern");
     }
     Color color = solidColorPattern->color();
-    VkPipelineManager::FragPushConstantData fragData = {
+    VulkanPipeline::FragPushConstantData fragData = {
         .color = glm::vec4(color.r, color.g, color.b, color.a),
-        .shapeType = VkPipelineManager::ShapeType::Ellipse,
+        .shapeType = VulkanPipeline::ShapeType::Ellipse,
     };
 
     m_renderer->addCommand(vertices, indices, fragData);
 }
 
-void VkGraphicsContextImpl::fillRoundedRect(Rectangle rect, float radiusX, float radiusY, Pattern *pattern)
+void VulkanGraphicsContextImpl::fillRoundedRect(Rectangle rect, float radiusX, float radiusY, Pattern *pattern)
 {
     Rectangle normalizedRect = m_renderer->normalize(rect);
 
-    std::vector<VkPipelineManager::Vertex> vertices = {
+    std::vector<VulkanPipeline::Vertex> vertices = {
         {
             .pos = {normalizedRect.pos.x, normalizedRect.pos.y},
             .uv = {-1.0f, -1.0f},
@@ -144,18 +144,18 @@ void VkGraphicsContextImpl::fillRoundedRect(Rectangle rect, float radiusX, float
         throw std::runtime_error("VkGraphicsContextImpl::fillRect: pattern must be SolidColorPattern");
     }
     Color color = solidColorPattern->color();
-    VkPipelineManager::FragPushConstantData fragData = {
+    VulkanPipeline::FragPushConstantData fragData = {
         .color = glm::vec4(color.r, color.g, color.b, color.a),
         .shapeParams = glm::vec3(radiusX / rect.size.width * 2.0f, radiusY / rect.size.height * 2.0f, 0.0f),
-        .shapeType = VkPipelineManager::ShapeType::RoundedRectangle,
+        .shapeType = VulkanPipeline::ShapeType::RoundedRectangle,
     };
 
     m_renderer->addCommand(vertices, indices, fragData);
 }
 
-void VkGraphicsContextImpl::drawLine(Point start, Point end, Pattern *pattern, const StrokeStyle& strokeStyle)
+void VulkanGraphicsContextImpl::drawLine(Point start, Point end, Pattern *pattern, const StrokeStyle& strokeStyle)
 {
-    std::vector<VkPipelineManager::Vertex> vertices;
+    std::vector<VulkanPipeline::Vertex> vertices;
     std::vector<uint16_t> indices;
 
     addLine(start, end, strokeStyle, vertices, indices);
@@ -166,16 +166,16 @@ void VkGraphicsContextImpl::drawLine(Point start, Point end, Pattern *pattern, c
         throw std::runtime_error("VkGraphicsContextImpl::drawLine: pattern must be SolidColorPattern");
     }
     Color color = solidColorPattern->color();
-    VkPipelineManager::FragPushConstantData fragData = {
+    VulkanPipeline::FragPushConstantData fragData = {
         .color = glm::vec4(color.r, color.g, color.b, color.a),
     };
 
     m_renderer->addCommand(vertices, indices, fragData);
 }
 
-void VkGraphicsContextImpl::drawRect(Rectangle rect, Pattern *pattern, const StrokeStyle& strokeStyle)
+void VulkanGraphicsContextImpl::drawRect(Rectangle rect, Pattern *pattern, const StrokeStyle& strokeStyle)
 {
-    std::vector<VkPipelineManager::Vertex> vertices;
+    std::vector<VulkanPipeline::Vertex> vertices;
     std::vector<uint16_t> indices;
 
     StrokeStyle style = strokeStyle;
@@ -219,16 +219,16 @@ void VkGraphicsContextImpl::drawRect(Rectangle rect, Pattern *pattern, const Str
         throw std::runtime_error("VkGraphicsContextImpl::drawRect: pattern must be SolidColorPattern");
     }
     Color color = solidColorPattern->color();
-    VkPipelineManager::FragPushConstantData fragData = {
+    VulkanPipeline::FragPushConstantData fragData = {
         .color = glm::vec4(color.r, color.g, color.b, color.a),
     };
 
     m_renderer->addCommand(vertices, indices, fragData);
 }
 
-void VkGraphicsContextImpl::drawEllipse(Point center, float radiusX, float radiusY, Pattern *pattern, const StrokeStyle& strokeStyle)
+void VulkanGraphicsContextImpl::drawEllipse(Point center, float radiusX, float radiusY, Pattern *pattern, const StrokeStyle& strokeStyle)
 {
-    std::vector<VkPipelineManager::Vertex> vertices;
+    std::vector<VulkanPipeline::Vertex> vertices;
     std::vector<uint16_t> indices;
 
     StrokeStyle style = strokeStyle;
@@ -252,13 +252,13 @@ void VkGraphicsContextImpl::drawEllipse(Point center, float radiusX, float radiu
         throw std::runtime_error("VkGraphicsContextImpl::drawEllipse: pattern must be SolidColorPattern");
     }
     Color color = solidColorPattern->color();
-    VkPipelineManager::FragPushConstantData fragData = {
+    VulkanPipeline::FragPushConstantData fragData = {
         .color = glm::vec4(color.r, color.g, color.b, color.a),
     };
     m_renderer->addCommand(vertices, indices, fragData);
 }
 
-void VkGraphicsContextImpl::drawRoundedRect(
+void VulkanGraphicsContextImpl::drawRoundedRect(
     Rectangle rect,
     float radiusX,
     float radiusY,
@@ -266,7 +266,7 @@ void VkGraphicsContextImpl::drawRoundedRect(
     const StrokeStyle& strokeStyle
 )
 {
-    std::vector<VkPipelineManager::Vertex> vertices;
+    std::vector<VulkanPipeline::Vertex> vertices;
     std::vector<uint16_t> indices;
 
     StrokeStyle style = strokeStyle;
@@ -355,17 +355,17 @@ void VkGraphicsContextImpl::drawRoundedRect(
         throw std::runtime_error("VkGraphicsContextImpl::drawRoundedRect: pattern must be SolidColorPattern");
     }
     Color color = solidColorPattern->color();
-    VkPipelineManager::FragPushConstantData fragData = {
+    VulkanPipeline::FragPushConstantData fragData = {
         .color = glm::vec4(color.r, color.g, color.b, color.a),
     };
     m_renderer->addCommand(vertices, indices, fragData);
 }
 
-float VkGraphicsContextImpl::addLine(
+float VulkanGraphicsContextImpl::addLine(
     Point start,
     Point end,
     const StrokeStyle &strokeStyle,
-    std::vector<VkPipelineManager::Vertex> &vertices,
+    std::vector<VulkanPipeline::Vertex> &vertices,
     std::vector<uint16_t> &indices
 ) const
 {
@@ -511,9 +511,9 @@ float VkGraphicsContextImpl::addLine(
     return dashOffset;
 }
 
-void VkGraphicsContextImpl::addCapStyle(
+void VulkanGraphicsContextImpl::addCapStyle(
     StrokeStyle::CapStyle capStyle,
-    std::vector<VkPipelineManager::Vertex> &vertices,
+    std::vector<VulkanPipeline::Vertex> &vertices,
     std::vector<uint16_t> &indices,
     const glm::vec2 &centerVec,
     const Point &direction,
@@ -639,14 +639,14 @@ void VkGraphicsContextImpl::addCapStyle(
     }
 }
 
-float VkGraphicsContextImpl::addArc(
+float VulkanGraphicsContextImpl::addArc(
     Point center,
     float radiusX,
     float radiusY,
     float startAngle,
     float endAngle,
     const StrokeStyle &strokeStyle,
-    std::vector<VkPipelineManager::Vertex> &vertices,
+    std::vector<VulkanPipeline::Vertex> &vertices,
     std::vector<uint16_t> &indices
 ) const
 {
@@ -673,7 +673,7 @@ float VkGraphicsContextImpl::addArc(
     return style.dash_offset;
 }
 
-std::vector<Point> VkGraphicsContextImpl::splitArc(
+std::vector<Point> VulkanGraphicsContextImpl::splitArc(
     Point center,
     float radiusX,
     float radiusY,

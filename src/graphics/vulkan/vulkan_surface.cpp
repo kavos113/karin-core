@@ -1,14 +1,14 @@
-#include "vk_surface_manager.h"
+#include "vulkan_surface.h"
 
 #include <vulkan/vulkan_xlib.h>
 #include <array>
 #include <iostream>
 
-#include "vk_utils.h"
+#include "vulkan_utils.h"
 
 namespace karin
 {
-VkSurfaceManager::VkSurfaceManager(VkGraphicsDevice *device, XlibWindow window, Display *display)
+VulkanSurface::VulkanSurface(VuklanGraphicsDevice *device, XlibWindow window, Display *display)
     : m_device(device), m_window(window), m_display(display)
 {
     createSurface();
@@ -21,7 +21,7 @@ VkSurfaceManager::VkSurfaceManager(VkGraphicsDevice *device, XlibWindow window, 
     createViewport();
 }
 
-void VkSurfaceManager::cleanUp()
+void VulkanSurface::cleanUp()
 {
     for (auto &imageView : m_swapChainImageViews)
     {
@@ -42,7 +42,7 @@ void VkSurfaceManager::cleanUp()
     }
 }
 
-void VkSurfaceManager::resize()
+void VulkanSurface::resize()
 {
     for (auto &imageView : m_swapChainImageViews)
     {
@@ -56,7 +56,7 @@ void VkSurfaceManager::resize()
     createViewport();
 }
 
-uint32_t VkSurfaceManager::acquireNextImage(VkSemaphore semaphore)
+uint32_t VulkanSurface::acquireNextImage(VkSemaphore semaphore)
 {
     uint32_t imageIndex = 0;
     VkResult result = vkAcquireNextImageKHR(
@@ -80,13 +80,13 @@ uint32_t VkSurfaceManager::acquireNextImage(VkSemaphore semaphore)
     return imageIndex;
 }
 
-void VkSurfaceManager::setViewPorts(const VkCommandBuffer commandBuffer) const
+void VulkanSurface::setViewPorts(const VkCommandBuffer commandBuffer) const
 {
     vkCmdSetViewport(commandBuffer, 0, 1, &m_viewport);
     vkCmdSetScissor(commandBuffer, 0, 1, &m_scissor);
 }
 
-bool VkSurfaceManager::present(VkSemaphore waitSemaphore, uint32_t imageIndex) const
+bool VulkanSurface::present(VkSemaphore waitSemaphore, uint32_t imageIndex) const
 {
     std::array semaphores = {waitSemaphore};
 
@@ -114,7 +114,7 @@ bool VkSurfaceManager::present(VkSemaphore waitSemaphore, uint32_t imageIndex) c
     return true;
 }
 
-void VkSurfaceManager::createSurface()
+void VulkanSurface::createSurface()
 {
     VkXlibSurfaceCreateInfoKHR createInfo = {
         .sType = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR,
@@ -128,15 +128,15 @@ void VkSurfaceManager::createSurface()
     }
 }
 
-void VkSurfaceManager::createSwapChain()
+void VulkanSurface::createSwapChain()
 {
-    VkSurfaceFormatKHR surfaceFormat = VkUtils::getBestSwapSurfaceFormat(m_device->physicalDevice(), m_surface);
-    VkPresentModeKHR presentMode = VkUtils::getBestSwapPresentMode(m_device->physicalDevice(), m_surface);
-    VkSurfaceCapabilitiesKHR capabilities = VkUtils::getSwapCapabilities(m_device->physicalDevice(), m_surface);
+    VkSurfaceFormatKHR surfaceFormat = VulkanUtils::getBestSwapSurfaceFormat(m_device->physicalDevice(), m_surface);
+    VkPresentModeKHR presentMode = VulkanUtils::getBestSwapPresentMode(m_device->physicalDevice(), m_surface);
+    VkSurfaceCapabilitiesKHR capabilities = VulkanUtils::getSwapCapabilities(m_device->physicalDevice(), m_surface);
 
     XWindowAttributes attributes;
     XGetWindowAttributes(m_display, m_window, &attributes);
-    VkExtent2D extent = VkUtils::getSwapExtent(capabilities, attributes.width, attributes.height);
+    VkExtent2D extent = VulkanUtils::getSwapExtent(capabilities, attributes.width, attributes.height);
 
     uint32_t imageCount = capabilities.minImageCount + 1;
     if (capabilities.maxImageCount > 0 && imageCount > capabilities.maxImageCount)
@@ -161,8 +161,8 @@ void VkSurfaceManager::createSwapChain()
     };
 
     std::array queueFamilyIndices = {
-        m_device->queueFamilyIndex(VkGraphicsDevice::QueueFamily::Graphics),
-        m_device->queueFamilyIndex(VkGraphicsDevice::QueueFamily::Present)
+        m_device->queueFamilyIndex(VuklanGraphicsDevice::QueueFamily::Graphics),
+        m_device->queueFamilyIndex(VuklanGraphicsDevice::QueueFamily::Present)
     };
 
     if (queueFamilyIndices[0] != queueFamilyIndices[1])
@@ -192,7 +192,7 @@ void VkSurfaceManager::createSwapChain()
     m_swapChainExtent = extent;
 }
 
-void VkSurfaceManager::createImageView()
+void VulkanSurface::createImageView()
 {
     m_swapChainImageViews.resize(m_swapChainImages.size());
 
@@ -225,7 +225,7 @@ void VkSurfaceManager::createImageView()
     }
 }
 
-void VkSurfaceManager::createViewport()
+void VulkanSurface::createViewport()
 {
     m_viewport = {
         .x = 0.0f,
@@ -242,22 +242,22 @@ void VkSurfaceManager::createViewport()
     };
 }
 
-VkExtent2D VkSurfaceManager::extent() const
+VkExtent2D VulkanSurface::extent() const
 {
     return m_swapChainExtent;
 }
 
-std::vector<VkImageView> VkSurfaceManager::swapChainImageViews() const
+std::vector<VkImageView> VulkanSurface::swapChainImageViews() const
 {
     return m_swapChainImageViews;
 }
 
-VkFormat VkSurfaceManager::format() const
+VkFormat VulkanSurface::format() const
 {
     return m_swapChainImageFormat;
 }
 
-uint32_t VkSurfaceManager::imageCount() const
+uint32_t VulkanSurface::imageCount() const
 {
     return static_cast<uint32_t>(m_swapChainImages.size());
 }

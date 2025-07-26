@@ -1,6 +1,6 @@
-#include "vk_graphics_device.h"
+#include "vulkan_graphics_device.h"
 
-#include "vk_utils.h"
+#include "vulkan_utils.h"
 
 #include <X11/Xlib.h>
 #include <vulkan/vulkan_xlib.h>
@@ -11,18 +11,18 @@
 
 namespace karin
 {
-VkGraphicsDevice::VkGraphicsDevice()
+VuklanGraphicsDevice::VuklanGraphicsDevice()
 {
     createInstance();
-    m_debugManager = std::make_unique<VkDebugManager>(m_instance);
+    m_debugManager = std::make_unique<VulkanDebugManager>(m_instance);
     choosePhysicalDevice();
 }
 
-VkGraphicsDevice::~VkGraphicsDevice()
+VuklanGraphicsDevice::~VuklanGraphicsDevice()
 {
 }
 
-void VkGraphicsDevice::cleanUp()
+void VuklanGraphicsDevice::cleanUp()
 {
     vkDestroyCommandPool(m_device, m_commandPool, nullptr);
 
@@ -35,7 +35,7 @@ void VkGraphicsDevice::cleanUp()
     vkDestroyInstance(m_instance, nullptr);
 }
 
-void VkGraphicsDevice::createInstance()
+void VuklanGraphicsDevice::createInstance()
 {
     VkApplicationInfo appInfo = {
         .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
@@ -77,7 +77,7 @@ void VkGraphicsDevice::createInstance()
     }
 }
 
-void VkGraphicsDevice::choosePhysicalDevice()
+void VuklanGraphicsDevice::choosePhysicalDevice()
 {
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr);
@@ -93,7 +93,7 @@ void VkGraphicsDevice::choosePhysicalDevice()
     std::vector<int> deviceScores(deviceCount);
     for (size_t i = 0; i < devices.size(); ++i)
     {
-        deviceScores[i] = VkUtils::rateDeviceScore(devices[i]);
+        deviceScores[i] = VulkanUtils::rateDeviceScore(devices[i]);
     }
 
     auto bestDeviceIt = std::max_element(deviceScores.begin(), deviceScores.end());
@@ -106,7 +106,7 @@ void VkGraphicsDevice::choosePhysicalDevice()
 }
 
 // TODO: should initialize first?
-void VkGraphicsDevice::initDevices(VkSurfaceKHR surface)
+void VuklanGraphicsDevice::initDevices(VkSurfaceKHR surface)
 {
     if (m_device != VK_NULL_HANDLE)
     {
@@ -125,7 +125,7 @@ void VkGraphicsDevice::initDevices(VkSurfaceKHR surface)
     createCommandPool();
 }
 
-void VkGraphicsDevice::getQueueFamily(VkSurfaceKHR surface)
+void VuklanGraphicsDevice::getQueueFamily(VkSurfaceKHR surface)
 {
     uint32_t queueFamilyCount = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(m_physicalDevice, &queueFamilyCount, nullptr);
@@ -152,7 +152,7 @@ void VkGraphicsDevice::getQueueFamily(VkSurfaceKHR surface)
     }
 }
 
-void VkGraphicsDevice::createVmaAllocator()
+void VuklanGraphicsDevice::createVmaAllocator()
 {
     VmaAllocatorCreateInfo allocatorInfo = {
         .flags = 0,
@@ -168,7 +168,7 @@ void VkGraphicsDevice::createVmaAllocator()
     }
 }
 
-void VkGraphicsDevice::createLogicalDevice()
+void VuklanGraphicsDevice::createLogicalDevice()
 {
     std::set uniqueQueueFamilies = {
         m_queueFamilyIndices[QueueFamily::Graphics],
@@ -196,8 +196,8 @@ void VkGraphicsDevice::createLogicalDevice()
         .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
         .queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size()),
         .pQueueCreateInfos = queueCreateInfos.data(),
-        .enabledExtensionCount = static_cast<uint32_t>(VkUtils::DEVICE_EXTENSIONS.size()),
-        .ppEnabledExtensionNames = VkUtils::DEVICE_EXTENSIONS.data(),
+        .enabledExtensionCount = static_cast<uint32_t>(VulkanUtils::DEVICE_EXTENSIONS.size()),
+        .ppEnabledExtensionNames = VulkanUtils::DEVICE_EXTENSIONS.data(),
         .pEnabledFeatures = &deviceFeatures,
     };
 
@@ -217,7 +217,7 @@ void VkGraphicsDevice::createLogicalDevice()
     }
 }
 
-void VkGraphicsDevice::createCommandPool()
+void VuklanGraphicsDevice::createCommandPool()
 {
     VkCommandPoolCreateInfo poolInfo = {
         .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
@@ -230,51 +230,51 @@ void VkGraphicsDevice::createCommandPool()
         throw std::runtime_error("failed to create command pool");
     }
 }
-void VkGraphicsDevice::createDescriptorPool()
+void VuklanGraphicsDevice::createDescriptorPool()
 {
 }
 
-VkInstance VkGraphicsDevice::instance() const
+VkInstance VuklanGraphicsDevice::instance() const
 {
     return m_instance;
 }
 
-VkPhysicalDevice VkGraphicsDevice::physicalDevice() const
+VkPhysicalDevice VuklanGraphicsDevice::physicalDevice() const
 {
     return m_physicalDevice;
 }
 
-VkDevice VkGraphicsDevice::device() const
+VkDevice VuklanGraphicsDevice::device() const
 {
     return m_device;
 }
 
-VmaAllocator VkGraphicsDevice::allocator() const
+VmaAllocator VuklanGraphicsDevice::allocator() const
 {
     return m_allocator;
 }
 
-uint32_t VkGraphicsDevice::queueFamilyIndex(QueueFamily family) const
+uint32_t VuklanGraphicsDevice::queueFamilyIndex(QueueFamily family) const
 {
     return m_queueFamilyIndices.at(family);
 }
 
-VkCommandPool VkGraphicsDevice::commandPool() const
+VkCommandPool VuklanGraphicsDevice::commandPool() const
 {
     return m_commandPool;
 }
 
-VkQueue VkGraphicsDevice::graphicsQueue() const
+VkQueue VuklanGraphicsDevice::graphicsQueue() const
 {
     return m_graphicsQueue;
 }
 
-VkQueue VkGraphicsDevice::presentQueue() const
+VkQueue VuklanGraphicsDevice::presentQueue() const
 {
     return m_presentQueue;
 }
 
-VkDescriptorPool VkGraphicsDevice::descriptorPool() const
+VkDescriptorPool VuklanGraphicsDevice::descriptorPool() const
 {
     return m_descriptorPool;
 }

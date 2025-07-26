@@ -16,13 +16,13 @@ if (DIRECTX)
     )
 elseif (VULKAN)
     set(GRAPHICS_SOURCE ${GRAPHICS_SOURCE}
-            vulkan/vk_graphics_device.cpp
-            vulkan/vk_debug_manager.cpp
-            vulkan/vk_utils.cpp
-            vulkan/vk_surface_manager.cpp
-            vulkan/vk_renderer_impl.cpp
-            vulkan/vk_graphics_context_impl.cpp
-            vulkan/vk_pipeline_manager.cpp
+            vulkan/vulkan_graphics_device.cpp
+            vulkan/vulkan_debug_manager.cpp
+            vulkan/vulkan_utils.cpp
+            vulkan/vulkan_surface.cpp
+            vulkan/vulkan_renderer_impl.cpp
+            vulkan/vulkan_graphics_context_impl.cpp
+            vulkan/vulkan_pipeline.cpp
             vulkan/vma_impl.cpp
     )
 endif ()
