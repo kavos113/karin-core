@@ -8,8 +8,8 @@
 #include <renderer_impl.h>
 #include <karin/common/geometry/point.h>
 #include <karin/common/geometry/rectangle.h>
+#include <karin/system/window.h>
 
-#include <x11/window.h>
 #include <vector>
 
 namespace karin {
@@ -17,7 +17,7 @@ namespace karin {
 class VulkanRendererImpl : public IRendererImpl
 {
 public:
-    VulkanRendererImpl(VuklanGraphicsDevice* device, XlibWindow window, Display* display);
+    VulkanRendererImpl(VulkanGraphicsDevice* device, Window::NativeHandle nativeHandle);
     ~VulkanRendererImpl() override = default;
 
     void cleanUp() override;
@@ -57,7 +57,7 @@ private:
 
     void doResize();
 
-    VuklanGraphicsDevice* m_device;
+    VulkanGraphicsDevice* m_device;
     std::unique_ptr<VulkanSurface> m_surface;
     std::unique_ptr<VulkanPipeline> m_pipelineManager;
 

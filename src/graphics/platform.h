@@ -5,15 +5,15 @@
 
 #include <karin/graphics/graphics_device.h>
 
-#ifdef KARIN_PLATFORM_WINDOWS
+#ifdef KARIN_PLATFORM_DIRECTX
 #include "d2d/d2d_graphics_device.h"
 #include "d2d/d2d_renderer_impl.h"
 #include "d2d/d2d_graphics_context_impl.h"
-#elifdef KARIN_PLATFORM_UNIX
-#include "vulkan/vk_graphics_device.h"
-#include "vulkan/vk_surface_manager.h"
-#include "vulkan/vk_renderer_impl.h"
-#include "vulkan/vk_graphics_context_impl.h"
+#elifdef KARIN_PLATFORM_VULKAN
+#include "vulkan/vulkan_graphics_device.h"
+#include "vulkan/vulkan_surface.h"
+#include "vulkan/vulkan_renderer_impl.h"
+#include "vulkan/vulkan_graphics_context_impl.h"
 #endif
 
 namespace karin
@@ -21,10 +21,10 @@ namespace karin
 
 inline std::unique_ptr<GraphicsDevice> createGraphicsDevice()
 {
-#ifdef KARIN_PLATFORM_WINDOWS
+#ifdef KARIN_PLATFORM_DIRECTX
     return std::make_unique<D2DGraphicsDevice>();
-#elifdef KARIN_PLATFORM_UNIX
-    return std::make_unique<VkGraphicsDevice>();
+#elifdef KARIN_PLATFORM_VULKAN
+    return std::make_unique<VulkanGraphicsDevice>();
 #endif
 
     return nullptr;
@@ -32,25 +32,25 @@ inline std::unique_ptr<GraphicsDevice> createGraphicsDevice()
 
 inline std::unique_ptr<IRendererImpl> createRendererImpl(GraphicsDevice* device, Window::NativeHandle handle)
 {
-#ifdef KARIN_PLATFORM_WINDOWS
+#ifdef KARIN_PLATFORM_DIRECTX
     return std::make_unique<D2DRendererImpl>(dynamic_cast<D2DGraphicsDevice*>(device), static_cast<HWND>(handle.hwnd));
-#elifdef KARIN_PLATFORM_UNIX
-    return std::make_unique<VkRendererImpl>(dynamic_cast<VkGraphicsDevice*>(device), handle.window, reinterpret_cast<Display*>(handle.display));
+#elifdef KARIN_PLATFORM_VULKAN
+    return std::make_unique<VulkanRendererImpl>(dynamic_cast<VulkanGraphicsDevice*>(device), handle.window, reinterpret_cast<Display*>(handle.display));
 #endif
     return nullptr;
 }
 
 inline std::unique_ptr<IGraphicsContextImpl> createGraphicsContextImpl(IRendererImpl* impl)
 {
-#ifdef KARIN_PLATFORM_WINDOWS
+#ifdef KARIN_PLATFORM_DIRECTX
     auto d2dImpl = dynamic_cast<D2DRendererImpl*>(impl);
     return std::make_unique<D2DGraphicsContextImpl>(
         d2dImpl->deviceContext(),
         d2dImpl->deviceResources()
     );
-#elifdef KARIN_PLATFORM_UNIX
-    return std::make_unique<VkGraphicsContextImpl>(
-        dynamic_cast<VkRendererImpl*>(impl)
+#elifdef KARIN_PLATFORM_VULKAN
+    return std::make_unique<VulkanGraphicsContextImpl>(
+        dynamic_cast<VulkanRendererImpl*>(impl)
     );
 #endif
 

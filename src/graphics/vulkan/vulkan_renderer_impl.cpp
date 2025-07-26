@@ -1,14 +1,13 @@
 #include "vulkan_renderer_impl.h"
 
 #include <iostream>
-#include <X11/Xlib.h>
 
 namespace karin
 {
-VulkanRendererImpl::VulkanRendererImpl(VuklanGraphicsDevice *device, Window window, Display *display)
+VulkanRendererImpl::VulkanRendererImpl(VulkanGraphicsDevice *device, Window::NativeHandle nativeHandle)
     : m_device(device)
 {
-    m_surface = std::make_unique<VulkanSurface>(m_device, window, display);
+    m_surface = std::make_unique<VulkanSurface>(m_device, nativeHandle);
     m_extent = m_surface->extent();
 
     createCommandBuffers();

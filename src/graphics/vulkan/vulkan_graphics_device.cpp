@@ -11,18 +11,18 @@
 
 namespace karin
 {
-VuklanGraphicsDevice::VuklanGraphicsDevice()
+VulkanGraphicsDevice::VulkanGraphicsDevice()
 {
     createInstance();
     m_debugManager = std::make_unique<VulkanDebugManager>(m_instance);
     choosePhysicalDevice();
 }
 
-VuklanGraphicsDevice::~VuklanGraphicsDevice()
+VulkanGraphicsDevice::~VulkanGraphicsDevice()
 {
 }
 
-void VuklanGraphicsDevice::cleanUp()
+void VulkanGraphicsDevice::cleanUp()
 {
     vkDestroyCommandPool(m_device, m_commandPool, nullptr);
 
@@ -35,7 +35,7 @@ void VuklanGraphicsDevice::cleanUp()
     vkDestroyInstance(m_instance, nullptr);
 }
 
-void VuklanGraphicsDevice::createInstance()
+void VulkanGraphicsDevice::createInstance()
 {
     VkApplicationInfo appInfo = {
         .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
@@ -77,7 +77,7 @@ void VuklanGraphicsDevice::createInstance()
     }
 }
 
-void VuklanGraphicsDevice::choosePhysicalDevice()
+void VulkanGraphicsDevice::choosePhysicalDevice()
 {
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr);
@@ -106,7 +106,7 @@ void VuklanGraphicsDevice::choosePhysicalDevice()
 }
 
 // TODO: should initialize first?
-void VuklanGraphicsDevice::initDevices(VkSurfaceKHR surface)
+void VulkanGraphicsDevice::initDevices(VkSurfaceKHR surface)
 {
     if (m_device != VK_NULL_HANDLE)
     {
@@ -125,7 +125,7 @@ void VuklanGraphicsDevice::initDevices(VkSurfaceKHR surface)
     createCommandPool();
 }
 
-void VuklanGraphicsDevice::getQueueFamily(VkSurfaceKHR surface)
+void VulkanGraphicsDevice::getQueueFamily(VkSurfaceKHR surface)
 {
     uint32_t queueFamilyCount = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(m_physicalDevice, &queueFamilyCount, nullptr);
@@ -152,7 +152,7 @@ void VuklanGraphicsDevice::getQueueFamily(VkSurfaceKHR surface)
     }
 }
 
-void VuklanGraphicsDevice::createVmaAllocator()
+void VulkanGraphicsDevice::createVmaAllocator()
 {
     VmaAllocatorCreateInfo allocatorInfo = {
         .flags = 0,
@@ -168,7 +168,7 @@ void VuklanGraphicsDevice::createVmaAllocator()
     }
 }
 
-void VuklanGraphicsDevice::createLogicalDevice()
+void VulkanGraphicsDevice::createLogicalDevice()
 {
     std::set uniqueQueueFamilies = {
         m_queueFamilyIndices[QueueFamily::Graphics],
@@ -217,7 +217,7 @@ void VuklanGraphicsDevice::createLogicalDevice()
     }
 }
 
-void VuklanGraphicsDevice::createCommandPool()
+void VulkanGraphicsDevice::createCommandPool()
 {
     VkCommandPoolCreateInfo poolInfo = {
         .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
@@ -230,51 +230,51 @@ void VuklanGraphicsDevice::createCommandPool()
         throw std::runtime_error("failed to create command pool");
     }
 }
-void VuklanGraphicsDevice::createDescriptorPool()
+void VulkanGraphicsDevice::createDescriptorPool()
 {
 }
 
-VkInstance VuklanGraphicsDevice::instance() const
+VkInstance VulkanGraphicsDevice::instance() const
 {
     return m_instance;
 }
 
-VkPhysicalDevice VuklanGraphicsDevice::physicalDevice() const
+VkPhysicalDevice VulkanGraphicsDevice::physicalDevice() const
 {
     return m_physicalDevice;
 }
 
-VkDevice VuklanGraphicsDevice::device() const
+VkDevice VulkanGraphicsDevice::device() const
 {
     return m_device;
 }
 
-VmaAllocator VuklanGraphicsDevice::allocator() const
+VmaAllocator VulkanGraphicsDevice::allocator() const
 {
     return m_allocator;
 }
 
-uint32_t VuklanGraphicsDevice::queueFamilyIndex(QueueFamily family) const
+uint32_t VulkanGraphicsDevice::queueFamilyIndex(QueueFamily family) const
 {
     return m_queueFamilyIndices.at(family);
 }
 
-VkCommandPool VuklanGraphicsDevice::commandPool() const
+VkCommandPool VulkanGraphicsDevice::commandPool() const
 {
     return m_commandPool;
 }
 
-VkQueue VuklanGraphicsDevice::graphicsQueue() const
+VkQueue VulkanGraphicsDevice::graphicsQueue() const
 {
     return m_graphicsQueue;
 }
 
-VkQueue VuklanGraphicsDevice::presentQueue() const
+VkQueue VulkanGraphicsDevice::presentQueue() const
 {
     return m_presentQueue;
 }
 
-VkDescriptorPool VuklanGraphicsDevice::descriptorPool() const
+VkDescriptorPool VulkanGraphicsDevice::descriptorPool() const
 {
     return m_descriptorPool;
 }

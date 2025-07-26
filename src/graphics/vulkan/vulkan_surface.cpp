@@ -8,8 +8,8 @@
 
 namespace karin
 {
-VulkanSurface::VulkanSurface(VuklanGraphicsDevice *device, XlibWindow window, Display *display)
-    : m_device(device), m_window(window), m_display(display)
+VulkanSurface::VulkanSurface(VulkanGraphicsDevice *device, Window::NativeHandle nativeHandle)
+    : m_device(device), m_window(nativeHandle)
 {
     createSurface();
 
@@ -161,8 +161,8 @@ void VulkanSurface::createSwapChain()
     };
 
     std::array queueFamilyIndices = {
-        m_device->queueFamilyIndex(VuklanGraphicsDevice::QueueFamily::Graphics),
-        m_device->queueFamilyIndex(VuklanGraphicsDevice::QueueFamily::Present)
+        m_device->queueFamilyIndex(VulkanGraphicsDevice::QueueFamily::Graphics),
+        m_device->queueFamilyIndex(VulkanGraphicsDevice::QueueFamily::Present)
     };
 
     if (queueFamilyIndices[0] != queueFamilyIndices[1])

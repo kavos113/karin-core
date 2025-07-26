@@ -14,7 +14,7 @@ namespace karin
 {
 
 // TODO? options for enabling/disabling validation layers, debug utils, etc.
-class VuklanGraphicsDevice : public GraphicsDevice
+class VulkanGraphicsDevice : public GraphicsDevice
 {
 public:
     enum class QueueFamily : uint8_t
@@ -23,8 +23,8 @@ public:
         Present
     };
 
-    VuklanGraphicsDevice();
-    ~VuklanGraphicsDevice() override;
+    VulkanGraphicsDevice();
+    ~VulkanGraphicsDevice() override;
 
     void initDevices(VkSurfaceKHR surface);
 

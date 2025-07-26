@@ -3,9 +3,9 @@
 
 #include "vulkan_graphics_device.h"
 
+#include <karin/system/window.h>
+
 #include <vulkan/vulkan.h>
-#include <X11/Xlib.h>
-#include <x11/window.h>
 #include <vector>
 
 namespace karin
@@ -14,7 +14,7 @@ namespace karin
 class VulkanSurface
 {
 public:
-    VulkanSurface(VuklanGraphicsDevice* device, XlibWindow window, Display* display);
+    VulkanSurface(VulkanGraphicsDevice* device, Window::NativeHandle nativeHandle);
     ~VulkanSurface() = default;
 
     void cleanUp();
@@ -37,9 +37,8 @@ private:
     void createImageView();
     void createViewport();
 
-    VuklanGraphicsDevice* m_device;
-    Window m_window;
-    Display* m_display;
+    VulkanGraphicsDevice* m_device;
+    Window::NativeHandle m_window;
 
     VkSurfaceKHR m_surface = VK_NULL_HANDLE;
     VkSwapchainKHR m_swapChain = VK_NULL_HANDLE;
