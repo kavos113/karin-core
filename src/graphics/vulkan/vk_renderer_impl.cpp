@@ -1,6 +1,5 @@
-#include "../graphics/vulkan/vk_renderer_impl.h"
+#include "vk_renderer_impl.h"
 
-#include <cstring>
 #include <iostream>
 #include <X11/Xlib.h>
 

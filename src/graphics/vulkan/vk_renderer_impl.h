@@ -1,15 +1,16 @@
 #ifndef SRC_GRAPHICS_GRAPHICS_VULKAN_VK_RENDERER_IMPL_H
 #define SRC_GRAPHICS_GRAPHICS_VULKAN_VK_RENDERER_IMPL_H
 
-#include <graphics/renderer_impl.h>
+#include "vk_graphics_device.h"
+#include "vk_pipeline_manager.h"
+#include "vk_surface_manager.h"
 
-#include <resources/vulkan/vk_graphics_device.h>
-#include <resources/vulkan/vk_surface_manager.h>
-#include <x11/window.h>
-
+#include <renderer_impl.h>
+#include <karin/common/geometry/point.h>
 #include <karin/common/geometry/rectangle.h>
 
-#include "vk_pipeline_manager.h"
+#include <x11/window.h>
+#include <vector>
 
 namespace karin {
 

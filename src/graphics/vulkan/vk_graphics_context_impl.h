@@ -1,11 +1,13 @@
 #ifndef SRC_GRAPHICS_GRAPHICS_VULKAN_VK_GRAPHICS_CONTEXT_IMPL_H
 #define SRC_GRAPHICS_GRAPHICS_VULKAN_VK_GRAPHICS_CONTEXT_IMPL_H
 
-#include <graphics/graphics_context_impl.h>
+#include "vk_renderer_impl.h"
 
-#include <karin/graphics/graphics/stroke_style.h>
-
-#include "../graphics/vulkan/vk_renderer_impl.h"
+#include <graphics_context_impl.h>
+#include <karin/graphics/stroke_style.h>
+#include <karin/common/color/pattern.h>
+#include <karin/common/geometry/point.h>
+#include <karin/common/geometry/rectangle.h>
 
 namespace karin {
 

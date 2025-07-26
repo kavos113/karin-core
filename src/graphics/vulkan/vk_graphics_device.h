@@ -1,16 +1,14 @@
 #ifndef SRC_GRAPHICS_RESOURCES_VULKAN_VK_GRAPHICS_DEVICE_H
 #define SRC_GRAPHICS_RESOURCES_VULKAN_VK_GRAPHICS_DEVICE_H
 
-#include <array>
-#include <map>
+#include "vma.h"
+#include "vk_debug_manager.h"
+
+#include <karin/graphics/graphics_device.h>
+
 #include <vulkan/vulkan.h>
 #include <glm/glm.hpp>
-
-#include <karin/graphics/resources/graphics_device.h>
-
-#include <vulkan/vma.h>
-
-#include "vk_debug_manager.h"
+#include <map>
 
 namespace karin
 {

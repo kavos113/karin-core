@@ -1,12 +1,10 @@
-#include "../resources/vulkan/vk_surface_manager.h"
+#include "vk_surface_manager.h"
 
 #include <vulkan/vulkan_xlib.h>
 #include <array>
 #include <iostream>
 
-#include <graphics/vulkan/vk_renderer_impl.h>
-
-#include <vulkan/vk_utils.h>
+#include "vk_utils.h"
 
 namespace karin
 {

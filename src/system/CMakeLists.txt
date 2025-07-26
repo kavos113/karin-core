@@ -18,8 +18,7 @@ endif ()
 
 add_library(karin_system STATIC ${SYSTEM_SOURCE})
 target_include_directories(karin_system PUBLIC ${INCLUDE_DIR})
-target_include_directories(karin_system PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/system)
-target_include_directories(karin_system PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/common)
+target_include_directories(karin_system PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 if (WIN32)
     target_compile_definitions(karin_system PUBLIC KARIN_PLATFORM_WINDOWS)

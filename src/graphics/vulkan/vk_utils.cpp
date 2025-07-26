@@ -1,9 +1,7 @@
-#include "../../common/vulkan/vk_utils.h"
+#include "vk_utils.h"
 
 #include <algorithm>
 #include <cstring>
-#include <fstream>
-#include <ios>
 #include <limits>
 #include <stdexcept>
 

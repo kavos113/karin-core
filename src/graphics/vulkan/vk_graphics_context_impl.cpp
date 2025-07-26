@@ -1,14 +1,22 @@
-#include "../graphics/vulkan/vk_graphics_context_impl.h"
+#include "vk_graphics_context_impl.h"
 
-#include <cmath>
-#include <iostream>
+#include "vk_renderer_impl.h"
+#include "glm_geometry.h"
+
+#include <karin/common/color/color.h>
+#include <karin/common/color/pattern.h>
+#include <karin/common/color/solid_color_pattern.h>
+#include <karin/common/geometry/point.h>
+#include <karin/common/geometry/rectangle.h>
+#include <karin/graphics/stroke_style.h>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <cmath>
+#include <iostream>
 #include <stdexcept>
-
-#include "../graphics/vulkan/vk_pipeline_manager.h"
-#include "geometry/glm_geometry.h"
-#include "karin/common/color/solid_color_pattern.h"
+#include <vector>
+#include <numbers>
 
 namespace karin
 {
@@ -232,7 +240,7 @@ void VkGraphicsContextImpl::drawEllipse(Point center, float radiusX, float radiu
         radiusX,
         radiusY,
         0.0f,
-        2.0f * M_PI,
+        2.0f * std::numbers::pi,
         style,
         vertices,
         indices
@@ -269,8 +277,8 @@ void VkGraphicsContextImpl::drawRoundedRect(
         Point(rect.pos.x + radiusX, rect.pos.y + radiusY),
         radiusX,
         radiusY,
-        M_PI,
-        1.5f * M_PI,
+        std::numbers::pi,
+        1.5f * std::numbers::pi,
         style,
         vertices,
         indices
@@ -288,8 +296,8 @@ void VkGraphicsContextImpl::drawRoundedRect(
         Point(rect.pos.x + rect.size.width - radiusX, rect.pos.y + radiusY),
         radiusX,
         radiusY,
-        1.5f * M_PI,
-        2.0f * M_PI,
+        1.5f * std::numbers::pi,
+        2.0f * std::numbers::pi,
         style,
         vertices,
         indices
@@ -308,7 +316,7 @@ void VkGraphicsContextImpl::drawRoundedRect(
         radiusX,
         radiusY,
         0.0f,
-        0.5f * M_PI,
+        0.5f * std::numbers::pi,
         style,
         vertices,
         indices
@@ -326,8 +334,8 @@ void VkGraphicsContextImpl::drawRoundedRect(
         Point(rect.pos.x + radiusX, rect.pos.y + rect.size.height - radiusY),
         radiusX,
         radiusY,
-        0.5f * M_PI,
-        M_PI,
+        0.5f * std::numbers::pi,
+        std::numbers::pi,
         style,
         vertices,
         indices
@@ -522,8 +530,8 @@ void VkGraphicsContextImpl::addCapStyle(
         case StrokeStyle::CapStyle::Round:
         {
             float baseAngle = std::atan2(direction.y, direction.x);
-            float startAngle = baseAngle - M_PI / 2.0f;
-            float endAngle = baseAngle + M_PI / 2.0f;
+            float startAngle = baseAngle - std::numbers::pi / 2.0f;
+            float endAngle = baseAngle + std::numbers::pi / 2.0f;
             float angleStep = (endAngle - startAngle) / CAP_ROUND_SEGMENTS;
             float radius = width / 2.0f;
             auto pixStart = m_renderer->unNormalize(centerVec);
@@ -644,7 +652,7 @@ float VkGraphicsContextImpl::addArc(
 {
     if (startAngle > endAngle)
     {
-        endAngle += 2.0f * M_PI;
+        endAngle += 2.0f * std::numbers::pi;
     }
 
     StrokeStyle style = strokeStyle;
@@ -673,7 +681,7 @@ std::vector<Point> VkGraphicsContextImpl::splitArc(
     float endAngle
 ) const
 {
-    constexpr float angleStep = 2.0f * M_PI / ELLIPSE_SEGMENTS;
+    constexpr float angleStep = 2.0f * std::numbers::pi / ELLIPSE_SEGMENTS;
 
     int segments = static_cast<int>(std::ceil((endAngle - startAngle) / angleStep));
     if (segments < 1)

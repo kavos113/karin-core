@@ -1,7 +1,6 @@
 #ifndef SRC_GRAPHICS_RESOURCES_VULKAN_VK_DEBUG_MANAGER_H
 #define SRC_GRAPHICS_RESOURCES_VULKAN_VK_DEBUG_MANAGER_H
 
-#include <vector>
 #include <vulkan/vulkan.h>
 
 namespace karin

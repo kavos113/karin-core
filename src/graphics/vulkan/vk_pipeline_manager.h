@@ -1,9 +1,9 @@
 #ifndef SRC_GRAPHICS_GRAPHICS_VULKAN_VK_PIPELINE_MANAGER_H
 #define SRC_GRAPHICS_GRAPHICS_VULKAN_VK_PIPELINE_MANAGER_H
 
-#include <array>
 #include <vulkan/vulkan.h>
 #include <glm/glm.hpp>
+#include <array>
 
 namespace karin {
 

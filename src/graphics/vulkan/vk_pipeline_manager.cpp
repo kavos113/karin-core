@@ -1,9 +1,7 @@
-#include "../graphics/vulkan/vk_pipeline_manager.h"
+#include "vk_pipeline_manager.h"
 
-#include <iostream>
 #include <stdexcept>
 
-#include "glm/ext/matrix_clip_space.hpp"
 #include "shaders/shaders.h"
 #include "vulkan/vk_utils.h"
 

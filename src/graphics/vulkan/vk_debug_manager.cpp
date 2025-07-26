@@ -1,11 +1,10 @@
-#include "../resources/vulkan/vk_debug_manager.h"
+#include "vk_debug_manager.h"
 
-#include <cstring>
 #include <iostream>
 #include <string>
 
-#include "../resources/vulkan/vk_functions.h"
 #include "vk_utils.h"
+#include "vk_functions.h"
 
 namespace karin
 {

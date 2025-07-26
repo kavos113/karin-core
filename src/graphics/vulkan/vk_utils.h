@@ -1,7 +1,7 @@
 #ifndef SRC_GRAPHICS_RESOURCES_VULKAN_VK_DEVICE_UTILS_H
 #define SRC_GRAPHICS_RESOURCES_VULKAN_VK_DEVICE_UTILS_H
-#include <string>
 #include <vulkan/vulkan.h>
+
 #include <vector>
 
 namespace karin
