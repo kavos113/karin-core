@@ -23,13 +23,13 @@ jobs:
         include:
           - os: ubuntu-latest
             cmake_options: ""
-            name: ""
+            name: "ubuntu"
           - os: windows-latest
             cmake_options: ""
-            name: ""
+            name: "windows"
           - os: windows-latest
             cmake_options: "-DWINDOWS_VULKAN=ON"
-            name: "Vulkan"
+            name: "windows vulkan"
 
     steps:
     - name: Checkout code
@@ -69,7 +69,7 @@ jobs:
       run: |
         mkdir ${{ env.BUILD_DIR }}
         cd ${{ env.BUILD_DIR }}
-        cmake -G Ninja -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_EXPORT_COMPILE_COMMANDS=${{ env.CMAKE_EXPORT_COMPILE_COMMANDS }} ${{ matrix.cmake_options }} ..
+        cmake -G Ninja -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_EXPORT_COMPILE_COMMANDS=${{ env.CMAKE_EXPORT_COMPILE_COMMANDS }} -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake ${{ matrix.cmake_options }} ..
       shell: bash
 
     - name: Build
