@@ -1,0 +1,36 @@
+set(SYSTEM_SOURCE
+        application.cpp
+        window.cpp
+)
+
+if (WIN32)
+    set(SYSTEM_SOURCE ${SYSTEM_SOURCE}
+            windows/win_application_impl.cpp
+            windows/win_window_impl.cpp
+            windows/win_window_class_registry.cpp
+    )
+elseif (UNIX)
+    set(SYSTEM_SOURCE ${SYSTEM_SOURCE}
+            x11/x11_application_impl.cpp
+            x11/x11_window_impl.cpp
+    )
+endif ()
+
+add_library(karin_system STATIC ${SYSTEM_SOURCE})
+target_include_directories(karin_system PUBLIC ${INCLUDE_DIR})
+target_include_directories(karin_system PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/system)
+target_include_directories(karin_system PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/common)
+
+if (WIN32)
+    target_compile_definitions(karin_system PUBLIC KARIN_PLATFORM_WINDOWS)
+    target_compile_definitions(karin_system PUBLIC UNICODE)
+    target_compile_definitions(karin_system PUBLIC NOMINMAX)
+elseif (APPLE)
+    target_compile_definitions(karin_system PUBLIC KARIN_PLATFORM_MACOS)
+elseif (UNIX)
+    target_compile_definitions(karin_system PUBLIC KARIN_PLATFORM_UNIX)
+endif ()
+
+if (UNIX)
+    target_link_libraries(karin_system PRIVATE X11)
+endif ()
