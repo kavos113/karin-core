@@ -13,11 +13,17 @@ env:
 
 jobs:
   run:
+    name: ${{ matrix.os }} ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
 
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
+        include:
+          - os: windows-latest
+            cmake_options: "-DWINDOWS_VULKAN=ON"
+            name: "Vulkan"
 
     steps:
     - name: Checkout code
@@ -57,7 +63,7 @@ jobs:
       run: |
         mkdir ${{ env.BUILD_DIR }}
         cd ${{ env.BUILD_DIR }}
-        cmake -G Ninja -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_EXPORT_COMPILE_COMMANDS=${{ env.CMAKE_EXPORT_COMPILE_COMMANDS }} ..
+        cmake -G Ninja -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_EXPORT_COMPILE_COMMANDS=${{ env.CMAKE_EXPORT_COMPILE_COMMANDS }} ${{ matrix.cmake_options }} ..
       shell: bash
 
     - name: Build
