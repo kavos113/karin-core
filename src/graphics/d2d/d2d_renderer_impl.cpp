@@ -1,8 +1,8 @@
 #include "d2d_renderer_impl.h"
 
-#include <stdexcept>
+#include "d2d_color.h"
 
-#include <color/d2d_color.h>
+#include <stdexcept>
 
 namespace karin
 {

@@ -4,6 +4,7 @@
 #include <memory>
 
 #include <karin/graphics/graphics_device.h>
+#include <karin/system/window.h>
 
 #ifdef KARIN_PLATFORM_DIRECTX
 #include "d2d/d2d_graphics_device.h"

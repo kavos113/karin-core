@@ -1,12 +1,11 @@
 #include "d2d_device_resources.h"
 
-#include <cmath>
-#include <color/d2d_color.h>
+#include "d2d_geometry.h"
+#include "d2d_color.h"
 
+#include <cmath>
 #include <ranges>
 #include <stdexcept>
-
-#include <geometry/d2d_geometry.h>
 
 namespace karin
 {
