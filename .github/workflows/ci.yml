@@ -57,7 +57,7 @@ jobs:
     - name: Vulkan SDK Cache
       if: contains(matrix.name, 'vulkan')
       id: cache-vulkan-sdk
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: C:/VulkanSDK/${{ matrix.vulkan_version }}
         key: ${{ runner.os }}-vulkan-sdk-${{ matrix.vulkan_version }}
@@ -90,9 +90,22 @@ jobs:
         echo "$VULKAN_SDK/Include" >> $GITHUB_PATH
       shell: bash
 
+    - name: Vcpkg Cache
+      id: cache-vcpkg
+      uses: actions/cache@v4
+      with:
+        path: ./vcpkg
+        key: ${{ runner.os }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
+        restore-keys: |
+          ${{ runner.os }}-vcpkg-
+
+    - name: Setup Vcpkg
+      if: steps.cache-vcpkg.outputs.cache-hit != 'true'
+      run: |
+        git clone https://github.com/microsoft/vcpkg.git 
+
     - name: Install with vcpkg
       run: |
-        git clone https://github.com/microsoft/vcpkg.git
         if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
           ./vcpkg/bootstrap-vcpkg.sh
         elif [ "${{ matrix.os }}" == "windows-latest" ]; then
