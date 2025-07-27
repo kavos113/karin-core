@@ -19,14 +19,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
         include:
           - os: ubuntu-latest
             cmake_options: ""
             name: "ubuntu"
           - os: windows-latest
             cmake_options: ""
-            name: "windows"
+            name: "windows d2d"
           - os: windows-latest
             cmake_options: "-DWINDOWS_VULKAN=ON"
             name: "windows vulkan"

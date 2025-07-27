@@ -1,6 +1,6 @@
 #include "d2d_graphics_context_impl.h"
 
-#include <geometry/d2d_geometry.h>
+#include "d2d_geometry.h"
 
 #include <algorithm>
 #include <stdexcept>
