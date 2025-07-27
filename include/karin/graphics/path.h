@@ -13,18 +13,18 @@ class Path
 {
 public:
     Path();
-    ~Path() = default;
+    ~Path();
 
-    void start(Point start);
-    void lineTo(Point end);
+    void start(Point start) const;
+    void lineTo(Point end) const;
     void arcTo(
         Point center,
         float radiusX,
         float radiusY,
         float startAngle,
         float endAngle
-    );
-    void close();
+    ) const;
+    void close() const;
 
 private:
     std::unique_ptr<PathImpl> m_impl;
@@ -32,10 +32,7 @@ private:
 private:
     friend class GraphicsContext;
 
-    PathImpl* impl() const
-    {
-        return m_impl.get();
-    }
+    PathImpl* impl() const;
 };
 
 } // karin

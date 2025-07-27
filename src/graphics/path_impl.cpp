@@ -4,14 +4,16 @@
 
 namespace karin
 {
+uint32_t PathImpl::nextId = 1;
+
 PathImpl::PathImpl()
     : m_startPoint(0, 0),
-    m_currentPoint(0, 0),
-    m_id(nextId++)
+      m_currentPoint(0, 0),
+      m_id(nextId++)
 {
 }
 
-    void PathImpl::start(Point start)
+void PathImpl::start(Point start)
 {
     m_commands.clear();
     m_currentPoint = start;
