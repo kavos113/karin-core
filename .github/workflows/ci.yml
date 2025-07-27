@@ -54,8 +54,16 @@ jobs:
         fi
       shell: bash
 
-    - name: Download and Install Vulkan SDK
+    - name: Vulkan SDK Cache
       if: contains(matrix.name, 'vulkan')
+      id: cache-vulkan-sdk
+      uses: actions/cache@v4
+      with:
+        path: C:/VulkanSDK/${{ matrix.vulkan_version }}
+        key: ${{ runner.os }}-vulkan-sdk-${{ matrix.vulkan_version }}
+
+    - name: Download and Install Vulkan SDK
+      if: contains(matrix.name, 'vulkan') && steps.cache-vulkan-sdk.outputs.cache-hit != 'true'
       shell: bash
       run: |
         INSTALLER_URL="https://sdk.lunarg.com/sdk/download/${{ matrix.vulkan_version }}/windows/vulkansdk-windows-X64-${{ matrix.vulkan_version }}.exe"
@@ -68,19 +76,36 @@ jobs:
         echo "Installing Vulkan SDK to $INSTALL_DIR..."
         "$INSTALLER_PATH" --root "$INSTALL_DIR" --accept-licenses --default-answer --confirm-command install
         
-        echo "Setting VULKAN_SDK environment variable..."
-        echo "VULKAN_SDK=$INSTALL_DIR" >> $GITHUB_ENV
-        
-        echo "Adding Vulkan SDK Bin directory to PATH..."
-        echo "$INSTALL_DIR/Bin" >> $GITHUB_PATH
-        
         rm "$INSTALLER_PATH"
         
         echo "Vulkan SDK setup complete."
 
+    - name: Setup Vulkan Environment
+      if: contains(matrix.name, 'vulkan')
+      run: |
+        echo "Setting up Vulkan environment variables..."
+        echo "VULKAN_SDK=C:/VulkanSDK/${{ matrix.vulkan_version }}" >> $GITHUB_ENV
+        echo "$VULKAN_SDK/Bin" >> $GITHUB_PATH
+        echo "$VULKAN_SDK/Lib" >> $GITHUB_PATH
+        echo "$VULKAN_SDK/Include" >> $GITHUB_PATH
+      shell: bash
+
+    - name: Vcpkg Cache
+      id: cache-vcpkg
+      uses: actions/cache@v4
+      with:
+        path: ./vcpkg
+        key: ${{ runner.os }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
+        restore-keys: |
+          ${{ runner.os }}-vcpkg-
+
+    - name: Setup Vcpkg
+      if: steps.cache-vcpkg.outputs.cache-hit != 'true'
+      run: |
+        git clone https://github.com/microsoft/vcpkg.git 
+
     - name: Install with vcpkg
       run: |
-        git clone https://github.com/microsoft/vcpkg.git
         if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
           ./vcpkg/bootstrap-vcpkg.sh
         elif [ "${{ matrix.os }}" == "windows-latest" ]; then
