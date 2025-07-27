@@ -3,6 +3,7 @@
 #include <karin/common.h>
 
 #include <memory>
+#include <numbers>
 
 int main()
 {
@@ -17,26 +18,31 @@ int main()
 
     karin::Path path;
     path.start(karin::Point(100, 100));
-    path.lineTo(karin::Point(300, 100));
-    path.arcTo(karin::Point(300, 200), 50, 50, 0.0f, 180.0f);
+    path.lineTo(karin::Point(150, 100));
+    path.arcTo(karin::Point(150, 150), 50.0f, 50.0f, std::numbers::pi / 2, 0.0f, true);
+    path.arcTo(karin::Point(250, 150), 50.0f, 50.0f, std::numbers::pi, std::numbers::pi / 2 * 3, true);
+    path.lineTo(karin::Point(300, 200));
+    path.arcTo(karin::Point(300, 250), 100.0f, 50.0f, std::numbers::pi / 2, std::numbers::pi, false);
+    path.arcTo(karin::Point(150, 250), 50.0f, 50.0f, 0.0f, std::numbers::pi / 2, true);
     path.lineTo(karin::Point(100, 200));
-    path.arcTo(karin::Point(100, 100), 50, 50, 180.0f, 360.0f);
     path.close();
 
-    renderer.addDrawCommand([&redPattern, &path](karin::GraphicsContext& gc)
-    {
-        karin::StrokeStyle strokeStyle = {
-            .width = 15.0f,
-            .start_cap_style = karin::StrokeStyle::CapStyle::Round,
-            .end_cap_style = karin::StrokeStyle::CapStyle::Round,
-            .dash_cap_style = karin::StrokeStyle::CapStyle::Triangle,
-            .join_style = karin::StrokeStyle::JoinStyle::Round,
-            .miter_limit = 10.0f,
-            .dash_pattern = { 5.0f, 2.0f },
-            .dash_offset = 1.0f
-        };
-        gc.drawPath(path, redPattern.get(), strokeStyle);
-    });
+    renderer.addDrawCommand(
+        [&redPattern, &path](karin::GraphicsContext& gc)
+        {
+            karin::StrokeStyle strokeStyle = {
+                .width = 6.0f,
+                .start_cap_style = karin::StrokeStyle::CapStyle::Round,
+                .end_cap_style = karin::StrokeStyle::CapStyle::Round,
+                .dash_cap_style = karin::StrokeStyle::CapStyle::Triangle,
+                .join_style = karin::StrokeStyle::JoinStyle::Round,
+                .miter_limit = 10.0f,
+                .dash_pattern = {5.0f, 2.0f},
+                .dash_offset = 1.0f
+            };
+            gc.drawPath(path, redPattern.get(), strokeStyle);
+        }
+    );
 
     renderer.update();
 

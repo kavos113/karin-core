@@ -26,9 +26,9 @@ void PathImpl::lineTo(Point end)
     m_currentPoint = end;
 }
 
-void PathImpl::arcTo(Point center, float radiusX, float radiusY, float startAngle, float endAngle)
+void PathImpl::arcTo(Point center, float radiusX, float radiusY, float startAngle, float endAngle, bool isSmallArc)
 {
-    m_commands.emplace_back(ArcArgs{center, radiusX, radiusY, startAngle, endAngle});
+    m_commands.emplace_back(ArcArgs{center, radiusX, radiusY, startAngle, endAngle, isSmallArc});
     m_currentPoint = Point(
         center.x + radiusX * std::cos(endAngle),
         center.y + radiusY * std::sin(endAngle)

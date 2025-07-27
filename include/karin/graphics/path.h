@@ -6,7 +6,6 @@
 
 namespace karin
 {
-
 class PathImpl;
 
 class Path
@@ -22,7 +21,8 @@ public:
         float radiusX,
         float radiusY,
         float startAngle,
-        float endAngle
+        float endAngle,
+        bool isSmallArc
     ) const;
     void close() const;
 
@@ -34,7 +34,6 @@ private:
 
     PathImpl* impl() const;
 };
-
 } // karin
 
 #endif //KARIN_GRAPHICS_GRAPHICS_PATH_H

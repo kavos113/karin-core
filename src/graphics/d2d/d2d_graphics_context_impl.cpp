@@ -3,6 +3,7 @@
 #include "d2d_geometry.h"
 
 #include <algorithm>
+#include <iostream>
 #include <stdexcept>
 
 namespace karin

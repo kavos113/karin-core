@@ -21,9 +21,9 @@ void Path::lineTo(Point end) const
     m_impl->lineTo(end);
 }
 
-void Path::arcTo(Point center, float radiusX, float radiusY, float startAngle, float endAngle) const
+void Path::arcTo(Point center, float radiusX, float radiusY, float startAngle, float endAngle, bool isSmallArc) const
 {
-    m_impl->arcTo(center, radiusX, radiusY, startAngle, endAngle);
+    m_impl->arcTo(center, radiusX, radiusY, startAngle, endAngle, isSmallArc);
 }
 
 void Path::close() const

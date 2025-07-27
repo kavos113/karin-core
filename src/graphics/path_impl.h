@@ -23,6 +23,7 @@ public:
         float radiusY;
         float startAngle;
         float endAngle;
+        bool isSmallArc;
     };
 
     PathImpl();
@@ -30,7 +31,7 @@ public:
 
     void start(Point start);
     void lineTo(Point end);
-    void arcTo(Point center, float radiusX, float radiusY, float startAngle, float endAngle);
+    void arcTo(Point center, float radiusX, float radiusY, float startAngle, float endAngle, bool isSmallArc);
     void close();
 
     std::vector<std::variant<LineArgs, ArcArgs>> commands() const;

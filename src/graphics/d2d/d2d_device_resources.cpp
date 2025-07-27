@@ -4,6 +4,7 @@
 #include "d2d_color.h"
 
 #include <cmath>
+#include <numbers>
 #include <ranges>
 #include <stdexcept>
 
@@ -118,22 +119,51 @@ Microsoft::WRL::ComPtr<ID2D1PathGeometry> D2DDeviceResources::pathGeometry(const
                 }
                 else if constexpr (std::is_same_v<T, PathImpl::ArcArgs>)
                 {
+                    constexpr float twoPi = 2.0f * std::numbers::pi_v<float>;
+
                     auto end = Point(
                         args.center.x + args.radiusX * std::cos(args.endAngle),
-                        args.center.y + args.radiusY * std::sin(args.endAngle)
+                        args.center.y + args.radiusY * std::sin(-args.endAngle) // bottom is big
                     );
+                    float startAngle = std::fmod(args.startAngle, twoPi);
+                    float endAngle = std::fmod(args.endAngle, twoPi);
+
+                    if (startAngle < 0.0f)
+                    {
+                        startAngle += twoPi;
+                    }
+
+                    if (endAngle < 0.0f)
+                    {
+                        endAngle += twoPi;
+                    }
+
+                    D2D1_SWEEP_DIRECTION sweepDirection =
+                        args.isSmallArc
+                            ? (endAngle < startAngle
+                                   ? D2D1_SWEEP_DIRECTION_CLOCKWISE
+                                   : D2D1_SWEEP_DIRECTION_COUNTER_CLOCKWISE)
+                            : (endAngle < startAngle
+                                   ? D2D1_SWEEP_DIRECTION_COUNTER_CLOCKWISE
+                                   : D2D1_SWEEP_DIRECTION_CLOCKWISE);
                     sink->AddArc(
                         D2D1::ArcSegment(
                             toD2DPoint(end),
                             D2D1::SizeF(args.radiusX, args.radiusY),
                             0.0f, // rotation angle
-                            D2D1_SWEEP_DIRECTION_CLOCKWISE,
-                            D2D1_ARC_SIZE_SMALL
+                            sweepDirection,
+                            args.isSmallArc ? D2D1_ARC_SIZE_SMALL : D2D1_ARC_SIZE_LARGE
                         )
                     );
                 }
             }, command
         );
+    }
+    sink->EndFigure(D2D1_FIGURE_END_CLOSED);
+    hr = sink->Close();
+    if (FAILED(hr))
+    {
+        throw std::runtime_error("Failed to close D2D geometry sink");
     }
 
     m_pathGeometries[path.id()] = geometry;
