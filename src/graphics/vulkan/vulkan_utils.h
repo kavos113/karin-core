@@ -6,7 +6,6 @@
 
 namespace karin
 {
-
 class VulkanUtils
 {
 public:
@@ -22,10 +21,10 @@ public:
 
     static const std::vector<const char*> VALIDATION_LAYERS;
     static const std::vector<const char*> DEVICE_EXTENSIONS;
+
 private:
     static bool checkDeviceExtensionSupport(VkPhysicalDevice device);
 };
-
 } // karin
 
 #endif //SRC_GRAPHICS_RESOURCES_VULKAN_VK_DEVICE_UTILS_H

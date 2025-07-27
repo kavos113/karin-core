@@ -5,8 +5,8 @@
 #include <glm/glm.hpp>
 #include <array>
 
-namespace karin {
-
+namespace karin
+{
 class VulkanPipeline
 {
 public:
@@ -29,7 +29,7 @@ public:
 
 
     void cleanUp(VkDevice device);
-    void bindData(VkCommandBuffer commandBuffer, const FragPushConstantData &fragData) const;
+    void bindData(VkCommandBuffer commandBuffer, const FragPushConstantData& fragData) const;
 
     VkPipeline graphicsPipeline() const;
 
@@ -67,13 +67,13 @@ public:
             return attributeDescriptions;
         }
     };
+
 private:
     void createPipeline(VkDevice device, VkRenderPass renderPass);
 
     VkPipelineLayout m_pipelineLayout = VK_NULL_HANDLE;
     VkPipeline m_graphicsPipeline = VK_NULL_HANDLE;
 };
-
 } // karin
 
 #endif //SRC_GRAPHICS_GRAPHICS_VULKAN_VK_PIPELINE_MANAGER_H

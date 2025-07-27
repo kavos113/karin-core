@@ -10,7 +10,6 @@
 
 namespace karin
 {
-
 class VulkanSurface
 {
 public:
@@ -49,9 +48,7 @@ private:
 
     VkViewport m_viewport = {};
     VkRect2D m_scissor = {};
-
 };
-
 } // karin
 
 #endif //SRC_GRAPHICS_RESOURCES_VULKAN_VK_SURFACE_IMPL_H

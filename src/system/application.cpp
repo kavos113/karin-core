@@ -17,10 +17,10 @@ void Application::run()
     m_impl->run();
 }
 
-Window Application::createWindow(const std::wstring &title, int x, int y, int width, int height)
+Window Application::createWindow(const std::wstring& title, int x, int y, int width, int height)
 {
     return Window(
-    m_impl.get(),
+        m_impl.get(),
         title,
         x,
         y,
@@ -29,7 +29,7 @@ Window Application::createWindow(const std::wstring &title, int x, int y, int wi
     );
 }
 
-Window Application::createWindow(const std::wstring &title, Rectangle rect)
+Window Application::createWindow(const std::wstring& title, Rectangle rect)
 {
     return Window(
         m_impl.get(),

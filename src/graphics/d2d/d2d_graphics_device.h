@@ -10,7 +10,6 @@
 
 namespace karin
 {
-
 class D2DGraphicsDevice : public GraphicsDevice
 {
 public:
@@ -32,7 +31,6 @@ private:
     Microsoft::WRL::ComPtr<ID2D1Device> m_d2dDevice;
     Microsoft::WRL::ComPtr<IDXGIDevice4> m_dxgiDevice;
 };
-
 } // karin
 
 #endif //SRC_GRAPHICS_RESOURCES_D2D_D2D_GRAPHICS_DEVICE_IMPL_H

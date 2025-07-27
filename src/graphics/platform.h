@@ -19,7 +19,6 @@
 
 namespace karin
 {
-
 inline std::unique_ptr<GraphicsDevice> createGraphicsDevice()
 {
 #ifdef KARIN_PLATFORM_DIRECTX
@@ -57,7 +56,6 @@ inline std::unique_ptr<IGraphicsContextImpl> createGraphicsContextImpl(IRenderer
 
     return nullptr;
 }
-
 }
 
 #endif //SRC_GRAPHICS_RESOURCES_PLATFORM_H

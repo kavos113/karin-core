@@ -9,8 +9,8 @@
 #include "d2d_graphics_device.h"
 #include "d2d_surface_manager.h"
 
-namespace karin {
-
+namespace karin
+{
 class D2DRendererImpl : public IRendererImpl
 {
 public:
@@ -42,11 +42,11 @@ private:
 
     static constexpr float DEFAULT_DPI = 96.0f; // Default DPI for D2D
     const D2D1_BITMAP_PROPERTIES1 bitmapProperties = D2D1::BitmapProperties1(
-            D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
-            D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED),
-            DEFAULT_DPI, DEFAULT_DPI);
+        D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
+        D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED),
+        DEFAULT_DPI, DEFAULT_DPI
+    );
 };
-
 } // karin
 
 #endif //SRC_GRAPHICS_GRAPHICS_D2D_D2D_RENDERER_IMPL_H

@@ -6,8 +6,8 @@
 
 #include <karin/common/geometry/point.h>
 
-namespace karin {
-
+namespace karin
+{
 class PathImpl
 {
 public:
@@ -46,7 +46,6 @@ private:
 
     static uint32_t nextId;
 };
-
 } // karin
 
 #endif //SRC_GRAPHICS_GRAPHICS_PATH_IMPL_H

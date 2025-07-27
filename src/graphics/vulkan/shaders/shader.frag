@@ -19,8 +19,8 @@ void main()
     } else if (push.shapeType == 2) { // Rounded Rectangle
         vec2 cornerPos = abs(uv) - vec2(1.0, 1.0) + push.shapeParams.xy;
         signedDistance = min(cornerPos.x, cornerPos.y) < 0.0
-            ? -1.0
-            : length(cornerPos / push.shapeParams.xy) - 1.0;
+        ? -1.0
+        : length(cornerPos / push.shapeParams.xy) - 1.0;
     } else {
         signedDistance = -1.0;
     }

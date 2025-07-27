@@ -5,7 +5,7 @@
 
 namespace karin
 {
-VulkanRendererImpl::VulkanRendererImpl(VulkanGraphicsDevice *device, Window::NativeHandle nativeHandle)
+VulkanRendererImpl::VulkanRendererImpl(VulkanGraphicsDevice* device, Window::NativeHandle nativeHandle)
     : m_device(device)
 {
     m_surface = std::make_unique<VulkanSurface>(m_device, nativeHandle);
@@ -26,31 +26,31 @@ void VulkanRendererImpl::cleanUp()
 {
     vkDeviceWaitIdle(m_device->device());
 
-    for (const auto & framebuffer : m_swapChainFramebuffers)
+    for (const auto& framebuffer : m_swapChainFramebuffers)
     {
         vkDestroyFramebuffer(m_device->device(), framebuffer, nullptr);
     }
     m_swapChainFramebuffers.clear();
 
-    for (const auto & semaphore : m_swapChainSemaphores)
+    for (const auto& semaphore : m_swapChainSemaphores)
     {
         vkDestroySemaphore(m_device->device(), semaphore, nullptr);
     }
     m_swapChainSemaphores.clear();
 
-    for (const auto & semaphore : m_finishQueueSemaphores)
+    for (const auto& semaphore : m_finishQueueSemaphores)
     {
         vkDestroySemaphore(m_device->device(), semaphore, nullptr);
     }
     m_finishQueueSemaphores.clear();
 
-    for (const auto & fence : m_swapChainFences)
+    for (const auto& fence : m_swapChainFences)
     {
         vkDestroyFence(m_device->device(), fence, nullptr);
     }
     m_swapChainFences.clear();
 
-    for (auto &commandBuffer: m_commandBuffers)
+    for (auto& commandBuffer : m_commandBuffers)
     {
         vkFreeCommandBuffers(m_device->device(), m_device->commandPool(), 1, &commandBuffer);
     }
@@ -115,12 +115,16 @@ void VulkanRendererImpl::endDraw()
 {
     std::array vertexBuffers = {m_vertexBuffer};
     std::array<VkDeviceSize, 1> offsets = {0};
-    vkCmdBindVertexBuffers(m_commandBuffers[m_currentFrame], 0, vertexBuffers.size(), vertexBuffers.data(), offsets.data());
+    vkCmdBindVertexBuffers(
+        m_commandBuffers[m_currentFrame], 0, vertexBuffers.size(), vertexBuffers.data(), offsets.data()
+    );
     vkCmdBindIndexBuffer(m_commandBuffers[m_currentFrame], m_indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 
-    vkCmdBindPipeline(m_commandBuffers[m_currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineManager->graphicsPipeline());
+    vkCmdBindPipeline(
+        m_commandBuffers[m_currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineManager->graphicsPipeline()
+    );
 
-    for (const auto & command : m_drawCommands)
+    for (const auto& command : m_drawCommands)
     {
         std::cout << "Vertices: " << command.indexCount << ", Offset: " << command.indexOffset << std::endl;
         m_pipelineManager->bindData(m_commandBuffers[m_currentFrame], command.fragData);
@@ -165,7 +169,7 @@ void VulkanRendererImpl::resize(Size size)
 {
 }
 
-void VulkanRendererImpl::setClearColor(const Color &color)
+void VulkanRendererImpl::setClearColor(const Color& color)
 {
     m_clearColor = {
         .color = {
@@ -175,15 +179,15 @@ void VulkanRendererImpl::setClearColor(const Color &color)
 }
 
 void VulkanRendererImpl::addCommand(
-    const std::vector<VulkanPipeline::Vertex> &vertices,
-    std::vector<uint16_t> &indices,
-    const VulkanPipeline::FragPushConstantData &fragData
+    const std::vector<VulkanPipeline::Vertex>& vertices,
+    std::vector<uint16_t>& indices,
+    const VulkanPipeline::FragPushConstantData& fragData
 )
 {
     memcpy(m_vertexMapPoint, vertices.data(), vertices.size() * sizeof(VulkanPipeline::Vertex));
     m_vertexMapPoint += vertices.size();
 
-    for (uint16_t & index : indices)
+    for (uint16_t& index : indices)
     {
         index += m_vertexOffset;
     }
@@ -194,11 +198,13 @@ void VulkanRendererImpl::addCommand(
 
     m_vertexOffset += static_cast<uint16_t>(vertices.size());
 
-    m_drawCommands.push_back({
-        .indexCount = static_cast<uint32_t>(indices.size()),
-        .indexOffset = static_cast<uint32_t>(m_indexCount - indices.size()),
-        .fragData = fragData
-    });
+    m_drawCommands.push_back(
+        {
+            .indexCount = static_cast<uint32_t>(indices.size()),
+            .indexOffset = static_cast<uint32_t>(m_indexCount - indices.size()),
+            .fragData = fragData
+        }
+    );
 }
 
 Rectangle VulkanRendererImpl::normalize(Rectangle rect) const
@@ -321,7 +327,9 @@ void VulkanRendererImpl::createVertexBuffer()
     };
 
     VmaAllocationInfo memoryInfo;
-    if (vmaCreateBuffer(m_device->allocator(), &bufferInfo, &allocInfo, &m_vertexBuffer, &m_vertexAllocation, &memoryInfo) != VK_SUCCESS)
+    if (vmaCreateBuffer(
+        m_device->allocator(), &bufferInfo, &allocInfo, &m_vertexBuffer, &m_vertexAllocation, &memoryInfo
+    ) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create vertex buffer");
     }
@@ -345,7 +353,9 @@ void VulkanRendererImpl::createIndexBuffer()
     };
 
     VmaAllocationInfo memoryInfo;
-    if (vmaCreateBuffer(m_device->allocator(), &bufferInfo, &allocInfo, &m_indexBuffer, &m_indexAllocation, &memoryInfo) != VK_SUCCESS)
+    if (vmaCreateBuffer(
+        m_device->allocator(), &bufferInfo, &allocInfo, &m_indexBuffer, &m_indexAllocation, &memoryInfo
+    ) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create index buffer");
     }
@@ -413,7 +423,7 @@ void VulkanRendererImpl::createFrameBuffers()
         std::array attachments = {
             swapChainImageViews[i]
         };
-        
+
         VkFramebufferCreateInfo framebufferInfo = {
             .sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
             .renderPass = m_renderPass,
@@ -424,7 +434,9 @@ void VulkanRendererImpl::createFrameBuffers()
             .layers = 1
         };
 
-        if (vkCreateFramebuffer(m_device->device(), &framebufferInfo, nullptr, &m_swapChainFramebuffers[i]) != VK_SUCCESS)
+        if (vkCreateFramebuffer(
+            m_device->device(), &framebufferInfo, nullptr, &m_swapChainFramebuffers[i]
+        ) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create framebuffer");
         }
@@ -435,7 +447,7 @@ void VulkanRendererImpl::doResize()
 {
     vkDeviceWaitIdle(m_device->device());
 
-    for (const auto & framebuffer : m_swapChainFramebuffers)
+    for (const auto& framebuffer : m_swapChainFramebuffers)
     {
         vkDestroyFramebuffer(m_device->device(), framebuffer, nullptr);
     }

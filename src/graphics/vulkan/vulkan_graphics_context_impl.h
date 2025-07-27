@@ -10,22 +10,26 @@
 #include <karin/common/geometry/point.h>
 #include <karin/common/geometry/rectangle.h>
 
-namespace karin {
-
+namespace karin
+{
 class VulkanGraphicsContextImpl : public IGraphicsContextImpl
 {
 public:
-    VulkanGraphicsContextImpl(VulkanRendererImpl *renderer);
+    VulkanGraphicsContextImpl(VulkanRendererImpl* renderer);
     ~VulkanGraphicsContextImpl() override = default;
 
-    void fillRect(Rectangle rect, Pattern *pattern) override;
-    void fillEllipse(Point center, float radiusX, float radiusY, Pattern *pattern) override;
-    void fillRoundedRect(Rectangle rect, float radiusX, float radiusY, Pattern *pattern) override;
+    void fillRect(Rectangle rect, Pattern* pattern) override;
+    void fillEllipse(Point center, float radiusX, float radiusY, Pattern* pattern) override;
+    void fillRoundedRect(Rectangle rect, float radiusX, float radiusY, Pattern* pattern) override;
     void fillPath(const PathImpl& path, Pattern* pattern) override;
-    void drawLine(Point start, Point end, Pattern *pattern, const StrokeStyle& strokeStyle) override;
-    void drawRect(Rectangle rect, Pattern *pattern, const StrokeStyle& strokeStyle) override;
-    void drawEllipse(Point center, float radiusX, float radiusY, Pattern *pattern, const StrokeStyle& strokeStyle) override;
-    void drawRoundedRect(Rectangle rect, float radiusX, float radiusY, Pattern *pattern, const StrokeStyle& strokeStyle) override;
+    void drawLine(Point start, Point end, Pattern* pattern, const StrokeStyle& strokeStyle) override;
+    void drawRect(Rectangle rect, Pattern* pattern, const StrokeStyle& strokeStyle) override;
+    void drawEllipse(
+        Point center, float radiusX, float radiusY, Pattern* pattern, const StrokeStyle& strokeStyle
+    ) override;
+    void drawRoundedRect(
+        Rectangle rect, float radiusX, float radiusY, Pattern* pattern, const StrokeStyle& strokeStyle
+    ) override;
     void drawPath(const PathImpl& path, Pattern* pattern, const StrokeStyle& strokeStyle) override;
 
 private:
@@ -74,7 +78,6 @@ private:
     static constexpr int CAP_ROUND_SEGMENTS = 8;
     static constexpr int ELLIPSE_SEGMENTS = 32;
 };
-
 } // karin
 
 #endif //SRC_GRAPHICS_GRAPHICS_VULKAN_VK_GRAPHICS_CONTEXT_IMPL_H

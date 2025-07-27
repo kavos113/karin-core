@@ -16,7 +16,7 @@
 
 namespace karin
 {
-VulkanSurface::VulkanSurface(VulkanGraphicsDevice *device, Window::NativeHandle nativeHandle)
+VulkanSurface::VulkanSurface(VulkanGraphicsDevice* device, Window::NativeHandle nativeHandle)
     : m_device(device), m_window(nativeHandle)
 {
     createSurface();
@@ -31,7 +31,7 @@ VulkanSurface::VulkanSurface(VulkanGraphicsDevice *device, Window::NativeHandle 
 
 void VulkanSurface::cleanUp()
 {
-    for (auto &imageView : m_swapChainImageViews)
+    for (auto& imageView : m_swapChainImageViews)
     {
         vkDestroyImageView(m_device->device(), imageView, nullptr);
     }
@@ -52,7 +52,7 @@ void VulkanSurface::cleanUp()
 
 void VulkanSurface::resize()
 {
-    for (auto &imageView : m_swapChainImageViews)
+    for (auto& imageView : m_swapChainImageViews)
     {
         vkDestroyImageView(m_device->device(), imageView, nullptr);
     }
@@ -98,7 +98,7 @@ bool VulkanSurface::present(VkSemaphore waitSemaphore, uint32_t imageIndex) cons
 {
     std::array semaphores = {waitSemaphore};
 
-    std::array swapChains = { m_swapChain };
+    std::array swapChains = {m_swapChain};
     VkPresentInfoKHR presentInfo = {
         .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
         .waitSemaphoreCount = semaphores.size(),

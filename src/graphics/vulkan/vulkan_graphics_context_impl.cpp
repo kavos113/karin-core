@@ -20,12 +20,12 @@
 
 namespace karin
 {
-VulkanGraphicsContextImpl::VulkanGraphicsContextImpl(VulkanRendererImpl *renderer)
+VulkanGraphicsContextImpl::VulkanGraphicsContextImpl(VulkanRendererImpl* renderer)
     : m_renderer(renderer)
 {
 }
 
-void VulkanGraphicsContextImpl::fillRect(Rectangle rect, Pattern *pattern)
+void VulkanGraphicsContextImpl::fillRect(Rectangle rect, Pattern* pattern)
 {
     Rectangle normalizedRect = m_renderer->normalize(rect);
 
@@ -39,7 +39,9 @@ void VulkanGraphicsContextImpl::fillRect(Rectangle rect, Pattern *pattern)
             .uv = {1.0f, -1.0f},
         },
         {
-            .pos = {normalizedRect.pos.x + normalizedRect.size.width, normalizedRect.pos.y + normalizedRect.size.height},
+            .pos = {
+                normalizedRect.pos.x + normalizedRect.size.width, normalizedRect.pos.y + normalizedRect.size.height
+            },
             .uv = {1.0f, 1.0f},
         },
         {
@@ -52,7 +54,7 @@ void VulkanGraphicsContextImpl::fillRect(Rectangle rect, Pattern *pattern)
         0, 1, 2, 2, 3, 0
     };
 
-    auto *solidColorPattern = dynamic_cast<SolidColorPattern *>(pattern);
+    auto* solidColorPattern = dynamic_cast<SolidColorPattern*>(pattern);
     if (!solidColorPattern)
     {
         throw std::runtime_error("VkGraphicsContextImpl::fillRect: pattern must be SolidColorPattern");
@@ -65,14 +67,16 @@ void VulkanGraphicsContextImpl::fillRect(Rectangle rect, Pattern *pattern)
     m_renderer->addCommand(vertices, indices, fragData);
 }
 
-void VulkanGraphicsContextImpl::fillEllipse(Point center, float radiusX, float radiusY, Pattern *pattern)
+void VulkanGraphicsContextImpl::fillEllipse(Point center, float radiusX, float radiusY, Pattern* pattern)
 {
-    Rectangle rect = m_renderer->normalize(Rectangle(
-        center.x - radiusX,
-        center.y - radiusY,
-        radiusX * 2.0f,
-        radiusY * 2.0f
-    ));
+    Rectangle rect = m_renderer->normalize(
+        Rectangle(
+            center.x - radiusX,
+            center.y - radiusY,
+            radiusX * 2.0f,
+            radiusY * 2.0f
+        )
+    );
 
     std::vector<VulkanPipeline::Vertex> vertices = {
         {
@@ -97,7 +101,7 @@ void VulkanGraphicsContextImpl::fillEllipse(Point center, float radiusX, float r
         0, 1, 2, 2, 3, 0
     };
 
-    auto *solidColorPattern = dynamic_cast<SolidColorPattern *>(pattern);
+    auto* solidColorPattern = dynamic_cast<SolidColorPattern*>(pattern);
     if (!solidColorPattern)
     {
         throw std::runtime_error("VkGraphicsContextImpl::fillEllipse: pattern must be SolidColorPattern");
@@ -111,7 +115,7 @@ void VulkanGraphicsContextImpl::fillEllipse(Point center, float radiusX, float r
     m_renderer->addCommand(vertices, indices, fragData);
 }
 
-void VulkanGraphicsContextImpl::fillRoundedRect(Rectangle rect, float radiusX, float radiusY, Pattern *pattern)
+void VulkanGraphicsContextImpl::fillRoundedRect(Rectangle rect, float radiusX, float radiusY, Pattern* pattern)
 {
     Rectangle normalizedRect = m_renderer->normalize(rect);
 
@@ -125,7 +129,9 @@ void VulkanGraphicsContextImpl::fillRoundedRect(Rectangle rect, float radiusX, f
             .uv = {1.0f, -1.0f},
         },
         {
-            .pos = {normalizedRect.pos.x + normalizedRect.size.width, normalizedRect.pos.y + normalizedRect.size.height},
+            .pos = {
+                normalizedRect.pos.x + normalizedRect.size.width, normalizedRect.pos.y + normalizedRect.size.height
+            },
             .uv = {1.0f, 1.0f},
         },
         {
@@ -138,7 +144,7 @@ void VulkanGraphicsContextImpl::fillRoundedRect(Rectangle rect, float radiusX, f
         0, 1, 2, 2, 3, 0
     };
 
-    auto *solidColorPattern = dynamic_cast<SolidColorPattern *>(pattern);
+    auto* solidColorPattern = dynamic_cast<SolidColorPattern*>(pattern);
     if (!solidColorPattern)
     {
         throw std::runtime_error("VkGraphicsContextImpl::fillRect: pattern must be SolidColorPattern");
@@ -153,14 +159,14 @@ void VulkanGraphicsContextImpl::fillRoundedRect(Rectangle rect, float radiusX, f
     m_renderer->addCommand(vertices, indices, fragData);
 }
 
-void VulkanGraphicsContextImpl::drawLine(Point start, Point end, Pattern *pattern, const StrokeStyle& strokeStyle)
+void VulkanGraphicsContextImpl::drawLine(Point start, Point end, Pattern* pattern, const StrokeStyle& strokeStyle)
 {
     std::vector<VulkanPipeline::Vertex> vertices;
     std::vector<uint16_t> indices;
 
     addLine(start, end, strokeStyle, vertices, indices);
 
-    auto *solidColorPattern = dynamic_cast<SolidColorPattern *>(pattern);
+    auto* solidColorPattern = dynamic_cast<SolidColorPattern*>(pattern);
     if (!solidColorPattern)
     {
         throw std::runtime_error("VkGraphicsContextImpl::drawLine: pattern must be SolidColorPattern");
@@ -173,7 +179,7 @@ void VulkanGraphicsContextImpl::drawLine(Point start, Point end, Pattern *patter
     m_renderer->addCommand(vertices, indices, fragData);
 }
 
-void VulkanGraphicsContextImpl::drawRect(Rectangle rect, Pattern *pattern, const StrokeStyle& strokeStyle)
+void VulkanGraphicsContextImpl::drawRect(Rectangle rect, Pattern* pattern, const StrokeStyle& strokeStyle)
 {
     std::vector<VulkanPipeline::Vertex> vertices;
     std::vector<uint16_t> indices;
@@ -213,7 +219,7 @@ void VulkanGraphicsContextImpl::drawRect(Rectangle rect, Pattern *pattern, const
         indices
     );
 
-    auto *solidColorPattern = dynamic_cast<SolidColorPattern *>(pattern);
+    auto* solidColorPattern = dynamic_cast<SolidColorPattern*>(pattern);
     if (!solidColorPattern)
     {
         throw std::runtime_error("VkGraphicsContextImpl::drawRect: pattern must be SolidColorPattern");
@@ -226,7 +232,9 @@ void VulkanGraphicsContextImpl::drawRect(Rectangle rect, Pattern *pattern, const
     m_renderer->addCommand(vertices, indices, fragData);
 }
 
-void VulkanGraphicsContextImpl::drawEllipse(Point center, float radiusX, float radiusY, Pattern *pattern, const StrokeStyle& strokeStyle)
+void VulkanGraphicsContextImpl::drawEllipse(
+    Point center, float radiusX, float radiusY, Pattern* pattern, const StrokeStyle& strokeStyle
+)
 {
     std::vector<VulkanPipeline::Vertex> vertices;
     std::vector<uint16_t> indices;
@@ -246,7 +254,7 @@ void VulkanGraphicsContextImpl::drawEllipse(Point center, float radiusX, float r
         indices
     );
 
-    auto *solidColorPattern = dynamic_cast<SolidColorPattern *>(pattern);
+    auto* solidColorPattern = dynamic_cast<SolidColorPattern*>(pattern);
     if (!solidColorPattern)
     {
         throw std::runtime_error("VkGraphicsContextImpl::drawEllipse: pattern must be SolidColorPattern");
@@ -262,7 +270,7 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
     Rectangle rect,
     float radiusX,
     float radiusY,
-    Pattern *pattern,
+    Pattern* pattern,
     const StrokeStyle& strokeStyle
 )
 {
@@ -349,7 +357,7 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
         indices
     );
 
-    auto *solidColorPattern = dynamic_cast<SolidColorPattern *>(pattern);
+    auto* solidColorPattern = dynamic_cast<SolidColorPattern*>(pattern);
     if (!solidColorPattern)
     {
         throw std::runtime_error("VkGraphicsContextImpl::drawRoundedRect: pattern must be SolidColorPattern");
@@ -372,9 +380,9 @@ void VulkanGraphicsContextImpl::drawPath(const PathImpl& path, Pattern* pattern,
 float VulkanGraphicsContextImpl::addLine(
     Point start,
     Point end,
-    const StrokeStyle &strokeStyle,
-    std::vector<VulkanPipeline::Vertex> &vertices,
-    std::vector<uint16_t> &indices
+    const StrokeStyle& strokeStyle,
+    std::vector<VulkanPipeline::Vertex>& vertices,
+    std::vector<uint16_t>& indices
 ) const
 {
     float dashOffset = 0.0f;
@@ -495,24 +503,24 @@ float VulkanGraphicsContextImpl::addLine(
     for (int i = 1; i < lines.size(); i++)
     {
         addCapStyle(
-          strokeStyle.dash_cap_style,
-          vertices,
-          indices,
-          lines[i - 1].second,
-          direction,
-          strokeStyle.width,
-          -dirUnitVec,
-          normalUnitVec
+            strokeStyle.dash_cap_style,
+            vertices,
+            indices,
+            lines[i - 1].second,
+            direction,
+            strokeStyle.width,
+            -dirUnitVec,
+            normalUnitVec
         );
         addCapStyle(
-          strokeStyle.dash_cap_style,
-          vertices,
-          indices,
-          lines[i].first,
-          -direction,
-          strokeStyle.width,
-          dirUnitVec,
-          normalUnitVec
+            strokeStyle.dash_cap_style,
+            vertices,
+            indices,
+            lines[i].first,
+            -direction,
+            strokeStyle.width,
+            dirUnitVec,
+            normalUnitVec
         );
     }
 
@@ -521,10 +529,10 @@ float VulkanGraphicsContextImpl::addLine(
 
 void VulkanGraphicsContextImpl::addCapStyle(
     StrokeStyle::CapStyle capStyle,
-    std::vector<VulkanPipeline::Vertex> &vertices,
-    std::vector<uint16_t> &indices,
-    const glm::vec2 &centerVec,
-    const Point &direction,
+    std::vector<VulkanPipeline::Vertex>& vertices,
+    std::vector<uint16_t>& indices,
+    const glm::vec2& centerVec,
+    const Point& direction,
     float width,
     glm::vec2 dirUnitVec,
     glm::vec2 normalUnitVec
@@ -532,118 +540,122 @@ void VulkanGraphicsContextImpl::addCapStyle(
 {
     switch (capStyle)
     {
-        case StrokeStyle::CapStyle::Butt:
-            break;
+    case StrokeStyle::CapStyle::Butt:
+        break;
 
-        case StrokeStyle::CapStyle::Round:
+    case StrokeStyle::CapStyle::Round:
+    {
+        float baseAngle = std::atan2(direction.y, direction.x);
+        float startAngle = baseAngle - std::numbers::pi / 2.0f;
+        float endAngle = baseAngle + std::numbers::pi / 2.0f;
+        float angleStep = (endAngle - startAngle) / CAP_ROUND_SEGMENTS;
+        float radius = width / 2.0f;
+        auto pixStart = m_renderer->unNormalize(centerVec);
+
+        for (int i = 0; i <= CAP_ROUND_SEGMENTS; ++i)
         {
-            float baseAngle = std::atan2(direction.y, direction.x);
-            float startAngle = baseAngle - std::numbers::pi / 2.0f;
-            float endAngle = baseAngle + std::numbers::pi / 2.0f;
-            float angleStep = (endAngle - startAngle) / CAP_ROUND_SEGMENTS;
-            float radius = width / 2.0f;
-            auto pixStart = m_renderer->unNormalize(centerVec);
+            float angle = startAngle + i * angleStep;
 
-            for (int i = 0; i <= CAP_ROUND_SEGMENTS; ++i)
-            {
-                float angle = startAngle + i * angleStep;
+            auto pos = pixStart + glm::vec2(std::cos(angle), std::sin(angle)) * radius;
 
-                auto pos = pixStart + glm::vec2(std::cos(angle), std::sin(angle)) * radius;
-
-                vertices.push_back({
+            vertices.push_back(
+                {
                     .pos = m_renderer->normalize(pos),
                     .uv = {-1.0f, -1.0f},
-                });
-            }
-            vertices.push_back({
+                }
+            );
+        }
+        vertices.push_back(
+            {
                 .pos = centerVec,
                 .uv = {0.0f, 0.0f},
-            });
-
-            auto baseIndex = static_cast<uint16_t>(vertices.size() - CAP_ROUND_SEGMENTS - 2);
-            for (int i = 0; i < CAP_ROUND_SEGMENTS; ++i)
-            {
-                indices.insert(
-                    indices.end(),
-                    {
-                        static_cast<uint16_t>(baseIndex + i),
-                        static_cast<uint16_t>(baseIndex + i + 1),
-                        static_cast<uint16_t>(baseIndex + CAP_ROUND_SEGMENTS + 1)
-                    }
-                );
             }
-        }
-            break;
+        );
 
-        case StrokeStyle::CapStyle::Square:
+        auto baseIndex = static_cast<uint16_t>(vertices.size() - CAP_ROUND_SEGMENTS - 2);
+        for (int i = 0; i < CAP_ROUND_SEGMENTS; ++i)
         {
-            vertices.insert(
-                vertices.end(),
-                {
-                    {
-                        .pos = centerVec - dirUnitVec + normalUnitVec,
-                        .uv = {-1.0f, -1.0f},
-                    },
-                    {
-                        .pos = centerVec - dirUnitVec - normalUnitVec,
-                        .uv = {1.0f, -1.0f},
-                    },
-                    {
-                        .pos = centerVec + normalUnitVec,
-                        .uv = {1.0f, 1.0f},
-                    },
-                    {
-                        .pos = centerVec - normalUnitVec,
-                        .uv = {-1.0f, 1.0f},
-                    }
-                }
-            );
-            auto baseIndex = static_cast<uint16_t>(vertices.size() - 4);
             indices.insert(
                 indices.end(),
                 {
-                    baseIndex,
-                    static_cast<uint16_t>(baseIndex + 1),
-                    static_cast<uint16_t>(baseIndex + 2),
-                    static_cast<uint16_t>(baseIndex + 2),
-                    static_cast<uint16_t>(baseIndex + 3),
-                    baseIndex
+                    static_cast<uint16_t>(baseIndex + i),
+                    static_cast<uint16_t>(baseIndex + i + 1),
+                    static_cast<uint16_t>(baseIndex + CAP_ROUND_SEGMENTS + 1)
                 }
             );
         }
-            break;
+    }
+    break;
 
-        case StrokeStyle::CapStyle::Triangle:
-        {
-            vertices.insert(
-                vertices.end(),
+    case StrokeStyle::CapStyle::Square:
+    {
+        vertices.insert(
+            vertices.end(),
+            {
                 {
-                    {
-                        .pos = centerVec + normalUnitVec,
-                        .uv = {-1.0f, -1.0f},
-                    },
-                    {
-                        .pos = centerVec - normalUnitVec,
-                        .uv = {1.0f, -1.0f},
-                    },
-                    {
-                        .pos = centerVec - dirUnitVec / 2.0f,
-                        .uv = {1.0f, 1.0f},
-                    },
+                    .pos = centerVec - dirUnitVec + normalUnitVec,
+                    .uv = {-1.0f, -1.0f},
+                },
+                {
+                    .pos = centerVec - dirUnitVec - normalUnitVec,
+                    .uv = {1.0f, -1.0f},
+                },
+                {
+                    .pos = centerVec + normalUnitVec,
+                    .uv = {1.0f, 1.0f},
+                },
+                {
+                    .pos = centerVec - normalUnitVec,
+                    .uv = {-1.0f, 1.0f},
                 }
-            );
+            }
+        );
+        auto baseIndex = static_cast<uint16_t>(vertices.size() - 4);
+        indices.insert(
+            indices.end(),
+            {
+                baseIndex,
+                static_cast<uint16_t>(baseIndex + 1),
+                static_cast<uint16_t>(baseIndex + 2),
+                static_cast<uint16_t>(baseIndex + 2),
+                static_cast<uint16_t>(baseIndex + 3),
+                baseIndex
+            }
+        );
+    }
+    break;
 
-            auto baseIndex = static_cast<uint16_t>(vertices.size() - 3);
-            indices.insert(
-                indices.end(),
+    case StrokeStyle::CapStyle::Triangle:
+    {
+        vertices.insert(
+            vertices.end(),
+            {
                 {
-                    baseIndex,
-                    static_cast<uint16_t>(baseIndex + 1),
-                    static_cast<uint16_t>(baseIndex + 2),
-                }
-            );
-        }
-            break;
+                    .pos = centerVec + normalUnitVec,
+                    .uv = {-1.0f, -1.0f},
+                },
+                {
+                    .pos = centerVec - normalUnitVec,
+                    .uv = {1.0f, -1.0f},
+                },
+                {
+                    .pos = centerVec - dirUnitVec / 2.0f,
+                    .uv = {1.0f, 1.0f},
+                },
+            }
+        );
+
+        auto baseIndex = static_cast<uint16_t>(vertices.size() - 3);
+        indices.insert(
+            indices.end(),
+            {
+                baseIndex,
+                static_cast<uint16_t>(baseIndex + 1),
+                static_cast<uint16_t>(baseIndex + 2),
+            }
+        );
+    }
+    break;
     }
 }
 
@@ -653,9 +665,9 @@ float VulkanGraphicsContextImpl::addArc(
     float radiusY,
     float startAngle,
     float endAngle,
-    const StrokeStyle &strokeStyle,
-    std::vector<VulkanPipeline::Vertex> &vertices,
-    std::vector<uint16_t> &indices
+    const StrokeStyle& strokeStyle,
+    std::vector<VulkanPipeline::Vertex>& vertices,
+    std::vector<uint16_t>& indices
 ) const
 {
     if (startAngle > endAngle)

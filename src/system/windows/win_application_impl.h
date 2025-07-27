@@ -3,8 +3,8 @@
 
 #include <application_impl.h>
 
-namespace karin {
-
+namespace karin
+{
 class WinApplicationImpl : public IApplicationImpl
 {
 public:
@@ -16,7 +16,6 @@ public:
 
     bool m_isRunning = false;
 };
-
 } // karin
 
 #endif //SRC_SYSTEM_WINDOWS_WIN_APPLICATION_IMPL_H

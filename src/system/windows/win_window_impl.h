@@ -10,13 +10,13 @@
 #include <memory>
 #include <functional>
 
-namespace karin {
-
+namespace karin
+{
 class WinWindowImpl : public IWindowImpl
 {
 public:
     WinWindowImpl(
-        const std::wstring &title,
+        const std::wstring& title,
         int x,
         int y,
         int width,
@@ -52,7 +52,6 @@ private:
 
     static constexpr auto CLASS_NAME = L"KarinWindow";
 };
-
 } // karin
 
 #endif //SRC_SYSTEM_WINDOWS_WIN_WINDOW_IMPL_H

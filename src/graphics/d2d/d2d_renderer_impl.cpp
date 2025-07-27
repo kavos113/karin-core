@@ -11,8 +11,10 @@ D2DRendererImpl::D2DRendererImpl(D2DGraphicsDevice* device, HWND hwnd)
 {
     m_surface = std::make_unique<D2DSurfaceManager>(device, hwnd);
 
-    if (FAILED(m_device->device()->CreateDeviceContext(
-        D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &m_deviceContext)))
+    if (FAILED(
+        m_device->device()->CreateDeviceContext(
+            D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &m_deviceContext)
+    ))
     {
         throw std::runtime_error("Failed to create D2D device context");
     }
@@ -25,10 +27,12 @@ D2DRendererImpl::D2DRendererImpl(D2DGraphicsDevice* device, HWND hwnd)
 void D2DRendererImpl::setTargetBitmap() const
 {
     Microsoft::WRL::ComPtr<ID2D1Bitmap1> bitmap;
-    if (FAILED(m_deviceContext->CreateBitmapFromDxgiSurface(
-        m_surface->backBuffer().Get(),
-        bitmapProperties,
-        &bitmap)))
+    if (FAILED(
+        m_deviceContext->CreateBitmapFromDxgiSurface(
+            m_surface->backBuffer().Get(),
+            bitmapProperties,
+            &bitmap)
+    ))
     {
         throw std::runtime_error("Failed to create D2D bitmap from DXGI surface");
     }

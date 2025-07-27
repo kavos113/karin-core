@@ -7,7 +7,6 @@
 
 namespace karin
 {
-
 X11ApplicationImpl::X11ApplicationImpl()
 {
     m_display = XOpenDisplay(nullptr);
@@ -25,7 +24,7 @@ X11ApplicationImpl::~X11ApplicationImpl()
     XCloseDisplay(m_display);
 }
 
-void X11ApplicationImpl::addWindow(XlibWindow window, X11WindowImpl *impl)
+void X11ApplicationImpl::addWindow(XlibWindow window, X11WindowImpl* impl)
 {
     m_windows[window] = impl;
 }
@@ -46,13 +45,13 @@ void X11ApplicationImpl::shutdown()
     m_running = false;
 }
 
-int X11ApplicationImpl::errorHandler(Display *display, XErrorEvent *error)
+int X11ApplicationImpl::errorHandler(Display* display, XErrorEvent* error)
 {
     char errorText[256];
     XGetErrorText(display, error->error_code, errorText, sizeof(errorText));
 
     std::cerr << "X11 Error: " << errorText << " (request code: " << error->request_code
-              << ", minor code: " << error->minor_code << ")" << std::endl;
+        << ", minor code: " << error->minor_code << ")" << std::endl;
 
     return 0;
 }

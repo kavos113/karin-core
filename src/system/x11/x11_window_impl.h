@@ -9,8 +9,8 @@
 #include <window_impl.h>
 #include "x11_application_impl.h"
 
-namespace karin {
-
+namespace karin
+{
 class X11WindowImpl : public IWindowImpl
 {
 public:
@@ -63,7 +63,6 @@ private:
     X11ShowStatus m_status = X11ShowStatus::NoStatus;
     std::once_flag m_applyStatusFlag;
 };
-
 } // karin
 
 #endif //SRC_SYSTEM_X11_X11_WINDOW_IMPL_H

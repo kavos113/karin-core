@@ -36,7 +36,7 @@ if (DIRECTX)
     target_link_libraries(karin_graphics PRIVATE d2d1.lib)
     target_link_libraries(karin_graphics PRIVATE dxgi.lib)
     target_link_libraries(karin_graphics PRIVATE d3d11.lib)
-    
+
     target_compile_definitions(karin_graphics PUBLIC KARIN_PLATFORM_DIRECTX)
     target_compile_definitions(karin_graphics PUBLIC UNICODE)
     target_compile_definitions(karin_graphics PUBLIC NOMINMAX)
@@ -76,7 +76,7 @@ elseif (VULKAN)
 
     find_package(glm CONFIG REQUIRED)
     target_link_libraries(karin_graphics PRIVATE glm::glm)
-    
+
     target_compile_definitions(karin_graphics PUBLIC KARIN_PLATFORM_VULKAN)
 endif ()
 

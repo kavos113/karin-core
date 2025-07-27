@@ -9,7 +9,7 @@ namespace karin
 {
 D2DGraphicsContextImpl::D2DGraphicsContextImpl(
     Microsoft::WRL::ComPtr<ID2D1DeviceContext> deviceContext,
-    D2DDeviceResources *deviceResources
+    D2DDeviceResources* deviceResources
 )
     : m_deviceContext(std::move(deviceContext)),
       m_deviceResources(deviceResources)
@@ -30,7 +30,7 @@ void D2DGraphicsContextImpl::fillRect(const Rectangle rect, Pattern* pattern)
     );
 }
 
-void D2DGraphicsContextImpl::fillEllipse(Point center, float radiusX, float radiusY, Pattern *pattern)
+void D2DGraphicsContextImpl::fillEllipse(Point center, float radiusX, float radiusY, Pattern* pattern)
 {
     auto brush = m_deviceResources->brush(pattern);
     if (!brush)
@@ -49,7 +49,7 @@ void D2DGraphicsContextImpl::fillEllipse(Point center, float radiusX, float radi
     );
 }
 
-void D2DGraphicsContextImpl::fillRoundedRect(Rectangle rect, float radiusX, float radiusY, Pattern *pattern)
+void D2DGraphicsContextImpl::fillRoundedRect(Rectangle rect, float radiusX, float radiusY, Pattern* pattern)
 {
     auto brush = m_deviceResources->brush(pattern);
     if (!brush)
@@ -68,7 +68,7 @@ void D2DGraphicsContextImpl::fillRoundedRect(Rectangle rect, float radiusX, floa
     );
 }
 
-void D2DGraphicsContextImpl::drawLine(Point start, Point end, Pattern *pattern, const StrokeStyle& strokeStyle)
+void D2DGraphicsContextImpl::drawLine(Point start, Point end, Pattern* pattern, const StrokeStyle& strokeStyle)
 {
     auto brush = m_deviceResources->brush(pattern);
     if (!brush)
@@ -85,7 +85,7 @@ void D2DGraphicsContextImpl::drawLine(Point start, Point end, Pattern *pattern, 
     );
 }
 
-void D2DGraphicsContextImpl::drawRect(Rectangle rect, Pattern *pattern, const StrokeStyle& strokeStyle)
+void D2DGraphicsContextImpl::drawRect(Rectangle rect, Pattern* pattern, const StrokeStyle& strokeStyle)
 {
     auto brush = m_deviceResources->brush(pattern);
     if (!brush)
@@ -105,7 +105,7 @@ void D2DGraphicsContextImpl::drawEllipse(
     Point center,
     float radiusX,
     float radiusY,
-    Pattern *pattern,
+    Pattern* pattern,
     const StrokeStyle& strokeStyle
 )
 {
@@ -132,7 +132,7 @@ void D2DGraphicsContextImpl::drawRoundedRect(
     Rectangle rect,
     float radiusX,
     float radiusY,
-    Pattern *pattern,
+    Pattern* pattern,
     const StrokeStyle& strokeStyle
 )
 {
@@ -155,7 +155,7 @@ void D2DGraphicsContextImpl::drawRoundedRect(
     );
 }
 
-void D2DGraphicsContextImpl::fillPath(const PathImpl& path, Pattern *pattern)
+void D2DGraphicsContextImpl::fillPath(const PathImpl& path, Pattern* pattern)
 {
     auto geometry = m_deviceResources->pathGeometry(path);
     if (!geometry)
@@ -176,7 +176,7 @@ void D2DGraphicsContextImpl::fillPath(const PathImpl& path, Pattern *pattern)
     );
 }
 
-void D2DGraphicsContextImpl::drawPath(const PathImpl& path, Pattern *pattern, const StrokeStyle &strokeStyle)
+void D2DGraphicsContextImpl::drawPath(const PathImpl& path, Pattern* pattern, const StrokeStyle& strokeStyle)
 {
     auto geometry = m_deviceResources->pathGeometry(path);
     if (!geometry)
@@ -184,7 +184,7 @@ void D2DGraphicsContextImpl::drawPath(const PathImpl& path, Pattern *pattern, co
         throw std::runtime_error("Failed to get path geometry");
     }
 
-    auto brush  = m_deviceResources->brush(pattern);
+    auto brush = m_deviceResources->brush(pattern);
     if (!brush)
     {
         throw std::runtime_error("Failed to get brush for pattern");
