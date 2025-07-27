@@ -157,9 +157,44 @@ void D2DGraphicsContextImpl::drawRoundedRect(
 
 void D2DGraphicsContextImpl::fillPath(const PathImpl& path, Pattern *pattern)
 {
+    auto geometry = m_deviceResources->pathGeometry(path);
+    if (!geometry)
+    {
+        throw std::runtime_error("Failed to get path geometry");
+    }
+
+    auto brush = m_deviceResources->brush(pattern);
+    if (!brush)
+    {
+        throw std::runtime_error("Failed to get brush for pattern");
+    }
+
+    m_deviceContext->FillGeometry(
+        geometry.Get(),
+        brush.Get(),
+        nullptr
+    );
 }
 
 void D2DGraphicsContextImpl::drawPath(const PathImpl& path, Pattern *pattern, const StrokeStyle &strokeStyle)
 {
+    auto geometry = m_deviceResources->pathGeometry(path);
+    if (!geometry)
+    {
+        throw std::runtime_error("Failed to get path geometry");
+    }
+
+    auto brush  = m_deviceResources->brush(pattern);
+    if (!brush)
+    {
+        throw std::runtime_error("Failed to get brush for pattern");
+    }
+
+    m_deviceContext->DrawGeometry(
+        geometry.Get(),
+        brush.Get(),
+        strokeStyle.width,
+        m_deviceResources->strokeStyle(strokeStyle).Get()
+    );
 }
 } // karin

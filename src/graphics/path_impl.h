@@ -25,7 +25,7 @@ public:
         float endAngle;
     };
 
-    PathImpl() = default;
+    PathImpl();
     ~PathImpl() = default;
 
     void start(Point start);
@@ -35,11 +35,16 @@ public:
 
     std::vector<std::variant<LineArgs, ArcArgs>> commands() const;
     Point startPoint() const;
+    uint32_t id() const;
 
 private:
     std::vector<std::variant<LineArgs, ArcArgs>> m_commands;
     Point m_startPoint;
     Point m_currentPoint;
+
+    uint32_t m_id = 0;
+
+    static uint32_t nextId;
 };
 
 } // karin

@@ -81,9 +81,9 @@ Microsoft::WRL::ComPtr<ID2D1StrokeStyle> D2DDeviceResources::strokeStyle(const S
     return strokeStyle;
 }
 
-Microsoft::WRL::ComPtr<ID2D1PathGeometry> D2DDeviceResources::pathGeometry(PathImpl *path)
+Microsoft::WRL::ComPtr<ID2D1PathGeometry> D2DDeviceResources::pathGeometry(const PathImpl& path)
 {
-    if (auto it = m_pathGeometries.find(path); it != m_pathGeometries.end())
+    if (auto it = m_pathGeometries.find(path.id()); it != m_pathGeometries.end())
     {
         return it->second;
     }
@@ -95,7 +95,7 @@ Microsoft::WRL::ComPtr<ID2D1PathGeometry> D2DDeviceResources::pathGeometry(PathI
         throw std::runtime_error("Failed to create D2D path geometry");
     }
 
-    auto commands = path->commands();
+    auto commands = path.commands();
 
     Microsoft::WRL::ComPtr<ID2D1GeometrySink> sink;
     hr = geometry->Open(&sink);
@@ -105,11 +105,11 @@ Microsoft::WRL::ComPtr<ID2D1PathGeometry> D2DDeviceResources::pathGeometry(PathI
     }
 
     sink->SetFillMode(D2D1_FILL_MODE_ALTERNATE);
-    sink->BeginFigure(toD2DPoint(path->startPoint()), D2D1_FIGURE_BEGIN_FILLED);
+    sink->BeginFigure(toD2DPoint(path.startPoint()), D2D1_FIGURE_BEGIN_FILLED);
     for (const auto &command : commands)
     {
-        std::visit([&sink](const auto &args) {
-            using T = std::decay_t<decltype(args)>;
+        std::visit([&sink]<typename T0>(const T0 &args) {
+            using T = std::decay_t<T0>;
             if constexpr (std::is_same_v<T, PathImpl::LineArgs>)
             {
                 sink->AddLine(toD2DPoint(args.end));
@@ -131,6 +131,7 @@ Microsoft::WRL::ComPtr<ID2D1PathGeometry> D2DDeviceResources::pathGeometry(PathI
         }, command);
     }
 
+    m_pathGeometries[path.id()] = geometry;
     return geometry;
 }
 

@@ -4,7 +4,14 @@
 
 namespace karin
 {
-void PathImpl::start(Point start)
+PathImpl::PathImpl()
+    : m_startPoint(0, 0),
+    m_currentPoint(0, 0),
+    m_id(nextId++)
+{
+}
+
+    void PathImpl::start(Point start)
 {
     m_commands.clear();
     m_currentPoint = start;
@@ -43,5 +50,10 @@ std::vector<std::variant<PathImpl::LineArgs, PathImpl::ArcArgs>> PathImpl::comma
 Point PathImpl::startPoint() const
 {
     return m_startPoint;
+}
+
+uint32_t PathImpl::id() const
+{
+    return m_id;
 }
 } // karin
