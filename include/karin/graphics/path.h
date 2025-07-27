@@ -28,6 +28,14 @@ public:
 
 private:
     std::unique_ptr<PathImpl> m_impl;
+
+private:
+    friend class GraphicsContext;
+
+    PathImpl* impl() const
+    {
+        return m_impl.get();
+    }
 };
 
 } // karin

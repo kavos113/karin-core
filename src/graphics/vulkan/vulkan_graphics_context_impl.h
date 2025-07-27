@@ -21,12 +21,12 @@ public:
     void fillRect(Rectangle rect, Pattern *pattern) override;
     void fillEllipse(Point center, float radiusX, float radiusY, Pattern *pattern) override;
     void fillRoundedRect(Rectangle rect, float radiusX, float radiusY, Pattern *pattern) override;
-    void fillPath(const Path& path, Pattern* pattern) override;
+    void fillPath(const PathImpl& path, Pattern* pattern) override;
     void drawLine(Point start, Point end, Pattern *pattern, const StrokeStyle& strokeStyle) override;
     void drawRect(Rectangle rect, Pattern *pattern, const StrokeStyle& strokeStyle) override;
     void drawEllipse(Point center, float radiusX, float radiusY, Pattern *pattern, const StrokeStyle& strokeStyle) override;
     void drawRoundedRect(Rectangle rect, float radiusX, float radiusY, Pattern *pattern, const StrokeStyle& strokeStyle) override;
-    void drawPath(const Path& path, Pattern* pattern, const StrokeStyle& strokeStyle) override;
+    void drawPath(const PathImpl& path, Pattern* pattern, const StrokeStyle& strokeStyle) override;
 
 private:
     // return dash_offset for next line

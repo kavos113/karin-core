@@ -361,11 +361,11 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
     m_renderer->addCommand(vertices, indices, fragData);
 }
 
-void VulkanGraphicsContextImpl::fillPath(const Path& path, Pattern* pattern)
+void VulkanGraphicsContextImpl::fillPath(const PathImpl& path, Pattern* pattern)
 {
 }
 
-void VulkanGraphicsContextImpl::drawPath(const Path& path, Pattern* pattern, const StrokeStyle& strokeStyle)
+void VulkanGraphicsContextImpl::drawPath(const PathImpl& path, Pattern* pattern, const StrokeStyle& strokeStyle)
 {
 }
 

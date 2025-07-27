@@ -155,11 +155,11 @@ void D2DGraphicsContextImpl::drawRoundedRect(
     );
 }
 
-void D2DGraphicsContextImpl::fillPath(const Path &path, Pattern *pattern)
+void D2DGraphicsContextImpl::fillPath(const PathImpl& path, Pattern *pattern)
 {
 }
 
-void D2DGraphicsContextImpl::drawPath(const Path &path, Pattern *pattern, const StrokeStyle &strokeStyle)
+void D2DGraphicsContextImpl::drawPath(const PathImpl& path, Pattern *pattern, const StrokeStyle &strokeStyle)
 {
 }
 } // karin
