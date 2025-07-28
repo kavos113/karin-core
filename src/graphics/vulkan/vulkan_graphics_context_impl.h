@@ -2,20 +2,26 @@
 #define SRC_GRAPHICS_GRAPHICS_VULKAN_VK_GRAPHICS_CONTEXT_IMPL_H
 
 #include "vulkan_renderer_impl.h"
+#include "vulkan_pipeline.h"
 
 #include <graphics_context_impl.h>
+#include <path_impl.h>
+
 #include <karin/graphics/stroke_style.h>
-#include <karin/graphics/path.h>
 #include <karin/common/color/pattern.h>
 #include <karin/common/geometry/point.h>
 #include <karin/common/geometry/rectangle.h>
+
+#include <glm/glm.hpp>
+
+#include <vector>
 
 namespace karin
 {
 class VulkanGraphicsContextImpl : public IGraphicsContextImpl
 {
 public:
-    VulkanGraphicsContextImpl(VulkanRendererImpl* renderer);
+    explicit VulkanGraphicsContextImpl(VulkanRendererImpl* renderer);
     ~VulkanGraphicsContextImpl() override = default;
 
     void fillRect(Rectangle rect, Pattern* pattern) override;
@@ -34,6 +40,7 @@ public:
 
 private:
     // return dash_offset for next line
+    // point: not normalized (in pixels)
     float addLine(
         Point start,
         Point end,
@@ -65,13 +72,13 @@ private:
     ) const;
 
     // should start < end
-    std::vector<Point> splitArc(
+    static std::vector<Point> splitArc(
         Point center,
         float radiusX,
         float radiusY,
         float startAngle,
         float endAngle
-    ) const;
+    );
 
     VulkanRendererImpl* m_renderer;
 

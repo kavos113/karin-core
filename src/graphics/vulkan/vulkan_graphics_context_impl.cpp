@@ -17,6 +17,7 @@
 #include <stdexcept>
 #include <vector>
 #include <numbers>
+#include <variant>
 
 namespace karin
 {
@@ -375,6 +376,69 @@ void VulkanGraphicsContextImpl::fillPath(const PathImpl& path, Pattern* pattern)
 
 void VulkanGraphicsContextImpl::drawPath(const PathImpl& path, Pattern* pattern, const StrokeStyle& strokeStyle)
 {
+    std::vector<VulkanPipeline::Vertex> vertices;
+    std::vector<uint16_t> indices;
+
+    StrokeStyle style = strokeStyle;
+    style.start_cap_style = style.dash_cap_style;
+    style.end_cap_style = style.dash_cap_style;
+
+    auto commands = path.commands();
+    Point currentPoint = path.startPoint();
+
+    for (const auto& command : commands)
+    {
+        std::visit(
+            [&style, this, &vertices, &indices, &currentPoint]<typename T0>(const T0& args)
+            {
+                using T = std::decay_t<T0>;
+                if constexpr (std::is_same_v<T, PathImpl::LineArgs>)
+                {
+                    float offset = addLine(
+                        currentPoint,
+                        args.end,
+                        style,
+                        vertices,
+                        indices
+                    );
+
+                    currentPoint = args.end;
+                    style.dash_offset = offset;
+                }
+                else if constexpr (std::is_same_v<T, PathImpl::ArcArgs>)
+                {
+                    float offset = addArc(
+                        args.center,
+                        args.radiusX,
+                        args.radiusY,
+                        args.startAngle,
+                        args.endAngle,
+                        style,
+                        vertices,
+                        indices
+                    );
+                    style.dash_offset = offset;
+
+                    currentPoint = Point(
+                        args.center.x + args.radiusX * std::cos(args.endAngle),
+                        args.center.y + args.radiusY * std::sin(-args.endAngle) // bottom is big
+                    );
+                }
+            },
+            command
+        );
+    }
+
+    auto* solidColorPattern = dynamic_cast<SolidColorPattern*>(pattern);
+    if (!solidColorPattern)
+    {
+        throw std::runtime_error("VkGraphicsContextImpl::drawPath: pattern must be SolidColorPattern");
+    }
+    Color color = solidColorPattern->color();
+    VulkanPipeline::FragPushConstantData fragData = {
+        .color = glm::vec4(color.r, color.g, color.b, color.a),
+    };
+    m_renderer->addCommand(vertices, indices, fragData);
 }
 
 float VulkanGraphicsContextImpl::addLine(
@@ -670,6 +734,8 @@ float VulkanGraphicsContextImpl::addArc(
     std::vector<uint16_t>& indices
 ) const
 {
+    startAngle = std::fmod(startAngle, 2.0f * std::numbers::pi);
+    endAngle = std::fmod(endAngle, 2.0f * std::numbers::pi);
     if (startAngle > endAngle)
     {
         endAngle += 2.0f * std::numbers::pi;
@@ -699,7 +765,7 @@ std::vector<Point> VulkanGraphicsContextImpl::splitArc(
     float radiusY,
     float startAngle,
     float endAngle
-) const
+)
 {
     constexpr float angleStep = 2.0f * std::numbers::pi / ELLIPSE_SEGMENTS;
 

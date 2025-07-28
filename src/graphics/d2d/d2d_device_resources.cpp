@@ -7,6 +7,7 @@
 #include <numbers>
 #include <ranges>
 #include <stdexcept>
+#include <variant>
 
 namespace karin
 {
