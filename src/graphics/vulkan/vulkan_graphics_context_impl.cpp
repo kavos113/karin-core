@@ -18,6 +18,7 @@
 #include <vector>
 #include <numbers>
 #include <variant>
+#include <list>
 
 namespace karin
 {
@@ -375,8 +376,204 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
     m_renderer->addCommand(vertices, indices, fragData);
 }
 
+// det(c-a, b-a)
+// det(a, b, c): b->c is counter-clockwise if >0, clockwise if <0  (because: y-axis is down)
+float det(const Point& a, const Point& b, const Point& c)
+{
+    return (c.x - a.x) * (b.y - a.y) - (c.y - a.y) * (b.x - a.x);
+}
+
+bool isConvex(const Point& a, const Point& b, const Point& c)
+{
+    return det(a, b, c) > 0;
+}
+
+bool isPointInTriangle(const Point& p, const Point& a, const Point& b, const Point& c)
+{
+    float p_ab = det(a, b, p);
+    float p_bc = det(b, c, p);
+    float p_ca = det(c, a, p);
+
+    return (p_ab > 0 && p_bc > 0 && p_ca > 0) || (p_ab < 0 && p_bc < 0 && p_ca < 0);
+}
+
+
+std::vector<uint16_t> triangulate(const std::vector<Point>& polygon)
+{
+    std::vector<uint16_t> triangleIndices;
+
+    if (polygon.size() < 3)
+    {
+        return triangleIndices;
+    }
+
+    if (polygon.size() == 3)
+    {
+        triangleIndices = {0, 1, 2};
+        return triangleIndices;
+    }
+
+    std::list<uint16_t> indices;
+    for (int i = 0; i < polygon.size(); i++)
+    {
+        indices.push_back(i);
+    }
+
+    // ensure counter clockwise order
+    float signedArea = 0;
+    for (size_t i = 0; i < polygon.size(); i++)
+    {
+        size_t next = (i + 1) % polygon.size();
+        signedArea += det({0, 0}, polygon[i], polygon[next]);
+    }
+    if (signedArea < 0)
+    {
+        std::reverse(indices.begin(), indices.end());
+    }
+
+    while (indices.size() > 3)
+    {
+        for (int i = 0; i < indices.size(); i++)
+        {
+            int prev = (i + indices.size() - 1) % indices.size();
+            int curr = i;
+            int next = (i + 1) % indices.size();
+
+            uint16_t i_prev = *std::next(indices.begin(), prev);
+            uint16_t i_curr = *std::next(indices.begin(), curr);
+            uint16_t i_next = *std::next(indices.begin(), next);
+
+            const Point& p_p = polygon[i_prev];
+            const Point& p_c = polygon[i_curr];
+            const Point& p_n = polygon[i_next];
+
+            if (!isConvex(p_p, p_c, p_n))
+            {
+                continue;
+            }
+
+            bool isEar = true;
+            for (int index : indices)
+            {
+                if (index == i_prev || index == i_curr || index == i_next)
+                {
+                    continue;
+                }
+
+                if (isPointInTriangle(polygon[index], p_p, p_c, p_n))
+                {
+                    isEar = false;
+                    break;
+                }
+            }
+            if (!isEar)
+            {
+                continue;
+            }
+
+            triangleIndices.push_back(i_prev);
+            triangleIndices.push_back(i_curr);
+            triangleIndices.push_back(i_next);
+            indices.erase(std::next(indices.begin(), curr));
+            break;
+        }
+    }
+
+    if (indices.size() == 3)
+    {
+        triangleIndices.push_back(*indices.begin());
+        triangleIndices.push_back(*std::next(indices.begin(), 1));
+        triangleIndices.push_back(*std::next(indices.begin(), 2));
+    }
+
+    return triangleIndices;
+}
+
+
 void VulkanGraphicsContextImpl::fillPath(const PathImpl& path, Pattern* pattern)
 {
+    std::vector<VulkanPipeline::Vertex> vertices;
+    std::vector<uint16_t> indices;
+
+    std::vector<Point> polygonPoints;
+
+    auto commands = path.commands();
+
+    for (const auto& command : commands)
+    {
+        std::visit(
+            [this, &polygonPoints]<typename T0>(const T0& args)
+            {
+                using T = std::decay_t<T0>;
+                if constexpr (std::is_same_v<T, PathImpl::LineArgs>)
+                {
+                    if (polygonPoints.empty() || polygonPoints.back() != args.end)
+                    {
+                        polygonPoints.push_back(args.end);
+                    }
+                }
+                else if constexpr (std::is_same_v<T, PathImpl::ArcArgs>)
+                {
+                    bool isClockwise = args.isSmallArc
+                                           ? (args.endAngle < args.startAngle)
+                                           : (args.endAngle > args.startAngle);
+
+                    auto arcPoints = splitArc(
+                        args.center,
+                        args.radiusX,
+                        args.radiusY,
+                        args.startAngle,
+                        args.endAngle,
+                        isClockwise
+                    );
+
+                    if (arcPoints.size() < 2)
+                    {
+                        return; // No points to add
+                    }
+
+                    for (int i = 1; i < arcPoints.size(); ++i)
+                    {
+                        if (polygonPoints.empty() || polygonPoints.back() != arcPoints[i])
+                        {
+                            polygonPoints.push_back(arcPoints[i]);
+                        }
+                    }
+                }
+            },
+            command
+        );
+    }
+
+    for (auto point : polygonPoints)
+    {
+        Point normalizedPoint = m_renderer->normalize(point);
+        vertices.push_back(
+            {
+                .pos = {normalizedPoint.x, normalizedPoint.y},
+                .uv = {-1.0f, -1.0f} // UV coordinates are not used for fill
+            }
+        );
+    }
+
+    auto triangles = triangulate(polygonPoints);
+    for (size_t i = 0; i < triangles.size(); i += 3)
+    {
+        indices.push_back(triangles[i]);
+        indices.push_back(triangles[i + 1]);
+        indices.push_back(triangles[i + 2]);
+    }
+
+    auto* solidColorPattern = dynamic_cast<SolidColorPattern*>(pattern);
+    if (!solidColorPattern)
+    {
+        throw std::runtime_error("VkGraphicsContextImpl::drawPath: pattern must be SolidColorPattern");
+    }
+    Color color = solidColorPattern->color();
+    VulkanPipeline::FragPushConstantData fragData = {
+        .color = glm::vec4(color.r, color.g, color.b, color.a),
+    };
+    m_renderer->addCommand(vertices, indices, fragData);
 }
 
 void VulkanGraphicsContextImpl::drawPath(const PathImpl& path, Pattern* pattern, const StrokeStyle& strokeStyle)
@@ -799,21 +996,6 @@ float VulkanGraphicsContextImpl::addArc(
     std::vector<uint16_t>& indices
 ) const
 {
-    if (isClockwise)
-    {
-        if (startAngle < endAngle)
-        {
-            startAngle += 2.0f * std::numbers::pi;
-        }
-    }
-    else
-    {
-        if (startAngle > endAngle)
-        {
-            endAngle += 2.0f * std::numbers::pi;
-        }
-    }
-
     StrokeStyle style = strokeStyle;
 
     auto arcPoints = splitArc(center, radiusX, radiusY, startAngle, endAngle, isClockwise);
@@ -841,6 +1023,21 @@ std::vector<Point> VulkanGraphicsContextImpl::splitArc(
     bool isClockwise
 )
 {
+    if (isClockwise)
+    {
+        if (startAngle < endAngle)
+        {
+            startAngle += 2.0f * std::numbers::pi;
+        }
+    }
+    else
+    {
+        if (startAngle > endAngle)
+        {
+            endAngle += 2.0f * std::numbers::pi;
+        }
+    }
+
     constexpr float angleStep = 2.0f * std::numbers::pi / ELLIPSE_SEGMENTS;
 
     int segments = std::floor(std::abs(endAngle - startAngle) / angleStep);
