@@ -3,6 +3,8 @@
 #include "point.h"
 #include "size.h"
 
+#include <iostream>
+
 namespace karin
 {
 
@@ -22,6 +24,11 @@ struct Rectangle
         return pos == other.pos && size == other.size;
     }
 };
+
+inline std::ostream& operator<<(std::ostream& os, const Rectangle& rect)
+{
+    return os << "Rect( " << rect.pos << ", " << rect.size << " )";
+}
 
 } // karin
 

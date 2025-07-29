@@ -1,6 +1,7 @@
 #ifndef KARIN_COMMON_COLOR_COLOR_H
 #define KARIN_COMMON_COLOR_COLOR_H
 #include <cstdint>
+#include <iostream>
 
 namespace karin
 {
@@ -65,6 +66,11 @@ struct Color
         return rgba() < other.rgba();
     }
 };
+
+inline std::ostream& operator<<(std::ostream& os, const Color& color)
+{
+    return os << "Color(" << color.r << ", " << color.g << ", " << color.b << ", " << color.a << ")";
+}
 
 } // karin
 
