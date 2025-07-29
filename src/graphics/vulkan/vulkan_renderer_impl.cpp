@@ -126,7 +126,7 @@ void VulkanRendererImpl::endDraw()
 
     for (const auto& command : m_drawCommands)
     {
-        std::cout << "Vertices: " << command.indexCount << ", Offset: " << command.indexOffset << std::endl;
+        // std::cout << "Vertices: " << command.indexCount << ", Offset: " << command.indexOffset << std::endl;
         m_pipelineManager->bindData(m_commandBuffers[m_currentFrame], command.fragData);
         vkCmdDrawIndexed(m_commandBuffers[m_currentFrame], command.indexCount, 1, command.indexOffset, 0, 0);
     }

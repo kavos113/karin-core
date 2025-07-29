@@ -287,9 +287,9 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
         Point(rect.pos.x + radiusX, rect.pos.y + radiusY),
         radiusX,
         radiusY,
+        1.5 * std::numbers::pi,
         std::numbers::pi,
-        1.5f * std::numbers::pi,
-        false,
+        true,
         style,
         vertices,
         indices
@@ -307,9 +307,9 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
         Point(rect.pos.x + rect.size.width - radiusX, rect.pos.y + radiusY),
         radiusX,
         radiusY,
-        1.5f * std::numbers::pi,
         2.0f * std::numbers::pi,
-        false,
+        1.5f * std::numbers::pi,
+        true,
         style,
         vertices,
         indices
@@ -327,9 +327,9 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
         Point(rect.pos.x + rect.size.width - radiusX, rect.pos.y + rect.size.height - radiusY),
         radiusX,
         radiusY,
-        0.0f,
         0.5f * std::numbers::pi,
-        false,
+        0.0f,
+        true,
         style,
         vertices,
         indices
@@ -347,9 +347,9 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
         Point(rect.pos.x + radiusX, rect.pos.y + rect.size.height - radiusY),
         radiusX,
         radiusY,
-        0.5f * std::numbers::pi,
         std::numbers::pi,
-        false,
+        0.5f * std::numbers::pi,
+        true,
         style,
         vertices,
         indices
@@ -409,21 +409,12 @@ void VulkanGraphicsContextImpl::drawPath(const PathImpl& path, Pattern* pattern,
 
                     currentPoint = args.end;
                     style.dash_offset = offset;
-
-                    std::cout << "Line to: " << currentPoint.x << ", " << currentPoint.y << std::endl;
                 }
                 else if constexpr (std::is_same_v<T, PathImpl::ArcArgs>)
                 {
                     bool isClockwise = args.isSmallArc
                                            ? (args.endAngle < args.startAngle)
                                            : (args.endAngle > args.startAngle);
-
-                    std::cout << "Arc center: " << args.center.x << ", " << args.center.y
-                        << " (radiusX: " << args.radiusX << ", radiusY: " << args.radiusY
-                        << ", startAngle: " << args.startAngle << ", endAngle: " << args.endAngle
-                        << ")" << (isClockwise
-                                       ? " (clockwise)"
-                                       : " (counter-clockwise)") << std::endl;
 
                     float offset = addArc(
                         args.center,
@@ -500,10 +491,18 @@ float VulkanGraphicsContextImpl::addLine(
                 if (dirUnitVec.x != 0.0f)
                 {
                     dashOffset = (endVec.x - current.x) / dirUnitVec.x;
+                    for (int i = 0; i < dashPatternIndex; ++i)
+                    {
+                        dashOffset += strokeStyle.dash_pattern[i];
+                    }
                 }
                 else if (dirUnitVec.y != 0.0f)
                 {
                     dashOffset = (endVec.y - current.y) / dirUnitVec.y;
+                    for (int i = 0; i < dashPatternIndex; ++i)
+                    {
+                        dashOffset += strokeStyle.dash_pattern[i];
+                    }
                 }
                 break;
             }
@@ -514,13 +513,48 @@ float VulkanGraphicsContextImpl::addLine(
             current = line.second;
             dashPatternIndex = (dashPatternIndex + 1) % strokeStyle.dash_pattern.size();
         }
+    }
 
-        lines[0].first += dirUnitVec * strokeStyle.dash_offset;
+    int startIndex = 0;
+    int endIndex = static_cast<int>(lines.size()) - 1;
+    if (endIndex % 2 == 1)
+    {
+        endIndex -= 1; // Ensure the last line is not a blank line
     }
 
     for (int i = 0; i < lines.size(); ++i)
     {
+        // blank
         if (i % 2 == 1)
+        {
+            continue;
+        }
+
+        // Skip lines that are before the start point
+        if ((lines[i].second.x - startVec.x) / dirUnitVec.x < 0.0f
+            || (lines[i].second.y - startVec.y) / dirUnitVec.y < 0.0f)
+        {
+            startIndex = i + 2;
+            continue;
+        }
+
+        // Skip lines that are after the end point
+        if ((lines[i].first.x - endVec.x) / dirUnitVec.x > 0.0f
+            || (lines[i].first.y - endVec.y) / dirUnitVec.y > 0.0f)
+        {
+            endIndex = i - 2;
+            continue;
+        }
+
+        // Adjust the first point to the start point
+        if ((lines[i].first.x - startVec.x) / dirUnitVec.x < 0.0f
+            || (lines[i].first.y - startVec.y) / dirUnitVec.y < 0.0f)
+        {
+            lines[i].first = startVec;
+        }
+
+        // Skip zero length lines
+        if (lines[i].first == lines[i].second)
         {
             continue;
         }
@@ -565,7 +599,7 @@ float VulkanGraphicsContextImpl::addLine(
         strokeStyle.start_cap_style,
         vertices,
         indices,
-        startVec,
+        lines[startIndex].first,
         -direction,
         strokeStyle.width,
         dirUnitVec,
@@ -576,20 +610,20 @@ float VulkanGraphicsContextImpl::addLine(
         strokeStyle.end_cap_style,
         vertices,
         indices,
-        endVec,
+        lines[endIndex].second,
         direction,
         strokeStyle.width,
         -dirUnitVec,
         normalUnitVec
     );
 
-    for (int i = 1; i < lines.size(); i++)
+    for (int i = startIndex + 2; i <= endIndex; i += 2)
     {
         addCapStyle(
             strokeStyle.dash_cap_style,
             vertices,
             indices,
-            lines[i - 1].second,
+            lines[i - 2].second,
             direction,
             strokeStyle.width,
             -dirUnitVec,
