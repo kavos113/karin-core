@@ -15,25 +15,27 @@ int main()
     auto redPattern = std::make_unique<karin::SolidColorPattern>(karin::Color(karin::Color::Red));
     auto bluePattern = std::make_unique<karin::SolidColorPattern>(karin::Color(karin::Color::Blue));
 
-    renderer.addDrawCommand([&redPattern, &bluePattern](karin::GraphicsContext& gc)
-    {
-        gc.drawRect(karin::Rectangle(100, 100, 200, 200), redPattern.get());
-        gc.drawEllipse(karin::Point(400, 300), 100, 50, bluePattern.get());
-        gc.drawRoundedRect(karin::Rectangle(500, 100, 200, 200), 20, 50, redPattern.get());
+    renderer.addDrawCommand(
+        [&redPattern, &bluePattern](karin::GraphicsContext& gc)
+        {
+            gc.drawRect(karin::Rectangle(100, 100, 200, 200), redPattern.get());
+            gc.drawEllipse(karin::Point(400, 300), 100, 50, bluePattern.get());
+            gc.drawRoundedRect(karin::Rectangle(500, 100, 200, 200), 20, 50, redPattern.get());
 
-        karin::StrokeStyle strokeStyle = {
-            .width = 15.0f,
-            .start_cap_style = karin::StrokeStyle::CapStyle::Round,
-            .end_cap_style = karin::StrokeStyle::CapStyle::Round,
-            .dash_cap_style = karin::StrokeStyle::CapStyle::Triangle,
-            .join_style = karin::StrokeStyle::JoinStyle::Round,
-            .miter_limit = 10.0f,
-            .dash_pattern = { 5.0f, 2.0f },
-            .dash_offset = 1.0f
-        };
-        gc.drawLine(karin::Point(100, 400), karin::Point(300, 500), redPattern.get(), strokeStyle);
-        gc.drawRect(karin::Rectangle(400, 400, 200, 200), redPattern.get(), strokeStyle);
-    });
+            karin::StrokeStyle strokeStyle = {
+                .width = 15.0f,
+                .start_cap_style = karin::StrokeStyle::CapStyle::Round,
+                .end_cap_style = karin::StrokeStyle::CapStyle::Round,
+                .dash_cap_style = karin::StrokeStyle::CapStyle::Triangle,
+                .join_style = karin::StrokeStyle::JoinStyle::Round,
+                .miter_limit = 10.0f,
+                .dash_pattern = {5.0f, 2.0f},
+                .dash_offset = 1.0f
+            };
+            gc.drawLine(karin::Point(100, 400), karin::Point(300, 500), redPattern.get(), strokeStyle);
+            gc.drawRect(karin::Rectangle(400, 400, 200, 200), redPattern.get(), strokeStyle);
+        }
+    );
 
     renderer.update();
 

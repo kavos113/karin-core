@@ -287,8 +287,8 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
         Point(rect.pos.x + radiusX, rect.pos.y + radiusY),
         radiusX,
         radiusY,
-        1.5 * std::numbers::pi,
         std::numbers::pi,
+        0.5f * std::numbers::pi,
         true,
         style,
         vertices,
@@ -307,8 +307,8 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
         Point(rect.pos.x + rect.size.width - radiusX, rect.pos.y + radiusY),
         radiusX,
         radiusY,
-        2.0f * std::numbers::pi,
-        1.5f * std::numbers::pi,
+        0.5f * std::numbers::pi,
+        0.0f,
         true,
         style,
         vertices,
@@ -327,8 +327,8 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
         Point(rect.pos.x + rect.size.width - radiusX, rect.pos.y + rect.size.height - radiusY),
         radiusX,
         radiusY,
-        0.5f * std::numbers::pi,
         0.0f,
+        1.5f * std::numbers::pi,
         true,
         style,
         vertices,
@@ -347,8 +347,8 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
         Point(rect.pos.x + radiusX, rect.pos.y + rect.size.height - radiusY),
         radiusX,
         radiusY,
+        1.5f * std::numbers::pi,
         std::numbers::pi,
-        0.5f * std::numbers::pi,
         true,
         style,
         vertices,
@@ -832,17 +832,15 @@ std::vector<Point> VulkanGraphicsContextImpl::splitArc(
 {
     constexpr float angleStep = 2.0f * std::numbers::pi / ELLIPSE_SEGMENTS;
 
-    int segments = isClockwise
-                       ? static_cast<int>((startAngle - endAngle) / angleStep)
-                       : static_cast<int>((endAngle - startAngle) / angleStep);
+    int segments = std::floor(std::abs(endAngle - startAngle) / angleStep);
     if (segments < 1)
     {
         segments = 1;
     }
 
-    std::vector<Point> points(segments + 1);
+    std::vector<Point> points(segments + 2);
 
-    for (int i = 0; i <= segments; ++i)
+    for (int i = 0; i <= segments + 1; ++i)
     {
         float angle = startAngle + angleStep * (isClockwise ? -i : i);
         if ((isClockwise && angle < endAngle) || (!isClockwise && angle > endAngle))
