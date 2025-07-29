@@ -1,9 +1,10 @@
 #ifndef KARIN_COMMON_SIZE_H
 #define KARIN_COMMON_SIZE_H
 
+#include <iostream>
+
 namespace karin
 {
-
 struct Size
 {
     float width;
@@ -15,6 +16,10 @@ struct Size
     }
 };
 
+inline std::ostream& operator<<(std::ostream& os, const Size& size)
+{
+    return os << "Size(" << size.width << ", " << size.height << ")";
+}
 } // karin
 
 #endif //KARIN_COMMON_SIZE_H

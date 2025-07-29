@@ -1,9 +1,10 @@
 #ifndef KARIN_COMMON_POINT_H
 #define KARIN_COMMON_POINT_H
 
+#include <iostream>
+
 namespace karin
 {
-
 struct Point
 {
     float x;
@@ -30,6 +31,10 @@ struct Point
     }
 };
 
+inline std::ostream& operator<<(std::ostream& os, const Point& point)
+{
+    return os << "Point(" << point.x << ", " << point.y << ")";
+}
 } // karin
 
 #endif //KARIN_COMMON_POINT_H
