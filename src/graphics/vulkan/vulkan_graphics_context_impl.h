@@ -2,7 +2,7 @@
 #define SRC_GRAPHICS_GRAPHICS_VULKAN_VK_GRAPHICS_CONTEXT_IMPL_H
 
 #include "vulkan_renderer_impl.h"
-#include "vulkan_pipeline.h"
+#include "vulkan_tessellator.h"
 
 #include <graphics_context_impl.h>
 #include <path_impl.h>
@@ -14,7 +14,7 @@
 
 #include <glm/glm.hpp>
 
-#include <vector>
+#include <memory>
 
 namespace karin
 {
@@ -39,50 +39,9 @@ public:
     void drawPath(const PathImpl& path, Pattern* pattern, const StrokeStyle& strokeStyle) override;
 
 private:
-    // return dash_offset for next line
-    // point: not normalized (in pixels)
-    float addLine(
-        Point start,
-        Point end,
-        const StrokeStyle& strokeStyle,
-        std::vector<VulkanPipeline::Vertex>& vertices,
-        std::vector<uint16_t>& indices
-    ) const;
-
-    void addCapStyle(
-        StrokeStyle::CapStyle capStyle,
-        std::vector<VulkanPipeline::Vertex>& vertices,
-        std::vector<uint16_t>& indices,
-        const glm::vec2& centerVec,
-        const Point& direction,
-        float width, // pixel
-        glm::vec2 dirUnitVec,
-        glm::vec2 normalUnitVec
-    ) const;
-
-    float addArc(
-        Point center,
-        float radiusX,
-        float radiusY,
-        float startAngle,
-        float endAngle,
-        bool isClockwise,
-        const StrokeStyle& strokeStyle,
-        std::vector<VulkanPipeline::Vertex>& vertices,
-        std::vector<uint16_t>& indices
-    ) const;
-
-    // clockwise: start < end
-    static std::vector<Point> splitArc(
-        Point center,
-        float radiusX,
-        float radiusY,
-        float startAngle,
-        float endAngle,
-        bool isClockwise
-    );
-
     VulkanRendererImpl* m_renderer;
+
+    std::unique_ptr<VulkanTessellator> m_tessellator;
 
     static constexpr int CAP_ROUND_SEGMENTS = 8;
     static constexpr int ELLIPSE_SEGMENTS = 32;
