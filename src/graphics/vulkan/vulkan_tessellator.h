@@ -41,7 +41,7 @@ public:
         const StrokeStyle& strokeStyle,
         std::vector<VulkanPipeline::Vertex>& vertices,
         std::vector<uint16_t>& indices
-        ) const;
+    ) const;
 
     // clockwise: start < end
     static std::vector<Point> splitArc(
