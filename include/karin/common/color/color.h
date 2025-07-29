@@ -5,7 +5,6 @@
 
 namespace karin
 {
-
 struct Color
 {
     enum Enum
@@ -28,7 +27,9 @@ struct Color
     Color() = default;
 
     Color(float red, float green, float blue, float alpha = 1.0f)
-        : r(red), g(green), b(blue), a(alpha) {}
+        : r(red), g(green), b(blue), a(alpha)
+    {
+    }
 
     explicit Color(uint32_t rgb, float alpha = 1.0f)
     {
@@ -39,21 +40,23 @@ struct Color
     }
 
     explicit Color(Enum knownColor, float alpha = 1.0f)
-        : Color(static_cast<uint32_t>(knownColor), alpha) {}
+        : Color(static_cast<uint32_t>(knownColor), alpha)
+    {
+    }
 
     uint32_t rgb() const
     {
         return (static_cast<uint32_t>(r * 255) << 16) |
-               (static_cast<uint32_t>(g * 255) << 8) |
-               (static_cast<uint32_t>(b * 255));
+            (static_cast<uint32_t>(g * 255) << 8) |
+            (static_cast<uint32_t>(b * 255));
     }
 
     uint32_t rgba() const
     {
         return (static_cast<uint32_t>(r * 255) << 24) |
-               (static_cast<uint32_t>(g * 255) << 16) |
-               (static_cast<uint32_t>(b * 255) << 8) |
-               static_cast<uint32_t>(a * 255);
+            (static_cast<uint32_t>(g * 255) << 16) |
+            (static_cast<uint32_t>(b * 255) << 8) |
+            static_cast<uint32_t>(a * 255);
     }
 
     bool operator==(const Color& other) const
@@ -61,7 +64,7 @@ struct Color
         return r == other.r && g == other.g && b == other.b && a == other.a;
     }
 
-    bool operator< (const Color& other) const
+    bool operator<(const Color& other) const
     {
         return rgba() < other.rgba();
     }
@@ -71,7 +74,6 @@ inline std::ostream& operator<<(std::ostream& os, const Color& color)
 {
     return os << "Color(" << color.r << ", " << color.g << ", " << color.b << ", " << color.a << ")";
 }
-
 } // karin
 
 #endif //KARIN_COMMON_COLOR_COLOR_H
