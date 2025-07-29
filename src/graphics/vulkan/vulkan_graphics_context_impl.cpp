@@ -250,6 +250,7 @@ void VulkanGraphicsContextImpl::drawEllipse(
         radiusY,
         0.0f,
         2.0f * std::numbers::pi,
+        true,
         style,
         vertices,
         indices
@@ -288,6 +289,7 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
         radiusY,
         std::numbers::pi,
         1.5f * std::numbers::pi,
+        true,
         style,
         vertices,
         indices
@@ -307,6 +309,7 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
         radiusY,
         1.5f * std::numbers::pi,
         2.0f * std::numbers::pi,
+        true,
         style,
         vertices,
         indices
@@ -326,6 +329,7 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
         radiusY,
         0.0f,
         0.5f * std::numbers::pi,
+        true,
         style,
         vertices,
         indices
@@ -345,6 +349,7 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
         radiusY,
         0.5f * std::numbers::pi,
         std::numbers::pi,
+        true,
         style,
         vertices,
         indices
@@ -404,15 +409,22 @@ void VulkanGraphicsContextImpl::drawPath(const PathImpl& path, Pattern* pattern,
 
                     currentPoint = args.end;
                     style.dash_offset = offset;
+
+                    std::cout << "Line to: " << currentPoint.x << ", " << currentPoint.y << std::endl;
                 }
                 else if constexpr (std::is_same_v<T, PathImpl::ArcArgs>)
                 {
+                    bool isClockwise = args.isSmallArc
+                        ? (args.endAngle < args.startAngle)
+                        : (args.endAngle > args.startAngle);
+
                     float offset = addArc(
                         args.center,
                         args.radiusX,
                         args.radiusY,
                         args.startAngle,
                         args.endAngle,
+                        isClockwise,
                         style,
                         vertices,
                         indices
@@ -423,6 +435,11 @@ void VulkanGraphicsContextImpl::drawPath(const PathImpl& path, Pattern* pattern,
                         args.center.x + args.radiusX * std::cos(args.endAngle),
                         args.center.y + args.radiusY * std::sin(-args.endAngle) // bottom is big
                     );
+
+                    std::cout << "Arc center: " << args.center.x << ", " << args.center.y
+                              << " (radiusX: " << args.radiusX << ", radiusY: " << args.radiusY
+                              << ", startAngle: " << args.startAngle << ", endAngle: " << args.endAngle
+                              << ")" << std::endl;
                 }
             },
             command
@@ -729,13 +746,12 @@ float VulkanGraphicsContextImpl::addArc(
     float radiusY,
     float startAngle,
     float endAngle,
+    bool isClockwise,
     const StrokeStyle& strokeStyle,
     std::vector<VulkanPipeline::Vertex>& vertices,
     std::vector<uint16_t>& indices
 ) const
 {
-    startAngle = std::fmod(startAngle, 2.0f * std::numbers::pi);
-    endAngle = std::fmod(endAngle, 2.0f * std::numbers::pi);
     if (startAngle > endAngle)
     {
         endAngle += 2.0f * std::numbers::pi;
@@ -743,7 +759,7 @@ float VulkanGraphicsContextImpl::addArc(
 
     StrokeStyle style = strokeStyle;
 
-    auto arcPoints = splitArc(center, radiusX, radiusY, startAngle, endAngle);
+    auto arcPoints = splitArc(center, radiusX, radiusY, startAngle, endAngle, isClockwise);
     for (size_t i = 0; i < arcPoints.size() - 1; ++i)
     {
         float dashOffset = addLine(
@@ -764,12 +780,14 @@ std::vector<Point> VulkanGraphicsContextImpl::splitArc(
     float radiusX,
     float radiusY,
     float startAngle,
-    float endAngle
+    float endAngle,
+    bool isClockwise
 )
 {
     constexpr float angleStep = 2.0f * std::numbers::pi / ELLIPSE_SEGMENTS;
 
-    int segments = static_cast<int>(std::ceil((endAngle - startAngle) / angleStep));
+    int segments = isClockwise ? static_cast<int>((endAngle - startAngle) / angleStep)
+                     : static_cast<int>((startAngle - endAngle) / angleStep);
     if (segments < 1)
     {
         segments = 1;

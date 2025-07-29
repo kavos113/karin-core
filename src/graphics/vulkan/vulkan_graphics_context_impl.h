@@ -66,18 +66,20 @@ private:
         float radiusY,
         float startAngle,
         float endAngle,
+        bool isClockwise,
         const StrokeStyle& strokeStyle,
         std::vector<VulkanPipeline::Vertex>& vertices,
         std::vector<uint16_t>& indices
     ) const;
 
-    // should start < end
+    // clockwise: start < end
     static std::vector<Point> splitArc(
         Point center,
         float radiusX,
         float radiusY,
         float startAngle,
-        float endAngle
+        float endAngle,
+        bool isClockwise
     );
 
     VulkanRendererImpl* m_renderer;
