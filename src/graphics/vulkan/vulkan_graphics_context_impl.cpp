@@ -459,6 +459,11 @@ float VulkanGraphicsContextImpl::addLine(
     std::vector<uint16_t>& indices
 ) const
 {
+    if (start == end)
+    {
+        return strokeStyle.dash_offset;
+    }
+
     float dashOffset = 0.0f;
 
     auto startVec = toGlmVec2(m_renderer->normalize(start));
@@ -593,6 +598,12 @@ float VulkanGraphicsContextImpl::addLine(
                 baseIndex
             }
         );
+    }
+
+    if (startIndex > endIndex)
+    {
+        // No lines to draw
+        return dashOffset;
     }
 
     addCapStyle(
