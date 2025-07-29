@@ -3,7 +3,6 @@
 
 namespace karin
 {
-
 class IApplicationImpl
 {
 public:
@@ -12,7 +11,6 @@ public:
     virtual void run() = 0;
     virtual void shutdown() = 0;
 };
-
 } // karin
 
 #endif //SRC_SYSTEM_IAPPLICATIONIMPL_H

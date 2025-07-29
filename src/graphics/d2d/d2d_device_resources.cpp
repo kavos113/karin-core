@@ -4,20 +4,22 @@
 #include "d2d_color.h"
 
 #include <cmath>
+#include <numbers>
 #include <ranges>
 #include <stdexcept>
+#include <variant>
 
 namespace karin
 {
 void D2DDeviceResources::clear()
 {
-    for (auto &val: m_solidColorBrushes | std::views::values)
+    for (auto& val : m_solidColorBrushes | std::views::values)
     {
         val.Reset();
     }
 }
 
-Microsoft::WRL::ComPtr<ID2D1Brush> D2DDeviceResources::brush(Pattern *pattern)
+Microsoft::WRL::ComPtr<ID2D1Brush> D2DDeviceResources::brush(Pattern* pattern)
 {
     if (auto solidColorPattern = dynamic_cast<SolidColorPattern*>(pattern))
     {
@@ -27,7 +29,7 @@ Microsoft::WRL::ComPtr<ID2D1Brush> D2DDeviceResources::brush(Pattern *pattern)
     throw std::runtime_error("Unsupported pattern type for D2D brush");
 }
 
-Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> D2DDeviceResources::solidColorBrush(const SolidColorPattern &pattern)
+Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> D2DDeviceResources::solidColorBrush(const SolidColorPattern& pattern)
 {
     if (auto it = m_solidColorBrushes.find(pattern); it != m_solidColorBrushes.end())
     {
@@ -48,7 +50,7 @@ Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> D2DDeviceResources::solidColorBrush
     return brush;
 }
 
-Microsoft::WRL::ComPtr<ID2D1StrokeStyle> D2DDeviceResources::strokeStyle(const StrokeStyle &style)
+Microsoft::WRL::ComPtr<ID2D1StrokeStyle> D2DDeviceResources::strokeStyle(const StrokeStyle& style)
 {
     if (auto it = m_strokeStyles.find(style); it != m_strokeStyles.end())
     {
@@ -81,9 +83,9 @@ Microsoft::WRL::ComPtr<ID2D1StrokeStyle> D2DDeviceResources::strokeStyle(const S
     return strokeStyle;
 }
 
-Microsoft::WRL::ComPtr<ID2D1PathGeometry> D2DDeviceResources::pathGeometry(PathImpl *path)
+Microsoft::WRL::ComPtr<ID2D1PathGeometry> D2DDeviceResources::pathGeometry(const PathImpl& path)
 {
-    if (auto it = m_pathGeometries.find(path); it != m_pathGeometries.end())
+    if (auto it = m_pathGeometries.find(path.id()); it != m_pathGeometries.end())
     {
         return it->second;
     }
@@ -95,7 +97,7 @@ Microsoft::WRL::ComPtr<ID2D1PathGeometry> D2DDeviceResources::pathGeometry(PathI
         throw std::runtime_error("Failed to create D2D path geometry");
     }
 
-    auto commands = path->commands();
+    auto commands = path.commands();
 
     Microsoft::WRL::ComPtr<ID2D1GeometrySink> sink;
     hr = geometry->Open(&sink);
@@ -105,32 +107,67 @@ Microsoft::WRL::ComPtr<ID2D1PathGeometry> D2DDeviceResources::pathGeometry(PathI
     }
 
     sink->SetFillMode(D2D1_FILL_MODE_ALTERNATE);
-    sink->BeginFigure(toD2DPoint(path->startPoint()), D2D1_FIGURE_BEGIN_FILLED);
-    for (const auto &command : commands)
+    sink->BeginFigure(toD2DPoint(path.startPoint()), D2D1_FIGURE_BEGIN_FILLED);
+    for (const auto& command : commands)
     {
-        std::visit([&sink](const auto &args) {
-            using T = std::decay_t<decltype(args)>;
-            if constexpr (std::is_same_v<T, PathImpl::LineArgs>)
+        std::visit(
+            [&sink]<typename T0>(const T0& args)
             {
-                sink->AddLine(toD2DPoint(args.end));
-            }
-            else if constexpr (std::is_same_v<T, PathImpl::ArcArgs>)
-            {
-                auto end = Point(
-                    args.center.x + args.radiusX * std::cos(args.endAngle),
-                    args.center.y + args.radiusY * std::sin(args.endAngle)
-                );
-                sink->AddArc(D2D1::ArcSegment(
-                    toD2DPoint(end),
-                    D2D1::SizeF(args.radiusX, args.radiusY),
-                    0.0f, // rotation angle
-                    D2D1_SWEEP_DIRECTION_CLOCKWISE,
-                    D2D1_ARC_SIZE_SMALL
-                ));
-            }
-        }, command);
+                using T = std::decay_t<T0>;
+                if constexpr (std::is_same_v<T, PathImpl::LineArgs>)
+                {
+                    sink->AddLine(toD2DPoint(args.end));
+                }
+                else if constexpr (std::is_same_v<T, PathImpl::ArcArgs>)
+                {
+                    constexpr float twoPi = 2.0f * std::numbers::pi_v<float>;
+
+                    auto end = Point(
+                        args.center.x + args.radiusX * std::cos(args.endAngle),
+                        args.center.y + args.radiusY * std::sin(-args.endAngle) // bottom is big
+                    );
+                    float startAngle = std::fmod(args.startAngle, twoPi);
+                    float endAngle = std::fmod(args.endAngle, twoPi);
+
+                    if (startAngle < 0.0f)
+                    {
+                        startAngle += twoPi;
+                    }
+
+                    if (endAngle < 0.0f)
+                    {
+                        endAngle += twoPi;
+                    }
+
+                    D2D1_SWEEP_DIRECTION sweepDirection =
+                        args.isSmallArc
+                            ? (endAngle < startAngle
+                                   ? D2D1_SWEEP_DIRECTION_CLOCKWISE
+                                   : D2D1_SWEEP_DIRECTION_COUNTER_CLOCKWISE)
+                            : (endAngle < startAngle
+                                   ? D2D1_SWEEP_DIRECTION_COUNTER_CLOCKWISE
+                                   : D2D1_SWEEP_DIRECTION_CLOCKWISE);
+                    sink->AddArc(
+                        D2D1::ArcSegment(
+                            toD2DPoint(end),
+                            D2D1::SizeF(args.radiusX, args.radiusY),
+                            0.0f, // rotation angle
+                            sweepDirection,
+                            args.isSmallArc ? D2D1_ARC_SIZE_SMALL : D2D1_ARC_SIZE_LARGE
+                        )
+                    );
+                }
+            }, command
+        );
+    }
+    sink->EndFigure(D2D1_FIGURE_END_CLOSED);
+    hr = sink->Close();
+    if (FAILED(hr))
+    {
+        throw std::runtime_error("Failed to close D2D geometry sink");
     }
 
+    m_pathGeometries[path.id()] = geometry;
     return geometry;
 }
 
@@ -138,16 +175,16 @@ D2D1_CAP_STYLE D2DDeviceResources::toD2DCapStyle(StrokeStyle::CapStyle capStyle)
 {
     switch (capStyle)
     {
-        case StrokeStyle::CapStyle::Butt:
-            return D2D1_CAP_STYLE_FLAT;
-        case StrokeStyle::CapStyle::Round:
-            return D2D1_CAP_STYLE_ROUND;
-        case StrokeStyle::CapStyle::Square:
-            return D2D1_CAP_STYLE_SQUARE;
-        case StrokeStyle::CapStyle::Triangle:
-            return D2D1_CAP_STYLE_TRIANGLE;
-        default:
-            throw std::invalid_argument("Unknown cap style");
+    case StrokeStyle::CapStyle::Butt:
+        return D2D1_CAP_STYLE_FLAT;
+    case StrokeStyle::CapStyle::Round:
+        return D2D1_CAP_STYLE_ROUND;
+    case StrokeStyle::CapStyle::Square:
+        return D2D1_CAP_STYLE_SQUARE;
+    case StrokeStyle::CapStyle::Triangle:
+        return D2D1_CAP_STYLE_TRIANGLE;
+    default:
+        throw std::invalid_argument("Unknown cap style");
     }
 }
 
@@ -155,14 +192,14 @@ D2D1_LINE_JOIN D2DDeviceResources::toD2DJoinStyle(StrokeStyle::JoinStyle joinSty
 {
     switch (joinStyle)
     {
-        case StrokeStyle::JoinStyle::Miter:
-            return D2D1_LINE_JOIN_MITER;
-        case StrokeStyle::JoinStyle::Round:
-            return D2D1_LINE_JOIN_ROUND;
-        case StrokeStyle::JoinStyle::Bevel:
-            return D2D1_LINE_JOIN_BEVEL;
-        default:
-            throw std::invalid_argument("Unknown join style");
+    case StrokeStyle::JoinStyle::Miter:
+        return D2D1_LINE_JOIN_MITER;
+    case StrokeStyle::JoinStyle::Round:
+        return D2D1_LINE_JOIN_ROUND;
+    case StrokeStyle::JoinStyle::Bevel:
+        return D2D1_LINE_JOIN_BEVEL;
+    default:
+        throw std::invalid_argument("Unknown join style");
     }
 }
 } // karin

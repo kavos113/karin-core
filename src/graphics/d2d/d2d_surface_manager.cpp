@@ -5,7 +5,7 @@
 
 namespace karin
 {
-D2DSurfaceManager::D2DSurfaceManager(D2DGraphicsDevice *device, HWND hwnd)
+D2DSurfaceManager::D2DSurfaceManager(D2DGraphicsDevice* device, HWND hwnd)
     : m_device(device), m_hwnd(hwnd)
 {
     createSwapChain();
@@ -30,12 +30,14 @@ void D2DSurfaceManager::resize(Size size)
 {
     m_backBuffer.Reset();
 
-    if (FAILED(m_swapChain->ResizeBuffers(
+    if (FAILED(
+        m_swapChain->ResizeBuffers(
             2,
             static_cast<UINT>(size.width),
             static_cast<UINT>(size.height),
             DXGI_FORMAT_B8G8R8A8_UNORM,
-            0)))
+            0)
+    ))
     {
         throw std::runtime_error("Failed to resize swap chain buffers");
     }
@@ -76,13 +78,15 @@ void D2DSurfaceManager::createSwapChain()
         throw std::runtime_error("Failed to create DXGI factory");
     }
 
-    if (FAILED(factory->CreateSwapChainForHwnd(
+    if (FAILED(
+        factory->CreateSwapChainForHwnd(
             m_device->dxgiDevice().Get(),
             m_hwnd,
             &swapChainDesc,
             nullptr,
             nullptr,
-            &m_swapChain)))
+            &m_swapChain)
+    ))
     {
         throw std::runtime_error("Failed to create swap chain");
     }

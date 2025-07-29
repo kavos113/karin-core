@@ -6,30 +6,34 @@
 
 namespace karin
 {
-
 class PathImpl;
 
 class Path
 {
 public:
     Path();
-    ~Path() = default;
+    ~Path();
 
-    void start(Point start);
-    void lineTo(Point end);
+    void start(Point start) const;
+    void lineTo(Point end) const;
     void arcTo(
         Point center,
         float radiusX,
         float radiusY,
         float startAngle,
-        float endAngle
-    );
-    void close();
+        float endAngle,
+        bool isSmallArc
+    ) const;
+    void close() const;
 
 private:
     std::unique_ptr<PathImpl> m_impl;
-};
 
+private:
+    friend class GraphicsContext;
+
+    PathImpl* impl() const;
+};
 } // karin
 
 #endif //KARIN_GRAPHICS_GRAPHICS_PATH_H

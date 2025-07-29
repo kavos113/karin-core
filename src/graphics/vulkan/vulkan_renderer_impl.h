@@ -12,8 +12,8 @@
 
 #include <vector>
 
-namespace karin {
-
+namespace karin
+{
 class VulkanRendererImpl : public IRendererImpl
 {
 public:
@@ -25,12 +25,12 @@ public:
     bool beginDraw() override;
     void endDraw() override;
     void resize(Size size) override;
-    void setClearColor(const Color &color) override;
+    void setClearColor(const Color& color) override;
 
     void addCommand(
-        const std::vector<VulkanPipeline::Vertex> &vertices,
-        std::vector<uint16_t> &indices,
-        const VulkanPipeline::FragPushConstantData &fragData
+        const std::vector<VulkanPipeline::Vertex>& vertices,
+        std::vector<uint16_t>& indices,
+        const VulkanPipeline::FragPushConstantData& fragData
     );
 
     // pixel coordinates -> normalized coordinates [-1, 1]
@@ -40,6 +40,7 @@ public:
     glm::vec2 unNormalize(glm::vec2 v) const;
     // only change scale
     glm::vec2 normalizeVec(glm::vec2 vec) const;
+
 private:
     struct DrawCommand
     {
@@ -92,9 +93,8 @@ private:
 
     static constexpr uint32_t MAX_FRAMES_IN_FLIGHT = 2;
 
-    VkClearValue m_clearColor = { { 1.0f, 1.0f, 1.0f, 1.0f } };
+    VkClearValue m_clearColor = {{1.0f, 1.0f, 1.0f, 1.0f}};
 };
-
 } // karin
 
 #endif //SRC_GRAPHICS_GRAPHICS_VULKAN_VK_RENDERER_IMPL_H

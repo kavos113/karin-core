@@ -6,7 +6,6 @@
 
 namespace karin
 {
-
 inline D2D1_RECT_F toD2DRect(const Rectangle& rect)
 {
     return D2D1::RectF(
@@ -26,7 +25,6 @@ inline D2D1_SIZE_F toD2DSize(const Size& size)
 {
     return D2D1::SizeF(size.width, size.height);
 }
-
 }
 
 #endif //SRC_COMMON_GEOMETRY_D2D_RECTANGLE_H

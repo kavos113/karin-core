@@ -2,6 +2,7 @@
 
 #include "d2d_color.h"
 
+#include <iostream>
 #include <stdexcept>
 
 namespace karin
@@ -11,8 +12,10 @@ D2DRendererImpl::D2DRendererImpl(D2DGraphicsDevice* device, HWND hwnd)
 {
     m_surface = std::make_unique<D2DSurfaceManager>(device, hwnd);
 
-    if (FAILED(m_device->device()->CreateDeviceContext(
-        D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &m_deviceContext)))
+    HRESULT hr = m_device->device()->CreateDeviceContext(
+        D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &m_deviceContext
+    );
+    if (FAILED(hr))
     {
         throw std::runtime_error("Failed to create D2D device context");
     }
@@ -25,10 +28,12 @@ D2DRendererImpl::D2DRendererImpl(D2DGraphicsDevice* device, HWND hwnd)
 void D2DRendererImpl::setTargetBitmap() const
 {
     Microsoft::WRL::ComPtr<ID2D1Bitmap1> bitmap;
-    if (FAILED(m_deviceContext->CreateBitmapFromDxgiSurface(
+    HRESULT hr = m_deviceContext->CreateBitmapFromDxgiSurface(
         m_surface->backBuffer().Get(),
         bitmapProperties,
-        &bitmap)))
+        &bitmap
+    );
+    if (FAILED(hr))
     {
         throw std::runtime_error("Failed to create D2D bitmap from DXGI surface");
     }
@@ -53,7 +58,8 @@ bool D2DRendererImpl::beginDraw()
 
 void D2DRendererImpl::endDraw()
 {
-    if (FAILED(m_deviceContext->EndDraw()))
+    HRESULT hr = m_deviceContext->EndDraw();
+    if (FAILED(hr))
     {
         throw std::runtime_error("Failed to end D2D drawing");
     }

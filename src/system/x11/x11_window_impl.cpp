@@ -10,30 +10,30 @@
 namespace karin
 {
 X11WindowImpl::X11WindowImpl(
-    const std::wstring &title,
+    const std::wstring& title,
     int x,
     int y,
     int width,
     int height,
-    X11ApplicationImpl *appImpl
+    X11ApplicationImpl* appImpl
 )
 {
     m_display = appImpl->display();
 
-    XSizeHints *sizeHints = XAllocSizeHints();
+    XSizeHints* sizeHints = XAllocSizeHints();
     if (!sizeHints)
     {
         throw std::runtime_error("Failed to allocate size hints");
     }
 
-    XWMHints *wmHints = XAllocWMHints();
+    XWMHints* wmHints = XAllocWMHints();
     if (!wmHints)
     {
         XFree(sizeHints);
         throw std::runtime_error("Failed to allocate window manager hints");
     }
 
-    XClassHint *classHint = XAllocClassHint();
+    XClassHint* classHint = XAllocClassHint();
     if (!classHint)
     {
         XFree(sizeHints);
@@ -54,8 +54,8 @@ X11WindowImpl::X11WindowImpl(
 
     XTextProperty windowName;
     std::string titleString = toString(title);
-    const char *titleStr = titleString.c_str();
-    if (!XStringListToTextProperty(const_cast<char **>(&titleStr), 1, &windowName))
+    const char* titleStr = titleString.c_str();
+    if (!XStringListToTextProperty(const_cast<char**>(&titleStr), 1, &windowName))
     {
         XFree(sizeHints);
         XFree(wmHints);
@@ -67,8 +67,8 @@ X11WindowImpl::X11WindowImpl(
     wmHints->input = True;
     wmHints->initial_state = NormalState;
 
-    classHint->res_name = const_cast<char *>(titleStr);
-    classHint->res_class = const_cast<char *>(titleStr);
+    classHint->res_name = const_cast<char*>(titleStr);
+    classHint->res_class = const_cast<char*>(titleStr);
 
     XSetWMProperties(
         m_display,
@@ -90,7 +90,7 @@ X11WindowImpl::X11WindowImpl(
         utf8String,
         8,
         PropModeReplace,
-        reinterpret_cast<const unsigned char *>(titleStr),
+        reinterpret_cast<const unsigned char*>(titleStr),
         static_cast<int>(title.length() * sizeof(wchar_t))
     );
 
@@ -141,41 +141,43 @@ X11WindowImpl::~X11WindowImpl()
     XFlush(m_display);
 }
 
-void X11WindowImpl::handleEvent(const XEvent &event)
+void X11WindowImpl::handleEvent(const XEvent& event)
 {
     switch (event.type)
     {
-        case Expose:
-            std::call_once(m_applyStatusFlag, &X11WindowImpl::applyStatus, this);
-            if (m_onPaint)
+    case Expose:
+        std::call_once(m_applyStatusFlag, &X11WindowImpl::applyStatus, this);
+        if (m_onPaint)
+        {
+            bool ret = m_onPaint();
+            if (!ret)
             {
-                bool ret = m_onPaint();
-                if (!ret)
-                {
-                    m_onPaint(); // redraw
-                }
+                m_onPaint(); // redraw
             }
-            break;
+        }
+        break;
 
-        case ConfigureNotify:
-            if (m_onResize)
-            {
-                m_onResize(Size(
+    case ConfigureNotify:
+        if (m_onResize)
+        {
+            m_onResize(
+                Size(
                     event.xconfigure.width,
                     event.xconfigure.height
-                ));
-            }
-            break;
+                )
+            );
+        }
+        break;
 
-        case ClientMessage:
-            if (event.xclient.data.l[0] == XInternAtom(m_display, "WM_DELETE_WINDOW", False))
-            {
-                m_onClose();
-            }
-            break;
+    case ClientMessage:
+        if (event.xclient.data.l[0] == XInternAtom(m_display, "WM_DELETE_WINDOW", False))
+        {
+            m_onClose();
+        }
+        break;
 
-        default:
-            break;
+    default:
+        break;
     }
 }
 

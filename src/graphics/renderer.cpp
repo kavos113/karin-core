@@ -13,37 +13,41 @@ Renderer::Renderer(GraphicsDevice* device, Window* window)
 
 Renderer::~Renderer() = default;
 
-void Renderer::addDrawCommand(std::function<void(GraphicsContext &)> command)
+void Renderer::addDrawCommand(std::function<void(GraphicsContext&)> command)
 {
     m_drawCommands.push_back(std::move(command));
 }
 
 void Renderer::update() const
 {
-    m_window->setOnPaint([this]
-    {
-        bool res = m_impl->beginDraw();
-        if (!res)
+    m_window->setOnPaint(
+        [this]
         {
-            return false;
+            bool res = m_impl->beginDraw();
+            if (!res)
+            {
+                return false;
+            }
+
+            GraphicsContext context(m_impl.get());
+
+            for (const auto& command : m_drawCommands)
+            {
+                command(context);
+            }
+
+            m_impl->endDraw();
+
+            return true;
         }
+    );
 
-        GraphicsContext context(m_impl.get());
-
-        for (const auto &command : m_drawCommands)
+    m_window->setOnResize(
+        [this](Size size)
         {
-            command(context);
+            m_impl->resize(size);
         }
-
-        m_impl->endDraw();
-
-        return true;
-    });
-
-    m_window->setOnResize([this](Size size)
-    {
-        m_impl->resize(size);
-    });
+    );
 }
 
 void Renderer::cleanUp()
@@ -51,7 +55,7 @@ void Renderer::cleanUp()
     m_impl->cleanUp();
 }
 
-void Renderer::setClearColor(const Color &color)
+void Renderer::setClearColor(const Color& color)
 {
     m_impl->setClearColor(color);
 }

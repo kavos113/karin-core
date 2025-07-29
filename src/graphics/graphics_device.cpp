@@ -4,10 +4,8 @@
 
 namespace karin
 {
-
 std::unique_ptr<GraphicsDevice> GraphicsDevice::create()
 {
     return createGraphicsDevice();
 }
-
 }

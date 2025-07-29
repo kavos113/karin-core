@@ -17,7 +17,6 @@
 
 namespace karin
 {
-
 inline std::unique_ptr<IApplicationImpl> createApplicationImpl()
 {
 #ifdef KARIN_PLATFORM_WINDOWS
@@ -30,12 +29,12 @@ inline std::unique_ptr<IApplicationImpl> createApplicationImpl()
 }
 
 inline std::unique_ptr<IWindowImpl> createWindowImpl(
-    const std::wstring &title,
+    const std::wstring& title,
     int x,
     int y,
     int width,
     int height,
-    IApplicationImpl *applicationImpl
+    IApplicationImpl* applicationImpl
 )
 {
 #ifdef KARIN_PLATFORM_WINDOWS

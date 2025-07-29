@@ -4,6 +4,15 @@
 
 namespace karin
 {
+uint32_t PathImpl::nextId = 1;
+
+PathImpl::PathImpl()
+    : m_startPoint(0, 0),
+      m_currentPoint(0, 0),
+      m_id(nextId++)
+{
+}
+
 void PathImpl::start(Point start)
 {
     m_commands.clear();
@@ -17,9 +26,9 @@ void PathImpl::lineTo(Point end)
     m_currentPoint = end;
 }
 
-void PathImpl::arcTo(Point center, float radiusX, float radiusY, float startAngle, float endAngle)
+void PathImpl::arcTo(Point center, float radiusX, float radiusY, float startAngle, float endAngle, bool isSmallArc)
 {
-    m_commands.emplace_back(ArcArgs{center, radiusX, radiusY, startAngle, endAngle});
+    m_commands.emplace_back(ArcArgs{center, radiusX, radiusY, startAngle, endAngle, isSmallArc});
     m_currentPoint = Point(
         center.x + radiusX * std::cos(endAngle),
         center.y + radiusY * std::sin(endAngle)
@@ -43,5 +52,10 @@ std::vector<std::variant<PathImpl::LineArgs, PathImpl::ArcArgs>> PathImpl::comma
 Point PathImpl::startPoint() const
 {
     return m_startPoint;
+}
+
+uint32_t PathImpl::id() const
+{
+    return m_id;
 }
 } // karin

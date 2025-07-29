@@ -5,8 +5,8 @@
 #include <karin/common/geometry/size.h>
 #include <karin/system/window.h>
 
-namespace karin {
-
+namespace karin
+{
 class IWindowImpl
 {
 public:
@@ -26,7 +26,6 @@ public:
 
     virtual Window::NativeHandle handle() const = 0;
 };
-
 } // karin
 
 #endif //SRC_SYSTEM_WINDOW_IMPL_H

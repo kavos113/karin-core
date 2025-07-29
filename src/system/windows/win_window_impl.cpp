@@ -1,4 +1,4 @@
-    #include "win_window_impl.h"
+#include "win_window_impl.h"
 
 #include <iostream>
 
@@ -9,7 +9,7 @@ namespace karin
 std::once_flag WinWindowImpl::m_registerClassFlag;
 
 WinWindowImpl::WinWindowImpl(
-    const std::wstring &title,
+    const std::wstring& title,
     const int x,
     const int y,
     const int width,
@@ -59,40 +59,42 @@ LRESULT WinWindowImpl::handleMessage(UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
-        case WM_DESTROY:
-            PostQuitMessage(0);
-            return 0;
+    case WM_DESTROY:
+        PostQuitMessage(0);
+        return 0;
 
-        case WM_CLOSE:
-            DestroyWindow(m_hwnd);
-            return 0;
+    case WM_CLOSE:
+        DestroyWindow(m_hwnd);
+        return 0;
 
-        case WM_PAINT:
+    case WM_PAINT:
+    {
+        PAINTSTRUCT ps;
+        BeginPaint(m_hwnd, &ps);
+
+        if (m_onPaint)
         {
-            PAINTSTRUCT ps;
-            BeginPaint(m_hwnd, &ps);
-
-            if (m_onPaint)
-            {
-                m_onPaint();
-            }
-
-            EndPaint(m_hwnd, &ps);
-            return 0;
+            m_onPaint();
         }
-        case WM_SIZE:
-            if (m_onResize)
-            {
-                m_onResize(Size(
+
+        EndPaint(m_hwnd, &ps);
+        return 0;
+    }
+    case WM_SIZE:
+        if (m_onResize)
+        {
+            m_onResize(
+                Size(
                     static_cast<float>(LOWORD(lParam)),
                     static_cast<float>(HIWORD(lParam))
-                ));
-                InvalidateRect(m_hwnd, nullptr, FALSE);
-            }
-            return 0;
+                )
+            );
+            InvalidateRect(m_hwnd, nullptr, FALSE);
+        }
+        return 0;
 
-        default:
-            return DefWindowProc(m_hwnd, message, wParam, lParam);
+    default:
+        return DefWindowProc(m_hwnd, message, wParam, lParam);
     }
 }
 

@@ -144,7 +144,7 @@ void VulkanGraphicsDevice::getQueueFamily(VkSurfaceKHR surface)
     vkGetPhysicalDeviceQueueFamilyProperties(m_physicalDevice, &queueFamilyCount, queueFamilies.data());
 
     int i = 0;
-    for (const auto & queueFamily : queueFamilies)
+    for (const auto& queueFamily : queueFamilies)
     {
         if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
         {
@@ -240,6 +240,7 @@ void VulkanGraphicsDevice::createCommandPool()
         throw std::runtime_error("failed to create command pool");
     }
 }
+
 void VulkanGraphicsDevice::createDescriptorPool()
 {
 }

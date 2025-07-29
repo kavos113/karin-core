@@ -23,7 +23,7 @@ bool VulkanUtils::checkValidationLayerSupport()
     std::vector<VkLayerProperties> availableLayers(layerCount);
     vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
 
-    for (const char* layerName: VALIDATION_LAYERS)
+    for (const char* layerName : VALIDATION_LAYERS)
     {
         bool layerFound = false;
 
@@ -185,7 +185,7 @@ VkSurfaceCapabilitiesKHR VulkanUtils::getSwapCapabilities(VkPhysicalDevice devic
     return capabilities;
 }
 
-VkExtent2D VulkanUtils::getSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities, int width, int height)
+VkExtent2D VulkanUtils::getSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, int width, int height)
 {
     if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
     {
@@ -197,13 +197,17 @@ VkExtent2D VulkanUtils::getSwapExtent(const VkSurfaceCapabilitiesKHR &capabiliti
         .height = static_cast<uint32_t>(height),
     };
 
-    actualExtent.width = std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
-    actualExtent.height = std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
+    actualExtent.width = std::clamp(
+        actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width
+    );
+    actualExtent.height = std::clamp(
+        actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height
+    );
 
     return actualExtent;
 }
 
-VkShaderModule VulkanUtils::loadShader(VkDevice device, const unsigned char *code, unsigned int codeSize)
+VkShaderModule VulkanUtils::loadShader(VkDevice device, const unsigned char* code, unsigned int codeSize)
 {
     VkShaderModuleCreateInfo createInfo = {
         .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,

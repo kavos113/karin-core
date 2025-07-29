@@ -12,7 +12,6 @@
 
 namespace karin
 {
-
 // TODO? options for enabling/disabling validation layers, debug utils, etc.
 class VulkanGraphicsDevice : public GraphicsDevice
 {
@@ -41,7 +40,6 @@ public:
     VkDescriptorPool descriptorPool() const;
 
 private:
-
     void createInstance();
     void choosePhysicalDevice();
     void createVmaAllocator();
@@ -70,7 +68,6 @@ private:
 
     static constexpr uint32_t VK_API_VERSION = VK_API_VERSION_1_0;
 };
-
 } // karin
 
 #endif //SRC_GRAPHICS_RESOURCES_VULKAN_VK_GRAPHICS_DEVICE_H
