@@ -9,7 +9,6 @@
 #include <karin/common/geometry/rectangle.h>
 #include <karin/common/geometry/point.h>
 #include <karin/common/color/pattern.h>
-#include <karin/graphics/path.h>
 #include <karin/graphics/stroke_style.h>
 
 #include "d2d_device_resources.h"
@@ -26,20 +25,20 @@ public:
 
     ~D2DGraphicsContextImpl() override = default;
 
-    void fillRect(Rectangle rect, Pattern* pattern) override;
-    void fillEllipse(Point center, float radiusX, float radiusY, Pattern* pattern) override;
-    void fillRoundedRect(Rectangle rect, float radiusX, float radiusY, Pattern* pattern) override;
-    void fillPath(const PathImpl& path, Pattern* pattern) override;
+    void fillRect(Rectangle rect, Pattern& pattern) override;
+    void fillEllipse(Point center, float radiusX, float radiusY, Pattern& pattern) override;
+    void fillRoundedRect(Rectangle rect, float radiusX, float radiusY, Pattern& pattern) override;
+    void fillPath(const PathImpl& path, Pattern& pattern) override;
 
-    void drawLine(Point start, Point end, Pattern* pattern, const StrokeStyle& strokeStyle) override;
-    void drawRect(Rectangle rect, Pattern* pattern, const StrokeStyle& strokeStyle) override;
+    void drawLine(Point start, Point end, Pattern& pattern, const StrokeStyle& strokeStyle) override;
+    void drawRect(Rectangle rect, Pattern& pattern, const StrokeStyle& strokeStyle) override;
     void drawEllipse(
-        Point center, float radiusX, float radiusY, Pattern* pattern, const StrokeStyle& strokeStyle
+        Point center, float radiusX, float radiusY, Pattern& pattern, const StrokeStyle& strokeStyle
     ) override;
     void drawRoundedRect(
-        Rectangle rect, float radiusX, float radiusY, Pattern* pattern, const StrokeStyle& strokeStyle
+        Rectangle rect, float radiusX, float radiusY, Pattern& pattern, const StrokeStyle& strokeStyle
     ) override;
-    void drawPath(const PathImpl& path, Pattern* pattern, const StrokeStyle& strokeStyle) override;
+    void drawPath(const PathImpl& path, Pattern& pattern, const StrokeStyle& strokeStyle) override;
 
 private:
     Microsoft::WRL::ComPtr<ID2D1DeviceContext> m_deviceContext;

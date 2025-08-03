@@ -3,6 +3,13 @@
 #include "platform.h"
 #include "graphics_context_impl.h"
 
+#include <variant>
+#include <variant>
+#include <variant>
+#include <variant>
+#include <variant>
+#include <variant>
+
 namespace karin
 {
 GraphicsContext::GraphicsContext(IRendererImpl* impl)
@@ -13,51 +20,51 @@ GraphicsContext::GraphicsContext(IRendererImpl* impl)
 
 GraphicsContext::~GraphicsContext() = default;
 
-void GraphicsContext::fillRect(Rectangle rect, Pattern* pattern) const
+void GraphicsContext::fillRect(Rectangle rect, Pattern& pattern) const
 {
     m_impl->fillRect(rect, pattern);
 }
 
-void GraphicsContext::fillEllipse(Point center, float radiusX, float radiusY, Pattern* pattern) const
+void GraphicsContext::fillEllipse(Point center, float radiusX, float radiusY, Pattern& pattern) const
 {
     m_impl->fillEllipse(center, radiusX, radiusY, pattern);
 }
 
-void GraphicsContext::fillRoundedRect(Rectangle rect, float radiusX, float radiusY, Pattern* pattern) const
+void GraphicsContext::fillRoundedRect(Rectangle rect, float radiusX, float radiusY, Pattern& pattern) const
 {
     m_impl->fillRoundedRect(rect, radiusX, radiusY, pattern);
 }
 
-void GraphicsContext::drawLine(Point start, Point end, Pattern* pattern, const StrokeStyle& strokeStyle) const
+void GraphicsContext::drawLine(Point start, Point end, Pattern& pattern, const StrokeStyle& strokeStyle) const
 {
     m_impl->drawLine(start, end, pattern, strokeStyle);
 }
 
-void GraphicsContext::drawRect(Rectangle rect, Pattern* pattern, const StrokeStyle& strokeStyle) const
+void GraphicsContext::drawRect(Rectangle rect, Pattern& pattern, const StrokeStyle& strokeStyle) const
 {
     m_impl->drawRect(rect, pattern, strokeStyle);
 }
 
 void GraphicsContext::drawEllipse(
-    Point center, float radiusX, float radiusY, Pattern* pattern, const StrokeStyle& strokeStyle
+    Point center, float radiusX, float radiusY, Pattern& pattern, const StrokeStyle& strokeStyle
 ) const
 {
     m_impl->drawEllipse(center, radiusX, radiusY, pattern, strokeStyle);
 }
 
 void GraphicsContext::drawRoundedRect(
-    Rectangle rect, float radiusX, float radiusY, Pattern* pattern, const StrokeStyle& strokeStyle
+    Rectangle rect, float radiusX, float radiusY, Pattern& pattern, const StrokeStyle& strokeStyle
 ) const
 {
     m_impl->drawRoundedRect(rect, radiusX, radiusY, pattern, strokeStyle);
 }
 
-void GraphicsContext::fillPath(const Path& path, Pattern* pattern) const
+void GraphicsContext::fillPath(const Path& path, Pattern& pattern) const
 {
     m_impl->fillPath(*path.impl(), pattern);
 }
 
-void GraphicsContext::drawPath(const Path& path, Pattern* pattern, const StrokeStyle& strokeStyle) const
+void GraphicsContext::drawPath(const Path& path, Pattern& pattern, const StrokeStyle& strokeStyle) const
 {
     m_impl->drawPath(*path.impl(), pattern, strokeStyle);
 }

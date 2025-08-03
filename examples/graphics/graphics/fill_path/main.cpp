@@ -13,7 +13,7 @@ int main()
     std::unique_ptr<karin::GraphicsDevice> device = karin::GraphicsDevice::create();
     karin::Renderer renderer(device.get(), &window);
 
-    auto redPattern = std::make_unique<karin::SolidColorPattern>(karin::Color(karin::Color::Red));
+    karin::Pattern redPattern = karin::SolidColorPattern(karin::Color(karin::Color::Red));
 
     karin::Path path;
     path.start(karin::Point(100, 100));
@@ -29,7 +29,7 @@ int main()
     renderer.addDrawCommand(
         [&redPattern, &path](karin::GraphicsContext& gc)
         {
-            gc.fillPath(path, redPattern.get());
+            gc.fillPath(path, redPattern);
         }
     );
 

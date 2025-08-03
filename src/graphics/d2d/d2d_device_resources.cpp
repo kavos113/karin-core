@@ -19,14 +19,26 @@ void D2DDeviceResources::clear()
     }
 }
 
-Microsoft::WRL::ComPtr<ID2D1Brush> D2DDeviceResources::brush(Pattern* pattern)
+Microsoft::WRL::ComPtr<ID2D1Brush> D2DDeviceResources::brush(Pattern& pattern)
 {
-    if (auto solidColorPattern = dynamic_cast<SolidColorPattern*>(pattern))
-    {
-        return solidColorBrush(*solidColorPattern);
-    }
-
-    throw std::runtime_error("Unsupported pattern type for D2D brush");
+    return std::visit(
+        [this]<typename T0>(const T0& p) -> Microsoft::WRL::ComPtr<ID2D1Brush>
+        {
+            using T = std::decay_t<T0>;
+            if constexpr (std::is_same_v<T, SolidColorPattern>)
+            {
+                return solidColorBrush(p);
+            }
+            else if constexpr (std::is_same_v<T, LinearGradientPattern>)
+            {
+                return linearGradientBrush(p);
+            }
+            else
+            {
+                throw std::runtime_error("Unsupported pattern type");
+            }
+        }, pattern
+    );
 }
 
 Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> D2DDeviceResources::solidColorBrush(const SolidColorPattern& pattern)
@@ -47,6 +59,70 @@ Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> D2DDeviceResources::solidColorBrush
     }
 
     m_solidColorBrushes[pattern] = brush;
+    return brush;
+}
+
+Microsoft::WRL::ComPtr<ID2D1LinearGradientBrush> D2DDeviceResources::linearGradientBrush(
+    const LinearGradientPattern& pattern
+)
+{
+    if (auto it = m_linearGradientBrushes.find(pattern); it != m_linearGradientBrushes.end())
+    {
+        return it->second;
+    }
+
+    Microsoft::WRL::ComPtr<ID2D1GradientStopCollection> gradientStops;
+    std::vector<D2D1_GRADIENT_STOP> stops(pattern.gradientPoints.size());
+    for (const auto& [offset, color] : pattern.gradientPoints)
+    {
+        stops.push_back(D2D1::GradientStop(offset, toD2DColor(color)));
+    }
+
+    D2D1_EXTEND_MODE extendMode = D2D1_EXTEND_MODE_CLAMP;
+    switch (pattern.extendMode)
+    {
+    case LinearGradientPattern::ExtendMode::CLAMP:
+        extendMode = D2D1_EXTEND_MODE_CLAMP;
+        break;
+
+    case LinearGradientPattern::ExtendMode::REPEAT:
+        extendMode = D2D1_EXTEND_MODE_WRAP;
+        break;
+
+    case LinearGradientPattern::ExtendMode::MIRROR:
+        extendMode = D2D1_EXTEND_MODE_MIRROR;
+        break;
+    }
+
+    HRESULT hr = m_deviceContext->CreateGradientStopCollection(
+        stops.data(),
+        static_cast<UINT32>(stops.size()),
+        D2D1_GAMMA_2_2,
+        extendMode,
+        &gradientStops
+    );
+    if (FAILED(hr))
+    {
+        throw std::runtime_error("Failed to create gradient stop collection");
+    }
+
+    D2D1_LINEAR_GRADIENT_BRUSH_PROPERTIES properties = {
+        .startPoint = toD2DPoint(pattern.start),
+        .endPoint = toD2DPoint(pattern.end)
+    };
+
+    Microsoft::WRL::ComPtr<ID2D1LinearGradientBrush> brush;
+    hr = m_deviceContext->CreateLinearGradientBrush(
+        properties,
+        gradientStops.Get(),
+        &brush
+    );
+    if (FAILED(hr))
+    {
+        throw std::runtime_error("Failed to create linear gradient brush");
+    }
+
+    m_linearGradientBrushes[pattern] = brush;
     return brush;
 }
 

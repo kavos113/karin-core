@@ -4,7 +4,9 @@
 #include <map>
 #include <wrl/client.h>
 
+#include <karin/common/color/pattern.h>
 #include <karin/common/color/solid_color_pattern.h>
+#include <karin/common/color/linear_gradient_pattern.h>
 #include <karin/graphics/stroke_style.h>
 
 #include <path_impl.h>
@@ -27,8 +29,9 @@ public:
 
     void clear();
 
-    Microsoft::WRL::ComPtr<ID2D1Brush> brush(Pattern* pattern);
+    Microsoft::WRL::ComPtr<ID2D1Brush> brush(Pattern& pattern);
     Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> solidColorBrush(const SolidColorPattern& pattern);
+    Microsoft::WRL::ComPtr<ID2D1LinearGradientBrush> linearGradientBrush(const LinearGradientPattern& pattern);
     Microsoft::WRL::ComPtr<ID2D1StrokeStyle> strokeStyle(const StrokeStyle& style);
     Microsoft::WRL::ComPtr<ID2D1PathGeometry> pathGeometry(const PathImpl& path);
 
@@ -38,6 +41,7 @@ private:
 
     // TODO: create before starting draw calls?
     std::map<SolidColorPattern, Microsoft::WRL::ComPtr<ID2D1SolidColorBrush>> m_solidColorBrushes;
+    std::map<LinearGradientPattern, Microsoft::WRL::ComPtr<ID2D1LinearGradientBrush>> m_linearGradientBrushes;
     std::map<StrokeStyle, Microsoft::WRL::ComPtr<ID2D1StrokeStyle>> m_strokeStyles;
     std::map<uint32_t, Microsoft::WRL::ComPtr<ID2D1PathGeometry>> m_pathGeometries;
 

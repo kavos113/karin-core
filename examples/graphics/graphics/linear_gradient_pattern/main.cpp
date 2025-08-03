@@ -12,15 +12,21 @@ int main()
     std::unique_ptr<karin::GraphicsDevice> device = karin::GraphicsDevice::create();
     karin::Renderer renderer(device.get(), &window);
 
-    karin::Pattern redPattern = karin::SolidColorPattern(karin::Color(karin::Color::Red));
-    karin::Pattern bluePattern = karin::SolidColorPattern(karin::Color(karin::Color::Blue));
+    karin::Pattern pattern = karin::LinearGradientPattern{
+        .start = karin::Point(0, 0),
+        .end = karin::Point(500, 500),
+        .gradientPoints = {
+            {0.0f, karin::Color(karin::Color::Red)},
+            {0.5f, karin::Color(karin::Color::Green)},
+            {1.0f, karin::Color(karin::Color::Blue)}
+        },
+        .extendMode = karin::LinearGradientPattern::ExtendMode::CLAMP
+    };
 
     renderer.addDrawCommand(
-        [&redPattern, &bluePattern](karin::GraphicsContext& gc)
+        [&pattern](karin::GraphicsContext& gc)
         {
-            gc.fillRect(karin::Rectangle(100, 100, 200, 200), redPattern);
-            gc.fillEllipse(karin::Point(400, 300), 100, 50, bluePattern);
-            gc.fillRoundedRect(karin::Rectangle(500, 100, 200, 200), 20, 50, redPattern);
+            gc.fillRect(karin::Rectangle(50, 50, 600, 400), pattern);
         }
     );
 

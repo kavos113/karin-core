@@ -13,8 +13,7 @@ int main()
     std::unique_ptr<karin::GraphicsDevice> device = karin::GraphicsDevice::create();
     karin::Renderer renderer(device.get(), &window);
 
-    auto redPattern = std::make_unique<karin::SolidColorPattern>(karin::Color(karin::Color::Red));
-    auto bluePattern = std::make_unique<karin::SolidColorPattern>(karin::Color(karin::Color::Blue));
+    karin::Pattern redPattern = karin::SolidColorPattern(karin::Color(karin::Color::Red));
 
     karin::Path path;
     path.start(karin::Point(100, 100));
@@ -40,7 +39,7 @@ int main()
                 .dash_pattern = {5.0f, 2.0f},
                 .dash_offset = 1.0f
             };
-            gc.drawPath(path, redPattern.get(), strokeStyle);
+            gc.drawPath(path, redPattern, strokeStyle);
         }
     );
 
