@@ -39,6 +39,8 @@ public:
     void drawPath(const PathImpl& path, Pattern& pattern, const StrokeStyle& strokeStyle) override;
 
 private:
+    VulkanPipeline::FragPushConstantData createPushConstantData(const Pattern& pattern) const;
+
     VulkanRendererImpl* m_renderer;
 
     std::unique_ptr<VulkanTessellator> m_tessellator;
