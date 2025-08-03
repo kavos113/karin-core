@@ -4,6 +4,7 @@
 #include <map>
 #include <wrl/client.h>
 
+#include <karin/common/color/pattern.h>
 #include <karin/common/color/solid_color_pattern.h>
 #include <karin/common/color/linear_gradient_pattern.h>
 #include <karin/graphics/stroke_style.h>

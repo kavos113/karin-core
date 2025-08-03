@@ -9,7 +9,6 @@
 #include <karin/common/geometry/rectangle.h>
 #include <karin/common/geometry/point.h>
 #include <karin/common/color/pattern.h>
-#include <karin/graphics/path.h>
 #include <karin/graphics/stroke_style.h>
 
 #include "d2d_device_resources.h"

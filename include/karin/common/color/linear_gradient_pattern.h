@@ -2,7 +2,6 @@
 #define KARIN_COMMON_COLOR_LINEAR_GRADIENT_PATTERN_H
 
 #include "color.h"
-#include "pattern.h"
 
 #include <karin/common/geometry/point.h>
 
@@ -10,7 +9,7 @@
 
 namespace karin
 {
-struct LinearGradientPattern : public Pattern
+struct LinearGradientPattern
 {
     struct GradientPoint
     {
@@ -20,6 +19,11 @@ struct LinearGradientPattern : public Pattern
         bool operator<(const GradientPoint& other) const
         {
             return offset < other.offset || (offset == other.offset && color < other.color);
+        }
+
+        bool operator==(const GradientPoint& other) const
+        {
+            return offset == other.offset && color == other.color;
         }
     };
 

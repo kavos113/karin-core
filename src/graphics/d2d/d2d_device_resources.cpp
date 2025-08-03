@@ -21,12 +21,26 @@ void D2DDeviceResources::clear()
 
 Microsoft::WRL::ComPtr<ID2D1Brush> D2DDeviceResources::brush(Pattern* pattern)
 {
-    if (auto solidColorPattern = dynamic_cast<SolidColorPattern*>(pattern))
-    {
-        return solidColorBrush(*solidColorPattern);
-    }
+    std::visit(
+        [this]<typename T0>(const T0& p) -> Microsoft::WRL::ComPtr<ID2D1Brush>
+        {
+            using T = std::decay_t<T0>;
+            if constexpr (std::is_same_v<T, SolidColorPattern>)
+            {
+                return solidColorBrush(p);
+            }
+            else if constexpr (std::is_same_v<T, LinearGradientPattern>)
+            {
+                return linearGradientBrush(p);
+            }
+            else
+            {
+                throw std::runtime_error("Unsupported pattern type");
+            }
+        }, *pattern
+    );
 
-    throw std::runtime_error("Unsupported pattern type for D2D brush");
+    throw std::runtime_error("Unsupported pattern type");
 }
 
 Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> D2DDeviceResources::solidColorBrush(const SolidColorPattern& pattern)
@@ -48,6 +62,13 @@ Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> D2DDeviceResources::solidColorBrush
 
     m_solidColorBrushes[pattern] = brush;
     return brush;
+}
+
+Microsoft::WRL::ComPtr<ID2D1LinearGradientBrush> D2DDeviceResources::linearGradientBrush(
+    const LinearGradientPattern& pattern
+)
+{
+    return nullptr;
 }
 
 Microsoft::WRL::ComPtr<ID2D1StrokeStyle> D2DDeviceResources::strokeStyle(const StrokeStyle& style)
