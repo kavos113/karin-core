@@ -66,7 +66,46 @@ Microsoft::WRL::ComPtr<ID2D1LinearGradientBrush> D2DDeviceResources::linearGradi
     const LinearGradientPattern& pattern
 )
 {
-    return nullptr;
+    if (auto it = m_linearGradientBrushes.find(pattern); it != m_linearGradientBrushes.end())
+    {
+        return it->second;
+    }
+
+    Microsoft::WRL::ComPtr<ID2D1GradientStopCollection> gradientStops;
+    std::vector<D2D1_GRADIENT_STOP> stops(pattern.gradientPoints.size());
+    for (const auto& [offset, color] : pattern.gradientPoints)
+    {
+        stops.push_back(D2D1::GradientStop(offset, toD2DColor(color)));
+    }
+
+    HRESULT hr = m_deviceContext->CreateGradientStopCollection(
+        stops.data(),
+        static_cast<UINT32>(stops.size()),
+        &gradientStops
+    );
+    if (FAILED(hr))
+    {
+        throw std::runtime_error("Failed to create gradient stop collection");
+    }
+
+    D2D1_LINEAR_GRADIENT_BRUSH_PROPERTIES properties = {
+        .startPoint = toD2DPoint(pattern.start),
+        .endPoint = toD2DPoint(pattern.end)
+    };
+
+    Microsoft::WRL::ComPtr<ID2D1LinearGradientBrush> brush;
+    hr = m_deviceContext->CreateLinearGradientBrush(
+        properties,
+        gradientStops.Get(),
+        &brush
+    );
+    if (FAILED(hr))
+    {
+        throw std::runtime_error("Failed to create linear gradient brush");
+    }
+
+    m_linearGradientBrushes[pattern] = brush;
+    return brush;
 }
 
 Microsoft::WRL::ComPtr<ID2D1StrokeStyle> D2DDeviceResources::strokeStyle(const StrokeStyle& style)
