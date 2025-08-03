@@ -26,7 +26,7 @@ VulkanGraphicsContextImpl::VulkanGraphicsContextImpl(VulkanRendererImpl* rendere
     m_tessellator = std::make_unique<VulkanTessellator>(m_renderer);
 }
 
-void VulkanGraphicsContextImpl::fillRect(Rectangle rect, Pattern* pattern)
+void VulkanGraphicsContextImpl::fillRect(Rectangle rect, Pattern& pattern)
 {
     Rectangle normalizedRect = m_renderer->normalize(rect);
 
@@ -55,7 +55,7 @@ void VulkanGraphicsContextImpl::fillRect(Rectangle rect, Pattern* pattern)
         0, 1, 2, 2, 3, 0
     };
 
-    auto* solidColorPattern = dynamic_cast<SolidColorPattern*>(pattern);
+    auto* solidColorPattern = dynamic_cast<SolidColorPattern*>(&pattern);
     if (!solidColorPattern)
     {
         throw std::runtime_error("VkGraphicsContextImpl::fillRect: pattern must be SolidColorPattern");
@@ -68,7 +68,7 @@ void VulkanGraphicsContextImpl::fillRect(Rectangle rect, Pattern* pattern)
     m_renderer->addCommand(vertices, indices, fragData);
 }
 
-void VulkanGraphicsContextImpl::fillEllipse(Point center, float radiusX, float radiusY, Pattern* pattern)
+void VulkanGraphicsContextImpl::fillEllipse(Point center, float radiusX, float radiusY, Pattern& pattern)
 {
     Rectangle rect = m_renderer->normalize(
         Rectangle(
@@ -102,7 +102,7 @@ void VulkanGraphicsContextImpl::fillEllipse(Point center, float radiusX, float r
         0, 1, 2, 2, 3, 0
     };
 
-    auto* solidColorPattern = dynamic_cast<SolidColorPattern*>(pattern);
+    auto* solidColorPattern = dynamic_cast<SolidColorPattern*>(&pattern);
     if (!solidColorPattern)
     {
         throw std::runtime_error("VkGraphicsContextImpl::fillEllipse: pattern must be SolidColorPattern");
@@ -116,7 +116,7 @@ void VulkanGraphicsContextImpl::fillEllipse(Point center, float radiusX, float r
     m_renderer->addCommand(vertices, indices, fragData);
 }
 
-void VulkanGraphicsContextImpl::fillRoundedRect(Rectangle rect, float radiusX, float radiusY, Pattern* pattern)
+void VulkanGraphicsContextImpl::fillRoundedRect(Rectangle rect, float radiusX, float radiusY, Pattern& pattern)
 {
     Rectangle normalizedRect = m_renderer->normalize(rect);
 
@@ -145,7 +145,7 @@ void VulkanGraphicsContextImpl::fillRoundedRect(Rectangle rect, float radiusX, f
         0, 1, 2, 2, 3, 0
     };
 
-    auto* solidColorPattern = dynamic_cast<SolidColorPattern*>(pattern);
+    auto* solidColorPattern = dynamic_cast<SolidColorPattern*>(&pattern);
     if (!solidColorPattern)
     {
         throw std::runtime_error("VkGraphicsContextImpl::fillRect: pattern must be SolidColorPattern");
@@ -160,14 +160,14 @@ void VulkanGraphicsContextImpl::fillRoundedRect(Rectangle rect, float radiusX, f
     m_renderer->addCommand(vertices, indices, fragData);
 }
 
-void VulkanGraphicsContextImpl::drawLine(Point start, Point end, Pattern* pattern, const StrokeStyle& strokeStyle)
+void VulkanGraphicsContextImpl::drawLine(Point start, Point end, Pattern& pattern, const StrokeStyle& strokeStyle)
 {
     std::vector<VulkanPipeline::Vertex> vertices;
     std::vector<uint16_t> indices;
 
     m_tessellator->addLine(start, end, strokeStyle, vertices, indices);
 
-    auto* solidColorPattern = dynamic_cast<SolidColorPattern*>(pattern);
+    auto* solidColorPattern = dynamic_cast<SolidColorPattern*>(&pattern);
     if (!solidColorPattern)
     {
         throw std::runtime_error("VkGraphicsContextImpl::drawLine: pattern must be SolidColorPattern");
@@ -180,7 +180,7 @@ void VulkanGraphicsContextImpl::drawLine(Point start, Point end, Pattern* patter
     m_renderer->addCommand(vertices, indices, fragData);
 }
 
-void VulkanGraphicsContextImpl::drawRect(Rectangle rect, Pattern* pattern, const StrokeStyle& strokeStyle)
+void VulkanGraphicsContextImpl::drawRect(Rectangle rect, Pattern& pattern, const StrokeStyle& strokeStyle)
 {
     std::vector<VulkanPipeline::Vertex> vertices;
     std::vector<uint16_t> indices;
@@ -220,7 +220,7 @@ void VulkanGraphicsContextImpl::drawRect(Rectangle rect, Pattern* pattern, const
         indices
     );
 
-    auto* solidColorPattern = dynamic_cast<SolidColorPattern*>(pattern);
+    auto* solidColorPattern = dynamic_cast<SolidColorPattern*>(&pattern);
     if (!solidColorPattern)
     {
         throw std::runtime_error("VkGraphicsContextImpl::drawRect: pattern must be SolidColorPattern");
@@ -234,7 +234,7 @@ void VulkanGraphicsContextImpl::drawRect(Rectangle rect, Pattern* pattern, const
 }
 
 void VulkanGraphicsContextImpl::drawEllipse(
-    Point center, float radiusX, float radiusY, Pattern* pattern, const StrokeStyle& strokeStyle
+    Point center, float radiusX, float radiusY, Pattern& pattern, const StrokeStyle& strokeStyle
 )
 {
     std::vector<VulkanPipeline::Vertex> vertices;
@@ -256,7 +256,7 @@ void VulkanGraphicsContextImpl::drawEllipse(
         indices
     );
 
-    auto* solidColorPattern = dynamic_cast<SolidColorPattern*>(pattern);
+    auto* solidColorPattern = dynamic_cast<SolidColorPattern*>(&pattern);
     if (!solidColorPattern)
     {
         throw std::runtime_error("VkGraphicsContextImpl::drawEllipse: pattern must be SolidColorPattern");
@@ -272,7 +272,7 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
     Rectangle rect,
     float radiusX,
     float radiusY,
-    Pattern* pattern,
+    Pattern& pattern,
     const StrokeStyle& strokeStyle
 )
 {
@@ -363,7 +363,7 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
         indices
     );
 
-    auto* solidColorPattern = dynamic_cast<SolidColorPattern*>(pattern);
+    auto* solidColorPattern = dynamic_cast<SolidColorPattern*>(&pattern);
     if (!solidColorPattern)
     {
         throw std::runtime_error("VkGraphicsContextImpl::drawRoundedRect: pattern must be SolidColorPattern");
@@ -375,7 +375,7 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
     m_renderer->addCommand(vertices, indices, fragData);
 }
 
-void VulkanGraphicsContextImpl::fillPath(const PathImpl& path, Pattern* pattern)
+void VulkanGraphicsContextImpl::fillPath(const PathImpl& path, Pattern& pattern)
 {
     std::vector<VulkanPipeline::Vertex> vertices;
     std::vector<uint16_t> indices;
@@ -449,7 +449,7 @@ void VulkanGraphicsContextImpl::fillPath(const PathImpl& path, Pattern* pattern)
         indices.push_back(triangles[i + 2]);
     }
 
-    auto* solidColorPattern = dynamic_cast<SolidColorPattern*>(pattern);
+    auto* solidColorPattern = dynamic_cast<SolidColorPattern*>(&pattern);
     if (!solidColorPattern)
     {
         throw std::runtime_error("VkGraphicsContextImpl::drawPath: pattern must be SolidColorPattern");
@@ -461,7 +461,7 @@ void VulkanGraphicsContextImpl::fillPath(const PathImpl& path, Pattern* pattern)
     m_renderer->addCommand(vertices, indices, fragData);
 }
 
-void VulkanGraphicsContextImpl::drawPath(const PathImpl& path, Pattern* pattern, const StrokeStyle& strokeStyle)
+void VulkanGraphicsContextImpl::drawPath(const PathImpl& path, Pattern& pattern, const StrokeStyle& strokeStyle)
 {
     std::vector<VulkanPipeline::Vertex> vertices;
     std::vector<uint16_t> indices;
@@ -521,7 +521,7 @@ void VulkanGraphicsContextImpl::drawPath(const PathImpl& path, Pattern* pattern,
         );
     }
 
-    auto* solidColorPattern = dynamic_cast<SolidColorPattern*>(pattern);
+    auto* solidColorPattern = dynamic_cast<SolidColorPattern*>(&pattern);
     if (!solidColorPattern)
     {
         throw std::runtime_error("VkGraphicsContextImpl::drawPath: pattern must be SolidColorPattern");

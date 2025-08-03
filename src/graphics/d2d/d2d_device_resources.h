@@ -29,7 +29,7 @@ public:
 
     void clear();
 
-    Microsoft::WRL::ComPtr<ID2D1Brush> brush(Pattern* pattern);
+    Microsoft::WRL::ComPtr<ID2D1Brush> brush(Pattern& pattern);
     Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> solidColorBrush(const SolidColorPattern& pattern);
     Microsoft::WRL::ComPtr<ID2D1LinearGradientBrush> linearGradientBrush(const LinearGradientPattern& pattern);
     Microsoft::WRL::ComPtr<ID2D1StrokeStyle> strokeStyle(const StrokeStyle& style);

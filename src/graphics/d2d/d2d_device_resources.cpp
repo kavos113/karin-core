@@ -19,9 +19,9 @@ void D2DDeviceResources::clear()
     }
 }
 
-Microsoft::WRL::ComPtr<ID2D1Brush> D2DDeviceResources::brush(Pattern* pattern)
+Microsoft::WRL::ComPtr<ID2D1Brush> D2DDeviceResources::brush(Pattern& pattern)
 {
-    std::visit(
+    return std::visit(
         [this]<typename T0>(const T0& p) -> Microsoft::WRL::ComPtr<ID2D1Brush>
         {
             using T = std::decay_t<T0>;
@@ -37,10 +37,8 @@ Microsoft::WRL::ComPtr<ID2D1Brush> D2DDeviceResources::brush(Pattern* pattern)
             {
                 throw std::runtime_error("Unsupported pattern type");
             }
-        }, *pattern
+        }, pattern
     );
-
-    throw std::runtime_error("Unsupported pattern type");
 }
 
 Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> D2DDeviceResources::solidColorBrush(const SolidColorPattern& pattern)
