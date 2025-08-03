@@ -78,9 +78,27 @@ Microsoft::WRL::ComPtr<ID2D1LinearGradientBrush> D2DDeviceResources::linearGradi
         stops.push_back(D2D1::GradientStop(offset, toD2DColor(color)));
     }
 
+    D2D1_EXTEND_MODE extendMode = D2D1_EXTEND_MODE_CLAMP;
+    switch (pattern.extendMode)
+    {
+    case LinearGradientPattern::ExtendMode::CLAMP:
+        extendMode = D2D1_EXTEND_MODE_CLAMP;
+        break;
+
+    case LinearGradientPattern::ExtendMode::REPEAT:
+        extendMode = D2D1_EXTEND_MODE_WRAP;
+        break;
+
+    case LinearGradientPattern::ExtendMode::MIRROR:
+        extendMode = D2D1_EXTEND_MODE_MIRROR;
+        break;
+    }
+
     HRESULT hr = m_deviceContext->CreateGradientStopCollection(
         stops.data(),
         static_cast<UINT32>(stops.size()),
+        D2D1_GAMMA_2_2,
+        extendMode,
         &gradientStops
     );
     if (FAILED(hr))
