@@ -29,12 +29,8 @@ public:
 
     void cleanUp() override;
 
-    void copyBufferToImage(
-        VkBuffer buffer,
-        VkImage image,
-        uint32_t width,
-        uint32_t height
-    ) const;
+    VkCommandBuffer beginSingleTimeCommands() const;
+    void endSingleTimeCommands(VkCommandBuffer commandBuffer) const;
 
     VkInstance instance() const;
     VkPhysicalDevice physicalDevice() const;

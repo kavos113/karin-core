@@ -26,6 +26,7 @@ elseif (VULKAN)
             vulkan/vulkan_graphics_context_impl.cpp
             vulkan/vulkan_pipeline.cpp
             vulkan/vulkan_tessellator.cpp
+            vulkan/vulkan_device_resources.cpp
             vulkan/vma_impl.cpp
     )
 endif ()

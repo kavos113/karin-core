@@ -42,7 +42,7 @@ void VulkanGraphicsDevice::cleanUp()
     vkDestroyInstance(m_instance, nullptr);
 }
 
-void VulkanGraphicsDevice::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) const
+VkCommandBuffer VulkanGraphicsDevice::beginSingleTimeCommands() const
 {
     VkCommandBufferAllocateInfo allocInfo = {
         .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
@@ -67,29 +67,11 @@ void VulkanGraphicsDevice::copyBufferToImage(VkBuffer buffer, VkImage image, uin
         throw std::runtime_error("failed to begin command buffer");
     }
 
-    VkBufferImageCopy region = {
-        .bufferOffset = 0,
-        .bufferRowLength = 0,
-        .bufferImageHeight = 0,
-        .imageSubresource = {
-            .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-            .mipLevel = 0,
-            .baseArrayLayer = 0,
-            .layerCount = 1
-        },
-        .imageOffset = {0, 0, 0},
-        .imageExtent = {width, height, 1}
-    };
+    return commandBuffer;
+}
 
-    vkCmdCopyBufferToImage(
-        commandBuffer,
-        buffer,
-        image,
-        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-        1,
-        &region
-    );
-
+void VulkanGraphicsDevice::endSingleTimeCommands(VkCommandBuffer commandBuffer) const
+{
     if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to record command buffer");
