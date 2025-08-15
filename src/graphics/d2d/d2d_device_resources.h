@@ -2,12 +2,13 @@
 #define SRC_GRAPHICS_GRAPHICS_D2D_DEVICE_RESOURCES_H
 #include <d2d1_1.h>
 #include <map>
+#include <unordered_map>
 #include <wrl/client.h>
 
-#include <karin/common/color/pattern.h>
-#include <karin/common/color/solid_color_pattern.h>
-#include <karin/common/color/linear_gradient_pattern.h>
 #include <karin/graphics/stroke_style.h>
+#include <karin/graphics/pattern.h>
+#include <karin/graphics/solid_color_pattern.h>
+#include <karin/graphics/linear_gradient_pattern.h>
 
 #include <path_impl.h>
 
@@ -40,8 +41,8 @@ private:
     static D2D1_LINE_JOIN toD2DJoinStyle(StrokeStyle::JoinStyle joinStyle);
 
     // TODO: create before starting draw calls?
-    std::map<SolidColorPattern, Microsoft::WRL::ComPtr<ID2D1SolidColorBrush>> m_solidColorBrushes;
-    std::map<LinearGradientPattern, Microsoft::WRL::ComPtr<ID2D1LinearGradientBrush>> m_linearGradientBrushes;
+    std::unordered_map<size_t, Microsoft::WRL::ComPtr<ID2D1SolidColorBrush>> m_solidColorBrushes;
+    std::unordered_map<size_t, Microsoft::WRL::ComPtr<ID2D1LinearGradientBrush>> m_linearGradientBrushes;
     std::map<StrokeStyle, Microsoft::WRL::ComPtr<ID2D1StrokeStyle>> m_strokeStyles;
     std::map<uint32_t, Microsoft::WRL::ComPtr<ID2D1PathGeometry>> m_pathGeometries;
 

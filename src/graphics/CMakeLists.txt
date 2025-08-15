@@ -4,6 +4,8 @@ set(GRAPHICS_SOURCE
         graphics_context.cpp
         path.cpp
         path_impl.cpp
+        solid_color_pattern.cpp
+        linear_gradient_pattern.cpp
 )
 
 if (DIRECTX)

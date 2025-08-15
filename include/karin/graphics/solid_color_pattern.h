@@ -1,7 +1,7 @@
 #ifndef KARIN_COMMON_COLOR_SOLID_COLOR_PATTERN_H
 #define KARIN_COMMON_COLOR_SOLID_COLOR_PATTERN_H
 
-#include "color.h"
+#include <karin/common/color/color.h>
 
 namespace karin
 {
@@ -17,10 +17,7 @@ public:
         return m_color;
     }
 
-    bool operator<(const SolidColorPattern& other) const
-    {
-        return m_color < other.m_color;
-    }
+    size_t hash() const;
 
 private:
     Color m_color;

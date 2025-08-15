@@ -4,10 +4,10 @@
 
 #include <karin/common/geometry/rectangle.h>
 #include <karin/common/geometry/point.h>
-#include <karin/common/color/pattern.h>
 
 #include "path.h"
 #include "stroke_style.h"
+#include "pattern.h"
 
 namespace karin
 {
