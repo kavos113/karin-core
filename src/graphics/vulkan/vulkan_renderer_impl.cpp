@@ -65,7 +65,10 @@ void VulkanRendererImpl::cleanUp()
     vmaDestroyBuffer(m_device->allocator(), m_vertexBuffer, m_vertexAllocation);
     vmaDestroyBuffer(m_device->allocator(), m_indexBuffer, m_indexAllocation);
 
+    m_deviceResources->cleanup();
+
     m_pipeline->cleanUp(m_device->device());
+    m_linearGradientPipeline->cleanUp(m_device->device());
     vkDestroyRenderPass(m_device->device(), m_renderPass, nullptr);
 
     m_surface->cleanUp();
@@ -157,6 +160,7 @@ void VulkanRendererImpl::endDraw()
 
         if (command.patternType == PatternType::LinearGradient)
         {
+            std::cout << "Binding linear gradient pipeline" << std::endl;
             vkCmdBindDescriptorSets(
                 m_commandBuffers[m_currentFrame],
                 VK_PIPELINE_BIND_POINT_GRAPHICS,
@@ -536,7 +540,7 @@ void VulkanRendererImpl::createLinearGradientPipeline()
         VkPushConstantRange{
             .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
             .offset = 0,
-            .size = sizeof(LinearGradientPushConstants)
+            .size = sizeof(PushConstants)
         }
     };
 

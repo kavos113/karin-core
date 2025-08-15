@@ -28,6 +28,8 @@ public:
 
     ~VulkanDeviceResources() = default;
 
+    void cleanup();
+
     std::vector<VkDescriptorSet> gradientPointLutDescriptorSet(const LinearGradientPattern& pattern);
     VkDescriptorSetLayout gradientPointLutDescriptorSetLayout() const;
 
@@ -48,7 +50,7 @@ private:
         const std::vector<LinearGradientPattern::GradientPoint>& gradientPoints
     ) const;
 
-    std::unordered_map<size_t, std::vector<VkDescriptorSet>> m_gradientPointLutMap;
+    std::unordered_map<size_t, LutTexture> m_gradientPointLutMap;
 
     VulkanGraphicsDevice* m_device = nullptr;
 

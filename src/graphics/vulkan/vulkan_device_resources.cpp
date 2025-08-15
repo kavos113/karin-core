@@ -3,16 +3,34 @@
 #include "vma.h"
 
 #include <karin/common/color/color.h>
+#include <ranges>
 
 namespace karin
 {
+void VulkanDeviceResources::cleanup()
+{
+    for (auto& val : m_gradientPointLutMap | std::views::values)
+    {
+        vmaDestroyImage(m_device->allocator(), val.image, val.allocation);
+        vkDestroyImageView(m_device->device(), val.imageView, nullptr);
+    }
+
+    m_gradientPointLutMap.clear();
+
+    vkDestroyDescriptorSetLayout(m_device->device(), m_gradientPointLutDescriptorSetLayout, nullptr);
+
+    vkDestroySampler(m_device->device(), m_clampSampler, nullptr);
+    vkDestroySampler(m_device->device(), m_repeatSampler, nullptr);
+    vkDestroySampler(m_device->device(), m_mirrorSampler, nullptr);
+}
+
 std::vector<VkDescriptorSet> VulkanDeviceResources::gradientPointLutDescriptorSet(
     const LinearGradientPattern& pattern
 )
 {
     if (auto it = m_gradientPointLutMap.find(pattern.pointsHash()); it != m_gradientPointLutMap.end())
     {
-        return it->second;
+        return it->second.descriptorSets;
     }
 
     auto data = generateGradientPointLut(pattern.gradientPoints);
@@ -138,6 +156,8 @@ std::vector<VkDescriptorSet> VulkanDeviceResources::gradientPointLutDescriptorSe
 
     m_device->endSingleTimeCommands(commandBuffer);
 
+    vmaDestroyBuffer(m_device->allocator(), stagingBuffer, stagingBufferMemory);
+
     VkImageViewCreateInfo viewInfo = {
         .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
         .image = gradientPointLutImage,
@@ -169,7 +189,7 @@ std::vector<VkDescriptorSet> VulkanDeviceResources::gradientPointLutDescriptorSe
     VkDescriptorSetAllocateInfo allocInfo = {
         .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
         .descriptorPool = m_device->descriptorPool(),
-        .descriptorSetCount = static_cast<uint32_t>(m_maxFramesInFlight),
+        .descriptorSetCount = m_maxFramesInFlight,
         .pSetLayouts = layouts.data(),
     };
     if (vkAllocateDescriptorSets(m_device->device(), &allocInfo, descriptorSets.data()) != VK_SUCCESS)
@@ -219,7 +239,7 @@ std::vector<VkDescriptorSet> VulkanDeviceResources::gradientPointLutDescriptorSe
         .imageView = gradientPointLutImageView,
         .descriptorSets = std::move(descriptorSets),
     };
-    m_gradientPointLutMap[pattern.pointsHash()] = lutTexture.descriptorSets;
+    m_gradientPointLutMap[pattern.pointsHash()] = lutTexture;
 
     return lutTexture.descriptorSets;
 }

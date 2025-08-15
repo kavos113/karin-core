@@ -32,6 +32,7 @@ VulkanGraphicsDevice::~VulkanGraphicsDevice()
 void VulkanGraphicsDevice::cleanUp()
 {
     vkDestroyCommandPool(m_device, m_commandPool, nullptr);
+    vkDestroyDescriptorPool(m_device, m_descriptorPool, nullptr);
 
     vmaDestroyAllocator(m_allocator);
     vkDestroyDevice(m_device, nullptr);
@@ -187,6 +188,7 @@ void VulkanGraphicsDevice::initDevices(VkSurfaceKHR surface)
     createVmaAllocator();
 
     createCommandPool();
+    createDescriptorPool();
 }
 
 void VulkanGraphicsDevice::getQueueFamily(VkSurfaceKHR surface)
