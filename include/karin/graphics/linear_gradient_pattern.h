@@ -1,8 +1,7 @@
 #ifndef KARIN_COMMON_COLOR_LINEAR_GRADIENT_PATTERN_H
 #define KARIN_COMMON_COLOR_LINEAR_GRADIENT_PATTERN_H
 
-#include "../common/color/color.h"
-
+#include <karin/common/color/color.h>
 #include <karin/common/geometry/point.h>
 
 #include <vector>
@@ -15,16 +14,6 @@ struct LinearGradientPattern
     {
         float offset;
         Color color;
-
-        bool operator<(const GradientPoint& other) const
-        {
-            return offset < other.offset || (offset == other.offset && color < other.color);
-        }
-
-        bool operator==(const GradientPoint& other) const
-        {
-            return offset == other.offset && color == other.color;
-        }
     };
 
     enum class ExtendMode

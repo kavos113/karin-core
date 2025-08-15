@@ -1,7 +1,7 @@
 #ifndef KARIN_COMMON_COLOR_SOLID_COLOR_PATTERN_H
 #define KARIN_COMMON_COLOR_SOLID_COLOR_PATTERN_H
 
-#include "../common/color/color.h"
+#include <karin/common/color/color.h>
 
 namespace karin
 {
