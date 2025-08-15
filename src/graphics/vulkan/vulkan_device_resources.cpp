@@ -57,9 +57,9 @@ std::vector<VkDescriptorSet> VulkanDeviceResources::gradientPointLutDescriptorSe
     void* mappedData;
     if (vmaMapMemory(m_device->allocator(), stagingBufferMemory, &mappedData) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to map memory for gradient point LUT");
+        throw std::runtime_error("failed to map patternory for gradient point LUT");
     }
-    std::memcpy(mappedData, data.data(), data.size());
+    memcpy(mappedData, data.data(), data.size());
     vmaUnmapMemory(m_device->allocator(), stagingBufferMemory);
 
 
