@@ -134,7 +134,7 @@ void VulkanRendererImpl::endDraw()
         // std::cout << "Vertices: " << command.indexCount << ", Offset: " << command.indexOffset << std::endl;
         vkCmdPushConstants(
             m_commandBuffers[m_currentFrame], m_pipeline->pipelineLayout(),
-            VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SolidPushConstants), &command.fragData
+            VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushConstants), &command.fragData
         );
         vkCmdDrawIndexed(m_commandBuffers[m_currentFrame], command.indexCount, 1, command.indexOffset, 0, 0);
     }
@@ -189,7 +189,8 @@ void VulkanRendererImpl::setClearColor(const Color& color)
 void VulkanRendererImpl::addCommand(
     const std::vector<VulkanPipeline::Vertex>& vertices,
     std::vector<uint16_t>& indices,
-    const SolidPushConstants& fragData
+    const PushConstants& fragData,
+    PatternType patternType
 )
 {
     memcpy(m_vertexMapPoint, vertices.data(), vertices.size() * sizeof(VulkanPipeline::Vertex));
@@ -210,7 +211,8 @@ void VulkanRendererImpl::addCommand(
         {
             .indexCount = static_cast<uint32_t>(indices.size()),
             .indexOffset = static_cast<uint32_t>(m_indexCount - indices.size()),
-            .fragData = fragData
+            .fragData = fragData,
+            .patternType = patternType
         }
     );
 }
@@ -458,7 +460,7 @@ void VulkanRendererImpl::createPipeline()
         VkPushConstantRange{
             .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
             .offset = 0,
-            .size = sizeof(SolidPushConstants)
+            .size = sizeof(PushConstants)
         }
     };
     m_pipeline = std::make_unique<VulkanPipeline>(

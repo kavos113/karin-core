@@ -9,6 +9,12 @@
 namespace karin
 {
 using Pattern = std::variant<SolidColorPattern, LinearGradientPattern>;
+
+enum class PatternType
+{
+    SolidColor,
+    LinearGradient,
+};
 }
 
 #endif //KARIN_COMMON_COLOR_PATTERN_H

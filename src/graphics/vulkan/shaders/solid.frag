@@ -9,13 +9,13 @@ void main()
     // positive: outside, negative: inside
     float signedDistance;
 
-    if (pushConstants.shapeType == 1) { // Ellipse(normalized -> circle)
+    if (push.shapeType == 1) { // Ellipse(normalized -> circle)
         signedDistance = length(uv) - 1.0;
-    } else if (pushConstants.shapeType == 2) { // Rounded Rectangle
-        vec2 cornerPos = abs(uv) - vec2(1.0, 1.0) + pushConstants.shapeParams.xy;
+    } else if (push.shapeType == 2) { // Rounded Rectangle
+        vec2 cornerPos = abs(uv) - vec2(1.0, 1.0) + push.shapeParams.xy;
         signedDistance = min(cornerPos.x, cornerPos.y) < 0.0
         ? -1.0
-        : length(cornerPos / pushConstants.shapeParams.xy) - 1.0;
+        : length(cornerPos / push.shapeParams.xy) - 1.0;
     } else {
         signedDistance = -1.0;
     }
@@ -24,5 +24,5 @@ void main()
         discard;
     }
 
-    outColor = pushConstants.color;
+    outColor = push.color;
 }

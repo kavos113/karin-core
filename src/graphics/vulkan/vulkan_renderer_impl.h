@@ -10,6 +10,7 @@
 #include <renderer_impl.h>
 #include <karin/common/geometry/point.h>
 #include <karin/common/geometry/rectangle.h>
+#include <karin/graphics/pattern.h>
 #include <karin/system/window.h>
 
 #include <vector>
@@ -32,7 +33,8 @@ public:
     void addCommand(
         const std::vector<VulkanPipeline::Vertex>& vertices,
         std::vector<uint16_t>& indices,
-        const SolidPushConstants& fragData
+        const PushConstants& fragData,
+        PatternType patternType
     );
 
     // pixel coordinates -> normalized coordinates [-1, 1]
@@ -48,7 +50,8 @@ private:
     {
         uint32_t indexCount{};
         uint32_t indexOffset{};
-        SolidPushConstants fragData;
+        PushConstants fragData;
+        PatternType patternType = PatternType::SolidColor;
     };
 
     void createCommandBuffers();

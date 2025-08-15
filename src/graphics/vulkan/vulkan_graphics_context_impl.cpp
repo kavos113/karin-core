@@ -55,7 +55,8 @@ void VulkanGraphicsContextImpl::fillRect(Rectangle rect, Pattern& pattern)
         0, 1, 2, 2, 3, 0
     };
 
-    m_renderer->addCommand(vertices, indices, createPushConstantData(pattern));
+    auto fragData = createPushConstantData(pattern);
+    m_renderer->addCommand(vertices, indices, fragData.first, fragData.second);
 }
 
 void VulkanGraphicsContextImpl::fillEllipse(Point center, float radiusX, float radiusY, Pattern& pattern)
@@ -93,9 +94,9 @@ void VulkanGraphicsContextImpl::fillEllipse(Point center, float radiusX, float r
     };
 
     auto fragData = createPushConstantData(pattern);
-    fragData.shapeType = ShapeType::Ellipse;
+    fragData.first.shapeType = ShapeType::Ellipse;
 
-    m_renderer->addCommand(vertices, indices, fragData);
+    m_renderer->addCommand(vertices, indices, fragData.first, fragData.second);
 }
 
 void VulkanGraphicsContextImpl::fillRoundedRect(Rectangle rect, float radiusX, float radiusY, Pattern& pattern)
@@ -128,10 +129,10 @@ void VulkanGraphicsContextImpl::fillRoundedRect(Rectangle rect, float radiusX, f
     };
 
     auto fragData = createPushConstantData(pattern);
-    fragData.shapeType = ShapeType::RoundedRectangle;
-    fragData.shapeParams = glm::vec3(radiusX / rect.size.width * 2.0f, radiusY / rect.size.height * 2.0f, 0.0f);
+    fragData.first.shapeType = ShapeType::RoundedRectangle;
+    fragData.first.shapeParams = glm::vec3(radiusX / rect.size.width * 2.0f, radiusY / rect.size.height * 2.0f, 0.0f);
 
-    m_renderer->addCommand(vertices, indices, fragData);
+    m_renderer->addCommand(vertices, indices, fragData.first, fragData.second);
 }
 
 void VulkanGraphicsContextImpl::drawLine(Point start, Point end, Pattern& pattern, const StrokeStyle& strokeStyle)
@@ -141,7 +142,8 @@ void VulkanGraphicsContextImpl::drawLine(Point start, Point end, Pattern& patter
 
     m_tessellator->addLine(start, end, strokeStyle, vertices, indices);
 
-    m_renderer->addCommand(vertices, indices, createPushConstantData(pattern));
+    auto data = createPushConstantData(pattern);
+    m_renderer->addCommand(vertices, indices, data.first, data.second);
 }
 
 void VulkanGraphicsContextImpl::drawRect(Rectangle rect, Pattern& pattern, const StrokeStyle& strokeStyle)
@@ -184,7 +186,8 @@ void VulkanGraphicsContextImpl::drawRect(Rectangle rect, Pattern& pattern, const
         indices
     );
 
-    m_renderer->addCommand(vertices, indices, createPushConstantData(pattern));
+    auto data = createPushConstantData(pattern);
+    m_renderer->addCommand(vertices, indices, data.first, data.second);
 }
 
 void VulkanGraphicsContextImpl::drawEllipse(
@@ -210,7 +213,8 @@ void VulkanGraphicsContextImpl::drawEllipse(
         indices
     );
 
-    m_renderer->addCommand(vertices, indices, createPushConstantData(pattern));
+    auto data = createPushConstantData(pattern);
+    m_renderer->addCommand(vertices, indices, data.first, data.second);
 }
 
 void VulkanGraphicsContextImpl::drawRoundedRect(
@@ -308,7 +312,8 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
         indices
     );
 
-    m_renderer->addCommand(vertices, indices, createPushConstantData(pattern));
+    auto data = createPushConstantData(pattern);
+    m_renderer->addCommand(vertices, indices, data.first, data.second);
 }
 
 void VulkanGraphicsContextImpl::fillPath(const PathImpl& path, Pattern& pattern)
@@ -385,7 +390,8 @@ void VulkanGraphicsContextImpl::fillPath(const PathImpl& path, Pattern& pattern)
         indices.push_back(triangles[i + 2]);
     }
 
-    m_renderer->addCommand(vertices, indices, createPushConstantData(pattern));
+    auto data = createPushConstantData(pattern);
+    m_renderer->addCommand(vertices, indices, data.first, data.second);
 }
 
 void VulkanGraphicsContextImpl::drawPath(const PathImpl& path, Pattern& pattern, const StrokeStyle& strokeStyle)
@@ -448,25 +454,36 @@ void VulkanGraphicsContextImpl::drawPath(const PathImpl& path, Pattern& pattern,
         );
     }
 
-    m_renderer->addCommand(vertices, indices, createPushConstantData(pattern));
+    auto data = createPushConstantData(pattern);
+    m_renderer->addCommand(vertices, indices, data.first, data.second);
 }
 
-SolidPushConstants VulkanGraphicsContextImpl::createPushConstantData(const Pattern& pattern) const
+std::pair<PushConstants, PatternType> VulkanGraphicsContextImpl::createPushConstantData(const Pattern& pattern) const
 {
     return std::visit(
-        []<typename T0>(const T0& p) -> SolidPushConstants
+        []<typename T0>(const T0& p) -> std::pair<PushConstants, PatternType>
         {
             using T = std::decay_t<T0>;
             if constexpr (std::is_same_v<T, SolidColorPattern>)
             {
                 Color color = p.color();
-                return SolidPushConstants{
-                    .color = glm::vec4(color.r, color.g, color.b, color.a)
+                return {
+                    PushConstants{
+                        .color = {color.r, color.g, color.b, color.a},
+                    },
+                    PatternType::SolidColor
                 };
             }
             else if constexpr (std::is_same_v<T, LinearGradientPattern>)
             {
-                return {};
+                Point start = p.start;
+                Point end = p.end;
+                return {
+                    PushConstants{
+                        .color = {start.x, start.y, end.x, end.y},
+                    },
+                    PatternType::LinearGradient,
+                };
             }
             else
             {

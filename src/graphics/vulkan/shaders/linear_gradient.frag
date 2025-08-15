@@ -1,6 +1,6 @@
 #version 450
 
-#include "linear_gradient_push_constants.h"
+#include "push_constants.h"
 
 layout(location = 0) out vec4 outColor;
 layout(location = 0) in vec2 uv;
@@ -27,8 +27,8 @@ void main() {
         discard;
     }
 
-    vec2 startPoint = push.coords.xy;
-    vec2 endPoint = push.coords.zw;
+    vec2 startPoint = push.color.xy;
+    vec2 endPoint = push.color.zw;
     vec2 direction = endPoint - startPoint;
     vec2 pixel = pixelPos - startPoint;
 
