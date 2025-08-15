@@ -4,10 +4,10 @@
 #include <map>
 #include <wrl/client.h>
 
-#include <karin/common/color/pattern.h>
-#include <karin/common/color/solid_color_pattern.h>
-#include <karin/common/color/linear_gradient_pattern.h>
 #include <karin/graphics/stroke_style.h>
+#include <karin/graphics/pattern.h>
+#include <karin/graphics/solid_color_pattern.h>
+#include <karin/graphics/linear_gradient_pattern.h>
 
 #include <path_impl.h>
 

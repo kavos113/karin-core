@@ -4,7 +4,7 @@
 #include "glm_geometry.h"
 
 #include <karin/common/color/color.h>
-#include <karin/common/color/pattern.h>
+#include <../../../include/karin/graphics/pattern.h>
 #include <karin/common/color/solid_color_pattern.h>
 #include <karin/common/geometry/point.h>
 #include <karin/common/geometry/rectangle.h>

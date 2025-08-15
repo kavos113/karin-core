@@ -1,7 +1,7 @@
 #ifndef KARIN_COMMON_COLOR_LINEAR_GRADIENT_PATTERN_H
 #define KARIN_COMMON_COLOR_LINEAR_GRADIENT_PATTERN_H
 
-#include "color.h"
+#include "../common/color/color.h"
 
 #include <karin/common/geometry/point.h>
 
@@ -39,16 +39,7 @@ struct LinearGradientPattern
     std::vector<GradientPoint> gradientPoints;
     ExtendMode extendMode = ExtendMode::CLAMP;
 
-    bool operator<(const LinearGradientPattern& other) const
-    {
-        if (start != other.start)
-            return start.x < other.start.x || (start.x == other.start.x && start.y < other.start.y);
-        if (end != other.end)
-            return end.x < other.end.x || (end.x == other.end.x && end.y < other.end.y);
-        if (gradientPoints != other.gradientPoints)
-            return gradientPoints < other.gradientPoints;
-        return extendMode < other.extendMode;
-    }
+    size_t hash() const;
 };
 } // karin
 
