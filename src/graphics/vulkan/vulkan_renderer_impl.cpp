@@ -13,6 +13,7 @@ VulkanRendererImpl::VulkanRendererImpl(VulkanGraphicsDevice* device, Window::Nat
 {
     m_surface = std::make_unique<VulkanSurface>(m_device, nativeHandle);
     m_extent = m_surface->extent();
+    m_deviceResources = std::make_unique<VulkanDeviceResources>(m_device, MAX_FRAMES_IN_FLIGHT);
 
     createCommandBuffers();
     createSyncObjects();
@@ -470,25 +471,7 @@ void VulkanRendererImpl::createPipeline()
 
 void VulkanRendererImpl::createLinearGradientPipeline()
 {
-    VkDescriptorSetLayoutBinding binding = {
-        .binding = 0,
-        .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-        .descriptorCount = 1,
-        .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
-        .pImmutableSamplers = nullptr
-    };
-    VkDescriptorSetLayoutCreateInfo layoutInfo = {
-        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
-        .bindingCount = 1,
-        .pBindings = &binding
-    };
-    VkDescriptorSetLayout descriptorSetLayout;
-    if (vkCreateDescriptorSetLayout(m_device->device(), &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS)
-    {
-        throw std::runtime_error("failed to create descriptor set layout for linear gradient pipeline");
-    }
-
-    std::vector descriptorSetLayouts = {descriptorSetLayout};
+    std::vector descriptorSetLayouts = {m_deviceResources->gradientPointLutDescriptorSetLayout()};
     std::vector pushConstantRanges = {
         VkPushConstantRange{
             .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,

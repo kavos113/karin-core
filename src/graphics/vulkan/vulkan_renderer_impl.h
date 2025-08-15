@@ -1,6 +1,7 @@
 #ifndef SRC_GRAPHICS_GRAPHICS_VULKAN_VK_RENDERER_IMPL_H
 #define SRC_GRAPHICS_GRAPHICS_VULKAN_VK_RENDERER_IMPL_H
 
+#include "vulkan_device_resources.h"
 #include "vulkan_graphics_device.h"
 #include "vulkan_pipeline.h"
 #include "vulkan_surface.h"
@@ -65,6 +66,7 @@ private:
     std::unique_ptr<VulkanSurface> m_surface;
     std::unique_ptr<VulkanPipeline> m_pipeline;
     std::unique_ptr<VulkanPipeline> m_linearGradientPipeline;
+    std::unique_ptr<VulkanDeviceResources> m_deviceResources;
 
     std::vector<DrawCommand> m_drawCommands;
 

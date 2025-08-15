@@ -22,12 +22,14 @@ public:
             throw std::runtime_error("VulkanDeviceResources: device is null");
         }
 
-        createSampler();
+        createSamplers();
+        createGradientPointLutDescriptorSetLayout();
     }
 
     ~VulkanDeviceResources() = default;
 
-    VkDescriptorSet gradientPointLutDescriptorSet(const LinearGradientPattern& pattern) const;
+    std::vector<VkDescriptorSet> gradientPointLutDescriptorSet(const LinearGradientPattern& pattern);
+    VkDescriptorSetLayout gradientPointLutDescriptorSetLayout() const;
 
 private:
     struct LutTexture
@@ -35,22 +37,26 @@ private:
         VkImage image = VK_NULL_HANDLE;
         VmaAllocation allocation = VK_NULL_HANDLE;
         VkImageView imageView = VK_NULL_HANDLE;
-        VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
+        std::vector<VkDescriptorSet> descriptorSets;
     };
 
     static constexpr size_t LUT_WIDTH = 256;
 
-    void createSampler();
+    void createSamplers();
+    void createGradientPointLutDescriptorSetLayout();
     std::array<uint8_t, LUT_WIDTH * 4> generateGradientPointLut(
         const std::vector<LinearGradientPattern::GradientPoint>& gradientPoints
     ) const;
 
-    std::unordered_map<size_t, VkDescriptorSet> m_gradientPointLutMap;
+    std::unordered_map<size_t, std::vector<VkDescriptorSet>> m_gradientPointLutMap;
 
     VulkanGraphicsDevice* m_device = nullptr;
 
-    VkSampler m_sampler = VK_NULL_HANDLE;
+    VkSampler m_clampSampler = VK_NULL_HANDLE;
+    VkSampler m_repeatSampler = VK_NULL_HANDLE;
+    VkSampler m_mirrorSampler = VK_NULL_HANDLE;
     uint32_t m_maxFramesInFlight = 2;
+    VkDescriptorSetLayout m_gradientPointLutDescriptorSetLayout = VK_NULL_HANDLE;
 };
 } // karin
 

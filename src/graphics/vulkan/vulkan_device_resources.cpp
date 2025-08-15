@@ -6,7 +6,9 @@
 
 namespace karin
 {
-VkDescriptorSet VulkanDeviceResources::gradientPointLutDescriptorSet(const LinearGradientPattern& pattern) const
+std::vector<VkDescriptorSet> VulkanDeviceResources::gradientPointLutDescriptorSet(
+    const LinearGradientPattern& pattern
+)
 {
     if (auto it = m_gradientPointLutMap.find(pattern.pointsHash()); it != m_gradientPointLutMap.end())
     {
@@ -160,6 +162,66 @@ VkDescriptorSet VulkanDeviceResources::gradientPointLutDescriptorSet(const Linea
     {
         throw std::runtime_error("failed to create gradient point LUT image view");
     }
+
+    std::vector layouts(m_maxFramesInFlight, m_gradientPointLutDescriptorSetLayout);
+    std::vector<VkDescriptorSet> descriptorSets(m_maxFramesInFlight);
+
+    VkDescriptorSetAllocateInfo allocInfo = {
+        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+        .descriptorPool = m_device->descriptorPool(),
+        .descriptorSetCount = static_cast<uint32_t>(m_maxFramesInFlight),
+        .pSetLayouts = layouts.data(),
+    };
+    if (vkAllocateDescriptorSets(m_device->device(), &allocInfo, descriptorSets.data()) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to allocate descriptor sets for gradient point LUT");
+    }
+
+    VkSampler gradientPointLutSampler;
+    switch (pattern.extendMode)
+    {
+    case LinearGradientPattern::ExtendMode::CLAMP:
+        gradientPointLutSampler = m_clampSampler;
+        break;
+    case LinearGradientPattern::ExtendMode::REPEAT:
+        gradientPointLutSampler = m_repeatSampler;
+        break;
+    case LinearGradientPattern::ExtendMode::MIRROR:
+        gradientPointLutSampler = m_mirrorSampler;
+        break;
+    default:
+        throw std::runtime_error("unsupported extend mode for gradient point LUT");
+    }
+
+    for (size_t i = 0; i < m_maxFramesInFlight; ++i)
+    {
+        VkDescriptorImageInfo descriptorImageInfo = {
+            .sampler = gradientPointLutSampler,
+            .imageView = gradientPointLutImageView,
+            .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+        };
+
+        VkWriteDescriptorSet descriptorWrite = {
+            .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+            .dstSet = descriptorSets[i],
+            .dstBinding = 0,
+            .dstArrayElement = 0,
+            .descriptorCount = 1,
+            .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+            .pImageInfo = &descriptorImageInfo,
+        };
+        vkUpdateDescriptorSets(m_device->device(), 1, &descriptorWrite, 0, nullptr);
+    }
+
+    LutTexture lutTexture = {
+        .image = gradientPointLutImage,
+        .allocation = gradientPointLutImageAllocation,
+        .imageView = gradientPointLutImageView,
+        .descriptorSets = std::move(descriptorSets),
+    };
+    m_gradientPointLutMap[pattern.pointsHash()] = lutTexture.descriptorSets;
+
+    return lutTexture.descriptorSets;
 }
 
 std::array<uint8_t, VulkanDeviceResources::LUT_WIDTH * 4> VulkanDeviceResources::generateGradientPointLut(
@@ -202,7 +264,7 @@ std::array<uint8_t, VulkanDeviceResources::LUT_WIDTH * 4> VulkanDeviceResources:
     return lut;
 }
 
-void VulkanDeviceResources::createSampler()
+void VulkanDeviceResources::createSamplers()
 {
     VkPhysicalDeviceProperties properties;
     vkGetPhysicalDeviceProperties(m_device->physicalDevice(), &properties);
@@ -226,9 +288,52 @@ void VulkanDeviceResources::createSampler()
         .borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK,
         .unnormalizedCoordinates = VK_FALSE,
     };
-    if (vkCreateSampler(m_device->device(), &samplerInfo, nullptr, &m_sampler) != VK_SUCCESS)
+    if (vkCreateSampler(m_device->device(), &samplerInfo, nullptr, &m_clampSampler) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create sampler");
+    }
+
+    samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    if (vkCreateSampler(m_device->device(), &samplerInfo, nullptr, &m_repeatSampler) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create sampler");
+    }
+
+    samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+    samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+    samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+    if (vkCreateSampler(m_device->device(), &samplerInfo, nullptr, &m_mirrorSampler) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create sampler");
+    }
+}
+
+VkDescriptorSetLayout VulkanDeviceResources::gradientPointLutDescriptorSetLayout() const
+{
+    return m_gradientPointLutDescriptorSetLayout;
+}
+
+void VulkanDeviceResources::createGradientPointLutDescriptorSetLayout()
+{
+    VkDescriptorSetLayoutBinding binding = {
+        .binding = 0,
+        .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+        .descriptorCount = 1,
+        .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
+        .pImmutableSamplers = nullptr
+    };
+    VkDescriptorSetLayoutCreateInfo layoutInfo = {
+        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+        .bindingCount = 1,
+        .pBindings = &binding
+    };
+    if (vkCreateDescriptorSetLayout(
+        m_device->device(), &layoutInfo, nullptr, &m_gradientPointLutDescriptorSetLayout
+    ) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create descriptor set layout for linear gradient pipeline");
     }
 }
 } // karin

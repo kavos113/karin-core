@@ -30,6 +30,8 @@ size_t LinearGradientPattern::pointsHash() const
 {
     size_t seed = 0;
 
+    hash_combine(seed, static_cast<int>(extendMode));
+
     for (const auto& point : gradientPoints)
     {
         hash_combine(seed, point.offset);
