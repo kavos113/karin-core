@@ -1,8 +1,9 @@
 #include "vulkan_renderer_impl.h"
 
-#include "shaders/linear_gradient_push_constants.h"
+#include "shaders/push_constants.h"
 #include "shaders/shaders.h"
 
+#include <algorithm>
 #include <iostream>
 #include <cstring>
 
@@ -125,17 +126,52 @@ void VulkanRendererImpl::endDraw()
     );
     vkCmdBindIndexBuffer(m_commandBuffers[m_currentFrame], m_indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 
+    std::ranges::sort(
+        m_drawCommands,
+        [](const DrawCommand& a, const DrawCommand& b)
+        {
+            return a.patternType < b.patternType;
+        }
+    );
+
+    PatternType lastPatternType = m_drawCommands.empty() ? PatternType::SolidColor : m_drawCommands.front().patternType;
     vkCmdBindPipeline(
-        m_commandBuffers[m_currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline->pipeline()
+        m_commandBuffers[m_currentFrame],
+        VK_PIPELINE_BIND_POINT_GRAPHICS,
+        lastPatternType == PatternType::LinearGradient
+            ? m_linearGradientPipeline->pipeline()
+            : m_pipeline->pipeline()
     );
 
     for (const auto& command : m_drawCommands)
     {
-        // std::cout << "Vertices: " << command.indexCount << ", Offset: " << command.indexOffset << std::endl;
+        if (command.patternType != lastPatternType)
+        {
+            vkCmdBindPipeline(
+                m_commandBuffers[m_currentFrame],
+                VK_PIPELINE_BIND_POINT_GRAPHICS,
+                command.pipeline->pipeline()
+            );
+            lastPatternType = command.patternType;
+        }
+
+        if (command.patternType == PatternType::LinearGradient)
+        {
+            vkCmdBindDescriptorSets(
+                m_commandBuffers[m_currentFrame],
+                VK_PIPELINE_BIND_POINT_GRAPHICS,
+                m_linearGradientPipeline->pipelineLayout(),
+                0, 1, &command.descriptorSet, 0, nullptr
+            );
+        }
+
         vkCmdPushConstants(
-            m_commandBuffers[m_currentFrame], m_pipeline->pipelineLayout(),
-            VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushConstants), &command.fragData
+            m_commandBuffers[m_currentFrame],
+            command.pipeline->pipelineLayout(),
+            VK_SHADER_STAGE_FRAGMENT_BIT,
+            0, sizeof(PushConstants), &command.fragData
         );
+
         vkCmdDrawIndexed(m_commandBuffers[m_currentFrame], command.indexCount, 1, command.indexOffset, 0, 0);
     }
 
@@ -190,7 +226,7 @@ void VulkanRendererImpl::addCommand(
     const std::vector<VulkanPipeline::Vertex>& vertices,
     std::vector<uint16_t>& indices,
     const PushConstants& fragData,
-    PatternType patternType
+    const Pattern& pattern
 )
 {
     memcpy(m_vertexMapPoint, vertices.data(), vertices.size() * sizeof(VulkanPipeline::Vertex));
@@ -207,14 +243,36 @@ void VulkanRendererImpl::addCommand(
 
     m_vertexOffset += static_cast<uint16_t>(vertices.size());
 
-    m_drawCommands.push_back(
+    DrawCommand drawCommand = {
+        .indexCount = static_cast<uint32_t>(indices.size()),
+        .indexOffset = static_cast<uint32_t>(m_indexCount - indices.size()),
+        .fragData = fragData,
+    };
+
+    std::visit(
+        [this, &drawCommand]<typename T0>(const T0& p)
         {
-            .indexCount = static_cast<uint32_t>(indices.size()),
-            .indexOffset = static_cast<uint32_t>(m_indexCount - indices.size()),
-            .fragData = fragData,
-            .patternType = patternType
-        }
+            using T = std::decay_t<T0>;
+            if constexpr (std::is_same_v<T, LinearGradientPattern>)
+            {
+                drawCommand.pipeline = m_linearGradientPipeline.get();
+                auto descriptorSets = m_deviceResources->gradientPointLutDescriptorSet(p);
+                drawCommand.descriptorSet = descriptorSets[m_currentFrame];
+                drawCommand.patternType = PatternType::LinearGradient;
+            }
+            else if constexpr (std::is_same_v<T, SolidColorPattern>)
+            {
+                drawCommand.pipeline = m_pipeline.get();
+                drawCommand.patternType = PatternType::SolidColor;
+            }
+            else
+            {
+                throw std::runtime_error("Unsupported pattern type");
+            }
+        }, pattern
     );
+
+    m_drawCommands.push_back(drawCommand);
 }
 
 Rectangle VulkanRendererImpl::normalize(Rectangle rect) const

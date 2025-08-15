@@ -34,7 +34,7 @@ public:
         const std::vector<VulkanPipeline::Vertex>& vertices,
         std::vector<uint16_t>& indices,
         const PushConstants& fragData,
-        PatternType patternType
+        const Pattern& pattern
     );
 
     // pixel coordinates -> normalized coordinates [-1, 1]
@@ -51,6 +51,8 @@ private:
         uint32_t indexCount{};
         uint32_t indexOffset{};
         PushConstants fragData;
+        VulkanPipeline* pipeline = nullptr;
+        VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
         PatternType patternType = PatternType::SolidColor;
     };
 
