@@ -43,7 +43,7 @@ Microsoft::WRL::ComPtr<ID2D1Brush> D2DDeviceResources::brush(Pattern& pattern)
 
 Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> D2DDeviceResources::solidColorBrush(const SolidColorPattern& pattern)
 {
-    if (auto it = m_solidColorBrushes.find(pattern); it != m_solidColorBrushes.end())
+    if (auto it = m_solidColorBrushes.find(pattern.hash()); it != m_solidColorBrushes.end())
     {
         return it->second;
     }
@@ -58,7 +58,7 @@ Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> D2DDeviceResources::solidColorBrush
         throw std::runtime_error("Failed to create solid color brush");
     }
 
-    m_solidColorBrushes[pattern] = brush;
+    m_solidColorBrushes[pattern.hash()] = brush;
     return brush;
 }
 
@@ -66,7 +66,7 @@ Microsoft::WRL::ComPtr<ID2D1LinearGradientBrush> D2DDeviceResources::linearGradi
     const LinearGradientPattern& pattern
 )
 {
-    if (auto it = m_linearGradientBrushes.find(pattern); it != m_linearGradientBrushes.end())
+    if (auto it = m_linearGradientBrushes.find(pattern.hash()); it != m_linearGradientBrushes.end())
     {
         return it->second;
     }
@@ -122,7 +122,7 @@ Microsoft::WRL::ComPtr<ID2D1LinearGradientBrush> D2DDeviceResources::linearGradi
         throw std::runtime_error("Failed to create linear gradient brush");
     }
 
-    m_linearGradientBrushes[pattern] = brush;
+    m_linearGradientBrushes[pattern.hash()] = brush;
     return brush;
 }
 

@@ -6,5 +6,8 @@
 #include "graphics/graphics_context.h"
 #include "graphics/path.h"
 #include "graphics/stroke_style.h"
+#include "graphics/pattern.h"
+#include "graphics/solid_color_pattern.h"
+#include "graphics/linear_gradient_pattern.h"
 
 #endif //KARIN_GRAPHICS_H
