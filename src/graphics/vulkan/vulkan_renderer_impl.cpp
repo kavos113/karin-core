@@ -496,6 +496,13 @@ void VulkanRendererImpl::createLinearGradientPipeline()
             .size = sizeof(LinearGradientPushConstants)
         }
     };
+
+    m_linearGradientPipeline = std::make_unique<VulkanPipeline>(
+        m_device->device(), m_renderPass,
+        linear_gradient_vert_spv, linear_gradient_vert_spv_len,
+        linear_gradient_frag_spv, linear_gradient_frag_spv_len,
+        descriptorSetLayouts, pushConstantRanges
+    );
 }
 
 void VulkanRendererImpl::doResize()

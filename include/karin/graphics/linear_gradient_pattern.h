@@ -18,9 +18,9 @@ struct LinearGradientPattern
 
     enum class ExtendMode
     {
-        CLAMP,
-        REPEAT,
-        MIRROR
+        CLAMP = 0,
+        REPEAT = 1,
+        MIRROR = 2
     };
 
     Point start;
