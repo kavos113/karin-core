@@ -1,5 +1,7 @@
 #include "vulkan_renderer_impl.h"
 
+#include "shaders/shaders.h"
+
 #include <iostream>
 #include <cstring>
 
@@ -19,7 +21,20 @@ VulkanRendererImpl::VulkanRendererImpl(VulkanGraphicsDevice* device, Window::Nat
     createVertexBuffer();
     createIndexBuffer();
 
-    m_pipelineManager = std::make_unique<VulkanPipeline>(m_device->device(), m_renderPass);
+    std::vector<VkDescriptorSetLayout> descriptorSetLayouts;
+    std::vector pushConstantRanges = {
+        VkPushConstantRange{
+            .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
+            .offset = 0,
+            .size = sizeof(PushConstants)
+        }
+    };
+    m_pipeline = std::make_unique<VulkanPipeline>(
+        m_device->device(), m_renderPass,
+        shader_vert_spv, shader_vert_spv_len,
+        shader_frag_spv, shader_frag_spv_len,
+        descriptorSetLayouts, pushConstantRanges
+    );
 }
 
 void VulkanRendererImpl::cleanUp()
@@ -59,7 +74,7 @@ void VulkanRendererImpl::cleanUp()
     vmaDestroyBuffer(m_device->allocator(), m_vertexBuffer, m_vertexAllocation);
     vmaDestroyBuffer(m_device->allocator(), m_indexBuffer, m_indexAllocation);
 
-    m_pipelineManager->cleanUp(m_device->device());
+    m_pipeline->cleanUp(m_device->device());
     vkDestroyRenderPass(m_device->device(), m_renderPass, nullptr);
 
     m_surface->cleanUp();
@@ -114,20 +129,23 @@ bool VulkanRendererImpl::beginDraw()
 void VulkanRendererImpl::endDraw()
 {
     std::array vertexBuffers = {m_vertexBuffer};
-    std::array<VkDeviceSize, 1> offsets = {0};
+    std::array<VkDeviceSize, 1> offsets = {};
     vkCmdBindVertexBuffers(
         m_commandBuffers[m_currentFrame], 0, vertexBuffers.size(), vertexBuffers.data(), offsets.data()
     );
     vkCmdBindIndexBuffer(m_commandBuffers[m_currentFrame], m_indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 
     vkCmdBindPipeline(
-        m_commandBuffers[m_currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineManager->graphicsPipeline()
+        m_commandBuffers[m_currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline->pipeline()
     );
 
     for (const auto& command : m_drawCommands)
     {
         // std::cout << "Vertices: " << command.indexCount << ", Offset: " << command.indexOffset << std::endl;
-        m_pipelineManager->bindData(m_commandBuffers[m_currentFrame], command.fragData);
+        vkCmdPushConstants(
+            m_commandBuffers[m_currentFrame], m_pipeline->pipelineLayout(),
+            VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushConstants), &command.fragData
+        );
         vkCmdDrawIndexed(m_commandBuffers[m_currentFrame], command.indexCount, 1, command.indexOffset, 0, 0);
     }
 
@@ -181,7 +199,7 @@ void VulkanRendererImpl::setClearColor(const Color& color)
 void VulkanRendererImpl::addCommand(
     const std::vector<VulkanPipeline::Vertex>& vertices,
     std::vector<uint16_t>& indices,
-    const VulkanPipeline::FragPushConstantData& fragData
+    const PushConstants& fragData
 )
 {
     memcpy(m_vertexMapPoint, vertices.data(), vertices.size() * sizeof(VulkanPipeline::Vertex));

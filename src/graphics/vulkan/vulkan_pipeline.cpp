@@ -2,29 +2,36 @@
 
 #include <stdexcept>
 
-#include "shaders/shaders.h"
 #include "vulkan/vulkan_utils.h"
 
 namespace karin
 {
-VulkanPipeline::VulkanPipeline(VkDevice device, VkRenderPass renderPass)
+VulkanPipeline::VulkanPipeline(
+    VkDevice device, VkRenderPass renderPass,
+    const unsigned char* vertShaderCode, unsigned int vertShaderSize,
+    const unsigned char* fragShaderCode, unsigned int fragShaderSize,
+    const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts,
+    const std::vector<VkPushConstantRange>& pushConstantRanges
+)
 {
-    createPipeline(device, renderPass);
+    createPipeline(
+        device, renderPass, vertShaderCode, vertShaderSize, fragShaderCode, fragShaderSize, descriptorSetLayouts,
+        pushConstantRanges
+    );
 }
 
 VulkanPipeline::~VulkanPipeline()
 = default;
 
-void VulkanPipeline::bindData(VkCommandBuffer commandBuffer, const FragPushConstantData& fragData) const
-{
-    vkCmdPushConstants(
-        commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(FragPushConstantData), &fragData
-    );
-}
 
-VkPipeline VulkanPipeline::graphicsPipeline() const
+VkPipeline VulkanPipeline::pipeline() const
 {
     return m_graphicsPipeline;
+}
+
+VkPipelineLayout VulkanPipeline::pipelineLayout() const
+{
+    return m_pipelineLayout;
 }
 
 void VulkanPipeline::cleanUp(VkDevice device)
@@ -42,10 +49,16 @@ void VulkanPipeline::cleanUp(VkDevice device)
     }
 }
 
-void VulkanPipeline::createPipeline(VkDevice device, VkRenderPass renderPass)
+void VulkanPipeline::createPipeline(
+    VkDevice device, VkRenderPass renderPass,
+    const unsigned char* vertShaderCode, unsigned int vertShaderSize,
+    const unsigned char* fragShaderCode, unsigned int fragShaderSize,
+    const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts,
+    const std::vector<VkPushConstantRange>& pushConstantRanges
+)
 {
-    auto vertShader = VulkanUtils::loadShader(device, shader_vert_spv, shader_vert_spv_len);
-    auto fragShader = VulkanUtils::loadShader(device, shader_frag_spv, shader_frag_spv_len);
+    auto vertShader = VulkanUtils::loadShader(device, vertShaderCode, vertShaderSize);
+    auto fragShader = VulkanUtils::loadShader(device, fragShaderCode, fragShaderSize);
 
     VkPipelineShaderStageCreateInfo vertShaderStageInfo = {
         .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
@@ -144,18 +157,10 @@ void VulkanPipeline::createPipeline(VkDevice device, VkRenderPass renderPass)
         .pAttachments = &colorBlendAttachment
     };
 
-    std::array pushConstantRanges = {
-        VkPushConstantRange{
-            .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
-            .offset = 0,
-            .size = sizeof(FragPushConstantData)
-        }
-    };
-
     VkPipelineLayoutCreateInfo layoutCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
-        .setLayoutCount = 0,
-        .pSetLayouts = nullptr,
+        .setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size()),
+        .pSetLayouts = descriptorSetLayouts.data(),
         .pushConstantRangeCount = static_cast<uint32_t>(pushConstantRanges.size()),
         .pPushConstantRanges = pushConstantRanges.data()
     };

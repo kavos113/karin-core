@@ -3,6 +3,7 @@
 
 #include "vulkan_renderer_impl.h"
 #include "vulkan_tessellator.h"
+#include "shaders/push_constants.h"
 
 #include <graphics_context_impl.h>
 #include <path_impl.h>
@@ -39,7 +40,7 @@ public:
     void drawPath(const PathImpl& path, Pattern& pattern, const StrokeStyle& strokeStyle) override;
 
 private:
-    VulkanPipeline::FragPushConstantData createPushConstantData(const Pattern& pattern) const;
+    PushConstants createPushConstantData(const Pattern& pattern) const;
 
     VulkanRendererImpl* m_renderer;
 

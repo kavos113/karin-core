@@ -4,6 +4,7 @@
 #include "vulkan_graphics_device.h"
 #include "vulkan_pipeline.h"
 #include "vulkan_surface.h"
+#include "shaders/push_constants.h"
 
 #include <renderer_impl.h>
 #include <karin/common/geometry/point.h>
@@ -30,7 +31,7 @@ public:
     void addCommand(
         const std::vector<VulkanPipeline::Vertex>& vertices,
         std::vector<uint16_t>& indices,
-        const VulkanPipeline::FragPushConstantData& fragData
+        const PushConstants& fragData
     );
 
     // pixel coordinates -> normalized coordinates [-1, 1]
@@ -46,7 +47,7 @@ private:
     {
         uint32_t indexCount{};
         uint32_t indexOffset{};
-        VulkanPipeline::FragPushConstantData fragData;
+        PushConstants fragData;
     };
 
     void createCommandBuffers();
@@ -60,7 +61,7 @@ private:
 
     VulkanGraphicsDevice* m_device;
     std::unique_ptr<VulkanSurface> m_surface;
-    std::unique_ptr<VulkanPipeline> m_pipelineManager;
+    std::unique_ptr<VulkanPipeline> m_pipeline;
 
     std::vector<DrawCommand> m_drawCommands;
 

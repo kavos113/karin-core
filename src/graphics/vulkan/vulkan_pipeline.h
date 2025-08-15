@@ -4,13 +4,21 @@
 #include <vulkan/vulkan.h>
 #include <glm/glm.hpp>
 #include <array>
+#include <vector>
 
 namespace karin
 {
 class VulkanPipeline
 {
 public:
-    VulkanPipeline(VkDevice device, VkRenderPass renderPass);
+    VulkanPipeline(
+        VkDevice device,
+        VkRenderPass renderPass,
+        const unsigned char* vertShaderCode, unsigned int vertShaderSize,
+        const unsigned char* fragShaderCode, unsigned int fragShaderSize,
+        const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts,
+        const std::vector<VkPushConstantRange>& pushConstantRanges
+    );
     ~VulkanPipeline();
 
     enum class ShapeType : uint32_t
@@ -20,18 +28,10 @@ public:
         RoundedRectangle = 2,
     };
 
-    struct FragPushConstantData
-    {
-        glm::vec4 color;
-        glm::vec3 shapeParams;
-        ShapeType shapeType = ShapeType::Nothing;
-    };
-
-
     void cleanUp(VkDevice device);
-    void bindData(VkCommandBuffer commandBuffer, const FragPushConstantData& fragData) const;
 
-    VkPipeline graphicsPipeline() const;
+    VkPipeline pipeline() const;
+    VkPipelineLayout pipelineLayout() const;
 
     struct Vertex
     {
@@ -69,7 +69,14 @@ public:
     };
 
 private:
-    void createPipeline(VkDevice device, VkRenderPass renderPass);
+    void createPipeline(
+        VkDevice device,
+        VkRenderPass renderPass,
+        const unsigned char* vertShaderCode, unsigned int vertShaderSize,
+        const unsigned char* fragShaderCode, unsigned int fragShaderSize,
+        const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts,
+        const std::vector<VkPushConstantRange>& pushConstantRanges
+    );
 
     VkPipelineLayout m_pipelineLayout = VK_NULL_HANDLE;
     VkPipeline m_graphicsPipeline = VK_NULL_HANDLE;

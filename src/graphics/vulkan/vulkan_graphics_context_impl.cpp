@@ -93,7 +93,7 @@ void VulkanGraphicsContextImpl::fillEllipse(Point center, float radiusX, float r
     };
 
     auto fragData = createPushConstantData(pattern);
-    fragData.shapeType = VulkanPipeline::ShapeType::Ellipse;
+    fragData.shapeType = ShapeType::Ellipse;
 
     m_renderer->addCommand(vertices, indices, fragData);
 }
@@ -128,7 +128,7 @@ void VulkanGraphicsContextImpl::fillRoundedRect(Rectangle rect, float radiusX, f
     };
 
     auto fragData = createPushConstantData(pattern);
-    fragData.shapeType = VulkanPipeline::ShapeType::RoundedRectangle;
+    fragData.shapeType = ShapeType::RoundedRectangle;
     fragData.shapeParams = glm::vec3(radiusX / rect.size.width * 2.0f, radiusY / rect.size.height * 2.0f, 0.0f);
 
     m_renderer->addCommand(vertices, indices, fragData);
@@ -451,16 +451,16 @@ void VulkanGraphicsContextImpl::drawPath(const PathImpl& path, Pattern& pattern,
     m_renderer->addCommand(vertices, indices, createPushConstantData(pattern));
 }
 
-VulkanPipeline::FragPushConstantData VulkanGraphicsContextImpl::createPushConstantData(const Pattern& pattern) const
+PushConstants VulkanGraphicsContextImpl::createPushConstantData(const Pattern& pattern) const
 {
     return std::visit(
-        [this]<typename T0>(const T0& p) -> VulkanPipeline::FragPushConstantData
+        []<typename T0>(const T0& p) -> PushConstants
         {
             using T = std::decay_t<T0>;
             if constexpr (std::is_same_v<T, SolidColorPattern>)
             {
                 Color color = p.color();
-                return VulkanPipeline::FragPushConstantData{
+                return PushConstants{
                     .color = glm::vec4(color.r, color.g, color.b, color.a)
                 };
             }
