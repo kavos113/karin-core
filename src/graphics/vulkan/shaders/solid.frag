@@ -1,13 +1,8 @@
-# version 450
+#version 450
+#include "push_constants.h"
 
 layout(location = 0) out vec4 outColor;
 layout(location = 0) in vec2 uv;
-
-layout(push_constant) uniform PushConstants {
-    vec4 color;
-    vec3 shapeParams;
-    uint shapeType;
-} push;
 
 void main()
 {

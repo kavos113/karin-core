@@ -1,13 +1,16 @@
 #ifndef SRC_GRAPHICS_GRAPHICS_VULKAN_VK_RENDERER_IMPL_H
 #define SRC_GRAPHICS_GRAPHICS_VULKAN_VK_RENDERER_IMPL_H
 
+#include "vulkan_device_resources.h"
 #include "vulkan_graphics_device.h"
 #include "vulkan_pipeline.h"
 #include "vulkan_surface.h"
+#include "shaders/push_constants.h"
 
 #include <renderer_impl.h>
 #include <karin/common/geometry/point.h>
 #include <karin/common/geometry/rectangle.h>
+#include <karin/graphics/pattern.h>
 #include <karin/system/window.h>
 
 #include <vector>
@@ -30,7 +33,8 @@ public:
     void addCommand(
         const std::vector<VulkanPipeline::Vertex>& vertices,
         std::vector<uint16_t>& indices,
-        const VulkanPipeline::FragPushConstantData& fragData
+        const PushConstants& fragData,
+        const Pattern& pattern
     );
 
     // pixel coordinates -> normalized coordinates [-1, 1]
@@ -46,7 +50,10 @@ private:
     {
         uint32_t indexCount{};
         uint32_t indexOffset{};
-        VulkanPipeline::FragPushConstantData fragData;
+        PushConstants fragData;
+        VulkanPipeline* pipeline = nullptr;
+        VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
+        PatternType patternType = PatternType::SolidColor;
     };
 
     void createCommandBuffers();
@@ -55,12 +62,16 @@ private:
     void createIndexBuffer();
     void createRenderPass();
     void createFrameBuffers();
+    void createPipeline();
+    void createLinearGradientPipeline();
 
     void doResize();
 
     VulkanGraphicsDevice* m_device;
     std::unique_ptr<VulkanSurface> m_surface;
-    std::unique_ptr<VulkanPipeline> m_pipelineManager;
+    std::unique_ptr<VulkanPipeline> m_pipeline;
+    std::unique_ptr<VulkanPipeline> m_linearGradientPipeline;
+    std::unique_ptr<VulkanDeviceResources> m_deviceResources;
 
     std::vector<DrawCommand> m_drawCommands;
 

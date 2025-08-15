@@ -1,5 +1,9 @@
 #include "vulkan_renderer_impl.h"
 
+#include "shaders/push_constants.h"
+#include "shaders/shaders.h"
+
+#include <algorithm>
 #include <iostream>
 #include <cstring>
 
@@ -10,6 +14,7 @@ VulkanRendererImpl::VulkanRendererImpl(VulkanGraphicsDevice* device, Window::Nat
 {
     m_surface = std::make_unique<VulkanSurface>(m_device, nativeHandle);
     m_extent = m_surface->extent();
+    m_deviceResources = std::make_unique<VulkanDeviceResources>(m_device, MAX_FRAMES_IN_FLIGHT);
 
     createCommandBuffers();
     createSyncObjects();
@@ -19,7 +24,8 @@ VulkanRendererImpl::VulkanRendererImpl(VulkanGraphicsDevice* device, Window::Nat
     createVertexBuffer();
     createIndexBuffer();
 
-    m_pipelineManager = std::make_unique<VulkanPipeline>(m_device->device(), m_renderPass);
+    createPipeline();
+    createLinearGradientPipeline();
 }
 
 void VulkanRendererImpl::cleanUp()
@@ -59,7 +65,10 @@ void VulkanRendererImpl::cleanUp()
     vmaDestroyBuffer(m_device->allocator(), m_vertexBuffer, m_vertexAllocation);
     vmaDestroyBuffer(m_device->allocator(), m_indexBuffer, m_indexAllocation);
 
-    m_pipelineManager->cleanUp(m_device->device());
+    m_deviceResources->cleanup();
+
+    m_pipeline->cleanUp(m_device->device());
+    m_linearGradientPipeline->cleanUp(m_device->device());
     vkDestroyRenderPass(m_device->device(), m_renderPass, nullptr);
 
     m_surface->cleanUp();
@@ -114,20 +123,58 @@ bool VulkanRendererImpl::beginDraw()
 void VulkanRendererImpl::endDraw()
 {
     std::array vertexBuffers = {m_vertexBuffer};
-    std::array<VkDeviceSize, 1> offsets = {0};
+    std::array<VkDeviceSize, 1> offsets = {};
     vkCmdBindVertexBuffers(
         m_commandBuffers[m_currentFrame], 0, vertexBuffers.size(), vertexBuffers.data(), offsets.data()
     );
     vkCmdBindIndexBuffer(m_commandBuffers[m_currentFrame], m_indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 
+    std::ranges::sort(
+        m_drawCommands,
+        [](const DrawCommand& a, const DrawCommand& b)
+        {
+            return a.patternType < b.patternType;
+        }
+    );
+
+    PatternType lastPatternType = m_drawCommands.empty() ? PatternType::SolidColor : m_drawCommands.front().patternType;
     vkCmdBindPipeline(
-        m_commandBuffers[m_currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineManager->graphicsPipeline()
+        m_commandBuffers[m_currentFrame],
+        VK_PIPELINE_BIND_POINT_GRAPHICS,
+        lastPatternType == PatternType::LinearGradient
+            ? m_linearGradientPipeline->pipeline()
+            : m_pipeline->pipeline()
     );
 
     for (const auto& command : m_drawCommands)
     {
-        // std::cout << "Vertices: " << command.indexCount << ", Offset: " << command.indexOffset << std::endl;
-        m_pipelineManager->bindData(m_commandBuffers[m_currentFrame], command.fragData);
+        if (command.patternType != lastPatternType)
+        {
+            vkCmdBindPipeline(
+                m_commandBuffers[m_currentFrame],
+                VK_PIPELINE_BIND_POINT_GRAPHICS,
+                command.pipeline->pipeline()
+            );
+            lastPatternType = command.patternType;
+        }
+
+        if (command.patternType == PatternType::LinearGradient)
+        {
+            vkCmdBindDescriptorSets(
+                m_commandBuffers[m_currentFrame],
+                VK_PIPELINE_BIND_POINT_GRAPHICS,
+                m_linearGradientPipeline->pipelineLayout(),
+                0, 1, &command.descriptorSet, 0, nullptr
+            );
+        }
+
+        vkCmdPushConstants(
+            m_commandBuffers[m_currentFrame],
+            command.pipeline->pipelineLayout(),
+            VK_SHADER_STAGE_FRAGMENT_BIT,
+            0, sizeof(PushConstants), &command.fragData
+        );
+
         vkCmdDrawIndexed(m_commandBuffers[m_currentFrame], command.indexCount, 1, command.indexOffset, 0, 0);
     }
 
@@ -181,7 +228,8 @@ void VulkanRendererImpl::setClearColor(const Color& color)
 void VulkanRendererImpl::addCommand(
     const std::vector<VulkanPipeline::Vertex>& vertices,
     std::vector<uint16_t>& indices,
-    const VulkanPipeline::FragPushConstantData& fragData
+    const PushConstants& fragData,
+    const Pattern& pattern
 )
 {
     memcpy(m_vertexMapPoint, vertices.data(), vertices.size() * sizeof(VulkanPipeline::Vertex));
@@ -198,13 +246,39 @@ void VulkanRendererImpl::addCommand(
 
     m_vertexOffset += static_cast<uint16_t>(vertices.size());
 
-    m_drawCommands.push_back(
+    DrawCommand drawCommand = {
+        .indexCount = static_cast<uint32_t>(indices.size()),
+        .indexOffset = static_cast<uint32_t>(m_indexCount - indices.size()),
+        .fragData = fragData,
+    };
+
+    std::visit(
+        [this, &drawCommand]<typename T0>(const T0& p)
         {
-            .indexCount = static_cast<uint32_t>(indices.size()),
-            .indexOffset = static_cast<uint32_t>(m_indexCount - indices.size()),
-            .fragData = fragData
-        }
+            using T = std::decay_t<T0>;
+            if constexpr (std::is_same_v<T, LinearGradientPattern>)
+            {
+                drawCommand.pipeline = m_linearGradientPipeline.get();
+                auto descriptorSets = m_deviceResources->gradientPointLutDescriptorSet(p);
+                drawCommand.descriptorSet = descriptorSets[m_currentFrame];
+                drawCommand.patternType = PatternType::LinearGradient;
+            }
+            else if constexpr (std::is_same_v<T, SolidColorPattern>)
+            {
+                drawCommand.pipeline = m_pipeline.get();
+                drawCommand.patternType = PatternType::SolidColor;
+            }
+            else
+            {
+                throw std::runtime_error("Unsupported pattern type");
+            }
+        }, pattern
     );
+
+    VkExtent2D extent = m_surface->extent();
+    drawCommand.fragData.aspect = extent.width / static_cast<float>(extent.height);
+
+    m_drawCommands.push_back(drawCommand);
 }
 
 Rectangle VulkanRendererImpl::normalize(Rectangle rect) const
@@ -441,6 +515,43 @@ void VulkanRendererImpl::createFrameBuffers()
             throw std::runtime_error("failed to create framebuffer");
         }
     }
+}
+
+void VulkanRendererImpl::createPipeline()
+{
+    std::vector<VkDescriptorSetLayout> descriptorSetLayouts;
+    std::vector pushConstantRanges = {
+        VkPushConstantRange{
+            .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
+            .offset = 0,
+            .size = sizeof(PushConstants)
+        }
+    };
+    m_pipeline = std::make_unique<VulkanPipeline>(
+        m_device->device(), m_renderPass,
+        solid_vert_spv, solid_vert_spv_len,
+        solid_frag_spv, solid_frag_spv_len,
+        descriptorSetLayouts, pushConstantRanges
+    );
+}
+
+void VulkanRendererImpl::createLinearGradientPipeline()
+{
+    std::vector descriptorSetLayouts = {m_deviceResources->gradientPointLutDescriptorSetLayout()};
+    std::vector pushConstantRanges = {
+        VkPushConstantRange{
+            .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
+            .offset = 0,
+            .size = sizeof(PushConstants)
+        }
+    };
+
+    m_linearGradientPipeline = std::make_unique<VulkanPipeline>(
+        m_device->device(), m_renderPass,
+        linear_gradient_vert_spv, linear_gradient_vert_spv_len,
+        linear_gradient_frag_spv, linear_gradient_frag_spv_len,
+        descriptorSetLayouts, pushConstantRanges
+    );
 }
 
 void VulkanRendererImpl::doResize()

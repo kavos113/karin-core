@@ -26,6 +26,7 @@ elseif (VULKAN)
             vulkan/vulkan_graphics_context_impl.cpp
             vulkan/vulkan_pipeline.cpp
             vulkan/vulkan_tessellator.cpp
+            vulkan/vulkan_device_resources.cpp
             vulkan/vma_impl.cpp
     )
 endif ()
@@ -58,10 +59,11 @@ elseif (VULKAN)
 
     add_custom_command(
             OUTPUT vulkan/shaders/shaders.h
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             COMMAND ${BASH_EXECUTABLE} ${SCRIPTS_DIR}/shader.sh vulkan/shaders SRC_GRAPHICS_VULKAN_SHADERS_SHADER_H
             DEPENDS
-            vulkan/shaders/shader.vert
-            vulkan/shaders/shader.frag
+            vulkan/shaders/solid.vert
+            vulkan/shaders/solid.frag
             COMMENT "Compiling graphics shaders"
     )
     add_custom_target(

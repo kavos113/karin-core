@@ -29,6 +29,9 @@ public:
 
     void cleanUp() override;
 
+    VkCommandBuffer beginSingleTimeCommands() const;
+    void endSingleTimeCommands(VkCommandBuffer commandBuffer) const;
+
     VkInstance instance() const;
     VkPhysicalDevice physicalDevice() const;
     VkDevice device() const;

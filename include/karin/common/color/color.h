@@ -74,6 +74,16 @@ inline std::ostream& operator<<(std::ostream& os, const Color& color)
 {
     return os << "Color(" << color.r << ", " << color.g << ", " << color.b << ", " << color.a << ")";
 }
+
+inline Color lerp(const Color& a, const Color& b, float t)
+{
+    return {
+        a.r + (b.r - a.r) * t,
+        a.g + (b.g - a.g) * t,
+        a.b + (b.b - a.b) * t,
+        a.a + (b.a - a.a) * t
+    };
+}
 } // karin
 
 #endif //KARIN_COMMON_COLOR_COLOR_H

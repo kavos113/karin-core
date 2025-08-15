@@ -3,6 +3,7 @@
 #include "vulkan_utils.h"
 
 #include <algorithm>
+#include <array>
 #include <set>
 #include <memory>
 #include <stdexcept>
@@ -31,6 +32,7 @@ VulkanGraphicsDevice::~VulkanGraphicsDevice()
 void VulkanGraphicsDevice::cleanUp()
 {
     vkDestroyCommandPool(m_device, m_commandPool, nullptr);
+    vkDestroyDescriptorPool(m_device, m_descriptorPool, nullptr);
 
     vmaDestroyAllocator(m_allocator);
     vkDestroyDevice(m_device, nullptr);
@@ -39,6 +41,59 @@ void VulkanGraphicsDevice::cleanUp()
         m_debugManager->cleanup(m_instance);
     }
     vkDestroyInstance(m_instance, nullptr);
+}
+
+VkCommandBuffer VulkanGraphicsDevice::beginSingleTimeCommands() const
+{
+    VkCommandBufferAllocateInfo allocInfo = {
+        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+        .commandPool = m_commandPool,
+        .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+        .commandBufferCount = 1,
+    };
+
+    VkCommandBuffer commandBuffer;
+    if (vkAllocateCommandBuffers(m_device, &allocInfo, &commandBuffer) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to allocate command buffer");
+    }
+
+    VkCommandBufferBeginInfo beginInfo = {
+        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+        .flags = 0,
+        .pInheritanceInfo = nullptr,
+    };
+    if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to begin command buffer");
+    }
+
+    return commandBuffer;
+}
+
+void VulkanGraphicsDevice::endSingleTimeCommands(VkCommandBuffer commandBuffer) const
+{
+    if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to record command buffer");
+    }
+
+    VkSubmitInfo submitInfo = {
+        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+        .commandBufferCount = 1,
+        .pCommandBuffers = &commandBuffer,
+    };
+
+    if (vkQueueSubmit(m_graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to submit command buffer");
+    }
+    if (vkQueueWaitIdle(m_graphicsQueue) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to wait for queue idle");
+    }
+
+    vkFreeCommandBuffers(m_device, m_commandPool, 1, &commandBuffer);
 }
 
 void VulkanGraphicsDevice::createInstance()
@@ -133,6 +188,7 @@ void VulkanGraphicsDevice::initDevices(VkSurfaceKHR surface)
     createVmaAllocator();
 
     createCommandPool();
+    createDescriptorPool();
 }
 
 void VulkanGraphicsDevice::getQueueFamily(VkSurfaceKHR surface)
@@ -243,6 +299,28 @@ void VulkanGraphicsDevice::createCommandPool()
 
 void VulkanGraphicsDevice::createDescriptorPool()
 {
+    std::array sizes = {
+        VkDescriptorPoolSize{
+            .type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+            .descriptorCount = 2048,
+        },
+        VkDescriptorPoolSize{
+            .type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+            .descriptorCount = 2048,
+        }
+    };
+
+    VkDescriptorPoolCreateInfo poolInfo = {
+        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+        .maxSets = 4096,
+        .poolSizeCount = static_cast<uint32_t>(sizes.size()),
+        .pPoolSizes = sizes.data(),
+    };
+
+    if (vkCreateDescriptorPool(m_device, &poolInfo, nullptr, &m_descriptorPool) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create descriptor pool");
+    }
 }
 
 VkInstance VulkanGraphicsDevice::instance() const
