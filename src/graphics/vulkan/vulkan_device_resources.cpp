@@ -4,6 +4,7 @@
 
 #include <karin/common/color/color.h>
 #include <ranges>
+#include <cstring>
 
 namespace karin
 {
