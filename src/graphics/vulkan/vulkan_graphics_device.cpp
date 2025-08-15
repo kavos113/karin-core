@@ -3,6 +3,7 @@
 #include "vulkan_utils.h"
 
 #include <algorithm>
+#include <array>
 #include <set>
 #include <memory>
 #include <stdexcept>
@@ -243,6 +244,28 @@ void VulkanGraphicsDevice::createCommandPool()
 
 void VulkanGraphicsDevice::createDescriptorPool()
 {
+    std::array sizes = {
+        VkDescriptorPoolSize{
+            .type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+            .descriptorCount = 2048,
+        },
+        VkDescriptorPoolSize{
+            .type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+            .descriptorCount = 2048,
+        }
+    };
+
+    VkDescriptorPoolCreateInfo poolInfo = {
+        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+        .maxSets = 4096,
+        .poolSizeCount = static_cast<uint32_t>(sizes.size()),
+        .pPoolSizes = sizes.data(),
+    };
+
+    if (vkCreateDescriptorPool(m_device, &poolInfo, nullptr, &m_descriptorPool) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create descriptor pool");
+    }
 }
 
 VkInstance VulkanGraphicsDevice::instance() const
