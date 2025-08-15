@@ -27,10 +27,11 @@ void main() {
         discard;
     }
 
-    vec2 startPoint = push.color.xy;
-    vec2 endPoint = push.color.zw;
+    vec2 aspect = vec2(push.aspect, 1.0);
+    vec2 startPoint = push.color.xy * aspect;
+    vec2 endPoint = push.color.zw * aspect;
     vec2 direction = endPoint - startPoint;
-    vec2 pixel = pixelPos - startPoint;
+    vec2 pixel = pixelPos * aspect - startPoint;
 
     float lengthSq = dot(direction, direction);
 
@@ -41,6 +42,5 @@ void main() {
         t = dot(pixel, direction) / lengthSq;
     }
 
-    t = clamp(t, 0.0, 1.0);
     outColor = texture(gradientLut, t);
 }

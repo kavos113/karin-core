@@ -454,7 +454,7 @@ void VulkanGraphicsContextImpl::drawPath(const PathImpl& path, Pattern& pattern,
 PushConstants VulkanGraphicsContextImpl::createPushConstantData(const Pattern& pattern) const
 {
     return std::visit(
-        []<typename T0>(const T0& p) -> PushConstants
+        [this]<typename T0>(const T0& p) -> PushConstants
         {
             using T = std::decay_t<T0>;
             if constexpr (std::is_same_v<T, SolidColorPattern>)
@@ -466,8 +466,8 @@ PushConstants VulkanGraphicsContextImpl::createPushConstantData(const Pattern& p
             }
             else if constexpr (std::is_same_v<T, LinearGradientPattern>)
             {
-                Point start = p.start;
-                Point end = p.end;
+                Point start = m_renderer->normalize(p.start);
+                Point end = m_renderer->normalize(p.end);
                 return PushConstants{
                     .color = {start.x, start.y, end.x, end.y},
                 };

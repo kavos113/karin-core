@@ -62,6 +62,7 @@ std::vector<VkDescriptorSet> VulkanDeviceResources::gradientPointLutDescriptorSe
     std::memcpy(mappedData, data.data(), data.size());
     vmaUnmapMemory(m_device->allocator(), stagingBufferMemory);
 
+
     VmaAllocationCreateInfo gradientPointLutAllocationInfo = {
         .flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
         .usage = VMA_MEMORY_USAGE_AUTO,

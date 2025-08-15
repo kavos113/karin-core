@@ -19,6 +19,7 @@ struct PushConstants
     glm::vec4 color;
     glm::vec3 shapeParams;
     ShapeType shapeType = ShapeType::Nothing;
+    float aspect;
 };
 }
 
@@ -29,6 +30,7 @@ layout (push_constant) uniform PushConstants
     vec4 color;
     vec3 shapeParams;
     uint shapeType;
+    float aspect; // width / height
 } push;
 
 #endif

@@ -160,7 +160,6 @@ void VulkanRendererImpl::endDraw()
 
         if (command.patternType == PatternType::LinearGradient)
         {
-            std::cout << "Binding linear gradient pipeline" << std::endl;
             vkCmdBindDescriptorSets(
                 m_commandBuffers[m_currentFrame],
                 VK_PIPELINE_BIND_POINT_GRAPHICS,
@@ -275,6 +274,9 @@ void VulkanRendererImpl::addCommand(
             }
         }, pattern
     );
+
+    VkExtent2D extent = m_surface->extent();
+    drawCommand.fragData.aspect = extent.width / static_cast<float>(extent.height);
 
     m_drawCommands.push_back(drawCommand);
 }
