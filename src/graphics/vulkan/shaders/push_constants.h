@@ -4,6 +4,8 @@
 #ifdef __cplusplus
 #include <glm/glm.hpp>
 
+namespace karin
+{
 enum class ShapeType : uint32_t
 {
     Nothing = 0,
@@ -11,12 +13,13 @@ enum class ShapeType : uint32_t
     RoundedRectangle = 2,
 };
 
-struct PushConstants
+struct SolidPushConstants
 {
     glm::vec4 color;
     glm::vec3 shapeParams;
     ShapeType shapeType = ShapeType::Nothing;
 };
+}
 
 #else // glsl
 

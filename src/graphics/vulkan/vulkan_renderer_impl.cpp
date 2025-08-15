@@ -1,5 +1,6 @@
 #include "vulkan_renderer_impl.h"
 
+#include "shaders/linear_gradient_push_constants.h"
 #include "shaders/shaders.h"
 
 #include <iostream>
@@ -21,20 +22,8 @@ VulkanRendererImpl::VulkanRendererImpl(VulkanGraphicsDevice* device, Window::Nat
     createVertexBuffer();
     createIndexBuffer();
 
-    std::vector<VkDescriptorSetLayout> descriptorSetLayouts;
-    std::vector pushConstantRanges = {
-        VkPushConstantRange{
-            .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
-            .offset = 0,
-            .size = sizeof(PushConstants)
-        }
-    };
-    m_pipeline = std::make_unique<VulkanPipeline>(
-        m_device->device(), m_renderPass,
-        shader_vert_spv, shader_vert_spv_len,
-        shader_frag_spv, shader_frag_spv_len,
-        descriptorSetLayouts, pushConstantRanges
-    );
+    createPipeline();
+    createLinearGradientPipeline();
 }
 
 void VulkanRendererImpl::cleanUp()
@@ -144,7 +133,7 @@ void VulkanRendererImpl::endDraw()
         // std::cout << "Vertices: " << command.indexCount << ", Offset: " << command.indexOffset << std::endl;
         vkCmdPushConstants(
             m_commandBuffers[m_currentFrame], m_pipeline->pipelineLayout(),
-            VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushConstants), &command.fragData
+            VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SolidPushConstants), &command.fragData
         );
         vkCmdDrawIndexed(m_commandBuffers[m_currentFrame], command.indexCount, 1, command.indexOffset, 0, 0);
     }
@@ -199,7 +188,7 @@ void VulkanRendererImpl::setClearColor(const Color& color)
 void VulkanRendererImpl::addCommand(
     const std::vector<VulkanPipeline::Vertex>& vertices,
     std::vector<uint16_t>& indices,
-    const PushConstants& fragData
+    const SolidPushConstants& fragData
 )
 {
     memcpy(m_vertexMapPoint, vertices.data(), vertices.size() * sizeof(VulkanPipeline::Vertex));
@@ -459,6 +448,54 @@ void VulkanRendererImpl::createFrameBuffers()
             throw std::runtime_error("failed to create framebuffer");
         }
     }
+}
+
+void VulkanRendererImpl::createPipeline()
+{
+    std::vector<VkDescriptorSetLayout> descriptorSetLayouts;
+    std::vector pushConstantRanges = {
+        VkPushConstantRange{
+            .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
+            .offset = 0,
+            .size = sizeof(SolidPushConstants)
+        }
+    };
+    m_pipeline = std::make_unique<VulkanPipeline>(
+        m_device->device(), m_renderPass,
+        solid_vert_spv, solid_vert_spv_len,
+        solid_frag_spv, solid_frag_spv_len,
+        descriptorSetLayouts, pushConstantRanges
+    );
+}
+
+void VulkanRendererImpl::createLinearGradientPipeline()
+{
+    VkDescriptorSetLayoutBinding binding = {
+        .binding = 0,
+        .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+        .descriptorCount = 1,
+        .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
+        .pImmutableSamplers = nullptr
+    };
+    VkDescriptorSetLayoutCreateInfo layoutInfo = {
+        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+        .bindingCount = 1,
+        .pBindings = &binding
+    };
+    VkDescriptorSetLayout descriptorSetLayout;
+    if (vkCreateDescriptorSetLayout(m_device->device(), &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create descriptor set layout for linear gradient pipeline");
+    }
+
+    std::vector descriptorSetLayouts = {descriptorSetLayout};
+    std::vector pushConstantRanges = {
+        VkPushConstantRange{
+            .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
+            .offset = 0,
+            .size = sizeof(LinearGradientPushConstants)
+        }
+    };
 }
 
 void VulkanRendererImpl::doResize()

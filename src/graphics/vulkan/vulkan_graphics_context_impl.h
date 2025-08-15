@@ -40,7 +40,7 @@ public:
     void drawPath(const PathImpl& path, Pattern& pattern, const StrokeStyle& strokeStyle) override;
 
 private:
-    PushConstants createPushConstantData(const Pattern& pattern) const;
+    SolidPushConstants createPushConstantData(const Pattern& pattern) const;
 
     VulkanRendererImpl* m_renderer;
 

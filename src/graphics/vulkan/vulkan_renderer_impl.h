@@ -31,7 +31,7 @@ public:
     void addCommand(
         const std::vector<VulkanPipeline::Vertex>& vertices,
         std::vector<uint16_t>& indices,
-        const PushConstants& fragData
+        const SolidPushConstants& fragData
     );
 
     // pixel coordinates -> normalized coordinates [-1, 1]
@@ -47,7 +47,7 @@ private:
     {
         uint32_t indexCount{};
         uint32_t indexOffset{};
-        PushConstants fragData;
+        SolidPushConstants fragData;
     };
 
     void createCommandBuffers();
@@ -56,12 +56,15 @@ private:
     void createIndexBuffer();
     void createRenderPass();
     void createFrameBuffers();
+    void createPipeline();
+    void createLinearGradientPipeline();
 
     void doResize();
 
     VulkanGraphicsDevice* m_device;
     std::unique_ptr<VulkanSurface> m_surface;
     std::unique_ptr<VulkanPipeline> m_pipeline;
+    std::unique_ptr<VulkanPipeline> m_linearGradientPipeline;
 
     std::vector<DrawCommand> m_drawCommands;
 

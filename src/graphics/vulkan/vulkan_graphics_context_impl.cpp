@@ -451,16 +451,16 @@ void VulkanGraphicsContextImpl::drawPath(const PathImpl& path, Pattern& pattern,
     m_renderer->addCommand(vertices, indices, createPushConstantData(pattern));
 }
 
-PushConstants VulkanGraphicsContextImpl::createPushConstantData(const Pattern& pattern) const
+SolidPushConstants VulkanGraphicsContextImpl::createPushConstantData(const Pattern& pattern) const
 {
     return std::visit(
-        []<typename T0>(const T0& p) -> PushConstants
+        []<typename T0>(const T0& p) -> SolidPushConstants
         {
             using T = std::decay_t<T0>;
             if constexpr (std::is_same_v<T, SolidColorPattern>)
             {
                 Color color = p.color();
-                return PushConstants{
+                return SolidPushConstants{
                     .color = glm::vec4(color.r, color.g, color.b, color.a)
                 };
             }
