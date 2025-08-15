@@ -29,6 +29,7 @@ struct LinearGradientPattern
     ExtendMode extendMode = ExtendMode::CLAMP;
 
     size_t hash() const;
+    size_t pointsHash() const;
 };
 } // karin
 

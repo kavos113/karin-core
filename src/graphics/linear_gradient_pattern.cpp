@@ -25,4 +25,20 @@ size_t LinearGradientPattern::hash() const
 
     return seed;
 }
+
+size_t LinearGradientPattern::pointsHash() const
+{
+    size_t seed = 0;
+
+    for (const auto& point : gradientPoints)
+    {
+        hash_combine(seed, point.offset);
+        hash_combine(seed, point.color.r);
+        hash_combine(seed, point.color.g);
+        hash_combine(seed, point.color.b);
+        hash_combine(seed, point.color.a);
+    }
+
+    return seed;
+}
 }
