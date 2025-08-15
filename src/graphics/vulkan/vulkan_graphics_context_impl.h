@@ -7,10 +7,10 @@
 #include <graphics_context_impl.h>
 #include <path_impl.h>
 
-#include <karin/graphics/stroke_style.h>
-#include <../../../include/karin/graphics/pattern.h>
 #include <karin/common/geometry/point.h>
 #include <karin/common/geometry/rectangle.h>
+#include <karin/graphics/pattern.h>
+#include <karin/graphics/stroke_style.h>
 
 #include <glm/glm.hpp>
 

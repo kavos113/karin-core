@@ -4,7 +4,7 @@
 #include "path_impl.h"
 
 #include <karin/common/geometry/rectangle.h>
-#include <../../include/karin/graphics/pattern.h>
+#include <karin/graphics/pattern.h>
 #include <karin/graphics/stroke_style.h>
 
 namespace karin
