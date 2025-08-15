@@ -3,7 +3,7 @@
 #include "glm_geometry.h"
 #include "vulkan_renderer_impl.h"
 
-#include <karin/common/color/color.h>>
+#include <karin/common/color/color.h>
 #include <karin/common/geometry/point.h>
 #include <karin/common/geometry/rectangle.h>
 #include <karin/graphics/pattern.h>
