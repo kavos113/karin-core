@@ -10,7 +10,6 @@ layout(location = 1) in vec2 pixelPos;
 layout(set = 0, binding = 0) uniform sampler1D gradientLut;
 
 void main() {
-    // positive: outside, negative: inside
     float signedDistance = signedDistanceFromUv(uv, push.shapeType, push.shapeParams);
 
     if (signedDistance > 0.0) {

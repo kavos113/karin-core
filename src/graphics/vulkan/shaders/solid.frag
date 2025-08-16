@@ -7,7 +7,6 @@ layout(location = 0) in vec2 uv;
 
 void main()
 {
-    // positive: outside, negative: inside
     float signedDistance = signedDistanceFromUv(uv, push.shapeType, push.shapeParams);
 
     if (signedDistance > 0.0) {
