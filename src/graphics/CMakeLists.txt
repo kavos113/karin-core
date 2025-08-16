@@ -4,10 +4,7 @@ set(GRAPHICS_SOURCE
         graphics_context.cpp
         path.cpp
         path_impl.cpp
-        solid_color_pattern.cpp
-        linear_gradient_pattern.cpp
-        gradient_points.cpp
-        radial_gradient_pattern.cpp
+        pattern.cpp
         ${THIRD_PARTY_DIR}/stb_image/stb_image_impl.cpp
 )
 

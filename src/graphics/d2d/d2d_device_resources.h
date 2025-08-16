@@ -7,9 +7,6 @@
 
 #include <karin/graphics/stroke_style.h>
 #include <karin/graphics/pattern.h>
-#include <karin/graphics/solid_color_pattern.h>
-#include <karin/graphics/linear_gradient_pattern.h>
-#include <karin/graphics/radial_gradient_pattern.h>
 #include <karin/graphics/image.h>
 
 #include <path_impl.h>

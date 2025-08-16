@@ -7,7 +7,6 @@
 #include <karin/common/geometry/point.h>
 #include <karin/common/geometry/rectangle.h>
 #include <karin/graphics/pattern.h>
-#include <karin/graphics/solid_color_pattern.h>
 #include <karin/graphics/stroke_style.h>
 
 #include <cmath>
