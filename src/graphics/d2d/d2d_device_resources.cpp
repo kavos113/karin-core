@@ -2,12 +2,18 @@
 
 #include "d2d_geometry.h"
 #include "d2d_color.h"
+#include "d2d_consts.h"
+
+#include <wincodec.h>
 
 #include <cmath>
+#include <fstream>
 #include <numbers>
 #include <ranges>
 #include <stdexcept>
 #include <variant>
+#include <functional>
+#include <string_view>
 
 namespace karin
 {
@@ -313,6 +319,47 @@ Microsoft::WRL::ComPtr<ID2D1PathGeometry> D2DDeviceResources::pathGeometry(const
 
     m_pathGeometries[path.id()] = geometry;
     return geometry;
+}
+
+Image D2DDeviceResources::createImage(const std::vector<std::byte>& data, const Size& size)
+{
+    D2D1_BITMAP_PROPERTIES bitmapProperties = {
+        .pixelFormat = D2D1::PixelFormat(
+            DXGI_FORMAT_R8G8B8A8_UNORM,
+            D2D1_ALPHA_MODE_PREMULTIPLIED
+        ),
+        .dpiX = DEFAULT_DPI,
+        .dpiY = DEFAULT_DPI,
+    };
+
+    Microsoft::WRL::ComPtr<ID2D1Bitmap> bitmap;
+    HRESULT hr = m_deviceContext->CreateBitmap(
+        D2D1::SizeU(static_cast<UINT32>(size.width), static_cast<UINT32>(size.height)),
+        data.data(),
+        static_cast<UINT32>(size.width * 4),
+        &bitmapProperties,
+        &bitmap
+    );
+    if (FAILED(hr))
+    {
+        throw std::runtime_error("Failed to create D2D bitmap");
+    }
+
+    std::string_view dataView(reinterpret_cast<const char*>(data.data()), data.size());
+    size_t hash = std::hash<std::string_view>{}(dataView);
+
+    m_bitmaps[hash] = bitmap;
+    return Image(hash, size);
+}
+
+Microsoft::WRL::ComPtr<ID2D1Bitmap> D2DDeviceResources::bitmap(const Image& image)
+{
+    if (auto it = m_bitmaps.find(image.hash()); it != m_bitmaps.end())
+    {
+        return it->second;
+    }
+
+    throw std::runtime_error("Bitmap creation not implemented");
 }
 
 D2D1_CAP_STYLE D2DDeviceResources::toD2DCapStyle(StrokeStyle::CapStyle capStyle)

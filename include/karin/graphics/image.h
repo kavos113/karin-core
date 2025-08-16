@@ -7,14 +7,23 @@ namespace karin
 {
 class Image
 {
-private:
-    friend class Renderer;
-
+public:
     explicit Image(size_t hash, Size size)
         : m_hash(hash), m_size(size)
     {
     }
 
+    size_t hash() const
+    {
+        return m_hash;
+    }
+
+    Size size() const
+    {
+        return m_size;
+    }
+
+private:
     size_t m_hash;
     Size m_size;
 };

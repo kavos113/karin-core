@@ -41,11 +41,11 @@ public:
      *
      * @param command rendering command. use GraphicsContext to draw.
      */
-    void addDrawCommand(std::function<void(GraphicsContext&)> command);
+    void addDrawCommand(std::function<void(GraphicsContext &)> command);
     void update() const;
     void setClearColor(const Color& color);
 
-    Image createImage(const std::wstring& filePath);
+    Image createImage(const std::string& filePath);
     Image createImage(const std::vector<std::byte>& data, const Size& size);
 
     void cleanUp();
@@ -53,7 +53,7 @@ public:
 private:
     Window* m_window;
 
-    std::vector<std::function<void(GraphicsContext&)>> m_drawCommands;
+    std::vector<std::function<void(GraphicsContext &)>> m_drawCommands;
 
     std::unique_ptr<IRendererImpl> m_impl;
 };

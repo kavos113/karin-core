@@ -20,7 +20,6 @@ public:
     virtual void resize(Size size) = 0;
     virtual void setClearColor(const Color& color) = 0;
 
-    virtual Image createImage(const std::wstring& filePath) = 0;
     virtual Image createImage(const std::vector<std::byte>& data, const Size& size) = 0;
 };
 } // karin

@@ -10,6 +10,7 @@
 #include <karin/graphics/solid_color_pattern.h>
 #include <karin/graphics/linear_gradient_pattern.h>
 #include <karin/graphics/radial_gradient_pattern.h>
+#include <karin/graphics/image.h>
 
 #include <path_impl.h>
 
@@ -31,12 +32,15 @@ public:
 
     void clear();
 
+    Image createImage(const std::vector<std::byte>& data, const Size& size);
+
     Microsoft::WRL::ComPtr<ID2D1Brush> brush(Pattern& pattern);
     Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> solidColorBrush(const SolidColorPattern& pattern);
     Microsoft::WRL::ComPtr<ID2D1LinearGradientBrush> linearGradientBrush(const LinearGradientPattern& pattern);
     Microsoft::WRL::ComPtr<ID2D1RadialGradientBrush> radialGradientBrush(const RadialGradientPattern& pattern);
     Microsoft::WRL::ComPtr<ID2D1StrokeStyle> strokeStyle(const StrokeStyle& style);
     Microsoft::WRL::ComPtr<ID2D1PathGeometry> pathGeometry(const PathImpl& path);
+    Microsoft::WRL::ComPtr<ID2D1Bitmap> bitmap(const Image& image);
 
 private:
     static D2D1_CAP_STYLE toD2DCapStyle(StrokeStyle::CapStyle capStyle);
@@ -47,7 +51,8 @@ private:
     std::unordered_map<size_t, Microsoft::WRL::ComPtr<ID2D1LinearGradientBrush>> m_linearGradientBrushes;
     std::unordered_map<size_t, Microsoft::WRL::ComPtr<ID2D1RadialGradientBrush>> m_radialGradientBrushes;
     std::map<StrokeStyle, Microsoft::WRL::ComPtr<ID2D1StrokeStyle>> m_strokeStyles;
-    std::map<uint32_t, Microsoft::WRL::ComPtr<ID2D1PathGeometry>> m_pathGeometries;
+    std::unordered_map<uint32_t, Microsoft::WRL::ComPtr<ID2D1PathGeometry>> m_pathGeometries;
+    std::unordered_map<size_t, Microsoft::WRL::ComPtr<ID2D1Bitmap>> m_bitmaps;
 
     Microsoft::WRL::ComPtr<ID2D1DeviceContext> m_deviceContext;
     Microsoft::WRL::ComPtr<ID2D1Factory1> m_factory;
