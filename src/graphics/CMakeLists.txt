@@ -6,6 +6,7 @@ set(GRAPHICS_SOURCE
         path_impl.cpp
         solid_color_pattern.cpp
         linear_gradient_pattern.cpp
+        gradient_points.cpp
 )
 
 if (DIRECTX)

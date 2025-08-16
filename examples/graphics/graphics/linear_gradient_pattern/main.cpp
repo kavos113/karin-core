@@ -16,11 +16,13 @@ int main()
         .start = karin::Point(0, 0),
         .end = karin::Point(500, 500),
         .gradientPoints = {
-            {0.0f, karin::Color(karin::Color::Red)},
-            {0.5f, karin::Color(karin::Color::Green)},
-            {1.0f, karin::Color(karin::Color::Blue)}
+            .points = {
+                {0.0f, karin::Color(karin::Color::Red)},
+                {0.5f, karin::Color(karin::Color::Green)},
+                {1.0f, karin::Color(karin::Color::Blue)}
+            },
+            .extendMode = karin::GradientPoints::ExtendMode::CLAMP
         },
-        .extendMode = karin::LinearGradientPattern::ExtendMode::CLAMP
     };
 
     renderer.addDrawCommand(

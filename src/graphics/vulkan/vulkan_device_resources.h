@@ -4,6 +4,7 @@
 #include "vulkan_graphics_device.h"
 
 #include <karin/graphics/linear_gradient_pattern.h>
+#include <karin/graphics/gradient_points.h>
 
 #include <vulkan/vulkan.h>
 #include <unordered_map>
@@ -47,7 +48,7 @@ private:
     void createSamplers();
     void createGradientPointLutDescriptorSetLayout();
     std::array<uint8_t, LUT_WIDTH * 4> generateGradientPointLut(
-        const std::vector<LinearGradientPattern::GradientPoint>& gradientPoints
+        const std::vector<GradientPoints::GradientPoint>& gradientPoints
     ) const;
 
     std::unordered_map<size_t, LutTexture> m_gradientPointLutMap;
