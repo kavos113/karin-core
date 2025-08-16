@@ -1,4 +1,4 @@
-#include <karin/graphics/radical_gradient_pattern.h>
+#include <karin/graphics/radial_gradient_pattern.h>
 #include <utils/hash.h>
 
 size_t karin::RadicalGradientPattern::hash() const

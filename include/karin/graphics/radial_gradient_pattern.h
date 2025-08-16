@@ -7,7 +7,7 @@
 
 namespace karin
 {
-struct RadicalGradientPattern
+struct RadialGradientPattern
 {
     Point center;
     Point offset;

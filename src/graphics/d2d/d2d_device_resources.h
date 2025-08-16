@@ -9,6 +9,7 @@
 #include <karin/graphics/pattern.h>
 #include <karin/graphics/solid_color_pattern.h>
 #include <karin/graphics/linear_gradient_pattern.h>
+#include <karin/graphics/radial_gradient_pattern.h>
 
 #include <path_impl.h>
 
@@ -33,6 +34,7 @@ public:
     Microsoft::WRL::ComPtr<ID2D1Brush> brush(Pattern& pattern);
     Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> solidColorBrush(const SolidColorPattern& pattern);
     Microsoft::WRL::ComPtr<ID2D1LinearGradientBrush> linearGradientBrush(const LinearGradientPattern& pattern);
+    Microsoft::WRL::ComPtr<ID2D1RadialGradientBrush> radialGradientBrush(const RadialGradientPattern& pattern);
     Microsoft::WRL::ComPtr<ID2D1StrokeStyle> strokeStyle(const StrokeStyle& style);
     Microsoft::WRL::ComPtr<ID2D1PathGeometry> pathGeometry(const PathImpl& path);
 
