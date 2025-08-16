@@ -111,7 +111,6 @@ jobs:
           fi
           ./vcpkg/bootstrap-vcpkg.sh
           ./vcpkg/vcpkg install --triplet ${{ matrix.triplet }}
-          ls -la
         shell: bash
 
       - name: Configure CMake
