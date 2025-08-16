@@ -288,6 +288,10 @@ void VulkanRendererImpl::addCommand(
     m_drawCommands.push_back(drawCommand);
 }
 
+Image VulkanRendererImpl::createImage(const std::vector<std::byte>& data, uint32_t width, uint32_t height)
+{
+}
+
 Rectangle VulkanRendererImpl::normalize(Rectangle rect) const
 {
     VkExtent2D extent = m_surface->extent();

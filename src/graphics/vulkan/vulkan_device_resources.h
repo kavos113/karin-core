@@ -4,6 +4,7 @@
 #include "vulkan_graphics_device.h"
 
 #include <karin/graphics/gradient_points.h>
+#include <karin/graphics/image.h>
 
 #include <vulkan/vulkan.h>
 #include <unordered_map>
@@ -23,18 +24,22 @@ public:
         }
 
         createSamplers();
-        createGradientPointLutDescriptorSetLayout();
+        createDescriptorSetLayout();
     }
 
     ~VulkanDeviceResources() = default;
 
+    Image createImage(const std::vector<std::byte>& data, uint32_t width, uint32_t height);
+
     void cleanup();
 
     std::vector<VkDescriptorSet> gradientPointLutDescriptorSet(const GradientPoints& points);
-    VkDescriptorSetLayout gradientPointLutDescriptorSetLayout() const;
+
+    std::vector<VkDescriptorSet> textureDescriptorSet(Image image);
+    VkDescriptorSetLayout textureDescriptorSetLayout() const;
 
 private:
-    struct LutTexture
+    struct Texture
     {
         VkImage image = VK_NULL_HANDLE;
         VmaAllocation allocation = VK_NULL_HANDLE;
@@ -45,12 +50,13 @@ private:
     static constexpr size_t LUT_WIDTH = 256;
 
     void createSamplers();
-    void createGradientPointLutDescriptorSetLayout();
+    void createDescriptorSetLayout();
     std::array<uint8_t, LUT_WIDTH * 4> generateGradientPointLut(
         const std::vector<GradientPoints::GradientPoint>& gradientPoints
     ) const;
 
-    std::unordered_map<size_t, LutTexture> m_gradientPointLutMap;
+    std::unordered_map<size_t, Texture> m_gradientPointLutMap;
+    std::unordered_map<size_t, Texture> m_textureMap;
 
     VulkanGraphicsDevice* m_device = nullptr;
 
@@ -58,7 +64,7 @@ private:
     VkSampler m_repeatSampler = VK_NULL_HANDLE;
     VkSampler m_mirrorSampler = VK_NULL_HANDLE;
     uint32_t m_maxFramesInFlight = 2;
-    VkDescriptorSetLayout m_gradientPointLutDescriptorSetLayout = VK_NULL_HANDLE;
+    VkDescriptorSetLayout m_textureDescriptorSetLayout = VK_NULL_HANDLE;
 };
 } // karin
 

@@ -37,6 +37,8 @@ public:
         const Pattern& pattern
     );
 
+    Image createImage(const std::vector<std::byte>& data, uint32_t width, uint32_t height) override;
+
     // pixel coordinates -> normalized coordinates [-1, 1]
     Rectangle normalize(Rectangle rect) const;
     Point normalize(Point point) const;
