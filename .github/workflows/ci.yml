@@ -104,7 +104,11 @@ jobs:
       - name: Setup Vcpkg
         if: steps.cache-vcpkg.outputs.cache-hit != 'true'
         run: |
-          git clone https://github.com/microsoft/vcpkg.git 
+          if [ -d "./vcpkg" ]; then
+            echo "Vcpkg directory already exists, skipping clone."
+          else
+            git clone https://github.com/microsoft/vcpkg.git
+          fi
 
       - name: Install with vcpkg
         run: |
