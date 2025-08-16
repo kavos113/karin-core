@@ -66,6 +66,9 @@ elseif (VULKAN)
             DEPENDS
             vulkan/shaders/solid.vert
             vulkan/shaders/solid.frag
+            vulkan/shaders/gradient.vert
+            vulkan/shaders/linear_gradient.frag
+            vulkan/shaders/radial_gradient.frag
             COMMENT "Compiling graphics shaders"
     )
     add_custom_target(
