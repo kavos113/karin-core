@@ -46,7 +46,7 @@ public:
     void setClearColor(const Color& color);
 
     Image createImage(const std::string& filePath);
-    Image createImage(const std::vector<std::byte>& data, const Size& size);
+    Image createImage(const std::vector<std::byte>& data, uint32_t width, uint32_t height);
 
     void cleanUp();
 

@@ -321,7 +321,7 @@ Microsoft::WRL::ComPtr<ID2D1PathGeometry> D2DDeviceResources::pathGeometry(const
     return geometry;
 }
 
-Image D2DDeviceResources::createImage(const std::vector<std::byte>& data, const Size& size)
+Image D2DDeviceResources::createImage(const std::vector<std::byte>& data, uint32_t width, uint32_t height)
 {
     D2D1_BITMAP_PROPERTIES bitmapProperties = {
         .pixelFormat = D2D1::PixelFormat(
@@ -334,9 +334,9 @@ Image D2DDeviceResources::createImage(const std::vector<std::byte>& data, const 
 
     Microsoft::WRL::ComPtr<ID2D1Bitmap> bitmap;
     HRESULT hr = m_deviceContext->CreateBitmap(
-        D2D1::SizeU(static_cast<UINT32>(size.width), static_cast<UINT32>(size.height)),
+        D2D1::SizeU(width, height),
         data.data(),
-        static_cast<UINT32>(size.width * 4),
+        width * 4,
         &bitmapProperties,
         &bitmap
     );
@@ -349,7 +349,7 @@ Image D2DDeviceResources::createImage(const std::vector<std::byte>& data, const 
     size_t hash = std::hash<std::string_view>{}(dataView);
 
     m_bitmaps[hash] = bitmap;
-    return Image(hash, size);
+    return Image(hash, width, height);
 }
 
 Microsoft::WRL::ComPtr<ID2D1Bitmap> D2DDeviceResources::bitmap(const Image& image)

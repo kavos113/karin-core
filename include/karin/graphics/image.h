@@ -7,8 +7,8 @@ namespace karin
 class Image
 {
 public:
-    explicit Image(size_t hash, Size size)
-        : m_hash(hash), m_size(size)
+    explicit Image(size_t hash, uint32_t width, uint32_t height)
+        : m_hash(hash), m_width(width), m_height(height)
     {
     }
 
@@ -17,14 +17,20 @@ public:
         return m_hash;
     }
 
-    Size size() const
+    uint32_t width() const
     {
-        return m_size;
+        return m_width;
+    }
+
+    uint32_t height() const
+    {
+        return m_height;
     }
 
 private:
     size_t m_hash;
-    Size m_size;
+    uint32_t m_width = 0;
+    uint32_t m_height = 0;
 };
 } // karin
 

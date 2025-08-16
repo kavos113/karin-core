@@ -18,7 +18,7 @@ Renderer::Renderer(GraphicsDevice* device, Window* window)
 
 Renderer::~Renderer() = default;
 
-void Renderer::addDrawCommand(std::function<void(GraphicsContext&)> command)
+void Renderer::addDrawCommand(std::function < void(GraphicsContext &) > command)
 {
     m_drawCommands.push_back(std::move(command));
 }
@@ -77,11 +77,11 @@ Image Renderer::createImage(const std::string& filePath)
     std::vector<std::byte> imageData(width * height * 4);
     memcpy(imageData.data(), data, imageData.size());
 
-    return m_impl->createImage(imageData, Size{static_cast<float>(width), static_cast<float>(height)});
+    return m_impl->createImage(imageData, static_cast<uint32_t>(width), static_cast<uint32_t>(height));
 }
 
-Image Renderer::createImage(const std::vector<std::byte>& data, const Size& size)
+Image Renderer::createImage(const std::vector<std::byte>& data, uint32_t width, uint32_t height)
 {
-    return m_impl->createImage(data, size);
+    return m_impl->createImage(data, width, height);
 }
 } // karin

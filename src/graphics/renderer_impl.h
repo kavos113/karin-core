@@ -22,7 +22,7 @@ public:
     virtual void resize(Size size) = 0;
     virtual void setClearColor(const Color& color) = 0;
 
-    virtual Image createImage(const std::vector<std::byte>& data, const Size& size) = 0;
+    virtual Image createImage(const std::vector<std::byte>& data, uint32_t width, uint32_t height) = 0;
 };
 } // karin
 

@@ -32,7 +32,7 @@ public:
 
     void clear();
 
-    Image createImage(const std::vector<std::byte>& data, const Size& size);
+    Image createImage(const std::vector<std::byte>& data, uint32_t width, uint32_t height);
 
     Microsoft::WRL::ComPtr<ID2D1Brush> brush(Pattern& pattern);
     Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> solidColorBrush(const SolidColorPattern& pattern);
