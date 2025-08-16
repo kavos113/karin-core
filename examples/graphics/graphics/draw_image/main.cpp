@@ -11,24 +11,14 @@ int main()
 
     std::unique_ptr<karin::GraphicsDevice> device = karin::GraphicsDevice::create();
     karin::Renderer renderer(device.get(), &window);
+    renderer.setClearColor(karin::Color(karin::Color::Green));
 
-    karin::Pattern pattern = karin::LinearGradientPattern{
-        .start = karin::Point(0, 0),
-        .end = karin::Point(500, 500),
-        .gradientPoints = {
-            .points = {
-                {0.0f, karin::Color(karin::Color::Red)},
-                {0.5f, karin::Color(karin::Color::Green)},
-                {1.0f, karin::Color(karin::Color::Blue)}
-            },
-            .extendMode = karin::ExtendMode::CLAMP
-        },
-    };
+    karin::Image image = renderer.createImage("square.png");
 
     renderer.addDrawCommand(
-        [&pattern](karin::GraphicsContext& gc)
+        [&image](karin::GraphicsContext& gc)
         {
-            gc.fillRect(karin::Rectangle(50, 50, 600, 400), pattern);
+            gc.drawImage(image, karin::Rectangle(100, 100, 200, 200), karin::Rectangle(100, 100, 100, 100));
         }
     );
 

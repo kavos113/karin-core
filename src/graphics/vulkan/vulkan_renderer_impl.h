@@ -37,6 +37,8 @@ public:
         const Pattern& pattern
     );
 
+    Image createImage(const std::vector<std::byte>& data, uint32_t width, uint32_t height) override;
+
     // pixel coordinates -> normalized coordinates [-1, 1]
     Rectangle normalize(Rectangle rect) const;
     Point normalize(Point point) const;
@@ -65,6 +67,7 @@ private:
     void createPipeline();
     void createLinearGradientPipeline();
     void createRadialGradientPipeline();
+    void createImagePipeline();
 
     void doResize();
 
@@ -73,6 +76,7 @@ private:
     std::unique_ptr<VulkanPipeline> m_pipeline;
     std::unique_ptr<VulkanPipeline> m_linearGradientPipeline;
     std::unique_ptr<VulkanPipeline> m_radialGradientPipeline;
+    std::unique_ptr<VulkanPipeline> m_imagePipeline;
     std::unique_ptr<VulkanDeviceResources> m_deviceResources;
 
     std::vector<DrawCommand> m_drawCommands;

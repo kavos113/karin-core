@@ -7,7 +7,6 @@
 #include <karin/common/geometry/point.h>
 #include <karin/common/geometry/rectangle.h>
 #include <karin/graphics/pattern.h>
-#include <karin/graphics/solid_color_pattern.h>
 #include <karin/graphics/stroke_style.h>
 
 #include <cmath>
@@ -451,6 +450,62 @@ void VulkanGraphicsContextImpl::drawPath(const PathImpl& path, Pattern& pattern,
     m_renderer->addCommand(vertices, indices, createPushConstantData(pattern), pattern);
 }
 
+void VulkanGraphicsContextImpl::drawImage(Image image, Rectangle destRect, Rectangle srcRect, float opacity)
+{
+    Rectangle normalizedRect = m_renderer->normalize(destRect);
+
+    Rectangle normalizedSrcRect{
+        srcRect.pos.x / image.width(),
+        srcRect.pos.y / image.height(),
+        srcRect.size.width / image.width(),
+        srcRect.size.height / image.height()
+    };
+
+    if (srcRect == Rectangle())
+    {
+        normalizedSrcRect = Rectangle(0.0f, 0.0f, 1.0f, 1.0f);
+    }
+
+    std::vector<VulkanPipeline::Vertex> vertices = {
+        {
+            .pos = {normalizedRect.pos.x, normalizedRect.pos.y},
+            .uv = {normalizedSrcRect.pos.x, normalizedSrcRect.pos.y},
+        },
+        {
+            .pos = {normalizedRect.pos.x + normalizedRect.size.width, normalizedRect.pos.y},
+            .uv = {normalizedSrcRect.pos.x + normalizedSrcRect.size.width, normalizedSrcRect.pos.y},
+        },
+        {
+            .pos = {
+                normalizedRect.pos.x + normalizedRect.size.width, normalizedRect.pos.y + normalizedRect.size.height
+            },
+            .uv = {
+                normalizedSrcRect.pos.x + normalizedSrcRect.size.width,
+                normalizedSrcRect.pos.y + normalizedSrcRect.size.height
+            },
+        },
+        {
+            .pos = {normalizedRect.pos.x, normalizedRect.pos.y + normalizedRect.size.height},
+            .uv = {normalizedSrcRect.pos.x, normalizedSrcRect.pos.y + normalizedSrcRect.size.height},
+        }
+    };
+
+    std::vector<uint16_t> indices = {
+        0, 1, 2, 2, 3, 0
+    };
+
+    ImagePattern imagePattern{
+        .image = std::move(image),
+        .offset = Point(0.0f, 0.0f),
+        .scaleX = normalizedSrcRect.size.width,
+        .scaleY = normalizedSrcRect.size.height
+    };
+    PushConstants pushConstants = createPushConstantData(imagePattern);
+    pushConstants.global.x = 0.0f;
+
+    m_renderer->addCommand(vertices, indices, pushConstants, imagePattern);
+}
+
 PushConstants VulkanGraphicsContextImpl::createPushConstantData(const Pattern& pattern) const
 {
     return std::visit(
@@ -480,6 +535,16 @@ PushConstants VulkanGraphicsContextImpl::createPushConstantData(const Pattern& p
                 return PushConstants{
                     .color = {center.x, center.y, offset.x, offset.y},
                     .global = {radius.x, radius.y},
+                };
+            }
+            else if constexpr (std::is_same_v<T, ImagePattern>)
+            {
+                glm::vec2 offset = m_renderer->normalizeVec(glm::vec2(p.offset.x, p.offset.y));
+                float scaleX = p.scaleX;
+                float scaleY = p.scaleY;
+                return PushConstants{
+                    .color = {offset.x, offset.y, scaleX, scaleY},
+                    .global = {1.0f, 0.0f}
                 };
             }
             else

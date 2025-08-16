@@ -6,6 +6,7 @@
 #include <karin/common/geometry/rectangle.h>
 #include <karin/graphics/pattern.h>
 #include <karin/graphics/stroke_style.h>
+#include <karin/graphics/image.h>
 
 namespace karin
 {
@@ -28,6 +29,8 @@ public:
         Rectangle rect, float radiusX, float radiusY, Pattern& pattern, const StrokeStyle& strokeStyle
     ) = 0;
     virtual void drawPath(const PathImpl& path, Pattern& pattern, const StrokeStyle& strokeStyle) = 0;
+
+    virtual void drawImage(Image image, Rectangle destRect, Rectangle srcRect = Rectangle(), float opacity = 1.0f) = 0;
 };
 } // karin
 

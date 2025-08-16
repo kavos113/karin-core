@@ -9,10 +9,10 @@
 
 #include "graphics_context.h"
 #include "graphics_device.h"
+#include "image.h"
 
 namespace karin
 {
-
 class IRendererImpl;
 
 /**
@@ -23,7 +23,7 @@ class IRendererImpl;
 class Renderer
 {
 public:
-    Renderer(GraphicsDevice *device, Window *window);
+    Renderer(GraphicsDevice* device, Window* window);
     ~Renderer();
 
     /**
@@ -41,20 +41,22 @@ public:
      *
      * @param command rendering command. use GraphicsContext to draw.
      */
-    void addDrawCommand(std::function<void(GraphicsContext&)> command);
+    void addDrawCommand(std::function<void(GraphicsContext &)> command);
     void update() const;
     void setClearColor(const Color& color);
+
+    Image createImage(const std::string& filePath);
+    Image createImage(const std::vector<std::byte>& data, uint32_t width, uint32_t height);
 
     void cleanUp();
 
 private:
     Window* m_window;
 
-    std::vector<std::function<void(GraphicsContext&)>> m_drawCommands;
+    std::vector<std::function<void(GraphicsContext &)>> m_drawCommands;
 
     std::unique_ptr<IRendererImpl> m_impl;
 };
-
 } // karin
 
 #endif //KARIN_GRAPHICS_GRAPHICS_RENDERER_H

@@ -7,9 +7,7 @@
 
 #include <karin/graphics/stroke_style.h>
 #include <karin/graphics/pattern.h>
-#include <karin/graphics/solid_color_pattern.h>
-#include <karin/graphics/linear_gradient_pattern.h>
-#include <karin/graphics/radial_gradient_pattern.h>
+#include <karin/graphics/image.h>
 
 #include <path_impl.h>
 
@@ -31,23 +29,30 @@ public:
 
     void clear();
 
+    Image createImage(const std::vector<std::byte>& data, uint32_t width, uint32_t height);
+
     Microsoft::WRL::ComPtr<ID2D1Brush> brush(Pattern& pattern);
     Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> solidColorBrush(const SolidColorPattern& pattern);
     Microsoft::WRL::ComPtr<ID2D1LinearGradientBrush> linearGradientBrush(const LinearGradientPattern& pattern);
     Microsoft::WRL::ComPtr<ID2D1RadialGradientBrush> radialGradientBrush(const RadialGradientPattern& pattern);
+    Microsoft::WRL::ComPtr<ID2D1BitmapBrush> bitmapBrush(const ImagePattern& pattern);
     Microsoft::WRL::ComPtr<ID2D1StrokeStyle> strokeStyle(const StrokeStyle& style);
     Microsoft::WRL::ComPtr<ID2D1PathGeometry> pathGeometry(const PathImpl& path);
+    Microsoft::WRL::ComPtr<ID2D1Bitmap> bitmap(const Image& image);
 
 private:
     static D2D1_CAP_STYLE toD2DCapStyle(StrokeStyle::CapStyle capStyle);
     static D2D1_LINE_JOIN toD2DJoinStyle(StrokeStyle::JoinStyle joinStyle);
+    static D2D1_EXTEND_MODE toD2DExtendMode(ExtendMode extendMode);
 
     // TODO: create before starting draw calls?
     std::unordered_map<size_t, Microsoft::WRL::ComPtr<ID2D1SolidColorBrush>> m_solidColorBrushes;
     std::unordered_map<size_t, Microsoft::WRL::ComPtr<ID2D1LinearGradientBrush>> m_linearGradientBrushes;
     std::unordered_map<size_t, Microsoft::WRL::ComPtr<ID2D1RadialGradientBrush>> m_radialGradientBrushes;
+    std::unordered_map<size_t, Microsoft::WRL::ComPtr<ID2D1BitmapBrush>> m_bitmapBrushes;
     std::map<StrokeStyle, Microsoft::WRL::ComPtr<ID2D1StrokeStyle>> m_strokeStyles;
-    std::map<uint32_t, Microsoft::WRL::ComPtr<ID2D1PathGeometry>> m_pathGeometries;
+    std::unordered_map<uint32_t, Microsoft::WRL::ComPtr<ID2D1PathGeometry>> m_pathGeometries;
+    std::unordered_map<size_t, Microsoft::WRL::ComPtr<ID2D1Bitmap>> m_bitmaps;
 
     Microsoft::WRL::ComPtr<ID2D1DeviceContext> m_deviceContext;
     Microsoft::WRL::ComPtr<ID2D1Factory1> m_factory;

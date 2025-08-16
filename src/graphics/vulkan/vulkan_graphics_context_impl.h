@@ -39,6 +39,8 @@ public:
     ) override;
     void drawPath(const PathImpl& path, Pattern& pattern, const StrokeStyle& strokeStyle) override;
 
+    void drawImage(Image image, Rectangle destRect, Rectangle srcRect, float opacity) override;
+
 private:
     PushConstants createPushConstantData(const Pattern& pattern) const;
 

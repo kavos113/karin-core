@@ -3,6 +3,12 @@
 #include "platform.h"
 #include "renderer_impl.h"
 
+#include <stb_image/stb_image.h>
+
+#include <vector>
+#include <stdexcept>
+#include <cstring>
+
 namespace karin
 {
 Renderer::Renderer(GraphicsDevice* device, Window* window)
@@ -58,5 +64,25 @@ void Renderer::cleanUp()
 void Renderer::setClearColor(const Color& color)
 {
     m_impl->setClearColor(color);
+}
+
+Image Renderer::createImage(const std::string& filePath)
+{
+    int width, height, channels;
+    stbi_uc* data = stbi_load(filePath.c_str(), &width, &height, &channels, 4);
+    if (!data)
+    {
+        throw std::runtime_error("Failed to load image: " + filePath);
+    }
+
+    std::vector<std::byte> imageData(width * height * 4);
+    memcpy(imageData.data(), data, imageData.size());
+
+    return m_impl->createImage(imageData, static_cast<uint32_t>(width), static_cast<uint32_t>(height));
+}
+
+Image Renderer::createImage(const std::vector<std::byte>& data, uint32_t width, uint32_t height)
+{
+    return m_impl->createImage(data, width, height);
 }
 } // karin

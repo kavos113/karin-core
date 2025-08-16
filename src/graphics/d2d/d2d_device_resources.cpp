@@ -2,12 +2,18 @@
 
 #include "d2d_geometry.h"
 #include "d2d_color.h"
+#include "d2d_consts.h"
+
+#include <wincodec.h>
 
 #include <cmath>
+#include <fstream>
 #include <numbers>
 #include <ranges>
 #include <stdexcept>
 #include <variant>
+#include <functional>
+#include <string_view>
 
 namespace karin
 {
@@ -36,6 +42,10 @@ Microsoft::WRL::ComPtr<ID2D1Brush> D2DDeviceResources::brush(Pattern& pattern)
             else if constexpr (std::is_same_v<T, RadialGradientPattern>)
             {
                 return radialGradientBrush(p);
+            }
+            else if constexpr (std::is_same_v<T, ImagePattern>)
+            {
+                return bitmapBrush(p);
             }
             else
             {
@@ -85,15 +95,15 @@ Microsoft::WRL::ComPtr<ID2D1LinearGradientBrush> D2DDeviceResources::linearGradi
     D2D1_EXTEND_MODE extendMode = D2D1_EXTEND_MODE_CLAMP;
     switch (pattern.gradientPoints.extendMode)
     {
-    case GradientPoints::ExtendMode::CLAMP:
+    case ExtendMode::CLAMP:
         extendMode = D2D1_EXTEND_MODE_CLAMP;
         break;
 
-    case GradientPoints::ExtendMode::REPEAT:
+    case ExtendMode::REPEAT:
         extendMode = D2D1_EXTEND_MODE_WRAP;
         break;
 
-    case GradientPoints::ExtendMode::MIRROR:
+    case ExtendMode::MIRROR:
         extendMode = D2D1_EXTEND_MODE_MIRROR;
         break;
     }
@@ -146,19 +156,7 @@ Microsoft::WRL::ComPtr<ID2D1RadialGradientBrush> D2DDeviceResources::radialGradi
         stops.push_back(D2D1::GradientStop(offset, toD2DColor(color)));
     }
 
-    D2D1_EXTEND_MODE extendMode = D2D1_EXTEND_MODE_CLAMP;
-    switch (pattern.gradientPoints.extendMode)
-    {
-    case GradientPoints::ExtendMode::CLAMP:
-        extendMode = D2D1_EXTEND_MODE_CLAMP;
-        break;
-    case GradientPoints::ExtendMode::REPEAT:
-        extendMode = D2D1_EXTEND_MODE_WRAP;
-        break;
-    case GradientPoints::ExtendMode::MIRROR:
-        extendMode = D2D1_EXTEND_MODE_MIRROR;
-        break;
-    }
+    D2D1_EXTEND_MODE extendMode = toD2DExtendMode(pattern.gradientPoints.extendMode);
 
     HRESULT hr = m_deviceContext->CreateGradientStopCollection(
         stops.data(),
@@ -191,6 +189,47 @@ Microsoft::WRL::ComPtr<ID2D1RadialGradientBrush> D2DDeviceResources::radialGradi
     }
 
     m_radialGradientBrushes[pattern.hash()] = brush;
+    return brush;
+}
+
+Microsoft::WRL::ComPtr<ID2D1BitmapBrush> D2DDeviceResources::bitmapBrush(const ImagePattern& pattern)
+{
+    if (auto it = m_bitmapBrushes.find(pattern.hash()); it != m_bitmapBrushes.end())
+    {
+        return it->second;
+    }
+
+    Microsoft::WRL::ComPtr<ID2D1Bitmap> image = bitmap(pattern.image);
+    if (!image)
+    {
+        throw std::runtime_error("Failed to create bitmap for image pattern");
+    }
+
+    D2D1_BITMAP_BRUSH_PROPERTIES properties = {
+        .extendModeX = toD2DExtendMode(pattern.extendModeX),
+        .extendModeY = toD2DExtendMode(pattern.extendModeY),
+        .interpolationMode = D2D1_BITMAP_INTERPOLATION_MODE_LINEAR
+    };
+
+    D2D1_BRUSH_PROPERTIES brushProperties = {
+        .opacity = 1.0f,
+        .transform = D2D1::Matrix3x2F::Translation(pattern.offset.x, pattern.offset.y) *
+        D2D1::Matrix3x2F::Scale(pattern.scaleX, pattern.scaleY)
+    };
+
+    Microsoft::WRL::ComPtr<ID2D1BitmapBrush> brush;
+    HRESULT hr = m_deviceContext->CreateBitmapBrush(
+        image.Get(),
+        properties,
+        brushProperties,
+        &brush
+    );
+    if (FAILED(hr))
+    {
+        throw std::runtime_error("Failed to create bitmap brush");
+    }
+
+    m_bitmapBrushes[pattern.hash()] = brush;
     return brush;
 }
 
@@ -315,6 +354,47 @@ Microsoft::WRL::ComPtr<ID2D1PathGeometry> D2DDeviceResources::pathGeometry(const
     return geometry;
 }
 
+Image D2DDeviceResources::createImage(const std::vector<std::byte>& data, uint32_t width, uint32_t height)
+{
+    D2D1_BITMAP_PROPERTIES bitmapProperties = {
+        .pixelFormat = D2D1::PixelFormat(
+            DXGI_FORMAT_R8G8B8A8_UNORM,
+            D2D1_ALPHA_MODE_PREMULTIPLIED
+        ),
+        .dpiX = DEFAULT_DPI,
+        .dpiY = DEFAULT_DPI,
+    };
+
+    Microsoft::WRL::ComPtr<ID2D1Bitmap> bitmap;
+    HRESULT hr = m_deviceContext->CreateBitmap(
+        D2D1::SizeU(width, height),
+        data.data(),
+        width * 4,
+        &bitmapProperties,
+        &bitmap
+    );
+    if (FAILED(hr))
+    {
+        throw std::runtime_error("Failed to create D2D bitmap");
+    }
+
+    std::string_view dataView(reinterpret_cast<const char*>(data.data()), data.size());
+    size_t hash = std::hash<std::string_view>{}(dataView);
+
+    m_bitmaps[hash] = bitmap;
+    return Image(hash, width, height);
+}
+
+Microsoft::WRL::ComPtr<ID2D1Bitmap> D2DDeviceResources::bitmap(const Image& image)
+{
+    if (auto it = m_bitmaps.find(image.hash()); it != m_bitmaps.end())
+    {
+        return it->second;
+    }
+
+    throw std::runtime_error("Bitmap creation not implemented");
+}
+
 D2D1_CAP_STYLE D2DDeviceResources::toD2DCapStyle(StrokeStyle::CapStyle capStyle)
 {
     switch (capStyle)
@@ -344,6 +424,21 @@ D2D1_LINE_JOIN D2DDeviceResources::toD2DJoinStyle(StrokeStyle::JoinStyle joinSty
         return D2D1_LINE_JOIN_BEVEL;
     default:
         throw std::invalid_argument("Unknown join style");
+    }
+}
+
+D2D1_EXTEND_MODE D2DDeviceResources::toD2DExtendMode(ExtendMode extendMode)
+{
+    switch (extendMode)
+    {
+    case ExtendMode::CLAMP:
+        return D2D1_EXTEND_MODE_CLAMP;
+    case ExtendMode::REPEAT:
+        return D2D1_EXTEND_MODE_WRAP;
+    case ExtendMode::MIRROR:
+        return D2D1_EXTEND_MODE_MIRROR;
+    default:
+        throw std::invalid_argument("Unknown extend mode");
     }
 }
 } // karin

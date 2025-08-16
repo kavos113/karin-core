@@ -18,6 +18,7 @@ struct PushConstants
     // color(vec4) in solid color
     // start(vec2) + end(vec2) in linear gradient
     // center(vec2) + offset(vec2) in radial gradient
+    // offset(vec2) + scale(vec2) in image
     glm::vec4 color;
 
     glm::vec3 shapeParams;
@@ -25,6 +26,7 @@ struct PushConstants
 
     // aspect(float) in linear gradient (width / height)
     // radiusX(float) + radiusY(float) in radial gradient
+    // uvMode(float) in image (0 = uv(image), 1 = window coordinates(image pattern))
     glm::vec2 global;
 };
 }

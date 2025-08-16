@@ -197,4 +197,29 @@ void D2DGraphicsContextImpl::drawPath(const PathImpl& path, Pattern& pattern, co
         m_deviceResources->strokeStyle(strokeStyle).Get()
     );
 }
+
+void D2DGraphicsContextImpl::drawImage(Image image, Rectangle destRect, Rectangle srcRect, float opacity)
+{
+    auto bitmap = m_deviceResources->bitmap(image);
+    if (!bitmap)
+    {
+        throw std::runtime_error("Failed to get bitmap for image");
+    }
+
+    D2D1_RECT_F* srcRectPtr = nullptr;
+    if (srcRect != Rectangle())
+    {
+        static D2D1_RECT_F d2dSrcRect;
+        d2dSrcRect = toD2DRect(srcRect);
+        srcRectPtr = &d2dSrcRect;
+    }
+
+    m_deviceContext->DrawBitmap(
+        bitmap.Get(),
+        toD2DRect(destRect),
+        opacity,
+        D2D1_BITMAP_INTERPOLATION_MODE_LINEAR,
+        srcRectPtr
+    );
+}
 } // karin
