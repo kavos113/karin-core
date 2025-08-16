@@ -10,5 +10,6 @@
 #include "graphics/solid_color_pattern.h"
 #include "graphics/linear_gradient_pattern.h"
 #include "graphics/radial_gradient_pattern.h"
+#include "graphics/image.h"
 
 #endif //KARIN_GRAPHICS_H

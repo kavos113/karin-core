@@ -5,6 +5,8 @@
 #include <karin/common/color/color.h>
 #include <karin/graphics/image.h>
 
+#include <vector>
+
 namespace karin
 {
 class IRendererImpl
