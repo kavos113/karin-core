@@ -26,15 +26,15 @@ void VulkanDeviceResources::cleanup()
 }
 
 std::vector<VkDescriptorSet> VulkanDeviceResources::gradientPointLutDescriptorSet(
-    const LinearGradientPattern& pattern
+    const GradientPoints& points
 )
 {
-    if (auto it = m_gradientPointLutMap.find(pattern.pointsHash()); it != m_gradientPointLutMap.end())
+    if (auto it = m_gradientPointLutMap.find(points.hash()); it != m_gradientPointLutMap.end())
     {
         return it->second.descriptorSets;
     }
 
-    auto data = generateGradientPointLut(pattern.gradientPoints);
+    auto data = generateGradientPointLut(points.points);
 
     VkBuffer stagingBuffer;
     VmaAllocation stagingBufferMemory;
@@ -200,15 +200,15 @@ std::vector<VkDescriptorSet> VulkanDeviceResources::gradientPointLutDescriptorSe
     }
 
     VkSampler gradientPointLutSampler;
-    switch (pattern.extendMode)
+    switch (points.extendMode)
     {
-    case LinearGradientPattern::ExtendMode::CLAMP:
+    case GradientPoints::ExtendMode::CLAMP:
         gradientPointLutSampler = m_clampSampler;
         break;
-    case LinearGradientPattern::ExtendMode::REPEAT:
+    case GradientPoints::ExtendMode::REPEAT:
         gradientPointLutSampler = m_repeatSampler;
         break;
-    case LinearGradientPattern::ExtendMode::MIRROR:
+    case GradientPoints::ExtendMode::MIRROR:
         gradientPointLutSampler = m_mirrorSampler;
         break;
     default:
@@ -241,13 +241,13 @@ std::vector<VkDescriptorSet> VulkanDeviceResources::gradientPointLutDescriptorSe
         .imageView = gradientPointLutImageView,
         .descriptorSets = std::move(descriptorSets),
     };
-    m_gradientPointLutMap[pattern.pointsHash()] = lutTexture;
+    m_gradientPointLutMap[points.hash()] = lutTexture;
 
     return lutTexture.descriptorSets;
 }
 
 std::array<uint8_t, VulkanDeviceResources::LUT_WIDTH * 4> VulkanDeviceResources::generateGradientPointLut(
-    const std::vector<LinearGradientPattern::GradientPoint>& gradientPoints
+    const std::vector<GradientPoints::GradientPoint>& gradientPoints
 ) const
 {
     std::array<uint8_t, LUT_WIDTH * 4> lut = {};

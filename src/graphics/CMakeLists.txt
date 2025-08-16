@@ -6,6 +6,8 @@ set(GRAPHICS_SOURCE
         path_impl.cpp
         solid_color_pattern.cpp
         linear_gradient_pattern.cpp
+        gradient_points.cpp
+        radial_gradient_pattern.cpp
 )
 
 if (DIRECTX)
@@ -64,6 +66,9 @@ elseif (VULKAN)
             DEPENDS
             vulkan/shaders/solid.vert
             vulkan/shaders/solid.frag
+            vulkan/shaders/gradient.vert
+            vulkan/shaders/linear_gradient.frag
+            vulkan/shaders/radial_gradient.frag
             COMMENT "Compiling graphics shaders"
     )
     add_custom_target(

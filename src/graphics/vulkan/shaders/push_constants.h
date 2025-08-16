@@ -15,11 +15,17 @@ enum class ShapeType : uint32_t
 
 struct PushConstants
 {
+    // color(vec4) in solid color
     // start(vec2) + end(vec2) in linear gradient
+    // center(vec2) + offset(vec2) in radial gradient
     glm::vec4 color;
+
     glm::vec3 shapeParams;
     ShapeType shapeType = ShapeType::Nothing;
-    float aspect;
+
+    // aspect(float) in linear gradient (width / height)
+    // radiusX(float) + radiusY(float) in radial gradient
+    glm::vec2 global;
 };
 }
 
@@ -30,7 +36,7 @@ layout (push_constant) uniform PushConstants
     vec4 color;
     vec3 shapeParams;
     uint shapeType;
-    float aspect; // width / height
+    vec2 global;
 } push;
 
 #endif
