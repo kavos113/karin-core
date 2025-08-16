@@ -472,6 +472,18 @@ PushConstants VulkanGraphicsContextImpl::createPushConstantData(const Pattern& p
                     .color = {start.x, start.y, end.x, end.y},
                 };
             }
+            else if constexpr (std::is_same_v<T, RadialGradientPattern>)
+            {
+                Point center = m_renderer->normalize(p.center);
+                Point offset = m_renderer->normalize(p.offset);
+                Point radius = m_renderer->normalize(
+                    Point(p.radiusX, p.radiusY)
+                );
+                return PushConstants{
+                    .color = {center.x, center.y, offset.x, offset.y},
+                    .global = {radius.x, radius.y},
+                };
+            }
             else
             {
                 throw std::runtime_error("Unsupported pattern type");

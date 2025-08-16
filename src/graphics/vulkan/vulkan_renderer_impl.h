@@ -64,6 +64,7 @@ private:
     void createFrameBuffers();
     void createPipeline();
     void createLinearGradientPipeline();
+    void createRadialGradientPipeline();
 
     void doResize();
 
@@ -71,6 +72,7 @@ private:
     std::unique_ptr<VulkanSurface> m_surface;
     std::unique_ptr<VulkanPipeline> m_pipeline;
     std::unique_ptr<VulkanPipeline> m_linearGradientPipeline;
+    std::unique_ptr<VulkanPipeline> m_radialGradientPipeline;
     std::unique_ptr<VulkanDeviceResources> m_deviceResources;
 
     std::vector<DrawCommand> m_drawCommands;

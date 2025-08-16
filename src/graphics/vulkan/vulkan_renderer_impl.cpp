@@ -26,6 +26,7 @@ VulkanRendererImpl::VulkanRendererImpl(VulkanGraphicsDevice* device, Window::Nat
 
     createPipeline();
     createLinearGradientPipeline();
+    createRadialGradientPipeline();
 }
 
 void VulkanRendererImpl::cleanUp()
@@ -69,6 +70,7 @@ void VulkanRendererImpl::cleanUp()
 
     m_pipeline->cleanUp(m_device->device());
     m_linearGradientPipeline->cleanUp(m_device->device());
+    m_radialGradientPipeline->cleanUp(m_device->device());
     vkDestroyRenderPass(m_device->device(), m_renderPass, nullptr);
 
     m_surface->cleanUp();
@@ -141,9 +143,7 @@ void VulkanRendererImpl::endDraw()
     vkCmdBindPipeline(
         m_commandBuffers[m_currentFrame],
         VK_PIPELINE_BIND_POINT_GRAPHICS,
-        lastPatternType == PatternType::LinearGradient
-            ? m_linearGradientPipeline->pipeline()
-            : m_pipeline->pipeline()
+        m_drawCommands.empty() ? m_pipeline->pipeline() : m_drawCommands.front().pipeline->pipeline()
     );
 
     for (const auto& command : m_drawCommands)
@@ -158,12 +158,12 @@ void VulkanRendererImpl::endDraw()
             lastPatternType = command.patternType;
         }
 
-        if (command.patternType == PatternType::LinearGradient)
+        if (command.patternType != PatternType::SolidColor)
         {
             vkCmdBindDescriptorSets(
                 m_commandBuffers[m_currentFrame],
                 VK_PIPELINE_BIND_POINT_GRAPHICS,
-                m_linearGradientPipeline->pipelineLayout(),
+                command.pipeline->pipelineLayout(),
                 0, 1, &command.descriptorSet, 0, nullptr
             );
         }
@@ -259,9 +259,16 @@ void VulkanRendererImpl::addCommand(
             if constexpr (std::is_same_v<T, LinearGradientPattern>)
             {
                 drawCommand.pipeline = m_linearGradientPipeline.get();
-                auto descriptorSets = m_deviceResources->gradientPointLutDescriptorSet(p);
+                auto descriptorSets = m_deviceResources->gradientPointLutDescriptorSet(p.gradientPoints);
                 drawCommand.descriptorSet = descriptorSets[m_currentFrame];
                 drawCommand.patternType = PatternType::LinearGradient;
+            }
+            else if constexpr (std::is_same_v<T, RadialGradientPattern>)
+            {
+                drawCommand.pipeline = m_radialGradientPipeline.get();
+                auto descriptorSets = m_deviceResources->gradientPointLutDescriptorSet(p.gradientPoints);
+                drawCommand.descriptorSet = descriptorSets[m_currentFrame];
+                drawCommand.patternType = PatternType::RadialGradient;
             }
             else if constexpr (std::is_same_v<T, SolidColorPattern>)
             {
@@ -550,6 +557,25 @@ void VulkanRendererImpl::createLinearGradientPipeline()
         m_device->device(), m_renderPass,
         gradient_vert_spv, gradient_vert_spv_len,
         linear_gradient_frag_spv, linear_gradient_frag_spv_len,
+        descriptorSetLayouts, pushConstantRanges
+    );
+}
+
+void VulkanRendererImpl::createRadialGradientPipeline()
+{
+    std::vector descriptorSetLayouts = {m_deviceResources->gradientPointLutDescriptorSetLayout()};
+    std::vector pushConstantRanges = {
+        VkPushConstantRange{
+            .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
+            .offset = 0,
+            .size = sizeof(PushConstants)
+        }
+    };
+
+    m_radialGradientPipeline = std::make_unique<VulkanPipeline>(
+        m_device->device(), m_renderPass,
+        gradient_vert_spv, gradient_vert_spv_len,
+        radial_gradient_frag_spv, radial_gradient_frag_spv_len,
         descriptorSetLayouts, pushConstantRanges
     );
 }

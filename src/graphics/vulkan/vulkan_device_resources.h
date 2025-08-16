@@ -3,7 +3,6 @@
 
 #include "vulkan_graphics_device.h"
 
-#include <karin/graphics/linear_gradient_pattern.h>
 #include <karin/graphics/gradient_points.h>
 
 #include <vulkan/vulkan.h>
@@ -31,7 +30,7 @@ public:
 
     void cleanup();
 
-    std::vector<VkDescriptorSet> gradientPointLutDescriptorSet(const LinearGradientPattern& pattern);
+    std::vector<VkDescriptorSet> gradientPointLutDescriptorSet(const GradientPoints& points);
     VkDescriptorSetLayout gradientPointLutDescriptorSetLayout() const;
 
 private:

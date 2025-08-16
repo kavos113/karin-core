@@ -26,15 +26,15 @@ void VulkanDeviceResources::cleanup()
 }
 
 std::vector<VkDescriptorSet> VulkanDeviceResources::gradientPointLutDescriptorSet(
-    const LinearGradientPattern& pattern
+    const GradientPoints& points
 )
 {
-    if (auto it = m_gradientPointLutMap.find(pattern.gradientPoints.hash()); it != m_gradientPointLutMap.end())
+    if (auto it = m_gradientPointLutMap.find(points.hash()); it != m_gradientPointLutMap.end())
     {
         return it->second.descriptorSets;
     }
 
-    auto data = generateGradientPointLut(pattern.gradientPoints.points);
+    auto data = generateGradientPointLut(points.points);
 
     VkBuffer stagingBuffer;
     VmaAllocation stagingBufferMemory;
@@ -200,7 +200,7 @@ std::vector<VkDescriptorSet> VulkanDeviceResources::gradientPointLutDescriptorSe
     }
 
     VkSampler gradientPointLutSampler;
-    switch (pattern.gradientPoints.extendMode)
+    switch (points.extendMode)
     {
     case GradientPoints::ExtendMode::CLAMP:
         gradientPointLutSampler = m_clampSampler;
@@ -241,7 +241,7 @@ std::vector<VkDescriptorSet> VulkanDeviceResources::gradientPointLutDescriptorSe
         .imageView = gradientPointLutImageView,
         .descriptorSets = std::move(descriptorSets),
     };
-    m_gradientPointLutMap[pattern.gradientPoints.hash()] = lutTexture;
+    m_gradientPointLutMap[points.hash()] = lutTexture;
 
     return lutTexture.descriptorSets;
 }
