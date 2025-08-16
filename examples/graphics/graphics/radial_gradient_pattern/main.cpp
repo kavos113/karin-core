@@ -14,7 +14,7 @@ int main()
 
     karin::Pattern pattern = karin::RadialGradientPattern{
         .center = karin::Point(400, 300),
-        .offset = karin::Point(0, 0),
+        .offset = karin::Point(100, 100),
         .radiusX = 300.0f,
         .radiusY = 200.0f,
         .gradientPoints = {
