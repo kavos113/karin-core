@@ -205,13 +205,13 @@ std::vector<VkDescriptorSet> VulkanDeviceResources::gradientPointLutDescriptorSe
     VkSampler gradientPointLutSampler;
     switch (points.extendMode)
     {
-    case GradientPoints::ExtendMode::CLAMP:
+    case ExtendMode::CLAMP:
         gradientPointLutSampler = m_clampSampler;
         break;
-    case GradientPoints::ExtendMode::REPEAT:
+    case ExtendMode::REPEAT:
         gradientPointLutSampler = m_repeatSampler;
         break;
-    case GradientPoints::ExtendMode::MIRROR:
+    case ExtendMode::MIRROR:
         gradientPointLutSampler = m_mirrorSampler;
         break;
     default:

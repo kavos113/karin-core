@@ -3,8 +3,8 @@
 
 #include "vulkan_graphics_device.h"
 
-#include <karin/graphics/gradient_points.h>
 #include <karin/graphics/image.h>
+#include <karin/graphics/pattern.h>
 
 #include <vulkan/vulkan.h>
 #include <unordered_map>

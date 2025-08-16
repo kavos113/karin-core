@@ -27,6 +27,7 @@ VulkanRendererImpl::VulkanRendererImpl(VulkanGraphicsDevice* device, Window::Nat
     createPipeline();
     createLinearGradientPipeline();
     createRadialGradientPipeline();
+    createImagePipeline();
 }
 
 void VulkanRendererImpl::cleanUp()
@@ -71,6 +72,7 @@ void VulkanRendererImpl::cleanUp()
     m_pipeline->cleanUp(m_device->device());
     m_linearGradientPipeline->cleanUp(m_device->device());
     m_radialGradientPipeline->cleanUp(m_device->device());
+    m_imagePipeline->cleanUp(m_device->device());
     vkDestroyRenderPass(m_device->device(), m_renderPass, nullptr);
 
     m_surface->cleanUp();
@@ -273,6 +275,13 @@ void VulkanRendererImpl::addCommand(
                 drawCommand.descriptorSet = descriptorSets[m_currentFrame];
                 drawCommand.patternType = PatternType::RadialGradient;
             }
+            else if constexpr (std::is_same_v<T, ImagePattern>)
+            {
+                drawCommand.pipeline = m_imagePipeline.get();
+                auto descriptorSets = m_deviceResources->textureDescriptorSet(p.image);
+                drawCommand.descriptorSet = descriptorSets[m_currentFrame];
+                drawCommand.patternType = PatternType::Image;
+            }
             else if constexpr (std::is_same_v<T, SolidColorPattern>)
             {
                 drawCommand.pipeline = m_pipeline.get();
@@ -290,6 +299,7 @@ void VulkanRendererImpl::addCommand(
 
 Image VulkanRendererImpl::createImage(const std::vector<std::byte>& data, uint32_t width, uint32_t height)
 {
+    return m_deviceResources->createImage(data, width, height);
 }
 
 Rectangle VulkanRendererImpl::normalize(Rectangle rect) const
@@ -548,7 +558,7 @@ void VulkanRendererImpl::createPipeline()
 
 void VulkanRendererImpl::createLinearGradientPipeline()
 {
-    std::vector descriptorSetLayouts = {m_deviceResources->gradientPointLutDescriptorSetLayout()};
+    std::vector descriptorSetLayouts = {m_deviceResources->textureDescriptorSetLayout()};
     std::vector pushConstantRanges = {
         VkPushConstantRange{
             .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
@@ -567,7 +577,7 @@ void VulkanRendererImpl::createLinearGradientPipeline()
 
 void VulkanRendererImpl::createRadialGradientPipeline()
 {
-    std::vector descriptorSetLayouts = {m_deviceResources->gradientPointLutDescriptorSetLayout()};
+    std::vector descriptorSetLayouts = {m_deviceResources->textureDescriptorSetLayout()};
     std::vector pushConstantRanges = {
         VkPushConstantRange{
             .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
@@ -580,6 +590,25 @@ void VulkanRendererImpl::createRadialGradientPipeline()
         m_device->device(), m_renderPass,
         gradient_vert_spv, gradient_vert_spv_len,
         radial_gradient_frag_spv, radial_gradient_frag_spv_len,
+        descriptorSetLayouts, pushConstantRanges
+    );
+}
+
+void VulkanRendererImpl::createImagePipeline()
+{
+    std::vector descriptorSetLayouts = {m_deviceResources->textureDescriptorSetLayout()};
+    std::vector pushConstantRanges = {
+        VkPushConstantRange{
+            .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
+            .offset = 0,
+            .size = sizeof(PushConstants)
+        }
+    };
+
+    m_imagePipeline = std::make_unique<VulkanPipeline>(
+        m_device->device(), m_renderPass,
+        gradient_vert_spv, gradient_vert_spv_len,
+        image_frag_spv, image_frag_spv_len,
         descriptorSetLayouts, pushConstantRanges
     );
 }

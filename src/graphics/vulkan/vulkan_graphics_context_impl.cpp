@@ -450,6 +450,46 @@ void VulkanGraphicsContextImpl::drawPath(const PathImpl& path, Pattern& pattern,
     m_renderer->addCommand(vertices, indices, createPushConstantData(pattern), pattern);
 }
 
+void VulkanGraphicsContextImpl::drawImage(Image image, Rectangle destRect, Rectangle srcRect, float opacity)
+{
+    Rectangle normalizedRect = m_renderer->normalize(destRect);
+
+    std::vector<VulkanPipeline::Vertex> vertices = {
+        {
+            .pos = {normalizedRect.pos.x, normalizedRect.pos.y},
+            .uv = {-1.0f, -1.0f},
+        },
+        {
+            .pos = {normalizedRect.pos.x + normalizedRect.size.width, normalizedRect.pos.y},
+            .uv = {1.0f, -1.0f},
+        },
+        {
+            .pos = {
+                normalizedRect.pos.x + normalizedRect.size.width, normalizedRect.pos.y + normalizedRect.size.height
+            },
+            .uv = {1.0f, 1.0f},
+        },
+        {
+            .pos = {normalizedRect.pos.x, normalizedRect.pos.y + normalizedRect.size.height},
+            .uv = {-1.0f, 1.0f},
+        }
+    };
+
+    std::vector<uint16_t> indices = {
+        0, 1, 2, 2, 3, 0
+    };
+
+    Point normalizedOffset = m_renderer->normalize(srcRect.pos);
+    float scaleX = srcRect.size.width / static_cast<float>(image.width());
+    float scaleY = srcRect.size.height / static_cast<float>(image.height());
+
+    ImagePattern pattern(image, normalizedOffset, scaleX, scaleY);
+    PushConstants pushConstants = createPushConstantData(pattern);
+    pushConstants.global.x = 0.0f;
+
+    m_renderer->addCommand(vertices, indices, pushConstants, pattern);
+}
+
 PushConstants VulkanGraphicsContextImpl::createPushConstantData(const Pattern& pattern) const
 {
     return std::visit(
@@ -479,6 +519,16 @@ PushConstants VulkanGraphicsContextImpl::createPushConstantData(const Pattern& p
                 return PushConstants{
                     .color = {center.x, center.y, offset.x, offset.y},
                     .global = {radius.x, radius.y},
+                };
+            }
+            else if constexpr (std::is_same_v<T, ImagePattern>)
+            {
+                Point offset = m_renderer->normalize(p.offset);
+                float scaleX = p.scaleX;
+                float scaleY = p.scaleY;
+                return PushConstants{
+                    .color = {offset.x, offset.y, scaleX, scaleY},
+                    .global = {1.0f, 0.0f}
                 };
             }
             else

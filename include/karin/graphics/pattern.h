@@ -87,7 +87,8 @@ enum class PatternType
 {
     SolidColor,
     LinearGradient,
-    RadialGradient
+    RadialGradient,
+    Image
 };
 }
 
