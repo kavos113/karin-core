@@ -8,6 +8,7 @@ set(GRAPHICS_SOURCE
         linear_gradient_pattern.cpp
         gradient_points.cpp
         radial_gradient_pattern.cpp
+        ${THIRD_PARTY_DIR}/stb_image/stb_image_impl.cpp
 )
 
 if (DIRECTX)
@@ -37,6 +38,7 @@ add_library(karin_graphics STATIC ${GRAPHICS_SOURCE})
 target_include_directories(karin_graphics PUBLIC ${INCLUDE_DIR})
 target_include_directories(karin_graphics PRIVATE ${COMMON_DIR})
 target_include_directories(karin_graphics PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(karin_graphics PRIVATE ${THIRD_PARTY_DIR})
 
 if (DIRECTX)
     target_link_libraries(karin_graphics PRIVATE d2d1.lib)
