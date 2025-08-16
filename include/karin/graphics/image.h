@@ -1,6 +1,7 @@
 #ifndef KARIN_GRAPHICS_IMAGE_H
 #define KARIN_GRAPHICS_IMAGE_H
 #include <karin/common/geometry/size.h>
+#include <cstdint>
 
 namespace karin
 {
