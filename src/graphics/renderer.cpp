@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <stdexcept>
+#include <cstring>
 
 namespace karin
 {
@@ -18,7 +19,7 @@ Renderer::Renderer(GraphicsDevice* device, Window* window)
 
 Renderer::~Renderer() = default;
 
-void Renderer::addDrawCommand(std::function < void(GraphicsContext &) > command)
+void Renderer::addDrawCommand(std::function<void(GraphicsContext&)> command)
 {
     m_drawCommands.push_back(std::move(command));
 }
