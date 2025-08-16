@@ -14,7 +14,6 @@ struct LinearGradientPattern
     GradientPoints gradientPoints;
 
     size_t hash() const;
-    size_t pointsHash() const;
 };
 } // karin
 

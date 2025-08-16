@@ -16,13 +16,4 @@ size_t LinearGradientPattern::hash() const
 
     return seed;
 }
-
-size_t LinearGradientPattern::pointsHash() const
-{
-    size_t seed = 0;
-
-    hash_combine(seed, gradientPoints.hash());
-
-    return seed;
-}
 }

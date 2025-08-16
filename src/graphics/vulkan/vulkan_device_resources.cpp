@@ -29,7 +29,7 @@ std::vector<VkDescriptorSet> VulkanDeviceResources::gradientPointLutDescriptorSe
     const LinearGradientPattern& pattern
 )
 {
-    if (auto it = m_gradientPointLutMap.find(pattern.pointsHash()); it != m_gradientPointLutMap.end())
+    if (auto it = m_gradientPointLutMap.find(pattern.gradientPoints.hash()); it != m_gradientPointLutMap.end())
     {
         return it->second.descriptorSets;
     }
@@ -241,7 +241,7 @@ std::vector<VkDescriptorSet> VulkanDeviceResources::gradientPointLutDescriptorSe
         .imageView = gradientPointLutImageView,
         .descriptorSets = std::move(descriptorSets),
     };
-    m_gradientPointLutMap[pattern.pointsHash()] = lutTexture;
+    m_gradientPointLutMap[pattern.gradientPoints.hash()] = lutTexture;
 
     return lutTexture.descriptorSets;
 }
