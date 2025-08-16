@@ -9,10 +9,10 @@
 
 #include "graphics_context.h"
 #include "graphics_device.h"
+#include "image.h"
 
 namespace karin
 {
-
 class IRendererImpl;
 
 /**
@@ -23,7 +23,7 @@ class IRendererImpl;
 class Renderer
 {
 public:
-    Renderer(GraphicsDevice *device, Window *window);
+    Renderer(GraphicsDevice* device, Window* window);
     ~Renderer();
 
     /**
@@ -45,6 +45,9 @@ public:
     void update() const;
     void setClearColor(const Color& color);
 
+    Image createImage(const std::wstring& filePath);
+    Image createImage(const std::vector<std::byte>& data, const Size& size);
+
     void cleanUp();
 
 private:
@@ -54,7 +57,6 @@ private:
 
     std::unique_ptr<IRendererImpl> m_impl;
 };
-
 } // karin
 
 #endif //KARIN_GRAPHICS_GRAPHICS_RENDERER_H

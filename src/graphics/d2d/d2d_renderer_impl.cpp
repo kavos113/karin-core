@@ -79,6 +79,14 @@ void D2DRendererImpl::setClearColor(const Color& color)
     m_clearColor = toD2DColor(color);
 }
 
+Image D2DRendererImpl::createImage(const std::wstring& filePath)
+{
+}
+
+Image D2DRendererImpl::createImage(const std::vector<std::byte>& data, const Size& size)
+{
+}
+
 Microsoft::WRL::ComPtr<ID2D1DeviceContext> D2DRendererImpl::deviceContext() const
 {
     return m_deviceContext;

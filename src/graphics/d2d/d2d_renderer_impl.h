@@ -24,6 +24,9 @@ public:
     void resize(Size size) override;
     void setClearColor(const Color& color) override;
 
+    Image createImage(const std::wstring& filePath) override;
+    Image createImage(const std::vector<std::byte>& data, const Size& size) override;
+
     [[nodiscard]] Microsoft::WRL::ComPtr<ID2D1DeviceContext> deviceContext() const;
     [[nodiscard]] D2DDeviceResources* deviceResources() const;
 

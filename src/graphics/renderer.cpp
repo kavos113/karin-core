@@ -59,4 +59,14 @@ void Renderer::setClearColor(const Color& color)
 {
     m_impl->setClearColor(color);
 }
+
+Image Renderer::createImage(const std::wstring& filePath)
+{
+    return m_impl->createImage(filePath);
+}
+
+Image Renderer::createImage(const std::vector<std::byte>& data, const Size& size)
+{
+    return m_impl->createImage(data, size);
+}
 } // karin

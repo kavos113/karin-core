@@ -3,6 +3,7 @@
 
 #include <karin/common/geometry/size.h>
 #include <karin/common/color/color.h>
+#include <karin/graphics/image.h>
 
 namespace karin
 {
@@ -18,6 +19,9 @@ public:
     virtual void endDraw() = 0;
     virtual void resize(Size size) = 0;
     virtual void setClearColor(const Color& color) = 0;
+
+    virtual Image createImage(const std::wstring& filePath) = 0;
+    virtual Image createImage(const std::vector<std::byte>& data, const Size& size) = 0;
 };
 } // karin
 
