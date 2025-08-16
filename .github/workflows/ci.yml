@@ -23,13 +23,16 @@ jobs:
           - os: ubuntu-latest
             cmake_options: ""
             name: "ubuntu"
+            triplet: "x64-linux"
           - os: windows-latest
             cmake_options: ""
             name: "windows d2d"
+            triplet: "x64-windows"
           - os: windows-latest
             cmake_options: "-DWINDOWS_VULKAN=ON"
             name: "windows vulkan"
             vulkan_version: "1.4.321.1"
+            triplet: "x64-windows"
 
     steps:
       - name: Checkout code
@@ -97,28 +100,18 @@ jobs:
           path: |
             ./vcpkg
             ./vcpkg_installed
-          key: ${{ runner.os }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
+          key: ${{ runner.os }}-${{ matrix.triplet }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
           restore-keys: |
-            ${{ runner.os }}-vcpkg-
-
-      - name: Setup Vcpkg
-        if: steps.cache-vcpkg.outputs.cache-hit != 'true'
-        run: |
-          if [ -d "./vcpkg" ]; then
-            echo "Vcpkg directory already exists, skipping clone."
-          else
-            git clone https://github.com/microsoft/vcpkg.git
-          fi
-        shell: bash
+            ${{ runner.os }}-${{ matrix.triplet }}-vcpkg-
 
       - name: Install with vcpkg
         run: |
-          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
-            ./vcpkg/bootstrap-vcpkg.sh
-          elif [ "${{ matrix.os }}" == "windows-latest" ]; then
-            ./vcpkg/bootstrap-vcpkg.bat
+          if [ ! -d "./vcpkg" ]; then
+            git clone https://github.com/microsoft/vcpkg.git            
           fi
-          ./vcpkg/vcpkg install
+          ./vcpkg/bootstrap-vcpkg.sh
+          ./vcpkg/vcpkg install --triplet ${{ matrix.triplet }}
+          ls -la
         shell: bash
 
       - name: Configure CMake
