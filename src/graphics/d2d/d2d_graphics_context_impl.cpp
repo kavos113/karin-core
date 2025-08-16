@@ -206,12 +206,20 @@ void D2DGraphicsContextImpl::drawImage(Image image, Rectangle destRect, Rectangl
         throw std::runtime_error("Failed to get bitmap for image");
     }
 
+    D2D1_RECT_F* srcRectPtr = nullptr;
+    if (srcRect != Rectangle())
+    {
+        static D2D1_RECT_F d2dSrcRect;
+        d2dSrcRect = toD2DRect(srcRect);
+        srcRectPtr = &d2dSrcRect;
+    }
+
     m_deviceContext->DrawBitmap(
         bitmap.Get(),
         toD2DRect(destRect),
         opacity,
         D2D1_BITMAP_INTERPOLATION_MODE_LINEAR,
-        toD2DRect(srcRect)
+        srcRectPtr
     );
 }
 } // karin
