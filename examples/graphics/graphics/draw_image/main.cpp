@@ -18,7 +18,7 @@ int main()
     renderer.addDrawCommand(
         [&image](karin::GraphicsContext& gc)
         {
-            gc.drawImage(image, karin::Rectangle(100, 100, 200, 200));
+            gc.drawImage(image, karin::Rectangle(100, 100, 200, 200), karin::Rectangle(100, 100, 100, 100));
         }
     );
 
