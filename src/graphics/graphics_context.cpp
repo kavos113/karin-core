@@ -3,13 +3,6 @@
 #include "platform.h"
 #include "graphics_context_impl.h"
 
-#include <variant>
-#include <variant>
-#include <variant>
-#include <variant>
-#include <variant>
-#include <variant>
-
 namespace karin
 {
 GraphicsContext::GraphicsContext(IRendererImpl* impl)
@@ -67,5 +60,10 @@ void GraphicsContext::fillPath(const Path& path, Pattern& pattern) const
 void GraphicsContext::drawPath(const Path& path, Pattern& pattern, const StrokeStyle& strokeStyle) const
 {
     m_impl->drawPath(*path.impl(), pattern, strokeStyle);
+}
+
+void GraphicsContext::drawImage(Image image, Rectangle destRect, Rectangle srcRect, float opacity) const
+{
+    m_impl->drawImage(image, destRect, srcRect, opacity);
 }
 } // karin

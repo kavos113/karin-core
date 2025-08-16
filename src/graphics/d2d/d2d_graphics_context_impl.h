@@ -10,6 +10,7 @@
 #include <karin/common/geometry/point.h>
 #include <karin/graphics/stroke_style.h>
 #include <karin/graphics/pattern.h>
+#include <karin/graphics/image.h>
 
 #include "d2d_device_resources.h"
 
@@ -39,6 +40,8 @@ public:
         Rectangle rect, float radiusX, float radiusY, Pattern& pattern, const StrokeStyle& strokeStyle
     ) override;
     void drawPath(const PathImpl& path, Pattern& pattern, const StrokeStyle& strokeStyle) override;
+
+    void drawImage(Image image, Rectangle destRect, Rectangle srcRect, float opacity) override;
 
 private:
     Microsoft::WRL::ComPtr<ID2D1DeviceContext> m_deviceContext;

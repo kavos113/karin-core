@@ -1,5 +1,6 @@
 #ifndef KARIN_GRAPHICS_GRAPHICS_GRAPHICS_CONTEXT_H
 #define KARIN_GRAPHICS_GRAPHICS_GRAPHICS_CONTEXT_H
+
 #include <memory>
 
 #include <karin/common/geometry/rectangle.h>
@@ -8,6 +9,7 @@
 #include "path.h"
 #include "stroke_style.h"
 #include "pattern.h"
+#include "image.h"
 
 namespace karin
 {
@@ -42,6 +44,8 @@ public:
         Rectangle rect, float radiusX, float radiusY, Pattern& pattern, const StrokeStyle& strokeStyle = StrokeStyle()
     ) const;
     void drawPath(const Path& path, Pattern& pattern, const StrokeStyle& strokeStyle = StrokeStyle()) const;
+
+    void drawImage(Image image, Rectangle destRect, Rectangle srcRect = Rectangle(), float opacity = 1.0f) const;
 
 private:
     IRendererImpl* m_rendererImpl;
