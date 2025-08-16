@@ -1,9 +1,12 @@
 #ifndef KARIN_COMMON_COLOR_PATTERN_H
 #define KARIN_COMMON_COLOR_PATTERN_H
 
+#include "image.h"
+
 #include <karin/common/color/color.h>
 #include <karin/common/geometry/point.h>
 #include <variant>
+#include <vector>
 
 namespace karin
 {
@@ -66,7 +69,19 @@ struct RadialGradientPattern
     size_t hash() const;
 };
 
-using Pattern = std::variant<SolidColorPattern, LinearGradientPattern, RadialGradientPattern>;
+struct ImagePattern
+{
+    Image image;
+    Point offset;
+    float scaleX = 1.0f;
+    float scaleY = 1.0f;
+    ExtendMode extendModeX = ExtendMode::CLAMP;
+    ExtendMode extendModeY = ExtendMode::CLAMP;
+
+    size_t hash() const;
+};
+
+using Pattern = std::variant<SolidColorPattern, LinearGradientPattern, RadialGradientPattern, ImagePattern>;
 
 enum class PatternType
 {

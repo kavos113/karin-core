@@ -1,7 +1,9 @@
 #include <karin/graphics/pattern.h>
 #include <utils/hash.h>
 
-size_t karin::SolidColorPattern::hash() const
+namespace karin
+{
+size_t SolidColorPattern::hash() const
 {
     size_t seed = 0;
 
@@ -13,7 +15,7 @@ size_t karin::SolidColorPattern::hash() const
     return seed;
 }
 
-size_t karin::GradientPoints::hash() const
+size_t GradientPoints::hash() const
 {
     size_t seed = 0;
 
@@ -30,7 +32,7 @@ size_t karin::GradientPoints::hash() const
     return seed;
 }
 
-size_t karin::LinearGradientPattern::hash() const
+size_t LinearGradientPattern::hash() const
 {
     size_t seed = 0;
 
@@ -43,7 +45,7 @@ size_t karin::LinearGradientPattern::hash() const
     return seed;
 }
 
-size_t karin::RadialGradientPattern::hash() const
+size_t RadialGradientPattern::hash() const
 {
     size_t seed = 0;
 
@@ -56,4 +58,20 @@ size_t karin::RadialGradientPattern::hash() const
     hash_combine(seed, gradientPoints.hash());
 
     return seed;
+}
+
+size_t ImagePattern::hash() const
+{
+    size_t seed = 0;
+
+    hash_combine(seed, image.hash());
+    hash_combine(seed, offset.x);
+    hash_combine(seed, offset.y);
+    hash_combine(seed, scaleX);
+    hash_combine(seed, scaleY);
+    hash_combine(seed, static_cast<int>(extendModeX));
+    hash_combine(seed, static_cast<int>(extendModeY));
+
+    return seed;
+}
 }
