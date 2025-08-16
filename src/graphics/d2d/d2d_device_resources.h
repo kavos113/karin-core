@@ -45,6 +45,7 @@ private:
     // TODO: create before starting draw calls?
     std::unordered_map<size_t, Microsoft::WRL::ComPtr<ID2D1SolidColorBrush>> m_solidColorBrushes;
     std::unordered_map<size_t, Microsoft::WRL::ComPtr<ID2D1LinearGradientBrush>> m_linearGradientBrushes;
+    std::unordered_map<size_t, Microsoft::WRL::ComPtr<ID2D1RadialGradientBrush>> m_radialGradientBrushes;
     std::map<StrokeStyle, Microsoft::WRL::ComPtr<ID2D1StrokeStyle>> m_strokeStyles;
     std::map<uint32_t, Microsoft::WRL::ComPtr<ID2D1PathGeometry>> m_pathGeometries;
 
