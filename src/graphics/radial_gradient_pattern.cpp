@@ -1,7 +1,9 @@
 #include <karin/graphics/radial_gradient_pattern.h>
 #include <utils/hash.h>
 
-size_t karin::RadicalGradientPattern::hash() const
+namespace karin
+{
+size_t RadialGradientPattern::hash() const
 {
     size_t seed = 0;
 
@@ -14,4 +16,5 @@ size_t karin::RadicalGradientPattern::hash() const
     hash_combine(seed, gradientPoints.hash());
 
     return seed;
+}
 }
