@@ -276,7 +276,7 @@ void VulkanRendererImpl::addCommand(
     );
 
     VkExtent2D extent = m_surface->extent();
-    drawCommand.fragData.aspect = extent.width / static_cast<float>(extent.height);
+    drawCommand.fragData.global.x = extent.width / static_cast<float>(extent.height);
 
     m_drawCommands.push_back(drawCommand);
 }
@@ -548,7 +548,7 @@ void VulkanRendererImpl::createLinearGradientPipeline()
 
     m_linearGradientPipeline = std::make_unique<VulkanPipeline>(
         m_device->device(), m_renderPass,
-        linear_gradient_vert_spv, linear_gradient_vert_spv_len,
+        gradient_vert_spv, gradient_vert_spv_len,
         linear_gradient_frag_spv, linear_gradient_frag_spv_len,
         descriptorSetLayouts, pushConstantRanges
     );
