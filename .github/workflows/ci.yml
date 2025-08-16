@@ -109,6 +109,7 @@ jobs:
           else
             git clone https://github.com/microsoft/vcpkg.git
           fi
+        shell: bash
 
       - name: Install with vcpkg
         run: |
