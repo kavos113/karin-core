@@ -454,24 +454,39 @@ void VulkanGraphicsContextImpl::drawImage(Image image, Rectangle destRect, Recta
 {
     Rectangle normalizedRect = m_renderer->normalize(destRect);
 
+    Rectangle normalizedSrcRect{
+        srcRect.pos.x / image.width(),
+        srcRect.pos.y / image.height(),
+        srcRect.size.width / image.width(),
+        srcRect.size.height / image.height()
+    };
+
+    if (srcRect == Rectangle())
+    {
+        normalizedSrcRect = Rectangle(0.0f, 0.0f, 1.0f, 1.0f);
+    }
+
     std::vector<VulkanPipeline::Vertex> vertices = {
         {
             .pos = {normalizedRect.pos.x, normalizedRect.pos.y},
-            .uv = {-1.0f, -1.0f},
+            .uv = {normalizedSrcRect.pos.x, normalizedSrcRect.pos.y},
         },
         {
             .pos = {normalizedRect.pos.x + normalizedRect.size.width, normalizedRect.pos.y},
-            .uv = {1.0f, -1.0f},
+            .uv = {normalizedSrcRect.pos.x + normalizedSrcRect.size.width, normalizedSrcRect.pos.y},
         },
         {
             .pos = {
                 normalizedRect.pos.x + normalizedRect.size.width, normalizedRect.pos.y + normalizedRect.size.height
             },
-            .uv = {1.0f, 1.0f},
+            .uv = {
+                normalizedSrcRect.pos.x + normalizedSrcRect.size.width,
+                normalizedSrcRect.pos.y + normalizedSrcRect.size.height
+            },
         },
         {
             .pos = {normalizedRect.pos.x, normalizedRect.pos.y + normalizedRect.size.height},
-            .uv = {-1.0f, 1.0f},
+            .uv = {normalizedSrcRect.pos.x, normalizedSrcRect.pos.y + normalizedSrcRect.size.height},
         }
     };
 
@@ -479,15 +494,16 @@ void VulkanGraphicsContextImpl::drawImage(Image image, Rectangle destRect, Recta
         0, 1, 2, 2, 3, 0
     };
 
-    Point normalizedOffset = m_renderer->normalize(srcRect.pos);
-    float scaleX = srcRect.size.width / static_cast<float>(image.width());
-    float scaleY = srcRect.size.height / static_cast<float>(image.height());
-
-    ImagePattern pattern(image, normalizedOffset, scaleX, scaleY);
-    PushConstants pushConstants = createPushConstantData(pattern);
+    ImagePattern imagePattern{
+        .image = std::move(image),
+        .offset = Point(0.0f, 0.0f),
+        .scaleX = normalizedSrcRect.size.width,
+        .scaleY = normalizedSrcRect.size.height
+    };
+    PushConstants pushConstants = createPushConstantData(imagePattern);
     pushConstants.global.x = 0.0f;
 
-    m_renderer->addCommand(vertices, indices, pushConstants, pattern);
+    m_renderer->addCommand(vertices, indices, pushConstants, imagePattern);
 }
 
 PushConstants VulkanGraphicsContextImpl::createPushConstantData(const Pattern& pattern) const
@@ -523,7 +539,7 @@ PushConstants VulkanGraphicsContextImpl::createPushConstantData(const Pattern& p
             }
             else if constexpr (std::is_same_v<T, ImagePattern>)
             {
-                Point offset = m_renderer->normalize(p.offset);
+                glm::vec2 offset = m_renderer->normalizeVec(glm::vec2(p.offset.x, p.offset.y));
                 float scaleX = p.scaleX;
                 float scaleY = p.scaleY;
                 return PushConstants{

@@ -19,6 +19,12 @@ void VulkanDeviceResources::cleanup()
         vkDestroyImageView(m_device->device(), val.imageView, nullptr);
     }
 
+    for (auto& val : m_textureMap | std::views::values)
+    {
+        vmaDestroyImage(m_device->allocator(), val.image, val.allocation);
+        vkDestroyImageView(m_device->device(), val.imageView, nullptr);
+    }
+
     m_gradientPointLutMap.clear();
 
     vkDestroyDescriptorSetLayout(m_device->device(), m_textureDescriptorSetLayout, nullptr);

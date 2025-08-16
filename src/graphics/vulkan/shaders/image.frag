@@ -23,9 +23,11 @@ void main() {
         vec2 offset = push.color.xy;
         vec2 scale = push.color.zw;
 
-        vec2 windowUv = pixelPos * scale + offset;
+        vec2 windowUv = pixelPos / scale + offset;
         windowUv = (windowUv + 1.0) * 0.5;
 
         outColor = texture(image, windowUv);
     }
+
+    outColor = texture(image, uv);
 }

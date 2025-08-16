@@ -21,7 +21,7 @@ int main()
                 {0.5f, karin::Color(karin::Color::Green)},
                 {1.0f, karin::Color(karin::Color::Blue)}
             },
-            .extendMode = karin::GradientPoints::ExtendMode::CLAMP
+            .extendMode = karin::ExtendMode::CLAMP
         },
     };
 
