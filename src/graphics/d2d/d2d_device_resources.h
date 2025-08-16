@@ -35,6 +35,7 @@ public:
     Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> solidColorBrush(const SolidColorPattern& pattern);
     Microsoft::WRL::ComPtr<ID2D1LinearGradientBrush> linearGradientBrush(const LinearGradientPattern& pattern);
     Microsoft::WRL::ComPtr<ID2D1RadialGradientBrush> radialGradientBrush(const RadialGradientPattern& pattern);
+    Microsoft::WRL::ComPtr<ID2D1BitmapBrush> bitmapBrush(const ImagePattern& pattern);
     Microsoft::WRL::ComPtr<ID2D1StrokeStyle> strokeStyle(const StrokeStyle& style);
     Microsoft::WRL::ComPtr<ID2D1PathGeometry> pathGeometry(const PathImpl& path);
     Microsoft::WRL::ComPtr<ID2D1Bitmap> bitmap(const Image& image);
@@ -42,11 +43,13 @@ public:
 private:
     static D2D1_CAP_STYLE toD2DCapStyle(StrokeStyle::CapStyle capStyle);
     static D2D1_LINE_JOIN toD2DJoinStyle(StrokeStyle::JoinStyle joinStyle);
+    static D2D1_EXTEND_MODE toD2DExtendMode(ExtendMode extendMode);
 
     // TODO: create before starting draw calls?
     std::unordered_map<size_t, Microsoft::WRL::ComPtr<ID2D1SolidColorBrush>> m_solidColorBrushes;
     std::unordered_map<size_t, Microsoft::WRL::ComPtr<ID2D1LinearGradientBrush>> m_linearGradientBrushes;
     std::unordered_map<size_t, Microsoft::WRL::ComPtr<ID2D1RadialGradientBrush>> m_radialGradientBrushes;
+    std::unordered_map<size_t, Microsoft::WRL::ComPtr<ID2D1BitmapBrush>> m_bitmapBrushes;
     std::map<StrokeStyle, Microsoft::WRL::ComPtr<ID2D1StrokeStyle>> m_strokeStyles;
     std::unordered_map<uint32_t, Microsoft::WRL::ComPtr<ID2D1PathGeometry>> m_pathGeometries;
     std::unordered_map<size_t, Microsoft::WRL::ComPtr<ID2D1Bitmap>> m_bitmaps;
