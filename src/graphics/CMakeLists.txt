@@ -4,7 +4,7 @@ set(GRAPHICS_SOURCE
         graphics_context.cpp
         path.cpp
         path_impl.cpp
-        pattern.cpp
+        hash.cpp
         ${THIRD_PARTY_DIR}/stb_image/stb_image_impl.cpp
 )
 

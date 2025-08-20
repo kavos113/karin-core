@@ -1,4 +1,7 @@
 #include <karin/graphics/pattern.h>
+#include <karin/graphics/font.h>
+#include <karin/graphics/text.h>
+
 #include <utils/hash.h>
 
 namespace karin
@@ -71,6 +74,40 @@ size_t ImagePattern::hash() const
     hash_combine(seed, scaleY);
     hash_combine(seed, static_cast<int>(extendModeX));
     hash_combine(seed, static_cast<int>(extendModeY));
+
+    return seed;
+}
+
+size_t Font::hash() const
+{
+    size_t seed = 0;
+
+    hash_combine(seed, size);
+    hash_combine(seed, family);
+    hash_combine(seed, static_cast<int>(style));
+    hash_combine(seed, static_cast<int>(stretch));
+    hash_combine(seed, static_cast<int>(weight));
+    hash_combine(seed, underline);
+    hash_combine(seed, lineThrough);
+
+    return seed;
+}
+
+size_t Text::hash() const
+{
+    size_t seed = 0;
+
+    hash_combine(seed, static_cast<int>(horizontalAlignment));
+    hash_combine(seed, static_cast<int>(verticalAlignment));
+    hash_combine(seed, lineSpacing);
+    hash_combine(seed, static_cast<int>(trimming));
+    hash_combine(seed, static_cast<int>(wrapping));
+    hash_combine(seed, static_cast<int>(flowDirection));
+    hash_combine(seed, static_cast<int>(readingDirection));
+    hash_combine(seed, size.width);
+    hash_combine(seed, size.height);
+    hash_combine(seed, font.hash());
+    hash_combine(seed, text);
 
     return seed;
 }

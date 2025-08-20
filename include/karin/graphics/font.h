@@ -50,6 +50,8 @@ struct Font
     Weight weight = Weight::NORMAL;
     bool underline = false;
     bool lineThrough = false;
+
+    size_t hash() const;
 };
 } // karin
 

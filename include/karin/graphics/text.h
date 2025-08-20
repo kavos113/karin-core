@@ -61,6 +61,8 @@ struct Text
     Font font;
 
     std::string text;
+
+    size_t hash() const;
 };
 } // karin
 
