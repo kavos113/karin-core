@@ -1,5 +1,5 @@
-#ifndef KARIN_GRAPHICS_TEXT_H
-#define KARIN_GRAPHICS_TEXT_H
+#ifndef KARIN_GRAPHICS_FONT_H
+#define KARIN_GRAPHICS_FONT_H
 
 #include <string>
 #include <cstdint>
@@ -53,4 +53,4 @@ struct Font
 };
 } // karin
 
-#endif //KARIN_GRAPHICS_TEXT_H
+#endif //KARIN_GRAPHICS_FONT_H

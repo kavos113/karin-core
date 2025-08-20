@@ -42,6 +42,7 @@ public:
     void drawPath(const PathImpl& path, Pattern& pattern, const StrokeStyle& strokeStyle) override;
 
     void drawImage(Image image, Rectangle destRect, Rectangle srcRect, float opacity) override;
+    void drawText(Text text, Point start, Pattern& pattern) override;
 
 private:
     Microsoft::WRL::ComPtr<ID2D1DeviceContext> m_deviceContext;

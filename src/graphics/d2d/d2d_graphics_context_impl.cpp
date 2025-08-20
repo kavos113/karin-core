@@ -222,4 +222,8 @@ void D2DGraphicsContextImpl::drawImage(Image image, Rectangle destRect, Rectangl
         srcRectPtr
     );
 }
+
+void D2DGraphicsContextImpl::drawText(Text text, Point start, Pattern& pattern)
+{
+}
 } // karin

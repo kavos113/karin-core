@@ -31,6 +31,7 @@ public:
     virtual void drawPath(const PathImpl& path, Pattern& pattern, const StrokeStyle& strokeStyle) = 0;
 
     virtual void drawImage(Image image, Rectangle destRect, Rectangle srcRect = Rectangle(), float opacity = 1.0f) = 0;
+    virtual void drawText(Text text, Point start, Pattern& pattern) = 0;
 };
 } // karin
 

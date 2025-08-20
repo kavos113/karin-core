@@ -3,6 +3,8 @@
 
 #include "font.h"
 
+#include <karin/common/geometry/size.h>
+
 #include <cstdint>
 #include <string>
 
@@ -54,6 +56,7 @@ struct Text
     Wrapping wrapping = Wrapping::NONE;
     Direction flowDirection = Direction::TOP_TO_BOTTOM;
     Direction readingDirection = Direction::LEFT_TO_RIGHT;
+    Size size = {0.0f, 0.0f};
 
     Font font;
 
