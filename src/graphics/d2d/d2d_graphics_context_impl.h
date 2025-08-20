@@ -11,8 +11,10 @@
 #include <karin/graphics/stroke_style.h>
 #include <karin/graphics/pattern.h>
 #include <karin/graphics/image.h>
+#include <karin/graphics/text.h>
 
 #include "d2d_device_resources.h"
+
 
 namespace karin
 {

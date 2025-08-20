@@ -7,6 +7,7 @@
 #include <karin/graphics/pattern.h>
 #include <karin/graphics/stroke_style.h>
 #include <karin/graphics/image.h>
+#include <karin/graphics/text.h>
 
 namespace karin
 {
