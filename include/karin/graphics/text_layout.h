@@ -16,7 +16,7 @@ struct TextLayout
     bool underline = false;
     bool lineThrough = false;
 
-    TextFormat font;
+    TextFormat format;
     std::string text;
 
     size_t hash() const;

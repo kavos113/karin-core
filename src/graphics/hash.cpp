@@ -94,6 +94,7 @@ size_t TextFormat::hash() const
     hash_combine(seed, static_cast<int>(wrapping));
     hash_combine(seed, static_cast<int>(flowDirection));
     hash_combine(seed, static_cast<int>(readingDirection));
+    hash_combine(seed, locale);
     return seed;
 }
 
@@ -105,7 +106,7 @@ size_t TextLayout::hash() const
     hash_combine(seed, lineThrough);
     hash_combine(seed, size.width);
     hash_combine(seed, size.height);
-    hash_combine(seed, font.hash());
+    hash_combine(seed, format.hash());
     hash_combine(seed, text);
 
     return seed;

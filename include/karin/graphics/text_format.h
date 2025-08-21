@@ -94,6 +94,7 @@ struct TextFormat
     Direction flowDirection = Direction::TOP_TO_BOTTOM;
     Direction readingDirection = Direction::LEFT_TO_RIGHT;
 
+    std::string locale = "en-US";
 
     size_t hash() const;
 };
