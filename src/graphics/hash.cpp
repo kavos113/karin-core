@@ -87,16 +87,6 @@ size_t TextFormat::hash() const
     hash_combine(seed, static_cast<int>(style));
     hash_combine(seed, static_cast<int>(stretch));
     hash_combine(seed, static_cast<int>(weight));
-    hash_combine(seed, underline);
-    hash_combine(seed, lineThrough);
-
-    return seed;
-}
-
-size_t TextLayout::hash() const
-{
-    size_t seed = 0;
-
     hash_combine(seed, static_cast<int>(horizontalAlignment));
     hash_combine(seed, static_cast<int>(verticalAlignment));
     hash_combine(seed, lineSpacing);
@@ -104,6 +94,15 @@ size_t TextLayout::hash() const
     hash_combine(seed, static_cast<int>(wrapping));
     hash_combine(seed, static_cast<int>(flowDirection));
     hash_combine(seed, static_cast<int>(readingDirection));
+    return seed;
+}
+
+size_t TextLayout::hash() const
+{
+    size_t seed = 0;
+
+    hash_combine(seed, underline);
+    hash_combine(seed, lineThrough);
     hash_combine(seed, size.width);
     hash_combine(seed, size.height);
     hash_combine(seed, font.hash());

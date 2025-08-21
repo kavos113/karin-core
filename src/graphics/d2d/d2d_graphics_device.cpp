@@ -11,10 +11,12 @@ D2DGraphicsDevice::D2DGraphicsDevice()
     createD2DFactory();
     createDXGIDevice();
     createD2DDevice();
+    createDWriteFactory();
 }
 
 void D2DGraphicsDevice::cleanUp()
 {
+    m_dwriteFactory.Reset();
     m_d2dDevice.Reset();
     m_d2dFactory.Reset();
     m_dxgiDevice.Reset();
@@ -84,6 +86,19 @@ void D2DGraphicsDevice::createDXGIDevice()
     }
 }
 
+void D2DGraphicsDevice::createDWriteFactory()
+{
+    HRESULT hr = DWriteCreateFactory(
+        DWRITE_FACTORY_TYPE_SHARED,
+        __uuidof(IDWriteFactory),
+        &m_dwriteFactory
+    );
+    if (FAILED(hr))
+    {
+        throw std::runtime_error("Failed to create dwrite factory");
+    }
+}
+
 Microsoft::WRL::ComPtr<ID2D1Factory1>& D2DGraphicsDevice::factory()
 {
     return m_d2dFactory;
@@ -97,5 +112,10 @@ Microsoft::WRL::ComPtr<ID2D1Device>& D2DGraphicsDevice::device()
 Microsoft::WRL::ComPtr<IDXGIDevice4>& D2DGraphicsDevice::dxgiDevice()
 {
     return m_dxgiDevice;
+}
+
+Microsoft::WRL::ComPtr<IDWriteFactory>& D2DGraphicsDevice::dwriteFactory()
+{
+    return m_dwriteFactory;
 }
 } // karin

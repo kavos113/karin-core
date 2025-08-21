@@ -53,7 +53,8 @@ private:
     std::map<StrokeStyle, Microsoft::WRL::ComPtr<ID2D1StrokeStyle>> m_strokeStyles;
     std::unordered_map<uint32_t, Microsoft::WRL::ComPtr<ID2D1PathGeometry>> m_pathGeometries;
     std::unordered_map<size_t, Microsoft::WRL::ComPtr<ID2D1Bitmap>> m_bitmaps;
-
+    std::unordered_map<size_t, Microsoft::WRL::ComPtr<IDWriteTextFormat>> m_textFormats;
+    std::unordered_map<size_t, Microsoft::WRL::ComPtr<IDWriteTextLayout>> m_textLayouts;
 
     Microsoft::WRL::ComPtr<ID2D1DeviceContext> m_deviceContext;
     Microsoft::WRL::ComPtr<ID2D1Factory1> m_factory;
