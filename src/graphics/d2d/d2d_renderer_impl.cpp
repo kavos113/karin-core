@@ -22,7 +22,9 @@ D2DRendererImpl::D2DRendererImpl(D2DGraphicsDevice* device, HWND hwnd)
 
     setTargetBitmap();
 
-    m_deviceResources = std::make_unique<D2DDeviceResources>(m_deviceContext, m_device->factory());
+    m_deviceResources = std::make_unique<D2DDeviceResources>(
+        m_deviceContext, m_device->factory(), m_device->dwriteFactory()
+    );
 }
 
 void D2DRendererImpl::setTargetBitmap() const

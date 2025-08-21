@@ -41,6 +41,7 @@ if (DIRECTX)
     target_link_libraries(karin_graphics PRIVATE d2d1.lib)
     target_link_libraries(karin_graphics PRIVATE dxgi.lib)
     target_link_libraries(karin_graphics PRIVATE d3d11.lib)
+    target_link_libraries(karin_graphics PRIVATE dwrite.lib)
 
     target_compile_definitions(karin_graphics PUBLIC KARIN_PLATFORM_DIRECTX)
     target_compile_definitions(karin_graphics PUBLIC UNICODE)

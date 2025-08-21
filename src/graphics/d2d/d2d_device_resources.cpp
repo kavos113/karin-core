@@ -453,14 +453,17 @@ Microsoft::WRL::ComPtr<IDWriteTextLayout> D2DDeviceResources::textLayout(const T
             throw std::runtime_error("Failed to set trimming in DWrite text format");
         }
 
-        hr = format->SetLineSpacing(
-            DWRITE_LINE_SPACING_METHOD_UNIFORM,
-            layout.format.lineSpacing,
-            0.0f // No baseline
-        );
-        if (FAILED(hr))
+        if (layout.format.lineSpacing >= 0.0f)
         {
-            throw std::runtime_error("Failed to set line spacing in DWrite text format");
+            hr = format->SetLineSpacing(
+                DWRITE_LINE_SPACING_METHOD_UNIFORM,
+                layout.format.lineSpacing,
+                0.0f // No baseline
+            );
+            if (FAILED(hr))
+            {
+                throw std::runtime_error("Failed to set line spacing in DWrite text format");
+            }
         }
 
         hr = format->SetFlowDirection(toDWriteFlowDirection(layout.format.flowDirection));

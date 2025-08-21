@@ -9,6 +9,7 @@
 
 namespace karin
 {
+// size, text is required
 struct TextLayout
 {
     Size size = {0.0f, 0.0f};

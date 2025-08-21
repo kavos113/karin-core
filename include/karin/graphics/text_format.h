@@ -6,6 +6,7 @@
 
 namespace karin
 {
+// size, family is required
 struct TextFormat
 {
     enum class Style : uint8_t
@@ -88,7 +89,7 @@ struct TextFormat
 
     HorizontalAlignment horizontalAlignment = HorizontalAlignment::LEADING;
     VerticalAlignment verticalAlignment = VerticalAlignment::TOP;
-    float lineSpacing = 0.0f;
+    float lineSpacing = -1.0f;
     Trimming trimming = Trimming::NONE;
     Wrapping wrapping = Wrapping::NONE;
     Direction flowDirection = Direction::TOP_TO_BOTTOM;
