@@ -225,5 +225,23 @@ void D2DGraphicsContextImpl::drawImage(Image image, Rectangle destRect, Rectangl
 
 void D2DGraphicsContextImpl::drawText(const TextLayout& text, Point start, Pattern& pattern)
 {
+    auto textLayout = m_deviceResources->textLayout(text);
+    if (!textLayout)
+    {
+        throw std::runtime_error("Failed to get text layout");
+    }
+
+    auto brush = m_deviceResources->brush(pattern);
+    if (!brush)
+    {
+        throw std::runtime_error("Failed to get brush for pattern");
+    }
+
+    m_deviceContext->DrawTextLayout(
+        toD2DPoint(start),
+        textLayout.Get(),
+        brush.Get(),
+        D2D1_DRAW_TEXT_OPTIONS_NONE
+    );
 }
 } // karin
