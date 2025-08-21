@@ -67,7 +67,7 @@ void GraphicsContext::drawImage(Image image, Rectangle destRect, Rectangle srcRe
     m_impl->drawImage(image, destRect, srcRect, opacity);
 }
 
-void GraphicsContext::drawText(Text text, Point start, Pattern& pattern) const
+void GraphicsContext::drawText(const TextLayout& text, Point start, Pattern& pattern) const
 {
     m_impl->drawText(text, start, pattern);
 }

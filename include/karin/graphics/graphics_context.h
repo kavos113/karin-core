@@ -10,7 +10,7 @@
 #include "stroke_style.h"
 #include "pattern.h"
 #include "image.h"
-#include "text.h"
+#include "text_layout.h"
 
 namespace karin
 {
@@ -47,7 +47,7 @@ public:
     void drawPath(const Path& path, Pattern& pattern, const StrokeStyle& strokeStyle = StrokeStyle()) const;
 
     void drawImage(Image image, Rectangle destRect, Rectangle srcRect = Rectangle(), float opacity = 1.0f) const;
-    void drawText(Text text, Point start, Pattern& pattern) const;
+    void drawText(const TextLayout& text, Point start, Pattern& pattern) const;
 
 private:
     IRendererImpl* m_rendererImpl;
