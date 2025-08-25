@@ -4,14 +4,6 @@
   "builtin-baseline": "984f9232b2fe0eb94f5e9f161d6c632c581fff0c",
   "dependencies": [
     {
-      "name": "vcpkg-cmake-config",
-      "version>=": "2024-05-23"
-    },
-    {
-      "name": "vcpkg-cmake",
-      "version>=": "2024-04-23"
-    },
-    {
       "name": "vulkan-memory-allocator",
       "version>=": "3.3.0"
     },
@@ -22,6 +14,14 @@
     {
       "name": "stb",
       "version>=": "2024-07-29#1"
+    },
+    {
+      "name": "freetype",
+      "version>=": "2.13.3"
+    },
+    {
+      "name": "harfbuzz",
+      "version>=": "11.2.0"
     }
   ]
 }
