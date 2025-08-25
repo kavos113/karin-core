@@ -28,14 +28,15 @@ elseif (VULKAN)
             vulkan/vulkan_tessellator.cpp
             vulkan/vulkan_device_resources.cpp
             vulkan/vma_impl.cpp
+            text/font_loader.cpp
     )
 endif ()
 
 add_library(karin_graphics STATIC ${GRAPHICS_SOURCE})
 target_include_directories(karin_graphics PUBLIC ${INCLUDE_DIR})
 target_include_directories(karin_graphics PRIVATE ${COMMON_DIR})
-target_include_directories(karin_graphics PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(karin_graphics PRIVATE ${THIRD_PARTY_DIR})
+target_include_directories(karin_graphics PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 if (DIRECTX)
     target_link_libraries(karin_graphics PRIVATE d2d1.lib)
