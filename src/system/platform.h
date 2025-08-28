@@ -3,9 +3,9 @@
 
 #include "application_impl.h"
 #include "window_impl.h"
+#include "windows/win_system_font.h"
 
-#include <karin/system/system_font.h>
-#include <windows/win_system_font.h>
+#include <karin/system/font.h>
 
 #include <memory>
 #include <string>
@@ -52,7 +52,7 @@ inline std::unique_ptr<IWindowImpl> createWindowImpl(
     return nullptr;
 }
 
-inline std::vector<SystemFontInfo> getPlatformSystemFonts()
+inline std::vector<Font> getPlatformSystemFonts()
 {
 #ifdef KARIN_PLATFORM_WINDOWS
     return getWindowsSystemFonts();

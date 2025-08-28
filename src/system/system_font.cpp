@@ -4,7 +4,7 @@
 
 namespace karin
 {
-std::vector<SystemFontInfo> getSystemFonts()
+std::vector<Font> getSystemFonts()
 {
     return getPlatformSystemFonts();
 }
