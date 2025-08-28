@@ -1,6 +1,9 @@
 #ifndef KARIN_GRAPHICS_FONT_H
 #define KARIN_GRAPHICS_FONT_H
 
+#include <string>
+#include <cstdint>
+
 namespace karin
 {
 struct Font
