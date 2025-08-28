@@ -4,6 +4,8 @@
 #include "d2d_color.h"
 #include "d2d_consts.h"
 
+#include <d2d/dwrite_converter.h>
+
 #include <wincodec.h>
 
 #include <cmath>
@@ -411,11 +413,11 @@ Microsoft::WRL::ComPtr<IDWriteTextLayout> D2DDeviceResources::textLayout(const T
     else
     {
         HRESULT hr = m_dwriteFactory->CreateTextFormat(
-            toWString(layout.format.family).c_str(),
+            toWString(layout.format.font.family).c_str(),
             nullptr,
-            toDWriteFontWeight(layout.format.weight),
-            toDWriteFontStyle(layout.format.style),
-            toDWriteFontStretch(layout.format.stretch),
+            toDWriteFontWeight(layout.format.font.weight),
+            toDWriteFontStyle(layout.format.font.style),
+            toDWriteFontStretch(layout.format.font.stretch),
             layout.format.size,
             toWString(layout.format.locale).c_str(),
             &format
@@ -564,79 +566,6 @@ D2D1_EXTEND_MODE D2DDeviceResources::toD2DExtendMode(ExtendMode extendMode)
         return D2D1_EXTEND_MODE_MIRROR;
     default:
         throw std::invalid_argument("Unknown extend mode");
-    }
-}
-
-DWRITE_FONT_WEIGHT D2DDeviceResources::toDWriteFontWeight(TextFormat::Weight weight)
-{
-    switch (weight)
-    {
-    case TextFormat::Weight::THIN:
-        return DWRITE_FONT_WEIGHT_THIN;
-    case TextFormat::Weight::EXTRA_LIGHT:
-        return DWRITE_FONT_WEIGHT_EXTRA_LIGHT;
-    case TextFormat::Weight::LIGHT:
-        return DWRITE_FONT_WEIGHT_LIGHT;
-    case TextFormat::Weight::SEMI_LIGHT:
-        return DWRITE_FONT_WEIGHT_SEMI_LIGHT;
-    case TextFormat::Weight::NORMAL:
-        return DWRITE_FONT_WEIGHT_NORMAL;
-    case TextFormat::Weight::MEDIUM:
-        return DWRITE_FONT_WEIGHT_MEDIUM;
-    case TextFormat::Weight::SEMI_BOLD:
-        return DWRITE_FONT_WEIGHT_SEMI_BOLD;
-    case TextFormat::Weight::BOLD:
-        return DWRITE_FONT_WEIGHT_BOLD;
-    case TextFormat::Weight::EXTRA_BOLD:
-        return DWRITE_FONT_WEIGHT_EXTRA_BOLD;
-    case TextFormat::Weight::BLACK:
-        return DWRITE_FONT_WEIGHT_BLACK;
-    case TextFormat::Weight::EXTRA_BLACK:
-        return DWRITE_FONT_WEIGHT_EXTRA_BLACK;
-    default:
-        throw std::invalid_argument("Unknown font weight");
-    }
-}
-
-DWRITE_FONT_STYLE D2DDeviceResources::toDWriteFontStyle(TextFormat::Style style)
-{
-    switch (style)
-    {
-    case TextFormat::Style::NORMAL:
-        return DWRITE_FONT_STYLE_NORMAL;
-    case TextFormat::Style::ITALIC:
-        return DWRITE_FONT_STYLE_ITALIC;
-    case TextFormat::Style::OBLIQUE:
-        return DWRITE_FONT_STYLE_OBLIQUE;
-    default:
-        throw std::invalid_argument("Unknown font style");
-    }
-}
-
-DWRITE_FONT_STRETCH D2DDeviceResources::toDWriteFontStretch(TextFormat::Stretch stretch)
-{
-    switch (stretch)
-    {
-    case TextFormat::Stretch::ULTRA_CONDENSED:
-        return DWRITE_FONT_STRETCH_ULTRA_CONDENSED;
-    case TextFormat::Stretch::EXTRA_CONDENSED:
-        return DWRITE_FONT_STRETCH_EXTRA_CONDENSED;
-    case TextFormat::Stretch::CONDENSED:
-        return DWRITE_FONT_STRETCH_CONDENSED;
-    case TextFormat::Stretch::SEMI_CONDENSED:
-        return DWRITE_FONT_STRETCH_SEMI_CONDENSED;
-    case TextFormat::Stretch::NORMAL:
-        return DWRITE_FONT_STRETCH_NORMAL;
-    case TextFormat::Stretch::SEMI_EXPANDED:
-        return DWRITE_FONT_STRETCH_SEMI_EXPANDED;
-    case TextFormat::Stretch::EXPANDED:
-        return DWRITE_FONT_STRETCH_EXPANDED;
-    case TextFormat::Stretch::EXTRA_EXPANDED:
-        return DWRITE_FONT_STRETCH_EXTRA_EXPANDED;
-    case TextFormat::Stretch::ULTRA_EXPANDED:
-        return DWRITE_FONT_STRETCH_ULTRA_EXPANDED;
-    default:
-        throw std::invalid_argument("Unknown font stretch");
     }
 }
 

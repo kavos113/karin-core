@@ -49,9 +49,6 @@ private:
     static D2D1_CAP_STYLE toD2DCapStyle(StrokeStyle::CapStyle capStyle);
     static D2D1_LINE_JOIN toD2DJoinStyle(StrokeStyle::JoinStyle joinStyle);
     static D2D1_EXTEND_MODE toD2DExtendMode(ExtendMode extendMode);
-    static DWRITE_FONT_WEIGHT toDWriteFontWeight(TextFormat::Weight weight);
-    static DWRITE_FONT_STYLE toDWriteFontStyle(TextFormat::Style style);
-    static DWRITE_FONT_STRETCH toDWriteFontStretch(TextFormat::Stretch stretch);
     static DWRITE_TEXT_ALIGNMENT toDWriteTextAlignment(TextFormat::HorizontalAlignment alignment);
     static DWRITE_PARAGRAPH_ALIGNMENT toDWriteParagraphAlignment(TextFormat::VerticalAlignment alignment);
     static DWRITE_WORD_WRAPPING toDWriteWordWrapping(TextFormat::Wrapping wordWrapping);
