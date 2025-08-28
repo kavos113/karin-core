@@ -1,5 +1,5 @@
-#ifndef KARIN_GRAPHICS_TEXT_H
-#define KARIN_GRAPHICS_TEXT_H
+#ifndef KARIN_GRAPHICS_TEXT_LAYOUT_H
+#define KARIN_GRAPHICS_TEXT_LAYOUT_H
 
 #include "text_format.h"
 
@@ -24,4 +24,4 @@ struct TextLayout
 };
 } // karin
 
-#endif //KARIN_GRAPHICS_TEXT_H
+#endif //KARIN_GRAPHICS_TEXT_LAYOUT_H
