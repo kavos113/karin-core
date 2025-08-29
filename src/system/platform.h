@@ -3,7 +3,7 @@
 
 #include "application_impl.h"
 #include "window_impl.h"
-#include "windows/win_system_font.h"
+#include "windows/win_system_font_impl.h"
 
 #include <karin/system/font.h>
 

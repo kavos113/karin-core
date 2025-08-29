@@ -1,4 +1,4 @@
-#include "win_system_font.h"
+#include "win_system_font_impl.h"
 
 #include <utils/string.h>
 #include <d2d/dwrite_converter.h>
@@ -7,25 +7,27 @@
 #include <wrl/client.h>
 
 #include <iostream>
+#include <stdexcept>
 
 namespace karin
 {
-std::vector<Font> getWindowsSystemFonts()
+WinSystemFontImpl::WinSystemFontImpl()
 {
-    Microsoft::WRL::ComPtr<IDWriteFactory> factory;
     HRESULT hr = DWriteCreateFactory(
         DWRITE_FACTORY_TYPE_SHARED,
         __uuidof(IDWriteFactory),
-        reinterpret_cast<IUnknown**>(factory.GetAddressOf())
+        reinterpret_cast<IUnknown**>(m_factory.GetAddressOf())
     );
     if (FAILED(hr))
     {
-        std::cerr << "Failed to create DirectWrite factory." << std::endl;
-        return {};
+        throw std::runtime_error("Failed to create DirectWrite factory.");
     }
+}
 
+std::vector<Font> WinSystemFontImpl::getSystemFonts()
+{
     Microsoft::WRL::ComPtr<IDWriteFontCollection> fontCollection;
-    hr = factory->GetSystemFontCollection(&fontCollection);
+    HRESULT hr = m_factory->GetSystemFontCollection(&fontCollection);
     if (FAILED(hr))
     {
         std::cerr << "Failed to get system font collection." << std::endl;
@@ -121,5 +123,9 @@ std::vector<Font> getWindowsSystemFonts()
     }
 
     return fonts;
+}
+
+std::vector<std::byte> WinSystemFontImpl::getFontData(const Font& font)
+{
 }
 }
