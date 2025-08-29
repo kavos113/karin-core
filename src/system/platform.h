@@ -3,17 +3,14 @@
 
 #include "application_impl.h"
 #include "window_impl.h"
-#include "windows/win_system_font_impl.h"
-
-#include <karin/system/font.h>
 
 #include <memory>
 #include <string>
-#include <vector>
 
 #ifdef KARIN_PLATFORM_WINDOWS
 #include "windows/win_application_impl.h"
 #include "windows/win_window_impl.h"
+#include "windows/win_system_font_impl.h"
 #elifdef KARIN_PLATFORM_UNIX
 #include "x11/x11_application_impl.h"
 #include "x11/x11_window_impl.h"
@@ -52,15 +49,14 @@ inline std::unique_ptr<IWindowImpl> createWindowImpl(
     return nullptr;
 }
 
-inline std::vector<Font> getPlatformSystemFonts()
+inline std::unique_ptr<SystemFontImpl> createSystemFontImpl()
 {
 #ifdef KARIN_PLATFORM_WINDOWS
-    return getWindowsSystemFonts();
+    return std::make_unique<WinSystemFontImpl>();
 #elifdef KARIN_PLATFORM_UNIX
-    return {};
-#endif
 
-    return {};
+#endif
+    return nullptr;
 }
 }
 

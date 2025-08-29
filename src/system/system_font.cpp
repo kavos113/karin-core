@@ -4,8 +4,22 @@
 
 namespace karin
 {
-std::vector<Font> getSystemFonts()
+SystemFont::SystemFont()
+    : m_impl(createSystemFontImpl())
 {
-    return getPlatformSystemFonts();
+    if (!m_impl)
+    {
+        throw std::runtime_error("Failed to create SystemFont implementation for this platform.");
+    }
+}
+
+std::vector<Font> SystemFont::getSystemFonts()
+{
+    return m_impl->getSystemFonts();
+}
+
+std::vector<std::byte> SystemFont::getFontData(const Font& font)
+{
+    return m_impl->getFontData(font);
 }
 }

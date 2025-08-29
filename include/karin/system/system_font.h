@@ -14,6 +14,8 @@ class SystemFontImpl;
 class SystemFont
 {
 public:
+    SystemFont();
+
     std::vector<Font> getSystemFonts();
     std::vector<std::byte> getFontData(const Font& font);
 
