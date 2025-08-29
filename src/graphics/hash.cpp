@@ -1,6 +1,7 @@
 #include <karin/graphics/pattern.h>
 #include <karin/graphics/text_format.h>
 #include <karin/graphics/text_layout.h>
+#include <karin/system/font.h>
 
 #include <utils/hash.h>
 
@@ -78,15 +79,24 @@ size_t ImagePattern::hash() const
     return seed;
 }
 
+size_t Font::hash() const
+{
+    size_t seed = 0;
+
+    hash_combine(seed, family);
+    hash_combine(seed, static_cast<int>(style));
+    hash_combine(seed, static_cast<int>(stretch));
+    hash_combine(seed, static_cast<int>(weight));
+    return seed;
+}
+
+
 size_t TextFormat::hash() const
 {
     size_t seed = 0;
 
     hash_combine(seed, size);
-    hash_combine(seed, family);
-    hash_combine(seed, static_cast<int>(style));
-    hash_combine(seed, static_cast<int>(stretch));
-    hash_combine(seed, static_cast<int>(weight));
+    hash_combine(seed, font.hash());
     hash_combine(seed, static_cast<int>(horizontalAlignment));
     hash_combine(seed, static_cast<int>(verticalAlignment));
     hash_combine(seed, lineSpacing);

@@ -47,6 +47,8 @@ struct Font
     Style style = Style::NORMAL;
     Stretch stretch = Stretch::NORMAL;
     Weight weight = Weight::NORMAL;
+
+    size_t hash() const;
 };
 } // karin
 
