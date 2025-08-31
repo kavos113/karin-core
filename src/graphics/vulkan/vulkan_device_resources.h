@@ -44,7 +44,7 @@ private:
         VkImage image = VK_NULL_HANDLE;
         VmaAllocation allocation = VK_NULL_HANDLE;
         VkImageView imageView = VK_NULL_HANDLE;
-        std::vector<VkDescriptorSet> descriptorSets;
+        std::vector<VkDescriptorSet> descriptorSets; // One per frame in flight
     };
 
     static constexpr size_t LUT_WIDTH = 256;
