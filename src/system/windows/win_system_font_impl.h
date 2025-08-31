@@ -5,9 +5,10 @@
 
 #include <karin/system/font.h>
 #include <wrl/client.h>
-#include <dwrite.h>
 
 #include <vector>
+
+class IDWriteFactory;
 
 namespace karin
 {
@@ -15,13 +16,14 @@ class WinSystemFontImpl : public SystemFontImpl
 {
 public:
     WinSystemFontImpl();
-    ~WinSystemFontImpl() override = default;
+    ~WinSystemFontImpl() override;
 
     std::vector<Font> getSystemFonts() override;
     std::vector<std::byte> getFontData(const Font& font) override;
 
 private:
     Microsoft::WRL::ComPtr<IDWriteFactory> m_factory;
+    HMODULE m_dwriteModule = nullptr;
 };
 }
 

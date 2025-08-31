@@ -4,23 +4,57 @@
 #include <d2d/dwrite_converter.h>
 
 #include <dwrite.h>
-#include <wrl/client.h>
 
 #include <iostream>
 #include <stdexcept>
 
 namespace karin
 {
+using PFN_DwriteCreateFactory = HRESULT(WINAPI*)(
+    DWRITE_FACTORY_TYPE factoryType,
+    REFIID iid,
+    IUnknown** factory
+);
+
 WinSystemFontImpl::WinSystemFontImpl()
 {
-    HRESULT hr = DWriteCreateFactory(
+    m_dwriteModule = LoadLibraryW(L"dwrite.dll");
+    if (!m_dwriteModule)
+    {
+        throw std::runtime_error("Failed to load dwrite.dll");
+    }
+
+    PFN_DwriteCreateFactory pDwriteCreateFactory =
+        reinterpret_cast<PFN_DwriteCreateFactory>(
+            GetProcAddress(m_dwriteModule, "DWriteCreateFactory")
+        );
+    if (!pDwriteCreateFactory)
+    {
+        FreeLibrary(m_dwriteModule);
+        m_dwriteModule = nullptr;
+        throw std::runtime_error("Failed to get DWriteCreateFactory address.");
+    }
+
+    HRESULT hr = pDwriteCreateFactory(
         DWRITE_FACTORY_TYPE_SHARED,
         __uuidof(IDWriteFactory),
         reinterpret_cast<IUnknown**>(m_factory.GetAddressOf())
     );
     if (FAILED(hr))
     {
+        FreeLibrary(m_dwriteModule);
+        m_dwriteModule = nullptr;
         throw std::runtime_error("Failed to create DirectWrite factory.");
+    }
+}
+
+WinSystemFontImpl::~WinSystemFontImpl()
+{
+    m_factory.Reset();
+    if (m_dwriteModule)
+    {
+        FreeLibrary(m_dwriteModule);
+        m_dwriteModule = nullptr;
     }
 }
 
