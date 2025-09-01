@@ -17,9 +17,7 @@ namespace karin
 class VulkanGlyphCache
 {
 public:
-    explicit VulkanGlyphCache(
-        VulkanGraphicsDevice* device, VkDescriptorSetLayout atlasDescriptorSetLayout, size_t maxFramesInFlight
-    );
+    explicit VulkanGlyphCache(VulkanGraphicsDevice* device, size_t maxFramesInFlight);
     ~VulkanGlyphCache();
 
     struct GlyphInfo
@@ -40,11 +38,14 @@ public:
 private:
     static size_t glyphKey(std::string character, const Font& font);
 
+    void createAtlas();
+    void createDescriptorSetLayout();
+    void createSampler();
+
     static constexpr int ATLAS_WIDTH = 2048;
     static constexpr int ATLAS_HEIGHT = 2048;
 
     VulkanGraphicsDevice* m_device = nullptr;
-    VkDescriptorSetLayout m_atlasDescriptorSetLayout = VK_NULL_HANDLE;
     size_t m_maxFramesInFlight = 2;
 
     std::unordered_map<size_t, GlyphInfo> m_glyphMap;
@@ -54,6 +55,7 @@ private:
     VkImageView m_atlasImageView = VK_NULL_HANDLE;
     std::vector<VkDescriptorSet> m_atlasDescriptorSets; // One per frame in flight
     VkSampler m_atlasSampler = VK_NULL_HANDLE;
+    VkDescriptorSetLayout m_atlasDescriptorSetLayout = VK_NULL_HANDLE;
 };
 } // karin
 
