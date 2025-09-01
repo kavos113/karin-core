@@ -33,10 +33,10 @@ public:
         float advanceX = 0.0f;
     };
 
-    GlyphInfo getGlyph(const std::string& character, const Font& font);
+    GlyphInfo getGlyph(const std::string& character, const Font& font, float size);
 
 private:
-    static size_t glyphKey(const std::string& character, const Font& font);
+    static size_t glyphKey(const std::string& character, const Font& font, float size);
 
     void createAtlas();
     void createDescriptorSetLayout();
@@ -44,6 +44,8 @@ private:
 
     static constexpr int ATLAS_WIDTH = 2048;
     static constexpr int ATLAS_HEIGHT = 2048;
+
+    static constexpr float SIZE_FLOAT_ACCURACY = 100.0f;
 
     VulkanGraphicsDevice* m_device = nullptr;
     size_t m_maxFramesInFlight = 2;
@@ -56,6 +58,10 @@ private:
     std::vector<VkDescriptorSet> m_atlasDescriptorSets; // One per frame in flight
     VkSampler m_atlasSampler = VK_NULL_HANDLE;
     VkDescriptorSetLayout m_atlasDescriptorSetLayout = VK_NULL_HANDLE;
+
+    float m_currentX = 0.0f;
+    float m_currentY = 0.0f;
+    float m_rowHeight = 0.0f;
 };
 } // karin
 

@@ -2,6 +2,7 @@
 
 #include <utils/hash.h>
 #include <stdexcept>
+#include <cmath>
 
 namespace karin
 {
@@ -26,20 +27,23 @@ VulkanGlyphCache::~VulkanGlyphCache()
     vkDestroyDescriptorSetLayout(m_device->device(), m_atlasDescriptorSetLayout, nullptr);
 }
 
-VulkanGlyphCache::GlyphInfo VulkanGlyphCache::getGlyph(const std::string& character, const Font& font)
+VulkanGlyphCache::GlyphInfo VulkanGlyphCache::getGlyph(const std::string& character, const Font& font, float size)
 {
-    if (auto it = m_glyphMap.find(glyphKey(character, font)); it != m_glyphMap.end())
+    if (auto it = m_glyphMap.find(glyphKey(character, font, size)); it != m_glyphMap.end())
     {
         return it->second;
     }
 }
 
-size_t VulkanGlyphCache::glyphKey(const std::string& character, const Font& font)
+size_t VulkanGlyphCache::glyphKey(const std::string& character, const Font& font, float size)
 {
+    uint32_t sizeInt = static_cast<uint32_t>(std::round(size * SIZE_FLOAT_ACCURACY));
+
     size_t seed = 0;
 
     hash_combine(seed, character);
     hash_combine(seed, font.hash());
+    hash_combine(seed, sizeInt);
 
     return seed;
 }
