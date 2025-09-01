@@ -1,5 +1,8 @@
 #include "vulkan_glyph_cache.h"
 
+#include <utils/hash.h>
+#include <stdexcept>
+
 namespace karin
 {
 VulkanGlyphCache::VulkanGlyphCache(VulkanGraphicsDevice* device, size_t maxFramesInFlight)
@@ -23,12 +26,22 @@ VulkanGlyphCache::~VulkanGlyphCache()
     vkDestroyDescriptorSetLayout(m_device->device(), m_atlasDescriptorSetLayout, nullptr);
 }
 
-VulkanGlyphCache::GlyphInfo VulkanGlyphCache::getGlyph(std::string character, const Font& font)
+VulkanGlyphCache::GlyphInfo VulkanGlyphCache::getGlyph(const std::string& character, const Font& font)
 {
+    if (auto it = m_glyphMap.find(glyphKey(character, font)); it != m_glyphMap.end())
+    {
+        return it->second;
+    }
 }
 
-size_t VulkanGlyphCache::glyphKey(std::string character, const Font& font)
+size_t VulkanGlyphCache::glyphKey(const std::string& character, const Font& font)
 {
+    size_t seed = 0;
+
+    hash_combine(seed, character);
+    hash_combine(seed, font.hash());
+
+    return seed;
 }
 
 void VulkanGlyphCache::createAtlas()

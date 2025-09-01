@@ -33,10 +33,10 @@ public:
         float advanceX = 0.0f;
     };
 
-    GlyphInfo getGlyph(std::string character, const Font& font);
+    GlyphInfo getGlyph(const std::string& character, const Font& font);
 
 private:
-    static size_t glyphKey(std::string character, const Font& font);
+    static size_t glyphKey(const std::string& character, const Font& font);
 
     void createAtlas();
     void createDescriptorSetLayout();
