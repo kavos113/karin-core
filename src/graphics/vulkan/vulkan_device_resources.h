@@ -8,6 +8,11 @@
 #include <text/font_loader.h>
 
 #include <vulkan/vulkan.h>
+#include <vulkan/vma.h>
+#include <vector>
+#include <memory>
+#include <cstddef>
+#include <stdexcept>
 #include <unordered_map>
 #include <array>
 
