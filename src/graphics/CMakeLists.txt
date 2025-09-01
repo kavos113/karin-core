@@ -27,6 +27,7 @@ elseif (VULKAN)
             vulkan/vulkan_pipeline.cpp
             vulkan/vulkan_tessellator.cpp
             vulkan/vulkan_device_resources.cpp
+            vulkan/vulkan_glyph_cache.cpp
             vulkan/vma_impl.cpp
             text/font_loader.cpp
     )

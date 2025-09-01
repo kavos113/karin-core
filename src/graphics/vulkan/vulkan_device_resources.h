@@ -5,6 +5,7 @@
 
 #include <karin/graphics/image.h>
 #include <karin/graphics/pattern.h>
+#include <text/font_loader.h>
 
 #include <vulkan/vulkan.h>
 #include <unordered_map>
@@ -59,6 +60,8 @@ private:
     std::unordered_map<size_t, Texture> m_textureMap;
 
     VulkanGraphicsDevice* m_device = nullptr;
+
+    std::unique_ptr<FontLoader> m_fontLoader;
 
     VkSampler m_clampSampler = VK_NULL_HANDLE;
     VkSampler m_repeatSampler = VK_NULL_HANDLE;
