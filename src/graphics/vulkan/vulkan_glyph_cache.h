@@ -5,6 +5,7 @@
 
 #include <karin/common/geometry/rectangle.h>
 #include <karin/system/font.h>
+#include <text/font_loader.h>
 
 #include <vulkan/vulkan.h>
 #include <vulkan/vma.h>
@@ -38,14 +39,19 @@ public:
 private:
     static size_t glyphKey(const std::string& character, const Font& font, float size);
 
+    Point allocateAtlasSpace(int width, int height);
+
     void createAtlas();
     void createDescriptorSetLayout();
     void createSampler();
+
 
     static constexpr int ATLAS_WIDTH = 2048;
     static constexpr int ATLAS_HEIGHT = 2048;
 
     static constexpr float SIZE_FLOAT_ACCURACY = 100.0f;
+
+    std::unique_ptr<FontLoader> m_fontLoader;
 
     VulkanGraphicsDevice* m_device = nullptr;
     size_t m_maxFramesInFlight = 2;
@@ -59,9 +65,9 @@ private:
     VkSampler m_atlasSampler = VK_NULL_HANDLE;
     VkDescriptorSetLayout m_atlasDescriptorSetLayout = VK_NULL_HANDLE;
 
-    float m_currentX = 0.0f;
-    float m_currentY = 0.0f;
-    float m_rowHeight = 0.0f;
+    int m_currentX = 0.0f;
+    int m_currentY = 0.0f;
+    int m_rowHeight = 0.0f;
 };
 } // karin
 

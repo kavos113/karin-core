@@ -1,11 +1,11 @@
 #ifndef SRC_GRAPHICS_VULKAN_VULKAN_DEVICE_RESOURCES_H
 #define SRC_GRAPHICS_VULKAN_VULKAN_DEVICE_RESOURCES_H
 
+#include "vulkan_glyph_cache.h"
 #include "vulkan_graphics_device.h"
 
 #include <karin/graphics/image.h>
 #include <karin/graphics/pattern.h>
-#include <text/font_loader.h>
 
 #include <vulkan/vulkan.h>
 #include <vulkan/vma.h>
@@ -66,7 +66,7 @@ private:
 
     VulkanGraphicsDevice* m_device = nullptr;
 
-    std::unique_ptr<FontLoader> m_fontLoader;
+    std::unique_ptr<VulkanGlyphCache> m_fontLoader;
 
     VkSampler m_clampSampler = VK_NULL_HANDLE;
     VkSampler m_repeatSampler = VK_NULL_HANDLE;

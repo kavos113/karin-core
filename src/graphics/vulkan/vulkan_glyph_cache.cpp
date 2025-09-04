@@ -1,6 +1,9 @@
 #include "vulkan_glyph_cache.h"
 
 #include <utils/hash.h>
+
+#include <ft2build.h>
+#include FT_FREETYPE_H
 #include <stdexcept>
 #include <cmath>
 
@@ -33,11 +36,42 @@ VulkanGlyphCache::GlyphInfo VulkanGlyphCache::getGlyph(const std::string& charac
     {
         return it->second;
     }
+
+    FT_Face face = m_fontLoader->loadFont(font);
+    if (!face)
+    {
+        throw std::runtime_error("failed to load font face");
+    }
+
+    FT_Error error = FT_Set_Char_Size(
+        face,
+        0,
+        static_cast<FT_F26Dot6>(size * 64.0f),
+        300,
+        300
+    );
+    if (error)
+    {
+        throw std::runtime_error("failed to set character size");
+    }
+
+    FT_UInt glyphIndex = FT_Get_Char_Index(face, character[0]);
+    error = FT_Load_Glyph(face, glyphIndex, FT_LOAD_DEFAULT);
+    if (error)
+    {
+        throw std::runtime_error("failed to load glyph");
+    }
+
+    error = FT_Render_Glyph(face->glyph, FT_RENDER_MODE_NORMAL);
+    if (error)
+    {
+        throw std::runtime_error("failed to render glyph");
+    }
 }
 
 size_t VulkanGlyphCache::glyphKey(const std::string& character, const Font& font, float size)
 {
-    uint32_t sizeInt = static_cast<uint32_t>(std::round(size * SIZE_FLOAT_ACCURACY));
+    auto sizeInt = static_cast<uint32_t>(std::round(size * SIZE_FLOAT_ACCURACY));
 
     size_t seed = 0;
 
@@ -46,6 +80,26 @@ size_t VulkanGlyphCache::glyphKey(const std::string& character, const Font& font
     hash_combine(seed, sizeInt);
 
     return seed;
+}
+
+Point VulkanGlyphCache::allocateAtlasSpace(int width, int height)
+{
+    if (m_currentX + width > ATLAS_WIDTH)
+    {
+        m_currentX = 0.0f;
+        m_currentY += m_rowHeight;
+        m_rowHeight = 0.0f;
+    }
+
+    Point position(m_currentX, m_currentY);
+    m_currentX += width;
+    m_rowHeight = std::max(m_rowHeight, height);
+    if (m_currentY + m_rowHeight > ATLAS_HEIGHT)
+    {
+        throw std::runtime_error("glyph atlas is full");
+    }
+
+    return position;
 }
 
 void VulkanGlyphCache::createAtlas()
