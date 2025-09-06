@@ -6,6 +6,7 @@
 
 #include <karin/graphics/image.h>
 #include <karin/graphics/pattern.h>
+#include <karin/graphics/text_layout.h>
 
 #include <vulkan/vulkan.h>
 #include <vulkan/vma.h>
@@ -43,6 +44,8 @@ public:
     std::vector<VkDescriptorSet> textureDescriptorSet(Image image);
     VkDescriptorSetLayout textureDescriptorSetLayout() const;
 
+    std::vector<VulkanGlyphCache::GlyphInfo> textLayout(const TextLayout& layout);
+
 private:
     struct Texture
     {
@@ -62,6 +65,9 @@ private:
 
     std::unordered_map<size_t, Texture> m_gradientPointLutMap;
     std::unordered_map<size_t, Texture> m_textureMap;
+    std::unordered_map<size_t, std::vector<VulkanGlyphCache::GlyphInfo>> m_textLayoutCache;
+
+    std::unique_ptr<VulkanGlyphCache> m_glyphCache;
 
     VulkanGraphicsDevice* m_device = nullptr;
 

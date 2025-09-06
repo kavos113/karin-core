@@ -47,6 +47,11 @@ public:
     // only change scale
     glm::vec2 normalizeVec(glm::vec2 vec) const;
 
+    VulkanDeviceResources* deviceResources() const
+    {
+        return m_deviceResources.get();
+    }
+
 private:
     struct DrawCommand
     {
@@ -78,7 +83,6 @@ private:
     std::unique_ptr<VulkanPipeline> m_radialGradientPipeline;
     std::unique_ptr<VulkanPipeline> m_imagePipeline;
     std::unique_ptr<VulkanDeviceResources> m_deviceResources;
-    std::unique_ptr<VulkanGlyphCache> m_glyphCache;
 
     std::vector<DrawCommand> m_drawCommands;
 

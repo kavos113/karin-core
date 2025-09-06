@@ -506,6 +506,10 @@ void VulkanGraphicsContextImpl::drawImage(Image image, Rectangle destRect, Recta
     m_renderer->addCommand(vertices, indices, pushConstants, imagePattern);
 }
 
+void VulkanGraphicsContextImpl::drawText(const TextLayout& text, Point start, Pattern& pattern)
+{
+}
+
 PushConstants VulkanGraphicsContextImpl::createPushConstantData(const Pattern& pattern) const
 {
     return std::visit(

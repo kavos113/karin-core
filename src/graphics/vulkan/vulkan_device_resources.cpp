@@ -573,4 +573,12 @@ void VulkanDeviceResources::createDescriptorSetLayout()
         throw std::runtime_error("failed to create descriptor set layout for linear gradient pipeline");
     }
 }
+
+std::vector<VulkanGlyphCache::GlyphInfo> VulkanDeviceResources::textLayout(const TextLayout& layout)
+{
+    if (auto it = m_textLayoutCache.find(layout.hash()); it != m_textLayoutCache.end())
+    {
+        return it->second;
+    }
+}
 } // karin
