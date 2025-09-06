@@ -78,6 +78,7 @@ private:
     std::unique_ptr<VulkanPipeline> m_radialGradientPipeline;
     std::unique_ptr<VulkanPipeline> m_imagePipeline;
     std::unique_ptr<VulkanDeviceResources> m_deviceResources;
+    std::unique_ptr<VulkanGlyphCache> m_glyphCache;
 
     std::vector<DrawCommand> m_drawCommands;
 

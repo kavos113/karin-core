@@ -10,7 +10,6 @@
 #include <vulkan/vulkan.h>
 #include <vulkan/vma.h>
 #include <vector>
-#include <memory>
 #include <cstddef>
 #include <stdexcept>
 #include <unordered_map>
@@ -65,8 +64,6 @@ private:
     std::unordered_map<size_t, Texture> m_textureMap;
 
     VulkanGraphicsDevice* m_device = nullptr;
-
-    std::unique_ptr<VulkanGlyphCache> m_fontLoader;
 
     VkSampler m_clampSampler = VK_NULL_HANDLE;
     VkSampler m_repeatSampler = VK_NULL_HANDLE;

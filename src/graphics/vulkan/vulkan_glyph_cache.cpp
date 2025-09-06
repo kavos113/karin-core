@@ -9,12 +9,17 @@
 
 namespace karin
 {
-VulkanGlyphCache::VulkanGlyphCache(VulkanGraphicsDevice* device, size_t maxFramesInFlight)
-    : m_device(device), m_maxFramesInFlight(maxFramesInFlight)
+VulkanGlyphCache::VulkanGlyphCache(
+    VulkanGraphicsDevice* device, std::unique_ptr<FontLoader> fontLoader, size_t maxFramesInFlight
+) : m_device(device), m_fontLoader(std::move(fontLoader)), m_maxFramesInFlight(maxFramesInFlight)
 {
     if (!m_device)
     {
         throw std::runtime_error("VulkanGlyphCache: device is null");
+    }
+    if (!m_fontLoader)
+    {
+        throw std::runtime_error("VulkanGlyphCache: fontLoader is null");
     }
 
     createDescriptorSetLayout();

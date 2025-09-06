@@ -18,7 +18,11 @@ namespace karin
 class VulkanGlyphCache
 {
 public:
-    explicit VulkanGlyphCache(VulkanGraphicsDevice* device, size_t maxFramesInFlight);
+    explicit VulkanGlyphCache(
+        VulkanGraphicsDevice* device,
+        std::unique_ptr<FontLoader> fontLoader,
+        size_t maxFramesInFlight
+    );
     ~VulkanGlyphCache();
 
     struct GlyphInfo
