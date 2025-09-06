@@ -47,11 +47,11 @@ public:
         Point atlasRegion{0.0f, 0.0f};
     };
 
-    GlyphInfo getGlyph(const std::string& character, const Font& font, float size);
+    GlyphInfo getGlyph(unsigned int glyphIndex, const Font& font, float size);
     void flushUploadQueue();
 
 private:
-    static size_t glyphKey(const std::string& character, const Font& font, float size);
+    static size_t glyphKey(unsigned int glyphInde, const Font& font, float size);
 
     Point allocateAtlasSpace(int width, int height);
 

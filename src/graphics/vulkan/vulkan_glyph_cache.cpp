@@ -37,9 +37,9 @@ VulkanGlyphCache::~VulkanGlyphCache()
     vkDestroyDescriptorSetLayout(m_device->device(), m_atlasDescriptorSetLayout, nullptr);
 }
 
-VulkanGlyphCache::GlyphInfo VulkanGlyphCache::getGlyph(const std::string& character, const Font& font, float size)
+VulkanGlyphCache::GlyphInfo VulkanGlyphCache::getGlyph(unsigned int glyphIndex, const Font& font, float size)
 {
-    if (auto it = m_glyphMap.find(glyphKey(character, font, size)); it != m_glyphMap.end())
+    if (auto it = m_glyphMap.find(glyphKey(glyphIndex, font, size)); it != m_glyphMap.end())
     {
         return it->second;
     }
@@ -62,7 +62,6 @@ VulkanGlyphCache::GlyphInfo VulkanGlyphCache::getGlyph(const std::string& charac
         throw std::runtime_error("failed to set character size");
     }
 
-    FT_UInt glyphIndex = FT_Get_Char_Index(face, character[0]);
     error = FT_Load_Glyph(face, glyphIndex, FT_LOAD_DEFAULT);
     if (error)
     {
@@ -91,7 +90,7 @@ VulkanGlyphCache::GlyphInfo VulkanGlyphCache::getGlyph(const std::string& charac
         .bearingY = static_cast<float>(slot->bitmap_top),
         .advanceX = static_cast<float>(slot->advance.x >> 6),
     };
-    m_glyphMap[glyphKey(character, font, size)] = info;
+    m_glyphMap[glyphKey(glyphIndex, font, size)] = info;
 
     std::vector<std::byte> bitmapData(slot->bitmap.width * slot->bitmap.rows);
     std::memcpy(bitmapData.data(), slot->bitmap.buffer, bitmapData.size());
@@ -189,13 +188,13 @@ void VulkanGlyphCache::flushUploadQueue()
     vmaDestroyBuffer(m_device->allocator(), stagingBuffer, stagingBufferMemory);
 }
 
-size_t VulkanGlyphCache::glyphKey(const std::string& character, const Font& font, float size)
+size_t VulkanGlyphCache::glyphKey(unsigned int glyphIndex, const Font& font, float size)
 {
     auto sizeInt = static_cast<uint32_t>(std::round(size * SIZE_FLOAT_ACCURACY));
 
     size_t seed = 0;
 
-    hash_combine(seed, character);
+    hash_combine(seed, glyphIndex);
     hash_combine(seed, font.hash());
     hash_combine(seed, sizeInt);
 
