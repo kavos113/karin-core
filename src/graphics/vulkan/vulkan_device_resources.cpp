@@ -1,8 +1,12 @@
 #include "vulkan_device_resources.h"
 
-#include "vma.h"
-
 #include <karin/common/color/color.h>
+
+#include <ft2build.h>
+#include FT_FREETYPE_H
+#include <harfbuzz/hb.h>
+#include <harfbuzz/hb-ft.h>
+
 #include <ranges>
 #include <cstring>
 #include <stdexcept>
@@ -579,6 +583,55 @@ std::vector<VulkanGlyphCache::GlyphInfo> VulkanDeviceResources::textLayout(const
     if (auto it = m_textLayoutCache.find(layout.hash()); it != m_textLayoutCache.end())
     {
         return it->second;
+    }
+
+    FT_Face face = m_fontLoader->loadFont(layout.format.font);
+    FT_Error error = FT_Set_Pixel_Sizes(face, 0, static_cast<FT_UInt>(layout.format.size));
+    if (error)
+    {
+        throw std::runtime_error("failed to set pixel sizes for font");
+    }
+
+    hb_font_t* hbFont = hb_ft_font_create(face, nullptr);
+    hb_buffer_t* hbBuffer = hb_buffer_create();
+
+    hb_buffer_add_utf8(hbBuffer, layout.text.c_str(), -1, 0, -1);
+
+    hb_direction_t direction = HB_DIRECTION_LTR;
+    switch (layout.format.readingDirection)
+    {
+    case TextFormat::Direction::LEFT_TO_RIGHT:
+        direction = HB_DIRECTION_LTR;
+        break;
+    case TextFormat::Direction::RIGHT_TO_LEFT:
+        direction = HB_DIRECTION_RTL;
+        break;
+    case TextFormat::Direction::TOP_TO_BOTTOM:
+        direction = HB_DIRECTION_TTB;
+        break;
+    case TextFormat::Direction::BOTTOM_TO_TOP:
+        direction = HB_DIRECTION_BTT;
+        break;
+    }
+
+    hb_buffer_set_direction(hbBuffer, direction);
+    hb_buffer_set_language(hbBuffer, hb_language_from_string(layout.format.locale.c_str(), -1));
+
+    hb_shape(hbFont, hbBuffer, nullptr, 0);
+
+    unsigned int glyphCount;
+    hb_glyph_info_t* glyphInfo = hb_buffer_get_glyph_infos(hbBuffer, &glyphCount);
+    hb_glyph_position_t* glyphPos = hb_buffer_get_glyph_positions(hbBuffer, &glyphCount);
+
+    float penX = 0;
+    float penY = 0;
+
+    std::vector<VulkanGlyphCache::GlyphInfo> glyphs;
+    glyphs.reserve(glyphCount);
+
+    for (unsigned int i = 0; i < glyphCount; i++)
+    {
+        FT_UInt glyphIndex = glyphInfo[i].codepoint;
     }
 }
 } // karin

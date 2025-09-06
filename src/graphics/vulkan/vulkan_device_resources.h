@@ -3,26 +3,32 @@
 
 #include "vulkan_glyph_cache.h"
 #include "vulkan_graphics_device.h"
+#include "vma.h"
+#include <text/font_loader.h>
 
 #include <karin/graphics/image.h>
 #include <karin/graphics/pattern.h>
 #include <karin/graphics/text_layout.h>
 
 #include <vulkan/vulkan.h>
-#include <vulkan/vma.h>
 #include <vector>
 #include <cstddef>
 #include <stdexcept>
 #include <unordered_map>
 #include <array>
+#include <memory>
 
 namespace karin
 {
 class VulkanDeviceResources
 {
 public:
-    explicit VulkanDeviceResources(VulkanGraphicsDevice* device, size_t maxFramesInFlight)
-        : m_device(device), m_maxFramesInFlight(maxFramesInFlight)
+    explicit VulkanDeviceResources(
+        VulkanGraphicsDevice* device,
+        std::unique_ptr<FontLoader> fontLoader,
+        size_t maxFramesInFlight
+    )
+        : m_fontLoader(std::move(fontLoader)), m_device(device), m_maxFramesInFlight(maxFramesInFlight)
     {
         if (!m_device)
         {
@@ -31,6 +37,8 @@ public:
 
         createSamplers();
         createDescriptorSetLayout();
+
+        m_glyphCache = std::make_unique<VulkanGlyphCache>(m_device, m_fontLoader.get(), maxFramesInFlight);
     }
 
     ~VulkanDeviceResources() = default;
@@ -68,6 +76,7 @@ private:
     std::unordered_map<size_t, std::vector<VulkanGlyphCache::GlyphInfo>> m_textLayoutCache;
 
     std::unique_ptr<VulkanGlyphCache> m_glyphCache;
+    std::unique_ptr<FontLoader> m_fontLoader;
 
     VulkanGraphicsDevice* m_device = nullptr;
 

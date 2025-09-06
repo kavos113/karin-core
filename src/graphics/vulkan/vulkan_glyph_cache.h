@@ -20,7 +20,7 @@ class VulkanGlyphCache
 public:
     explicit VulkanGlyphCache(
         VulkanGraphicsDevice* device,
-        std::unique_ptr<FontLoader> fontLoader,
+        FontLoader* fontLoader,
         size_t maxFramesInFlight
     );
     ~VulkanGlyphCache();
@@ -65,7 +65,7 @@ private:
 
     static constexpr float SIZE_FLOAT_ACCURACY = 100.0f;
 
-    std::unique_ptr<FontLoader> m_fontLoader;
+    FontLoader* m_fontLoader;
 
     VulkanGraphicsDevice* m_device = nullptr;
     size_t m_maxFramesInFlight = 2;

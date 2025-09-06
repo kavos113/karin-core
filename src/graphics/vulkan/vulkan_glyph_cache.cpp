@@ -10,8 +10,10 @@
 namespace karin
 {
 VulkanGlyphCache::VulkanGlyphCache(
-    VulkanGraphicsDevice* device, std::unique_ptr<FontLoader> fontLoader, size_t maxFramesInFlight
-) : m_device(device), m_fontLoader(std::move(fontLoader)), m_maxFramesInFlight(maxFramesInFlight)
+    VulkanGraphicsDevice* device,
+    FontLoader* fontLoader,
+    size_t maxFramesInFlight
+) : m_device(device), m_fontLoader(fontLoader), m_maxFramesInFlight(maxFramesInFlight)
 {
     if (!m_device)
     {
