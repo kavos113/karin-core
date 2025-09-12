@@ -52,7 +52,16 @@ public:
     std::vector<VkDescriptorSet> textureDescriptorSet(Image image);
     VkDescriptorSetLayout textureDescriptorSetLayout() const;
 
-    std::vector<VulkanGlyphCache::GlyphInfo> textLayout(const TextLayout& layout);
+    struct GlyphPosition
+    {
+        // position in layout. pixels
+        Rectangle position;
+
+        // uv in atlas. 0.0 - 1.0
+        Rectangle uv;
+    };
+
+    std::vector<GlyphPosition> textLayout(const TextLayout& layout);
 
 private:
     struct Texture
@@ -73,7 +82,7 @@ private:
 
     std::unordered_map<size_t, Texture> m_gradientPointLutMap;
     std::unordered_map<size_t, Texture> m_textureMap;
-    std::unordered_map<size_t, std::vector<VulkanGlyphCache::GlyphInfo>> m_textLayoutCache;
+    std::unordered_map<size_t, std::vector<GlyphPosition>> m_textLayoutCache;
 
     std::unique_ptr<VulkanGlyphCache> m_glyphCache;
     std::unique_ptr<FontLoader> m_fontLoader;

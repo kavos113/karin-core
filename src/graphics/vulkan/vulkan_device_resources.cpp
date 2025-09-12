@@ -578,7 +578,7 @@ void VulkanDeviceResources::createDescriptorSetLayout()
     }
 }
 
-std::vector<VulkanGlyphCache::GlyphInfo> VulkanDeviceResources::textLayout(const TextLayout& layout)
+std::vector<VulkanDeviceResources::GlyphPosition> VulkanDeviceResources::textLayout(const TextLayout& layout)
 {
     if (auto it = m_textLayoutCache.find(layout.hash()); it != m_textLayoutCache.end())
     {
@@ -626,12 +626,25 @@ std::vector<VulkanGlyphCache::GlyphInfo> VulkanDeviceResources::textLayout(const
     float penX = 0;
     float penY = 0;
 
-    std::vector<VulkanGlyphCache::GlyphInfo> glyphs;
+    std::vector<GlyphPosition> glyphs;
     glyphs.reserve(glyphCount);
 
     for (unsigned int i = 0; i < glyphCount; i++)
     {
         FT_UInt glyphIndex = glyphInfo[i].codepoint;
+        VulkanGlyphCache::GlyphInfo gInfo = m_glyphCache->getGlyph(glyphIndex, layout.format.font, layout.format.size);
+        // test: dont use hb yet
+        GlyphPosition pos;
+        pos.uv = gInfo.uv;
+        pos.position.pos = Point(penX + gInfo.bearingX, penY - gInfo.bearingY);
+        pos.position.size = Size(gInfo.width, gInfo.height);
+        glyphs.push_back(pos);
     }
+
+    hb_buffer_destroy(hbBuffer);
+    hb_font_destroy(hbFont);
+
+    m_textLayoutCache[layout.hash()] = glyphs;
+    return glyphs;
 }
 } // karin

@@ -508,6 +508,61 @@ void VulkanGraphicsContextImpl::drawImage(Image image, Rectangle destRect, Recta
 
 void VulkanGraphicsContextImpl::drawText(const TextLayout& text, Point start, Pattern& pattern)
 {
+    std::vector<VulkanPipeline::Vertex> vertices;
+    std::vector<uint16_t> indices;
+
+    auto glyphInfos = m_renderer->deviceResources()->textLayout(text);
+
+    for (const auto& glyphInfo : glyphInfos)
+    {
+        Rectangle pos = m_renderer->normalize(
+            Rectangle(
+                start.x + glyphInfo.position.pos.x,
+                start.y + glyphInfo.position.pos.y,
+                glyphInfo.position.size.width,
+                glyphInfo.position.size.height
+            )
+        );
+
+        size_t baseIndex = vertices.size();
+
+        vertices.push_back(
+            {
+                .pos = {pos.pos.x, pos.pos.y},
+                .uv = {glyphInfo.uv.pos.x, glyphInfo.uv.pos.y}
+            }
+        );
+        vertices.push_back(
+            {
+                .pos = {pos.pos.x + pos.size.width, pos.pos.y},
+                .uv = {glyphInfo.uv.pos.x + glyphInfo.uv.size.width, glyphInfo.uv.pos.y}
+            }
+        );
+        vertices.push_back(
+            {
+                .pos = {pos.pos.x + pos.size.width, pos.pos.y + pos.size.height},
+                .uv = {
+                    glyphInfo.uv.pos.x + glyphInfo.uv.size.width,
+                    glyphInfo.uv.pos.y + glyphInfo.uv.size.height
+                }
+            }
+        );
+        vertices.push_back(
+            {
+                .pos = {pos.pos.x, pos.pos.y + pos.size.height},
+                .uv = {glyphInfo.uv.pos.x, glyphInfo.uv.pos.y + glyphInfo.uv.size.height}
+            }
+        );
+
+        indices.push_back(static_cast<uint16_t>(baseIndex));
+        indices.push_back(static_cast<uint16_t>(baseIndex + 1));
+        indices.push_back(static_cast<uint16_t>(baseIndex + 2));
+        indices.push_back(static_cast<uint16_t>(baseIndex + 2));
+        indices.push_back(static_cast<uint16_t>(baseIndex + 3));
+        indices.push_back(static_cast<uint16_t>(baseIndex));
+    }
+
+    m_renderer->addCommand(vertices, indices, createPushConstantData(pattern), pattern);
 }
 
 PushConstants VulkanGraphicsContextImpl::createPushConstantData(const Pattern& pattern) const
