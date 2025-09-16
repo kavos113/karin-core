@@ -66,7 +66,7 @@ void VulkanRendererImpl::cleanUp()
 
     m_deviceResources->cleanup();
 
-    m_pipeline->cleanUp(m_device->device());
+    m_geometryPipeline->cleanUp(m_device->device());
     vkDestroyRenderPass(m_device->device(), m_renderPass, nullptr);
 
     m_surface->cleanUp();
@@ -138,9 +138,9 @@ void VulkanRendererImpl::endDraw()
     vkCmdBindPipeline(
         m_commandBuffers[m_currentFrame],
         VK_PIPELINE_BIND_POINT_GRAPHICS,
-        m_drawCommands.empty() ? m_pipeline->pipeline() : m_drawCommands.front().pipeline->pipeline()
+        m_drawCommands.empty() ? m_geometryPipeline->pipeline() : m_drawCommands.front().pipeline->pipeline()
     );
-    VulkanPipeline* lastPipeline = m_drawCommands.empty() ? m_pipeline.get() : m_drawCommands.front().pipeline;
+    VulkanPipeline* lastPipeline = m_drawCommands.empty() ? m_geometryPipeline.get() : m_drawCommands.front().pipeline;
 
     for (const auto& command : m_drawCommands)
     {
@@ -218,11 +218,12 @@ void VulkanRendererImpl::setClearColor(const Color& color)
     };
 }
 
-void VulkanRendererImpl::addGeometryDrawCommand(
+void VulkanRendererImpl::addCommand(
     const std::vector<VulkanPipeline::Vertex>& vertices,
     std::vector<uint16_t>& indices,
     const PushConstants& fragData,
-    const Pattern& pattern
+    const Pattern& pattern,
+    bool isGeometry
 )
 {
     memcpy(m_vertexMapPoint, vertices.data(), vertices.size() * sizeof(VulkanPipeline::Vertex));
@@ -243,7 +244,7 @@ void VulkanRendererImpl::addGeometryDrawCommand(
         .indexCount = static_cast<uint32_t>(indices.size()),
         .indexOffset = static_cast<uint32_t>(m_indexCount - indices.size()),
         .fragData = fragData,
-        .pipeline = m_pipeline.get(),
+        .pipeline = isGeometry ? m_geometryPipeline.get() : m_textPipeline.get(),
     };
 
     std::visit(
@@ -526,7 +527,7 @@ void VulkanRendererImpl::createFrameBuffers()
 
 void VulkanRendererImpl::createPipeline()
 {
-    std::vector descriptorSetLayouts = {m_deviceResources->textureDescriptorSetLayout()};
+    std::vector descriptorSetLayouts = {m_deviceResources->geometryDescriptorSetLayout()};
     std::vector pushConstantRanges = {
         VkPushConstantRange{
             .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
@@ -534,11 +535,19 @@ void VulkanRendererImpl::createPipeline()
             .size = sizeof(PushConstants)
         }
     };
-    m_pipeline = std::make_unique<VulkanPipeline>(
+    m_geometryPipeline = std::make_unique<VulkanPipeline>(
         m_device->device(), m_renderPass,
         geometry_vert_spv, geometry_vert_spv_len,
         geometry_frag_spv, geometry_frag_spv_len,
         descriptorSetLayouts, pushConstantRanges
+    );
+
+    std::vector textDescriptorSetLayouts = {m_deviceResources->textDescriptorSetLayout()};
+    m_textPipeline = std::make_unique<VulkanPipeline>(
+        m_device->device(), m_renderPass,
+        geometry_vert_spv, geometry_vert_spv_len,
+        text_frag_spv, text_frag_spv_len,
+        textDescriptorSetLayouts, pushConstantRanges
     );
 }
 

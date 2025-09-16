@@ -34,7 +34,7 @@ void VulkanDeviceResources::cleanup()
 
     m_gradientPointLutMap.clear();
 
-    vkDestroyDescriptorSetLayout(m_device->device(), m_textureDescriptorSetLayout, nullptr);
+    vkDestroyDescriptorSetLayout(m_device->device(), m_geometryDescriptorSetLayout, nullptr);
 
     vkDestroySampler(m_device->device(), m_clampSampler, nullptr);
     vkDestroySampler(m_device->device(), m_repeatSampler, nullptr);
@@ -201,7 +201,7 @@ std::vector<VkDescriptorSet> VulkanDeviceResources::gradientPointLutDescriptorSe
         throw std::runtime_error("failed to create gradient point LUT image view");
     }
 
-    std::vector layouts(m_maxFramesInFlight, m_textureDescriptorSetLayout);
+    std::vector layouts(m_maxFramesInFlight, m_geometryDescriptorSetLayout);
     std::vector<VkDescriptorSet> descriptorSets(m_maxFramesInFlight);
 
     VkDescriptorSetAllocateInfo allocInfo = {
@@ -358,9 +358,14 @@ std::vector<VkDescriptorSet> VulkanDeviceResources::textureDescriptorSet(Image i
     throw std::runtime_error("texture not found in VulkanDeviceResources");
 }
 
-VkDescriptorSetLayout VulkanDeviceResources::textureDescriptorSetLayout() const
+VkDescriptorSetLayout VulkanDeviceResources::geometryDescriptorSetLayout() const
 {
-    return m_textureDescriptorSetLayout;
+    return m_geometryDescriptorSetLayout;
+}
+
+VkDescriptorSetLayout VulkanDeviceResources::textDescriptorSetLayout() const
+{
+    return m_textDescriptorSetLayout;
 }
 
 Image VulkanDeviceResources::createImage(const std::vector<std::byte>& data, uint32_t width, uint32_t height)
@@ -511,7 +516,7 @@ Image VulkanDeviceResources::createImage(const std::vector<std::byte>& data, uin
         throw std::runtime_error("failed to create image view");
     }
 
-    std::vector layouts(m_maxFramesInFlight, m_textureDescriptorSetLayout);
+    std::vector layouts(m_maxFramesInFlight, m_geometryDescriptorSetLayout);
     std::vector<VkDescriptorSet> descriptorSets(m_maxFramesInFlight);
     VkDescriptorSetAllocateInfo allocInfo = {
         .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
@@ -559,7 +564,7 @@ Image VulkanDeviceResources::createImage(const std::vector<std::byte>& data, uin
     return Image(hash, width, height);
 }
 
-void VulkanDeviceResources::createDescriptorSetLayout()
+void VulkanDeviceResources::createDescriptorSetLayouts()
 {
     VkDescriptorSetLayoutBinding binding = {
         .binding = 0,
@@ -574,10 +579,32 @@ void VulkanDeviceResources::createDescriptorSetLayout()
         .pBindings = &binding
     };
     if (vkCreateDescriptorSetLayout(
-        m_device->device(), &layoutInfo, nullptr, &m_textureDescriptorSetLayout
+        m_device->device(), &layoutInfo, nullptr, &m_geometryDescriptorSetLayout
     ) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create descriptor set layout for linear gradient pipeline");
+    }
+
+    std::array bindings = {
+        binding,
+        VkDescriptorSetLayoutBinding{
+            .binding = 1,
+            .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+            .descriptorCount = 1,
+            .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
+            .pImmutableSamplers = nullptr
+        }
+    };
+    layoutInfo = {
+        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+        .bindingCount = static_cast<uint32_t>(bindings.size()),
+        .pBindings = bindings.data()
+    };
+    if (vkCreateDescriptorSetLayout(
+        m_device->device(), &layoutInfo, nullptr, &m_textDescriptorSetLayout
+    ) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create descriptor set layout for text pipeline");
     }
 }
 
@@ -805,7 +832,7 @@ void VulkanDeviceResources::createDummyTexture()
         throw std::runtime_error("failed to create image view for dummy texture");
     }
 
-    std::vector layouts(m_maxFramesInFlight, m_textureDescriptorSetLayout);
+    std::vector layouts(m_maxFramesInFlight, m_geometryDescriptorSetLayout);
     std::vector<VkDescriptorSet> descriptorSets(m_maxFramesInFlight);
     VkDescriptorSetAllocateInfo allocInfo = {
         .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,

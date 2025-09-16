@@ -30,11 +30,11 @@ public:
     void resize(Size size) override;
     void setClearColor(const Color& color) override;
 
-    void addGeometryDrawCommand(
+    void addCommand(
         const std::vector<VulkanPipeline::Vertex>& vertices,
         std::vector<uint16_t>& indices,
         const PushConstants& fragData,
-        const Pattern& pattern
+        const Pattern& pattern, bool isGeometry
     );
 
     Image createImage(const std::vector<std::byte>& data, uint32_t width, uint32_t height) override;
@@ -74,7 +74,8 @@ private:
 
     VulkanGraphicsDevice* m_device;
     std::unique_ptr<VulkanSurface> m_surface;
-    std::unique_ptr<VulkanPipeline> m_pipeline;
+    std::unique_ptr<VulkanPipeline> m_geometryPipeline;
+    std::unique_ptr<VulkanPipeline> m_textPipeline;
     std::unique_ptr<VulkanDeviceResources> m_deviceResources;
 
     std::vector<DrawCommand> m_drawCommands;
