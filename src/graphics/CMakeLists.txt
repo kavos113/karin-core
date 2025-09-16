@@ -66,11 +66,8 @@ elseif (VULKAN)
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             COMMAND ${BASH_EXECUTABLE} ${SCRIPTS_DIR}/shader.sh vulkan/shaders SRC_GRAPHICS_VULKAN_SHADERS_SHADER_H
             DEPENDS
-            vulkan/shaders/solid.vert
-            vulkan/shaders/solid.frag
-            vulkan/shaders/gradient.vert
-            vulkan/shaders/linear_gradient.frag
-            vulkan/shaders/radial_gradient.frag
+            vulkan/shaders/geometry.vert
+            vulkan/shaders/geometry.frag
             COMMENT "Compiling graphics shaders"
     )
     add_custom_target(
