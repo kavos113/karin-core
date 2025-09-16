@@ -33,10 +33,12 @@ FT_Face FontLoader::loadFont(const Font& font)
         throw std::runtime_error("Font not found: " + font.family);
     }
 
+    m_fontDataStorage.push_back(std::move(fontData));
+
     FT_Error error = FT_New_Memory_Face(
         m_library,
-        reinterpret_cast<const FT_Byte*>(fontData.data()),
-        static_cast<FT_Long>(fontData.size()),
+        reinterpret_cast<const FT_Byte*>(m_fontDataStorage.back().data()),
+        static_cast<FT_Long>(m_fontDataStorage.back().size()),
         0,
         &face
     );

@@ -24,6 +24,7 @@ private:
     FT_Library m_library = nullptr;
 
     std::unordered_map<size_t, FT_Face> m_faces;
+    std::vector<std::vector<std::byte>> m_fontDataStorage;
 };
 } // karin
 
