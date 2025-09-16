@@ -7,7 +7,7 @@ layout(location = 0) out vec4 outColor;
 layout(location = 0) in vec2 uv;
 layout(location = 1) in vec2 pixelPos;
 
-layout(set = 0, binding = 0) uniform sampler1D gradientLut;
+layout(set = 0, binding = 0) uniform sampler2D gradientLut;
 
 void main() {
     float signedDistance = signedDistanceFromUv(uv, push.shapeType, push.shapeParams);
@@ -31,5 +31,5 @@ void main() {
         t = dot(pixel, direction) / lengthSq;
     }
 
-    outColor = texture(gradientLut, t);
+    outColor = texture(gradientLut, vec2(t, 0.5));
 }
