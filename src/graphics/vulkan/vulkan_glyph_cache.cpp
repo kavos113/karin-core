@@ -21,20 +21,20 @@ VulkanGlyphCache::VulkanGlyphCache(
     }
     if (!m_fontLoader)
     {
-        throw std::runtime_error("VulkanGlyphCache: fontLoader is null");
+        // throw std::runtime_error("VulkanGlyphCache: fontLoader is null");
     }
 
-    createDescriptorSetLayout();
-    createSampler();
-    createAtlas();
+    // createDescriptorSetLayout();
+    // createSampler();
+    // createAtlas();
 }
 
 VulkanGlyphCache::~VulkanGlyphCache()
 {
-    vmaDestroyImage(m_device->allocator(), m_atlasImage, m_atlasImageAllocation);
-    vkDestroyImageView(m_device->device(), m_atlasImageView, nullptr);
-    vkDestroySampler(m_device->device(), m_atlasSampler, nullptr);
-    vkDestroyDescriptorSetLayout(m_device->device(), m_atlasDescriptorSetLayout, nullptr);
+    // vmaDestroyImage(m_device->allocator(), m_atlasImage, m_atlasImageAllocation);
+    // vkDestroyImageView(m_device->device(), m_atlasImageView, nullptr);
+    // vkDestroySampler(m_device->device(), m_atlasSampler, nullptr);
+    // vkDestroyDescriptorSetLayout(m_device->device(), m_atlasDescriptorSetLayout, nullptr);
 }
 
 VulkanGlyphCache::GlyphInfo VulkanGlyphCache::getGlyph(unsigned int glyphIndex, const Font& font, float size)

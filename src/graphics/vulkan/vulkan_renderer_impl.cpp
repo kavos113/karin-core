@@ -14,7 +14,7 @@ VulkanRendererImpl::VulkanRendererImpl(VulkanGraphicsDevice* device, Window::Nat
 {
     m_surface = std::make_unique<VulkanSurface>(m_device, nativeHandle);
     m_extent = m_surface->extent();
-    m_deviceResources = std::make_unique<VulkanDeviceResources>(m_device, MAX_FRAMES_IN_FLIGHT);
+    m_deviceResources = std::make_unique<VulkanDeviceResources>(m_device, nullptr, MAX_FRAMES_IN_FLIGHT);
 
     createCommandBuffers();
     createSyncObjects();

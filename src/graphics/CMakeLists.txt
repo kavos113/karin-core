@@ -89,6 +89,12 @@ elseif (VULKAN)
     find_package(glm CONFIG REQUIRED)
     target_link_libraries(karin_graphics PRIVATE glm::glm)
 
+    find_package(Freetype CONFIG REQUIRED)
+    target_link_libraries(karin_graphics PRIVATE Freetype::Freetype)
+
+    find_package(harfbuzz CONFIG REQUIRED)
+    target_link_libraries(karin_graphics PRIVATE harfbuzz::harfbuzz)
+
     target_compile_definitions(karin_graphics PUBLIC KARIN_PLATFORM_VULKAN)
 endif ()
 
