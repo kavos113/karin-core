@@ -92,7 +92,7 @@ void VulkanGraphicsContextImpl::fillEllipse(Point center, float radiusX, float r
     };
 
     auto fragData = createPushConstantData(pattern);
-    fragData.shapeType = ShapeType::Ellipse;
+    fragData.shapeType = static_cast<uint32_t>(ShapeType::Ellipse);
 
     m_renderer->addCommand(vertices, indices, fragData, pattern);
 }
@@ -127,8 +127,8 @@ void VulkanGraphicsContextImpl::fillRoundedRect(Rectangle rect, float radiusX, f
     };
 
     auto fragData = createPushConstantData(pattern);
-    fragData.shapeType = ShapeType::RoundedRectangle;
-    fragData.shapeParams = glm::vec3(radiusX / rect.size.width * 2.0f, radiusY / rect.size.height * 2.0f, 0.0f);
+    fragData.shapeType = static_cast<uint32_t>(ShapeType::RoundedRectangle);
+    fragData.shapeParams = glm::vec2(radiusX / rect.size.width * 2.0f, radiusY / rect.size.height * 2.0f);
 
     m_renderer->addCommand(vertices, indices, fragData, pattern);
 }
