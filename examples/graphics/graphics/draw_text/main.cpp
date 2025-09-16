@@ -10,18 +10,17 @@ int main()
     karin::Window window = app.createWindow(L"Hello Graphics", 100, 100, 800, 600);
 
     std::unique_ptr<karin::GraphicsDevice> device = karin::GraphicsDevice::create();
-    karin::Renderer renderer(device.get(), karin::Renderer renderer(device.get(), &window);
-    window, app.systemFont()
-    )
-    ;
+    karin::Renderer renderer(device.get(), &window, app.systemFont());
     renderer.setClearColor(karin::Color(karin::Color::Green));
 
     karin::Pattern magentaPattern = karin::SolidColorPattern(karin::Color(255, 0, 255));
     karin::TextLayout textLayout = {
         .size = {400.0f, 100.0f},
         .format = {
+            .font = {
+                .family = "Arial",
+            },
             .size = 24.0f,
-            .family = "Arial",
         },
         .text = "Hello, Karin Graphics!",
     };

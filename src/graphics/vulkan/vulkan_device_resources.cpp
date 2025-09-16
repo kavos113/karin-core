@@ -17,6 +17,8 @@ namespace karin
 {
 void VulkanDeviceResources::cleanup()
 {
+    m_glyphCache->cleanup();
+
     for (auto& val : m_gradientPointLutMap | std::views::values)
     {
         vmaDestroyImage(m_device->allocator(), val.image, val.allocation);
@@ -33,8 +35,10 @@ void VulkanDeviceResources::cleanup()
     vkDestroyImageView(m_device->device(), m_dummyTexture.imageView, nullptr);
 
     m_gradientPointLutMap.clear();
+    m_textureMap.clear();
 
     vkDestroyDescriptorSetLayout(m_device->device(), m_geometryDescriptorSetLayout, nullptr);
+    vkDestroyDescriptorSetLayout(m_device->device(), m_textDescriptorSetLayout, nullptr);
 
     vkDestroySampler(m_device->device(), m_clampSampler, nullptr);
     vkDestroySampler(m_device->device(), m_repeatSampler, nullptr);

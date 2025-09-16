@@ -23,7 +23,9 @@ public:
         FontLoader* fontLoader,
         size_t maxFramesInFlight
     );
-    ~VulkanGlyphCache();
+    ~VulkanGlyphCache() = default;
+
+    void cleanup();
 
     struct GlyphInfo
     {

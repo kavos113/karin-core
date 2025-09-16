@@ -71,6 +71,7 @@ void VulkanRendererImpl::cleanUp()
     m_deviceResources->cleanup();
 
     m_geometryPipeline->cleanUp(m_device->device());
+    m_textPipeline->cleanUp(m_device->device());
     vkDestroyRenderPass(m_device->device(), m_renderPass, nullptr);
 
     m_surface->cleanUp();

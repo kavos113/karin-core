@@ -29,7 +29,7 @@ VulkanGlyphCache::VulkanGlyphCache(
     createAtlas();
 }
 
-VulkanGlyphCache::~VulkanGlyphCache()
+void VulkanGlyphCache::cleanup()
 {
     vmaDestroyImage(m_device->allocator(), m_atlasImage, m_atlasImageAllocation);
     vkDestroyImageView(m_device->device(), m_atlasImageView, nullptr);
