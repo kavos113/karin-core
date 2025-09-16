@@ -9,12 +9,16 @@
 
 namespace karin
 {
-VulkanRendererImpl::VulkanRendererImpl(VulkanGraphicsDevice* device, Window::NativeHandle nativeHandle)
+VulkanRendererImpl::VulkanRendererImpl(
+    VulkanGraphicsDevice* device,
+    Window::NativeHandle nativeHandle,
+    std::unique_ptr<FontLoader> fontLoader
+)
     : m_device(device)
 {
     m_surface = std::make_unique<VulkanSurface>(m_device, nativeHandle);
     m_extent = m_surface->extent();
-    m_deviceResources = std::make_unique<VulkanDeviceResources>(m_device, nullptr, MAX_FRAMES_IN_FLIGHT);
+    m_deviceResources = std::make_unique<VulkanDeviceResources>(m_device, std::move(fontLoader), MAX_FRAMES_IN_FLIGHT);
 
     createCommandBuffers();
     createSyncObjects();

@@ -10,7 +10,10 @@ int main()
     karin::Window window = app.createWindow(L"Hello Graphics", 100, 100, 800, 600);
 
     std::unique_ptr<karin::GraphicsDevice> device = karin::GraphicsDevice::create();
-    karin::Renderer renderer(device.get(), &window);
+    karin::Renderer renderer(device.get(), karin::Renderer renderer(device.get(), &window);
+    window, app.systemFont()
+    )
+    ;
 
     karin::Pattern redPattern = karin::SolidColorPattern(karin::Color(karin::Color::Red));
     karin::Pattern bluePattern = karin::SolidColorPattern(karin::Color(karin::Color::Blue));

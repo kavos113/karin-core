@@ -16,8 +16,8 @@ class SystemFont
 public:
     SystemFont();
 
-    std::vector<Font> getSystemFonts();
-    std::vector<std::byte> getFontData(const Font& font);
+    std::vector<Font> getSystemFonts() const;
+    std::vector<std::byte> getFontData(const Font& font) const;
 
 private:
     std::unique_ptr<SystemFontImpl> m_impl;

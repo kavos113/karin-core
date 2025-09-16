@@ -14,13 +14,19 @@
 #include <karin/system/window.h>
 
 #include <vector>
+#include <cstdint>
+#include <memory>
 
 namespace karin
 {
 class VulkanRendererImpl : public IRendererImpl
 {
 public:
-    VulkanRendererImpl(VulkanGraphicsDevice* device, Window::NativeHandle nativeHandle);
+    VulkanRendererImpl(
+        VulkanGraphicsDevice* device,
+        Window::NativeHandle nativeHandle,
+        std::unique_ptr<FontLoader> fontLoader
+    );
     ~VulkanRendererImpl() override = default;
 
     void cleanUp() override;

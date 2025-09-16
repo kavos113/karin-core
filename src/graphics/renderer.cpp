@@ -11,15 +11,15 @@
 
 namespace karin
 {
-Renderer::Renderer(GraphicsDevice* device, Window* window)
+Renderer::Renderer(GraphicsDevice* device, Window* window, SystemFont* systemFont)
     : m_window(window)
 {
-    m_impl = createRendererImpl(device, window->handle());
+    m_impl = createRendererImpl(device, window->handle(), systemFont);
 }
 
 Renderer::~Renderer() = default;
 
-void Renderer::addDrawCommand(std::function<void(GraphicsContext&)> command)
+void Renderer::addDrawCommand(std::function < void(GraphicsContext &) > command)
 {
     m_drawCommands.push_back(std::move(command));
 }

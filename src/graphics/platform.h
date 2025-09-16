@@ -5,6 +5,7 @@
 
 #include <karin/graphics/graphics_device.h>
 #include <karin/system/window.h>
+#include <karin/system/system_font.h>
 
 #ifdef KARIN_PLATFORM_DIRECTX
 #include "d2d/d2d_graphics_device.h"
@@ -12,9 +13,9 @@
 #include "d2d/d2d_graphics_context_impl.h"
 #elifdef KARIN_PLATFORM_VULKAN
 #include "vulkan/vulkan_graphics_device.h"
-#include "vulkan/vulkan_surface.h"
 #include "vulkan/vulkan_renderer_impl.h"
 #include "vulkan/vulkan_graphics_context_impl.h"
+#include "text/font_loader.h"
 #endif
 
 namespace karin
@@ -30,12 +31,16 @@ inline std::unique_ptr<GraphicsDevice> createGraphicsDevice()
     return nullptr;
 }
 
-inline std::unique_ptr<IRendererImpl> createRendererImpl(GraphicsDevice* device, Window::NativeHandle handle)
+inline std::unique_ptr<IRendererImpl> createRendererImpl(
+    GraphicsDevice* device, Window::NativeHandle handle, SystemFont* systemFont
+)
 {
 #ifdef KARIN_PLATFORM_DIRECTX
     return std::make_unique<D2DRendererImpl>(dynamic_cast<D2DGraphicsDevice*>(device), static_cast<HWND>(handle.hwnd));
 #elifdef KARIN_PLATFORM_VULKAN
-    return std::make_unique<VulkanRendererImpl>(dynamic_cast<VulkanGraphicsDevice*>(device), handle);
+    return std::make_unique<VulkanRendererImpl>(
+        dynamic_cast<VulkanGraphicsDevice*>(device), handle, std::make_unique<FontLoader>(systemFont)
+    );
 #endif
     return nullptr;
 }
