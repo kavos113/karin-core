@@ -30,7 +30,7 @@ public:
     void resize(Size size) override;
     void setClearColor(const Color& color) override;
 
-    void addCommand(
+    void addGeometryDrawCommand(
         const std::vector<VulkanPipeline::Vertex>& vertices,
         std::vector<uint16_t>& indices,
         const PushConstants& fragData,
@@ -60,7 +60,6 @@ private:
         PushConstants fragData;
         VulkanPipeline* pipeline = nullptr;
         VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
-        PatternType patternType = PatternType::SolidColor;
     };
 
     void createCommandBuffers();
@@ -70,18 +69,12 @@ private:
     void createRenderPass();
     void createFrameBuffers();
     void createPipeline();
-    void createLinearGradientPipeline();
-    void createRadialGradientPipeline();
-    void createImagePipeline();
 
     void doResize();
 
     VulkanGraphicsDevice* m_device;
     std::unique_ptr<VulkanSurface> m_surface;
     std::unique_ptr<VulkanPipeline> m_pipeline;
-    std::unique_ptr<VulkanPipeline> m_linearGradientPipeline;
-    std::unique_ptr<VulkanPipeline> m_radialGradientPipeline;
-    std::unique_ptr<VulkanPipeline> m_imagePipeline;
     std::unique_ptr<VulkanDeviceResources> m_deviceResources;
 
     std::vector<DrawCommand> m_drawCommands;

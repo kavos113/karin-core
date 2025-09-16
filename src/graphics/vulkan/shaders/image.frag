@@ -28,6 +28,4 @@ void main() {
 
         outColor = texture(image, windowUv);
     }
-
-    outColor = texture(image, uv);
 }

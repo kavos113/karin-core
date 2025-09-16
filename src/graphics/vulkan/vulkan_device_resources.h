@@ -37,6 +37,7 @@ public:
 
         createSamplers();
         createDescriptorSetLayout();
+        createDummyTexture();
 
         m_glyphCache = std::make_unique<VulkanGlyphCache>(m_device, m_fontLoader.get(), maxFramesInFlight);
     }
@@ -48,8 +49,8 @@ public:
     void cleanup();
 
     std::vector<VkDescriptorSet> gradientPointLutDescriptorSet(const GradientPoints& points);
-
     std::vector<VkDescriptorSet> textureDescriptorSet(Image image);
+    std::vector<VkDescriptorSet> dummyTextureDescriptorSet() const;
     VkDescriptorSetLayout textureDescriptorSetLayout() const;
 
     struct GlyphPosition
@@ -76,12 +77,14 @@ private:
 
     void createSamplers();
     void createDescriptorSetLayout();
+    void createDummyTexture();
     std::array<uint8_t, LUT_WIDTH * 4> generateGradientPointLut(
         const std::vector<GradientPoints::GradientPoint>& gradientPoints
     ) const;
 
     std::unordered_map<size_t, Texture> m_gradientPointLutMap;
     std::unordered_map<size_t, Texture> m_textureMap;
+    Texture m_dummyTexture; // 1 x 1 white pixel
     std::unordered_map<size_t, std::vector<GlyphPosition>> m_textLayoutCache;
 
     std::unique_ptr<VulkanGlyphCache> m_glyphCache;
