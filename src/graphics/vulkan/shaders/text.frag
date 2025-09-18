@@ -8,7 +8,7 @@ layout(location = 1) in vec2 pixelPos;
 
 // image: image, gradient: gradientLut
 layout(set = 0, binding = 0) uniform sampler2D tex;
-layout(set = 0, binding = 1) uniform sampler2D glyphAtlas;
+layout(set = 1, binding = 0) uniform sampler2D glyphAtlas;
 
 #include "common.glsl"
 

@@ -125,6 +125,8 @@ bool VulkanRendererImpl::beginDraw()
 
 void VulkanRendererImpl::endDraw()
 {
+    m_deviceResources->flushGlyphUploads();
+
     std::array vertexBuffers = {m_vertexBuffer};
     std::array<VkDeviceSize, 1> offsets = {};
     vkCmdBindVertexBuffers(
@@ -163,7 +165,8 @@ void VulkanRendererImpl::endDraw()
             m_commandBuffers[m_currentFrame],
             VK_PIPELINE_BIND_POINT_GRAPHICS,
             command.pipeline->pipelineLayout(),
-            0, 1, &command.descriptorSet, 0, nullptr
+            0, command.descriptorSets.size(), command.descriptorSets.data(),
+            0, nullptr
         );
 
         vkCmdPushConstants(
@@ -259,7 +262,7 @@ void VulkanRendererImpl::addCommand(
             if constexpr (std::is_same_v<T, LinearGradientPattern>)
             {
                 auto descriptorSets = m_deviceResources->gradientPointLutDescriptorSet(p.gradientPoints);
-                drawCommand.descriptorSet = descriptorSets[m_currentFrame];
+                drawCommand.descriptorSets.push_back(descriptorSets[m_currentFrame]);
 
                 VkExtent2D extent = m_surface->extent();
                 drawCommand.fragData.global.x = extent.width / static_cast<float>(extent.height);
@@ -267,17 +270,17 @@ void VulkanRendererImpl::addCommand(
             else if constexpr (std::is_same_v<T, RadialGradientPattern>)
             {
                 auto descriptorSets = m_deviceResources->gradientPointLutDescriptorSet(p.gradientPoints);
-                drawCommand.descriptorSet = descriptorSets[m_currentFrame];
+                drawCommand.descriptorSets.push_back(descriptorSets[m_currentFrame]);
             }
             else if constexpr (std::is_same_v<T, ImagePattern>)
             {
                 auto descriptorSets = m_deviceResources->textureDescriptorSet(p.image);
-                drawCommand.descriptorSet = descriptorSets[m_currentFrame];
+                drawCommand.descriptorSets.push_back(descriptorSets[m_currentFrame]);
             }
             else if constexpr (std::is_same_v<T, SolidColorPattern>)
             {
                 auto descriptorSets = m_deviceResources->dummyTextureDescriptorSet();
-                drawCommand.descriptorSet = descriptorSets[m_currentFrame];
+                drawCommand.descriptorSets.push_back(descriptorSets[m_currentFrame]);
             }
             else
             {
@@ -285,6 +288,12 @@ void VulkanRendererImpl::addCommand(
             }
         }, pattern
     );
+
+    if (!isGeometry)
+    {
+        auto glyphAtlasSets = m_deviceResources->glyphAtlasDescriptorSets();
+        drawCommand.descriptorSets.push_back(glyphAtlasSets[m_currentFrame]);
+    }
 
     m_drawCommands.push_back(drawCommand);
 }
@@ -547,7 +556,10 @@ void VulkanRendererImpl::createPipeline()
         descriptorSetLayouts, pushConstantRanges
     );
 
-    std::vector textDescriptorSetLayouts = {m_deviceResources->textDescriptorSetLayout()};
+    std::vector textDescriptorSetLayouts = {
+        m_deviceResources->geometryDescriptorSetLayout(),
+        m_deviceResources->atlasDescriptorSetLayout()
+    };
     m_textPipeline = std::make_unique<VulkanPipeline>(
         m_device->device(), m_renderPass,
         geometry_vert_spv, geometry_vert_spv_len,

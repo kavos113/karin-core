@@ -38,7 +38,6 @@ void VulkanDeviceResources::cleanup()
     m_textureMap.clear();
 
     vkDestroyDescriptorSetLayout(m_device->device(), m_geometryDescriptorSetLayout, nullptr);
-    vkDestroyDescriptorSetLayout(m_device->device(), m_textDescriptorSetLayout, nullptr);
 
     vkDestroySampler(m_device->device(), m_clampSampler, nullptr);
     vkDestroySampler(m_device->device(), m_repeatSampler, nullptr);
@@ -367,9 +366,9 @@ VkDescriptorSetLayout VulkanDeviceResources::geometryDescriptorSetLayout() const
     return m_geometryDescriptorSetLayout;
 }
 
-VkDescriptorSetLayout VulkanDeviceResources::textDescriptorSetLayout() const
+VkDescriptorSetLayout VulkanDeviceResources::atlasDescriptorSetLayout() const
 {
-    return m_textDescriptorSetLayout;
+    return m_glyphCache->atlasDescriptorSetLayout();
 }
 
 Image VulkanDeviceResources::createImage(const std::vector<std::byte>& data, uint32_t width, uint32_t height)
@@ -587,28 +586,6 @@ void VulkanDeviceResources::createDescriptorSetLayouts()
     ) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create descriptor set layout for linear gradient pipeline");
-    }
-
-    std::array bindings = {
-        binding,
-        VkDescriptorSetLayoutBinding{
-            .binding = 1,
-            .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-            .descriptorCount = 1,
-            .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
-            .pImmutableSamplers = nullptr
-        }
-    };
-    layoutInfo = {
-        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
-        .bindingCount = static_cast<uint32_t>(bindings.size()),
-        .pBindings = bindings.data()
-    };
-    if (vkCreateDescriptorSetLayout(
-        m_device->device(), &layoutInfo, nullptr, &m_textDescriptorSetLayout
-    ) != VK_SUCCESS)
-    {
-        throw std::runtime_error("failed to create descriptor set layout for text pipeline");
     }
 }
 

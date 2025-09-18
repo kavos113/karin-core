@@ -52,7 +52,7 @@ public:
     std::vector<VkDescriptorSet> textureDescriptorSet(Image image);
     std::vector<VkDescriptorSet> dummyTextureDescriptorSet() const;
     VkDescriptorSetLayout geometryDescriptorSetLayout() const;
-    VkDescriptorSetLayout textDescriptorSetLayout() const;
+    VkDescriptorSetLayout atlasDescriptorSetLayout() const;
 
     struct GlyphPosition
     {
@@ -64,6 +64,16 @@ public:
     };
 
     std::vector<GlyphPosition> textLayout(const TextLayout& layout);
+
+    void flushGlyphUploads() const
+    {
+        m_glyphCache->flushUploadQueue();
+    }
+
+    std::vector<VkDescriptorSet> glyphAtlasDescriptorSets() const
+    {
+        return m_glyphCache->atlasDescriptorSets();
+    }
 
 private:
     struct Texture
@@ -98,7 +108,6 @@ private:
     VkSampler m_mirrorSampler = VK_NULL_HANDLE;
     uint32_t m_maxFramesInFlight = 2;
     VkDescriptorSetLayout m_geometryDescriptorSetLayout = VK_NULL_HANDLE;
-    VkDescriptorSetLayout m_textDescriptorSetLayout = VK_NULL_HANDLE;
 };
 } // karin
 

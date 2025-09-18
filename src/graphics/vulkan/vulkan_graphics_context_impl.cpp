@@ -562,7 +562,7 @@ void VulkanGraphicsContextImpl::drawText(const TextLayout& text, Point start, Pa
         indices.push_back(static_cast<uint16_t>(baseIndex));
     }
 
-    m_renderer->addCommand(vertices, indices, createPushConstantData(pattern), pattern, true);
+    m_renderer->addCommand(vertices, indices, createPushConstantData(pattern), pattern, false);
 }
 
 PushConstants VulkanGraphicsContextImpl::createPushConstantData(const Pattern& pattern) const

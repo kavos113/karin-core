@@ -175,17 +175,28 @@ void VulkanGlyphCache::flushUploadQueue()
             .imageExtent = {
                 static_cast<uint32_t>(upload.width),
                 static_cast<uint32_t>(upload.height),
+                1,
             },
         };
+
+        if (upload.width == 0 || upload.height == 0)
+        {
+            offset += 0;
+            continue;
+        }
+
         vkCmdCopyBufferToImage(
             commandBuffer, stagingBuffer, m_atlasImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region
         );
+        offset += upload.bitmapData.size();
     }
 
     transitionLayout(commandBuffer, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
     m_device->endSingleTimeCommands(commandBuffer);
 
     vmaDestroyBuffer(m_device->allocator(), stagingBuffer, stagingBufferMemory);
+
+    m_uploadQueue.clear();
 }
 
 size_t VulkanGlyphCache::glyphKey(unsigned int glyphIndex, const Font& font, float size)

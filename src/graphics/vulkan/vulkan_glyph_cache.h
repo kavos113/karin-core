@@ -52,6 +52,16 @@ public:
     GlyphInfo getGlyph(unsigned int glyphIndex, const Font& font, float size);
     void flushUploadQueue();
 
+    std::vector<VkDescriptorSet> atlasDescriptorSets() const
+    {
+        return m_atlasDescriptorSets;
+    }
+
+    VkDescriptorSetLayout atlasDescriptorSetLayout() const
+    {
+        return m_atlasDescriptorSetLayout;
+    }
+
 private:
     static size_t glyphKey(unsigned int glyphInde, const Font& font, float size);
 

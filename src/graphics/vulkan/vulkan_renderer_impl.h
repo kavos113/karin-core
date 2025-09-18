@@ -65,7 +65,7 @@ private:
         uint32_t indexOffset{};
         PushConstants fragData;
         VulkanPipeline* pipeline = nullptr;
-        VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
+        std::vector<VkDescriptorSet> descriptorSets;
     };
 
     void createCommandBuffers();
