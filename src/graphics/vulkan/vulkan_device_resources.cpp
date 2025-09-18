@@ -650,6 +650,19 @@ std::vector<VulkanDeviceResources::GlyphPosition> VulkanDeviceResources::textLay
         pos.position.pos = Point(penX + gInfo.bearingX, penY - gInfo.bearingY);
         pos.position.size = Size(gInfo.width, gInfo.height);
         glyphs.push_back(pos);
+
+        penX += gInfo.advanceX;
+    }
+
+    // y coordinate might be negative
+    float minY = 0;
+    for (const auto& glyph : glyphs)
+    {
+        minY = std::min(minY, glyph.position.pos.y);
+    }
+    for (auto& glyph : glyphs)
+    {
+        glyph.position.pos.y -= minY;
     }
 
     hb_buffer_destroy(hbBuffer);

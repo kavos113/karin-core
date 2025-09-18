@@ -50,13 +50,7 @@ VulkanGlyphCache::GlyphInfo VulkanGlyphCache::getGlyph(unsigned int glyphIndex, 
         throw std::runtime_error("failed to load font face");
     }
 
-    FT_Error error = FT_Set_Char_Size(
-        face,
-        0,
-        static_cast<FT_F26Dot6>(size * 64.0f),
-        300,
-        300
-    );
+    FT_Error error = FT_Set_Pixel_Sizes(face, 0, static_cast<FT_UInt>(size));
     if (error)
     {
         throw std::runtime_error("failed to set character size");
