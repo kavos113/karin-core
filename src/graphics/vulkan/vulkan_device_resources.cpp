@@ -646,14 +646,14 @@ std::vector<VulkanDeviceResources::GlyphPosition> VulkanDeviceResources::textLay
         VulkanGlyphCache::GlyphInfo gInfo = m_glyphCache->getGlyph(
             glyphIndex, layout.format.font.hash(), face, layout.format.size
         );
-        // test: dont use hb yet
         GlyphPosition pos;
         pos.uv = gInfo.uv;
         pos.position.pos = Point(penX + gInfo.bearingX, penY - gInfo.bearingY);
         pos.position.size = Size(gInfo.width, gInfo.height);
         glyphs.push_back(pos);
 
-        penX += gInfo.advanceX;
+        penX += glyphPos[i].x_advance >> 6;
+        penY += glyphPos[i].y_advance >> 6;
     }
 
     // y coordinate might be negative
