@@ -24,7 +24,8 @@ int main()
             .lineSpacing = 1.5f,
             .baseline = 1.0f,
             .lineSpacingMode = karin::TextFormat::LineSpacingMode::PROPORTIONAL,
-            .wrapping = karin::TextFormat::Wrapping::WORD,
+            .trimming = karin::TextFormat::Trimming::WORD,
+            .wrapping = karin::TextFormat::Wrapping::NONE,
         },
         .text = "Hello, Karin Graphics!\nnew line support.\n\nvery very very very very very loooooooooooong text.",
     };

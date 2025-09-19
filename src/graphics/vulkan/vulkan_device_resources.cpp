@@ -677,8 +677,14 @@ std::vector<VulkanDeviceResources::GlyphPosition> VulkanDeviceResources::textLay
 
         if (layout.format.wrapping == TextFormat::Wrapping::NONE)
         {
+            unsigned int lastSpaceIndex = 0;
             for (unsigned int i = 0; i < glyphCount; i++)
             {
+                if (std::isspace(line[i]))
+                {
+                    lastSpaceIndex = i;
+                }
+
                 GlyphPosition pos;
                 pos.uv = gInfos[i].uv;
                 pos.position.pos = Point(penX + gInfos[i].bearingX, penY - gInfos[i].bearingY);
@@ -686,6 +692,23 @@ std::vector<VulkanDeviceResources::GlyphPosition> VulkanDeviceResources::textLay
                 glyphs.push_back(pos);
 
                 penX += glyphPos[i].x_advance >> 6;
+
+                if (layout.format.trimming == TextFormat::Trimming::CHARACTER && layout.size.width > 0 && penX > layout.
+                    size.width)
+                {
+                    glyphs.pop_back();
+                    break;
+                }
+                else if (layout.format.trimming == TextFormat::Trimming::WORD && layout.size.width > 0 && penX > layout.
+                    size.width && lastSpaceIndex > 0)
+                {
+                    // Move back to last space
+                    for (unsigned int j = i; j > lastSpaceIndex; j--)
+                    {
+                        glyphs.pop_back();
+                    }
+                    break;
+                }
             }
         }
         else if (layout.format.wrapping == TextFormat::Wrapping::WORD)
