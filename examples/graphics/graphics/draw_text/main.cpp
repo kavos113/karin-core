@@ -22,7 +22,7 @@ int main()
             },
             .size = 24.0f,
         },
-        .text = "Hello, Karin Graphics!",
+        .text = "Hello, Karin Graphics!\nnew line support.",
     };
 
     renderer.addDrawCommand(

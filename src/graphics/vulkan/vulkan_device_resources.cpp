@@ -12,6 +12,7 @@
 #include <stdexcept>
 #include <functional>
 #include <string_view>
+#include <iostream>
 
 namespace karin
 {
@@ -603,10 +604,21 @@ std::vector<VulkanDeviceResources::GlyphPosition> VulkanDeviceResources::textLay
         throw std::runtime_error("failed to set pixel sizes for font");
     }
 
-    hb_font_t* hbFont = hb_ft_font_create(face, nullptr);
-    hb_buffer_t* hbBuffer = hb_buffer_create();
+    std::vector<std::string> lines = std::views::split(layout.text, '\n')
+        | std::views::transform(
+            [](auto&& rng)
+            {
+                return std::string(rng.begin(), rng.end());
+            }
+        )
+        | std::ranges::to<std::vector<std::string>>();
 
-    hb_buffer_add_utf8(hbBuffer, layout.text.c_str(), -1, 0, -1);
+    float initPenX = 0;
+    float lineHeight = layout.format.size; // kari
+    float penX = 0;
+    float penY = lineHeight;
+
+    hb_font_t* hbFont = hb_ft_font_create(face, nullptr);
 
     hb_direction_t direction = HB_DIRECTION_LTR;
     switch (layout.format.readingDirection)
@@ -625,49 +637,43 @@ std::vector<VulkanDeviceResources::GlyphPosition> VulkanDeviceResources::textLay
         break;
     }
 
-    hb_buffer_set_direction(hbBuffer, direction);
-    hb_buffer_set_language(hbBuffer, hb_language_from_string(layout.format.locale.c_str(), -1));
-
-    hb_shape(hbFont, hbBuffer, nullptr, 0);
-
-    unsigned int glyphCount;
-    hb_glyph_info_t* glyphInfo = hb_buffer_get_glyph_infos(hbBuffer, &glyphCount);
-    hb_glyph_position_t* glyphPos = hb_buffer_get_glyph_positions(hbBuffer, &glyphCount);
-
-    float penX = 0;
-    float penY = 0;
-
     std::vector<GlyphPosition> glyphs;
-    glyphs.reserve(glyphCount);
 
-    for (unsigned int i = 0; i < glyphCount; i++)
+    for (const auto& line : lines)
     {
-        FT_UInt glyphIndex = glyphInfo[i].codepoint;
-        VulkanGlyphCache::GlyphInfo gInfo = m_glyphCache->getGlyph(
-            glyphIndex, layout.format.font.hash(), face, layout.format.size
-        );
-        GlyphPosition pos;
-        pos.uv = gInfo.uv;
-        pos.position.pos = Point(penX + gInfo.bearingX, penY - gInfo.bearingY);
-        pos.position.size = Size(gInfo.width, gInfo.height);
-        glyphs.push_back(pos);
+        hb_buffer_t* hbBuffer = hb_buffer_create();
+        hb_buffer_add_utf8(hbBuffer, line.c_str(), -1, 0, -1);
 
-        penX += glyphPos[i].x_advance >> 6;
-        penY += glyphPos[i].y_advance >> 6;
+        hb_buffer_set_direction(hbBuffer, direction);
+        hb_buffer_set_language(hbBuffer, hb_language_from_string(layout.format.locale.c_str(), -1));
+
+        hb_shape(hbFont, hbBuffer, nullptr, 0);
+
+        unsigned int glyphCount;
+        hb_glyph_info_t* glyphInfo = hb_buffer_get_glyph_infos(hbBuffer, &glyphCount);
+        hb_glyph_position_t* glyphPos = hb_buffer_get_glyph_positions(hbBuffer, &glyphCount);
+
+        for (unsigned int i = 0; i < glyphCount; i++)
+        {
+            FT_UInt glyphIndex = glyphInfo[i].codepoint;
+            VulkanGlyphCache::GlyphInfo gInfo = m_glyphCache->getGlyph(
+                glyphIndex, layout.format.font.hash(), face, layout.format.size
+            );
+            GlyphPosition pos;
+            pos.uv = gInfo.uv;
+            pos.position.pos = Point(penX + gInfo.bearingX, penY - gInfo.bearingY);
+            pos.position.size = Size(gInfo.width, gInfo.height);
+            glyphs.push_back(pos);
+
+            penX += glyphPos[i].x_advance >> 6;
+        }
+
+        hb_buffer_destroy(hbBuffer);
+
+        penX = initPenX;
+        penY += lineHeight;
     }
 
-    // y coordinate might be negative
-    float minY = 0;
-    for (const auto& glyph : glyphs)
-    {
-        minY = std::min(minY, glyph.position.pos.y);
-    }
-    for (auto& glyph : glyphs)
-    {
-        glyph.position.pos.y -= minY;
-    }
-
-    hb_buffer_destroy(hbBuffer);
     hb_font_destroy(hbFont);
 
     m_textLayoutCache[layout.hash()] = glyphs;
