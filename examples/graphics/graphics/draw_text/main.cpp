@@ -15,7 +15,7 @@ int main()
 
     karin::Pattern magentaPattern = karin::SolidColorPattern(karin::Color(255, 0, 255));
     karin::TextLayout textLayout = {
-        .size = {400.0f, 100.0f},
+        .size = {400.0f, 200.0f},
         .format = {
             .font = {
                 .family = "Arial",
@@ -24,14 +24,15 @@ int main()
             .lineSpacing = 1.5f,
             .baseline = 1.0f,
             .lineSpacingMode = karin::TextFormat::LineSpacingMode::PROPORTIONAL,
+            .wrapping = karin::TextFormat::Wrapping::WORD,
         },
-        .text = "Hello, Karin Graphics!\nnew line support.",
+        .text = "Hello, Karin Graphics!\nnew line support.\n\nvery very very very very very loooooooooooong text.",
     };
 
     renderer.addDrawCommand(
         [&magentaPattern, &textLayout](karin::GraphicsContext& gc)
         {
-            gc.drawRect(karin::Rectangle(50.0f, 50.0f, 400.0f, 100.0f), magentaPattern);
+            gc.drawRect(karin::Rectangle(50.0f, 50.0f, 400.0f, 200.0f), magentaPattern);
             gc.drawText(textLayout, karin::Point(50.0f, 50.0f), magentaPattern);
         }
     );
