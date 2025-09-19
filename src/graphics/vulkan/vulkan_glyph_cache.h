@@ -18,11 +18,7 @@ namespace karin
 class VulkanGlyphCache
 {
 public:
-    explicit VulkanGlyphCache(
-        VulkanGraphicsDevice* device,
-        FontLoader* fontLoader,
-        size_t maxFramesInFlight
-    );
+    explicit VulkanGlyphCache(VulkanGraphicsDevice* device, size_t maxFramesInFlight);
     ~VulkanGlyphCache() = default;
 
     void cleanup();
@@ -49,7 +45,7 @@ public:
         Point atlasRegion{0.0f, 0.0f};
     };
 
-    GlyphInfo getGlyph(unsigned int glyphIndex, const Font& font, float size);
+    GlyphInfo getGlyph(uint32_t glyphIndex, uint32_t fontKey, FT_Face face, float size);
     void flushUploadQueue();
 
     std::vector<VkDescriptorSet> atlasDescriptorSets() const
@@ -63,7 +59,7 @@ public:
     }
 
 private:
-    static size_t glyphKey(unsigned int glyphInde, const Font& font, float size);
+    static size_t glyphKey(uint32_t glyphIndex, uint32_t fontKey, float size);
 
     Point allocateAtlasSpace(int width, int height);
 
@@ -76,8 +72,6 @@ private:
     static constexpr int ATLAS_HEIGHT = 2048;
 
     static constexpr float SIZE_FLOAT_ACCURACY = 100.0f;
-
-    FontLoader* m_fontLoader;
 
     VulkanGraphicsDevice* m_device = nullptr;
     size_t m_maxFramesInFlight = 2;

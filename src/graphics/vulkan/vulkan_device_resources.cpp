@@ -643,7 +643,9 @@ std::vector<VulkanDeviceResources::GlyphPosition> VulkanDeviceResources::textLay
     for (unsigned int i = 0; i < glyphCount; i++)
     {
         FT_UInt glyphIndex = glyphInfo[i].codepoint;
-        VulkanGlyphCache::GlyphInfo gInfo = m_glyphCache->getGlyph(glyphIndex, layout.format.font, layout.format.size);
+        VulkanGlyphCache::GlyphInfo gInfo = m_glyphCache->getGlyph(
+            glyphIndex, layout.format.font.hash(), face, layout.format.size
+        );
         // test: dont use hb yet
         GlyphPosition pos;
         pos.uv = gInfo.uv;

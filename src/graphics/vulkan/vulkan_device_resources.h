@@ -39,7 +39,7 @@ public:
         createDescriptorSetLayouts();
         createDummyTexture();
 
-        m_glyphCache = std::make_unique<VulkanGlyphCache>(m_device, m_fontLoader.get(), maxFramesInFlight);
+        m_glyphCache = std::make_unique<VulkanGlyphCache>(m_device, maxFramesInFlight);
     }
 
     ~VulkanDeviceResources() = default;
