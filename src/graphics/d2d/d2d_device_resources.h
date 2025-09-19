@@ -55,6 +55,7 @@ private:
     static DWRITE_TRIMMING_GRANULARITY toDWriteTrimmingGranularity(TextFormat::Trimming trimming);
     static DWRITE_FLOW_DIRECTION toDWriteFlowDirection(TextFormat::Direction flowDirection);
     static DWRITE_READING_DIRECTION toDWriteReadingDirection(TextFormat::Direction readingDirection);
+    static DWRITE_LINE_SPACING_METHOD toDWriteLineSpacingMethod(TextFormat::LineSpacingMode lineSpacingMode);
 
     // TODO: create before starting draw calls?
     std::unordered_map<size_t, Microsoft::WRL::ComPtr<ID2D1SolidColorBrush>> m_solidColorBrushes;

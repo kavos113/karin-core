@@ -455,17 +455,14 @@ Microsoft::WRL::ComPtr<IDWriteTextLayout> D2DDeviceResources::textLayout(const T
             throw std::runtime_error("Failed to set trimming in DWrite text format");
         }
 
-        if (layout.format.lineSpacing >= 0.0f)
+        hr = format->SetLineSpacing(
+            toDWriteLineSpacingMethod(layout.format.lineSpacingMode),
+            layout.format.lineSpacing,
+            layout.format.baseline
+        );
+        if (FAILED(hr))
         {
-            hr = format->SetLineSpacing(
-                DWRITE_LINE_SPACING_METHOD_UNIFORM,
-                layout.format.lineSpacing,
-                0.0f // No baseline
-            );
-            if (FAILED(hr))
-            {
-                throw std::runtime_error("Failed to set line spacing in DWrite text format");
-            }
+            throw std::runtime_error("Failed to set line spacing in DWrite text format");
         }
 
         hr = format->SetFlowDirection(toDWriteFlowDirection(layout.format.flowDirection));
@@ -662,6 +659,21 @@ DWRITE_READING_DIRECTION D2DDeviceResources::toDWriteReadingDirection(TextFormat
         return DWRITE_READING_DIRECTION_RIGHT_TO_LEFT;
     default:
         throw std::invalid_argument("Unknown reading direction");
+    }
+}
+
+DWRITE_LINE_SPACING_METHOD D2DDeviceResources::toDWriteLineSpacingMethod(TextFormat::LineSpacingMode lineSpacingMode)
+{
+    switch (lineSpacingMode)
+    {
+    case TextFormat::LineSpacingMode::DEFAULT:
+        return DWRITE_LINE_SPACING_METHOD_DEFAULT;
+    case TextFormat::LineSpacingMode::UNIFORM:
+        return DWRITE_LINE_SPACING_METHOD_UNIFORM;
+    case TextFormat::LineSpacingMode::PROPORTIONAL:
+        return DWRITE_LINE_SPACING_METHOD_PROPORTIONAL;
+    default:
+        throw std::invalid_argument("Unknown line spacing method");
     }
 }
 } // karin
