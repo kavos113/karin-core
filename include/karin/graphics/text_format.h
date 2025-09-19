@@ -48,15 +48,27 @@ struct TextFormat
         RIGHT_TO_LEFT,
     };
 
+    enum class LineSpacingMode : uint8_t
+    {
+        DEFAULT,
+        UNIFORM,
+        PROPORTIONAL,
+    };
+
     Font font;
 
     float size = 0.0f;
 
     HorizontalAlignment horizontalAlignment = HorizontalAlignment::LEADING;
     VerticalAlignment verticalAlignment = VerticalAlignment::TOP;
-    float lineSpacing = -1.0f;
+
+    float lineSpacing = 0.0f;
+    float baseline = 0.0f;
+    LineSpacingMode lineSpacingMode = LineSpacingMode::DEFAULT;
+
     Trimming trimming = Trimming::NONE;
     Wrapping wrapping = Wrapping::NONE;
+
     Direction flowDirection = Direction::TOP_TO_BOTTOM;
     Direction readingDirection = Direction::LEFT_TO_RIGHT;
 

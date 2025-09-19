@@ -614,9 +614,19 @@ std::vector<VulkanDeviceResources::GlyphPosition> VulkanDeviceResources::textLay
         | std::ranges::to<std::vector<std::string>>();
 
     float initPenX = 0;
-    float lineHeight = layout.format.size; // kari
+    float lineHeight = static_cast<float>(face->size->metrics.height >> 6);
     float penX = 0;
     float penY = lineHeight;
+    if (layout.format.lineSpacingMode == TextFormat::LineSpacingMode::UNIFORM)
+    {
+        lineHeight = layout.format.lineSpacing;
+        penY = layout.format.baseline;
+    }
+    else if (layout.format.lineSpacingMode == TextFormat::LineSpacingMode::PROPORTIONAL)
+    {
+        lineHeight = layout.format.size * layout.format.lineSpacing;
+        penY = layout.format.size * layout.format.baseline;
+    }
 
     hb_font_t* hbFont = hb_ft_font_create(face, nullptr);
 

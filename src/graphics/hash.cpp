@@ -100,6 +100,8 @@ size_t TextFormat::hash() const
     hash_combine(seed, static_cast<int>(horizontalAlignment));
     hash_combine(seed, static_cast<int>(verticalAlignment));
     hash_combine(seed, lineSpacing);
+    hash_combine(seed, baseline);
+    hash_combine(seed, static_cast<int>(lineSpacingMode));
     hash_combine(seed, static_cast<int>(trimming));
     hash_combine(seed, static_cast<int>(wrapping));
     hash_combine(seed, static_cast<int>(flowDirection));

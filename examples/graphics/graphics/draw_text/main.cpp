@@ -21,6 +21,9 @@ int main()
                 .family = "Arial",
             },
             .size = 24.0f,
+            .lineSpacing = 1.5f,
+            .baseline = 1.0f,
+            .lineSpacingMode = karin::TextFormat::LineSpacingMode::PROPORTIONAL,
         },
         .text = "Hello, Karin Graphics!\nnew line support.",
     };
