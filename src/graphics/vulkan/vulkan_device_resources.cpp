@@ -613,22 +613,7 @@ std::vector<VulkanDeviceResources::GlyphPosition> VulkanDeviceResources::textLay
         )
         | std::ranges::to<std::vector<std::string>>();
 
-    float initPenX = 0;
-    float lineHeight = static_cast<float>(face->size->metrics.height >> 6);
-    float penX = 0;
-    float penY = lineHeight;
-    if (layout.format.lineSpacingMode == TextFormat::LineSpacingMode::UNIFORM)
-    {
-        lineHeight = layout.format.lineSpacing;
-        penY = layout.format.baseline;
-    }
-    else if (layout.format.lineSpacingMode == TextFormat::LineSpacingMode::PROPORTIONAL)
-    {
-        lineHeight = layout.format.size * layout.format.lineSpacing;
-        penY = layout.format.size * layout.format.baseline;
-    }
-
-    hb_font_t* hbFont = hb_ft_font_create(face, nullptr);
+    std::vector<GlyphPosition> glyphs;
 
     hb_direction_t direction = HB_DIRECTION_LTR;
     switch (layout.format.readingDirection)
@@ -647,131 +632,386 @@ std::vector<VulkanDeviceResources::GlyphPosition> VulkanDeviceResources::textLay
         break;
     }
 
-    std::vector<GlyphPosition> glyphs;
+    hb_font_t* hbFont = hb_ft_font_create(face, nullptr);
 
-    for (const auto& line : lines)
+    if (direction == HB_DIRECTION_LTR || direction == HB_DIRECTION_RTL)
     {
-        hb_buffer_t* hbBuffer = hb_buffer_create();
-        hb_buffer_add_utf8(hbBuffer, line.c_str(), -1, 0, -1);
+        float initPenX = 0;
+        float lineHeight = static_cast<float>(face->size->metrics.height >> 6);
+        float penX = 0;
+        float penY = lineHeight;
 
-        hb_buffer_set_direction(hbBuffer, direction);
-        hb_buffer_set_language(hbBuffer, hb_language_from_string(layout.format.locale.c_str(), -1));
-
-        hb_shape(hbFont, hbBuffer, nullptr, 0);
-
-        unsigned int glyphCount;
-        hb_glyph_info_t* glyphInfo = hb_buffer_get_glyph_infos(hbBuffer, &glyphCount);
-        hb_glyph_position_t* glyphPos = hb_buffer_get_glyph_positions(hbBuffer, &glyphCount);
-
-        std::vector<VulkanGlyphCache::GlyphInfo> gInfos;
-        gInfos.reserve(glyphCount);
-
-        for (unsigned int i = 0; i < glyphCount; i++)
+        switch (layout.format.flowDirection)
         {
-            FT_UInt glyphIndex = glyphInfo[i].codepoint;
-            VulkanGlyphCache::GlyphInfo gInfo = m_glyphCache->getGlyph(
-                glyphIndex, layout.format.font.hash(), face, layout.format.size
-            );
-            gInfos.push_back(gInfo);
+        case TextFormat::Direction::TOP_TO_BOTTOM:
+            if (layout.format.lineSpacingMode == TextFormat::LineSpacingMode::UNIFORM)
+            {
+                lineHeight = layout.format.lineSpacing;
+                penY = layout.format.baseline;
+            }
+            else if (layout.format.lineSpacingMode == TextFormat::LineSpacingMode::PROPORTIONAL)
+            {
+                lineHeight = layout.format.size * layout.format.lineSpacing;
+                penY = layout.format.size * layout.format.baseline;
+            }
+            break;
+        case TextFormat::Direction::BOTTOM_TO_TOP:
+        {
+            lineHeight = -lineHeight;
+            if (layout.format.lineSpacingMode == TextFormat::LineSpacingMode::UNIFORM)
+            {
+                lineHeight = -layout.format.lineSpacing;
+                penY = layout.size.height + lineHeight + layout.format.baseline;
+            }
+            else if (layout.format.lineSpacingMode == TextFormat::LineSpacingMode::PROPORTIONAL)
+            {
+                lineHeight = -layout.format.size * layout.format.lineSpacing;
+                penY = layout.size.height + lineHeight + layout.format.size * layout.format.baseline;
+            }
+
+            float minBottom = 0.0f;
+            for (const char c : lines[0])
+            {
+                if (FT_Load_Char(face, c, FT_LOAD_DEFAULT))
+                {
+                    continue;
+                }
+                float bottom = static_cast<float>(face->glyph->metrics.horiBearingY - face->glyph->metrics.height) /
+                    64.0f;
+                if (bottom < minBottom)
+                {
+                    minBottom = bottom;
+                }
+            }
+            penY += minBottom;
+        }
+        break;
+        default:
+            throw std::runtime_error("unsupported flow direction for horizontal text layout");
         }
 
-        if (layout.format.wrapping == TextFormat::Wrapping::NONE)
+        for (const auto& line : lines)
         {
-            unsigned int lastSpaceIndex = 0;
+            hb_buffer_t* hbBuffer = hb_buffer_create();
+            hb_buffer_add_utf8(hbBuffer, line.c_str(), -1, 0, -1);
+
+            hb_buffer_set_direction(hbBuffer, direction);
+            hb_buffer_set_language(hbBuffer, hb_language_from_string(layout.format.locale.c_str(), -1));
+
+            hb_shape(hbFont, hbBuffer, nullptr, 0);
+
+            unsigned int glyphCount;
+            hb_glyph_info_t* glyphInfo = hb_buffer_get_glyph_infos(hbBuffer, &glyphCount);
+            hb_glyph_position_t* glyphPos = hb_buffer_get_glyph_positions(hbBuffer, &glyphCount);
+
+            std::vector<VulkanGlyphCache::GlyphInfo> gInfos;
+            gInfos.reserve(glyphCount);
+
             for (unsigned int i = 0; i < glyphCount; i++)
             {
-                if (std::isspace(line[i]))
-                {
-                    lastSpaceIndex = i;
-                }
+                FT_UInt glyphIndex = glyphInfo[i].codepoint;
+                VulkanGlyphCache::GlyphInfo gInfo = m_glyphCache->getGlyph(
+                    glyphIndex, layout.format.font.hash(), face, layout.format.size
+                );
+                gInfos.push_back(gInfo);
+            }
 
-                GlyphPosition pos;
-                pos.uv = gInfos[i].uv;
-                pos.position.pos = Point(penX + gInfos[i].bearingX, penY - gInfos[i].bearingY);
-                pos.position.size = Size(gInfos[i].width, gInfos[i].height);
-                glyphs.push_back(pos);
-
-                penX += glyphPos[i].x_advance >> 6;
-
-                if (layout.format.trimming == TextFormat::Trimming::CHARACTER && layout.size.width > 0 && penX > layout.
-                    size.width)
+            if (layout.format.wrapping == TextFormat::Wrapping::NONE)
+            {
+                unsigned int lastSpaceIndex = 0;
+                for (unsigned int i = 0; i < glyphCount; i++)
                 {
-                    glyphs.pop_back();
-                    break;
-                }
-                else if (layout.format.trimming == TextFormat::Trimming::WORD && layout.size.width > 0 && penX > layout.
-                    size.width && lastSpaceIndex > 0)
-                {
-                    // Move back to last space
-                    for (unsigned int j = i; j > lastSpaceIndex; j--)
+                    if (std::isspace(line[i]))
+                    {
+                        lastSpaceIndex = i;
+                    }
+
+                    GlyphPosition pos;
+                    pos.uv = gInfos[i].uv;
+                    pos.position.pos = Point(penX + gInfos[i].bearingX, penY - gInfos[i].bearingY);
+                    pos.position.size = Size(gInfos[i].width, gInfos[i].height);
+                    glyphs.push_back(pos);
+
+                    penX += glyphPos[i].x_advance >> 6;
+                    penY += glyphPos[i].y_advance >> 6;
+
+                    if (layout.format.trimming == TextFormat::Trimming::CHARACTER && layout.size.width > 0 && penX >
+                        layout.
+                        size.width)
                     {
                         glyphs.pop_back();
+                        break;
                     }
-                    break;
+                    else if (layout.format.trimming == TextFormat::Trimming::WORD && layout.size.width > 0 && penX >
+                        layout.
+                        size.width && lastSpaceIndex > 0)
+                    {
+                        // Move back to last space
+                        for (unsigned int j = i; j > lastSpaceIndex; j--)
+                        {
+                            glyphs.pop_back();
+                        }
+                        break;
+                    }
                 }
             }
+            else if (layout.format.wrapping == TextFormat::Wrapping::WORD)
+            {
+                unsigned int lastSpaceIndex = 0;
+                for (unsigned int i = 0; i < glyphCount; i++)
+                {
+                    if (std::isspace(line[i]))
+                    {
+                        lastSpaceIndex = i;
+                    }
+
+                    GlyphPosition pos;
+                    pos.uv = gInfos[i].uv;
+                    pos.position.pos = Point(penX + gInfos[i].bearingX, penY - gInfos[i].bearingY);
+                    pos.position.size = Size(gInfos[i].width, gInfos[i].height);
+                    glyphs.push_back(pos);
+
+                    penX += glyphPos[i].x_advance >> 6;
+                    penY += glyphPos[i].y_advance >> 6;
+
+                    if (layout.size.width > 0 && penX > layout.size.width && lastSpaceIndex > 0)
+                    {
+                        // Move back to last space
+                        for (unsigned int j = i; j > lastSpaceIndex; j--)
+                        {
+                            glyphs.pop_back();
+                        }
+
+                        i = lastSpaceIndex;
+                        lastSpaceIndex = 0;
+
+                        penX = initPenX;
+                        penY += lineHeight;
+                    }
+                }
+            }
+            else if (layout.format.wrapping == TextFormat::Wrapping::CHARACTER)
+            {
+                for (unsigned int i = 0; i < glyphCount; i++)
+                {
+                    GlyphPosition pos;
+                    pos.uv = gInfos[i].uv;
+                    pos.position.pos = Point(penX + gInfos[i].bearingX, penY - gInfos[i].bearingY);
+                    pos.position.size = Size(gInfos[i].width, gInfos[i].height);
+                    glyphs.push_back(pos);
+
+                    penX += glyphPos[i].x_advance >> 6;
+                    penY += glyphPos[i].y_advance >> 6;
+
+                    if (layout.size.width > 0 && penX > layout.size.width)
+                    {
+                        penX = initPenX;
+                        penY += lineHeight;
+
+                        glyphs.pop_back();
+                        i--;
+                    }
+                }
+            }
+
+            hb_buffer_destroy(hbBuffer);
+
+            penX = initPenX;
+            penY += lineHeight;
         }
-        else if (layout.format.wrapping == TextFormat::Wrapping::WORD)
+    }
+    else
+    {
+        float initPenY = 0;
+        float lineHeight = static_cast<float>(face->size->metrics.height >> 6);
+        float penX = lineHeight;
+        float penY = 0;
+
+        switch (layout.format.flowDirection)
         {
-            unsigned int lastSpaceIndex = 0;
+        case TextFormat::Direction::RIGHT_TO_LEFT:
+            if (layout.format.lineSpacingMode == TextFormat::LineSpacingMode::UNIFORM)
+            {
+                lineHeight = layout.format.lineSpacing;
+                penX = layout.format.baseline;
+            }
+            else if (layout.format.lineSpacingMode == TextFormat::LineSpacingMode::PROPORTIONAL)
+            {
+                lineHeight = layout.format.size * layout.format.lineSpacing;
+                penX = layout.format.size * layout.format.baseline;
+            }
+            break;
+        case TextFormat::Direction::LEFT_TO_RIGHT:
+        {
+            lineHeight = -lineHeight;
+            if (layout.format.lineSpacingMode == TextFormat::LineSpacingMode::UNIFORM)
+            {
+                lineHeight = -layout.format.lineSpacing;
+                penX = layout.size.width + lineHeight + layout.format.baseline;
+            }
+            else if (layout.format.lineSpacingMode == TextFormat::LineSpacingMode::PROPORTIONAL)
+            {
+                lineHeight = -layout.format.size * layout.format.lineSpacing;
+                penX = layout.size.width + lineHeight + layout.format.size * layout.format.baseline;
+            }
+
+            float minBottom = 0.0f;
+            for (const char c : lines[0])
+            {
+                if (FT_Load_Char(face, c, FT_LOAD_DEFAULT))
+                {
+                    continue;
+                }
+                float bottom = static_cast<float>(face->glyph->metrics.horiBearingY - face->glyph->metrics.height) /
+                    64.0f;
+                if (bottom < minBottom)
+                {
+                    minBottom = bottom;
+                }
+            }
+            penX += minBottom;
+        }
+        break;
+        default:
+            throw std::runtime_error("unsupported flow direction for horizontal text layout");
+        }
+
+        for (const auto& line : lines)
+        {
+            hb_buffer_t* hbBuffer = hb_buffer_create();
+            hb_buffer_add_utf8(hbBuffer, line.c_str(), -1, 0, -1);
+
+            hb_buffer_set_direction(hbBuffer, direction);
+            hb_buffer_set_language(hbBuffer, hb_language_from_string(layout.format.locale.c_str(), -1));
+
+            hb_shape(hbFont, hbBuffer, nullptr, 0);
+
+            unsigned int glyphCount;
+            hb_glyph_info_t* glyphInfo = hb_buffer_get_glyph_infos(hbBuffer, &glyphCount);
+            hb_glyph_position_t* glyphPos = hb_buffer_get_glyph_positions(hbBuffer, &glyphCount);
+
+            std::vector<VulkanGlyphCache::GlyphInfo> gInfos;
+            gInfos.reserve(glyphCount);
+
             for (unsigned int i = 0; i < glyphCount; i++)
             {
-                if (std::isspace(line[i]))
+                FT_UInt glyphIndex = glyphInfo[i].codepoint;
+                VulkanGlyphCache::GlyphInfo gInfo = m_glyphCache->getGlyph(
+                    glyphIndex, layout.format.font.hash(), face, layout.format.size
+                );
+                gInfos.push_back(gInfo);
+
+                std::cout << "glyphPos" << i << ": " << (glyphPos[i].x_offset >> 6) << ", " << (glyphPos[i].y_offset >>
+                        6)
+                    << " advance: " << (glyphPos[i].x_advance >> 6) << ", " << (glyphPos[i].y_advance >> 6)
+                    << std::endl;
+            }
+
+            std::cout << "line: " << line << std::endl;
+
+            if (layout.format.wrapping == TextFormat::Wrapping::NONE)
+            {
+                unsigned int lastSpaceIndex = 0;
+                for (unsigned int i = 0; i < glyphCount; i++)
                 {
-                    lastSpaceIndex = i;
-                }
+                    if (std::isspace(line[i]))
+                    {
+                        lastSpaceIndex = i;
+                    }
 
-                GlyphPosition pos;
-                pos.uv = gInfos[i].uv;
-                pos.position.pos = Point(penX + gInfos[i].bearingX, penY - gInfos[i].bearingY);
-                pos.position.size = Size(gInfos[i].width, gInfos[i].height);
-                glyphs.push_back(pos);
+                    GlyphPosition pos;
+                    pos.uv = gInfos[i].uv;
+                    pos.position.pos = Point(penX + gInfos[i].bearingX, penY - gInfos[i].bearingY);
+                    pos.position.size = Size(gInfos[i].width, gInfos[i].height);
+                    glyphs.push_back(pos);
 
-                penX += glyphPos[i].x_advance >> 6;
+                    penX += glyphPos[i].x_advance >> 6;
+                    penY += glyphPos[i].y_advance >> 6;
 
-                if (layout.size.width > 0 && penX > layout.size.width && lastSpaceIndex > 0)
-                {
-                    // Move back to last space
-                    for (unsigned int j = i; j > lastSpaceIndex; j--)
+                    if (layout.format.trimming == TextFormat::Trimming::CHARACTER && layout.size.width > 0 && penX >
+                        layout.
+                        size.width)
                     {
                         glyphs.pop_back();
+                        break;
+                    }
+                    else if (layout.format.trimming == TextFormat::Trimming::WORD && layout.size.width > 0 && penX >
+                        layout.
+                        size.width && lastSpaceIndex > 0)
+                    {
+                        // Move back to last space
+                        for (unsigned int j = i; j > lastSpaceIndex; j--)
+                        {
+                            glyphs.pop_back();
+                        }
+                        break;
+                    }
+                }
+            }
+            else if (layout.format.wrapping == TextFormat::Wrapping::WORD)
+            {
+                unsigned int lastSpaceIndex = 0;
+                for (unsigned int i = 0; i < glyphCount; i++)
+                {
+                    if (std::isspace(line[i]))
+                    {
+                        lastSpaceIndex = i;
                     }
 
-                    i = lastSpaceIndex;
-                    lastSpaceIndex = 0;
+                    GlyphPosition pos;
+                    pos.uv = gInfos[i].uv;
+                    pos.position.pos = Point(penX + gInfos[i].bearingX, penY - gInfos[i].bearingY);
+                    pos.position.size = Size(gInfos[i].width, gInfos[i].height);
+                    glyphs.push_back(pos);
 
-                    penX = initPenX;
-                    penY += lineHeight;
+                    penX += glyphPos[i].x_advance >> 6;
+                    penY += glyphPos[i].y_advance >> 6;
+
+                    if (layout.size.width > 0 && penX > layout.size.width && lastSpaceIndex > 0)
+                    {
+                        // Move back to last space
+                        for (unsigned int j = i; j > lastSpaceIndex; j--)
+                        {
+                            glyphs.pop_back();
+                        }
+
+                        i = lastSpaceIndex;
+                        lastSpaceIndex = 0;
+
+                        penX = initPenY;
+                        penY += lineHeight;
+                    }
                 }
             }
-        }
-        else if (layout.format.wrapping == TextFormat::Wrapping::CHARACTER)
-        {
-            for (unsigned int i = 0; i < glyphCount; i++)
+            else if (layout.format.wrapping == TextFormat::Wrapping::CHARACTER)
             {
-                GlyphPosition pos;
-                pos.uv = gInfos[i].uv;
-                pos.position.pos = Point(penX + gInfos[i].bearingX, penY - gInfos[i].bearingY);
-                pos.position.size = Size(gInfos[i].width, gInfos[i].height);
-                glyphs.push_back(pos);
-
-                penX += glyphPos[i].x_advance >> 6;
-
-                if (layout.size.width > 0 && penX > layout.size.width)
+                for (unsigned int i = 0; i < glyphCount; i++)
                 {
-                    penX = initPenX;
-                    penY += lineHeight;
+                    GlyphPosition pos;
+                    pos.uv = gInfos[i].uv;
+                    pos.position.pos = Point(penX + gInfos[i].bearingX, penY - gInfos[i].bearingY);
+                    pos.position.size = Size(gInfos[i].width, gInfos[i].height);
+                    glyphs.push_back(pos);
 
-                    glyphs.pop_back();
-                    i--;
+                    penX += glyphPos[i].x_advance >> 6;
+                    penY += glyphPos[i].y_advance >> 6;
+
+                    if (layout.size.width > 0 && penX > layout.size.width)
+                    {
+                        penX = initPenY;
+                        penY += lineHeight;
+
+                        glyphs.pop_back();
+                        i--;
+                    }
                 }
             }
+
+            hb_buffer_destroy(hbBuffer);
+
+            penX = initPenY;
+            penY += lineHeight;
         }
-
-        hb_buffer_destroy(hbBuffer);
-
-        penX = initPenX;
-        penY += lineHeight;
     }
 
     hb_font_destroy(hbFont);
