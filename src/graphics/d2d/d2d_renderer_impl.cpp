@@ -75,24 +75,4 @@ void D2DRendererImpl::resize(Size size)
     m_surface->resize(size);
     setTargetBitmap();
 }
-
-void D2DRendererImpl::setClearColor(const Color& color)
-{
-    m_clearColor = toD2DColor(color);
-}
-
-Image D2DRendererImpl::createImage(const std::vector<std::byte>& data, uint32_t width, uint32_t height)
-{
-    return m_deviceResources->createImage(data, width, height);
-}
-
-Microsoft::WRL::ComPtr<ID2D1DeviceContext> D2DRendererImpl::deviceContext() const
-{
-    return m_deviceContext;
-}
-
-D2DDeviceResources* D2DRendererImpl::deviceResources() const
-{
-    return m_deviceResources.get();
-}
 } // karin

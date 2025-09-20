@@ -19,10 +19,25 @@ public:
 
     void cleanUp() override;
 
-    Microsoft::WRL::ComPtr<ID2D1Factory1>& factory();
-    Microsoft::WRL::ComPtr<ID2D1Device>& device();
-    Microsoft::WRL::ComPtr<IDXGIDevice4>& dxgiDevice();
-    Microsoft::WRL::ComPtr<IDWriteFactory>& dwriteFactory();
+    Microsoft::WRL::ComPtr<ID2D1Factory1>& factory()
+    {
+        return m_d2dFactory;
+    }
+
+    Microsoft::WRL::ComPtr<ID2D1Device>& device()
+    {
+        return m_d2dDevice;
+    }
+
+    Microsoft::WRL::ComPtr<IDXGIDevice4>& dxgiDevice()
+    {
+        return m_dxgiDevice;
+    }
+
+    Microsoft::WRL::ComPtr<IDWriteFactory>& dwriteFactory()
+    {
+        return m_dwriteFactory;
+    }
 
 private:
     void createD2DFactory();

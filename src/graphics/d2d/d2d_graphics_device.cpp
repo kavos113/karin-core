@@ -101,24 +101,4 @@ void D2DGraphicsDevice::createDWriteFactory()
         throw std::runtime_error("Failed to create dwrite factory");
     }
 }
-
-Microsoft::WRL::ComPtr<ID2D1Factory1>& D2DGraphicsDevice::factory()
-{
-    return m_d2dFactory;
-}
-
-Microsoft::WRL::ComPtr<ID2D1Device>& D2DGraphicsDevice::device()
-{
-    return m_d2dDevice;
-}
-
-Microsoft::WRL::ComPtr<IDXGIDevice4>& D2DGraphicsDevice::dxgiDevice()
-{
-    return m_dxgiDevice;
-}
-
-Microsoft::WRL::ComPtr<IDWriteFactory>& D2DGraphicsDevice::dwriteFactory()
-{
-    return m_dwriteFactory;
-}
 } // karin
