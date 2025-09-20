@@ -32,15 +32,50 @@ public:
     VkCommandBuffer beginSingleTimeCommands() const;
     void endSingleTimeCommands(VkCommandBuffer commandBuffer) const;
 
-    VkInstance instance() const;
-    VkPhysicalDevice physicalDevice() const;
-    VkDevice device() const;
-    VmaAllocator allocator() const;
-    uint32_t queueFamilyIndex(QueueFamily family) const;
-    VkCommandPool commandPool() const;
-    VkQueue graphicsQueue() const;
-    VkQueue presentQueue() const;
-    VkDescriptorPool descriptorPool() const;
+    VkInstance instance() const
+    {
+        return m_instance;
+    }
+
+    VkPhysicalDevice physicalDevice() const
+    {
+        return m_physicalDevice;
+    }
+
+    VkDevice device() const
+    {
+        return m_device;
+    }
+
+    VmaAllocator allocator() const
+    {
+        return m_allocator;
+    }
+
+    uint32_t queueFamilyIndex(QueueFamily family) const
+    {
+        return m_queueFamilyIndices.at(family);
+    }
+
+    VkCommandPool commandPool() const
+    {
+        return m_commandPool;
+    }
+
+    VkQueue graphicsQueue() const
+    {
+        return m_graphicsQueue;
+    }
+
+    VkQueue presentQueue() const
+    {
+        return m_presentQueue;
+    }
+
+    VkDescriptorPool descriptorPool() const
+    {
+        return m_descriptorPool;
+    }
 
 private:
     void createInstance();

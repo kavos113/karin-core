@@ -217,15 +217,6 @@ void VulkanRendererImpl::resize(Size size)
 {
 }
 
-void VulkanRendererImpl::setClearColor(const Color& color)
-{
-    m_clearColor = {
-        .color = {
-            .float32 = {color.r, color.g, color.b, color.a}
-        }
-    };
-}
-
 void VulkanRendererImpl::addCommand(
     const std::vector<VulkanPipeline::Vertex>& vertices,
     std::vector<uint16_t>& indices,
@@ -296,67 +287,6 @@ void VulkanRendererImpl::addCommand(
     }
 
     m_drawCommands.push_back(drawCommand);
-}
-
-Image VulkanRendererImpl::createImage(const std::vector<std::byte>& data, uint32_t width, uint32_t height)
-{
-    return m_deviceResources->createImage(data, width, height);
-}
-
-Rectangle VulkanRendererImpl::normalize(Rectangle rect) const
-{
-    VkExtent2D extent = m_surface->extent();
-
-    return {
-        {
-            (rect.pos.x / static_cast<float>(extent.width)) * 2.0f - 1.0f,
-            (rect.pos.y / static_cast<float>(extent.height)) * 2.0f - 1.0f
-        },
-        {
-            (rect.size.width / static_cast<float>(extent.width)) * 2.0f,
-            (rect.size.height / static_cast<float>(extent.height)) * 2.0f
-        }
-    };
-}
-
-Point VulkanRendererImpl::normalize(Point point) const
-{
-    VkExtent2D extent = m_surface->extent();
-
-    return {
-        (point.x / static_cast<float>(extent.width)) * 2.0f - 1.0f,
-        (point.y / static_cast<float>(extent.height)) * 2.0f - 1.0f
-    };
-}
-
-glm::vec2 VulkanRendererImpl::normalize(glm::vec2 v) const
-{
-    VkExtent2D extent = m_surface->extent();
-
-    return {
-        (v.x / static_cast<float>(extent.width)) * 2.0f - 1.0f,
-        (v.y / static_cast<float>(extent.height)) * 2.0f - 1.0f
-    };
-}
-
-glm::vec2 VulkanRendererImpl::unNormalize(glm::vec2 v) const
-{
-    VkExtent2D extent = m_surface->extent();
-
-    return {
-        (v.x + 1.0f) / 2.0f * static_cast<float>(extent.width),
-        (v.y + 1.0f) / 2.0f * static_cast<float>(extent.height)
-    };
-}
-
-glm::vec2 VulkanRendererImpl::normalizeVec(glm::vec2 vec) const
-{
-    VkExtent2D extent = m_surface->extent();
-
-    return {
-        (vec.x / static_cast<float>(extent.width)) * 2.0f,
-        (vec.y / static_cast<float>(extent.height)) * 2.0f
-    };
 }
 
 void VulkanRendererImpl::createCommandBuffers()

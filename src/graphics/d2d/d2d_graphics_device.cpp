@@ -27,7 +27,8 @@ void D2DGraphicsDevice::createD2DFactory()
     if (FAILED(
         D2D1CreateFactory(
             D2D1_FACTORY_TYPE_SINGLE_THREADED,
-            IID_PPV_ARGS(&m_d2dFactory))
+            IID_PPV_ARGS(&m_d2dFactory)
+        )
     ))
     {
         throw std::runtime_error("Failed to create D2D factory");
@@ -39,7 +40,8 @@ void D2DGraphicsDevice::createD2DDevice()
     if (FAILED(
         m_d2dFactory->CreateDevice(
             m_dxgiDevice.Get(),
-            &m_d2dDevice)
+            &m_d2dDevice
+        )
     ))
     {
         throw std::runtime_error("Failed to create D2D device");
@@ -74,7 +76,8 @@ void D2DGraphicsDevice::createDXGIDevice()
             D3D11_SDK_VERSION,
             &d3dDevice,
             nullptr, // Feature level not needed
-            &d3dContext)
+            &d3dContext
+        )
     ))
     {
         throw std::runtime_error("Failed to create D3D11 device");
@@ -97,25 +100,5 @@ void D2DGraphicsDevice::createDWriteFactory()
     {
         throw std::runtime_error("Failed to create dwrite factory");
     }
-}
-
-Microsoft::WRL::ComPtr<ID2D1Factory1>& D2DGraphicsDevice::factory()
-{
-    return m_d2dFactory;
-}
-
-Microsoft::WRL::ComPtr<ID2D1Device>& D2DGraphicsDevice::device()
-{
-    return m_d2dDevice;
-}
-
-Microsoft::WRL::ComPtr<IDXGIDevice4>& D2DGraphicsDevice::dxgiDevice()
-{
-    return m_dxgiDevice;
-}
-
-Microsoft::WRL::ComPtr<IDWriteFactory>& D2DGraphicsDevice::dwriteFactory()
-{
-    return m_dwriteFactory;
 }
 } // karin

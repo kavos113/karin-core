@@ -20,20 +20,6 @@ VulkanPipeline::VulkanPipeline(
     );
 }
 
-VulkanPipeline::~VulkanPipeline()
-= default;
-
-
-VkPipeline VulkanPipeline::pipeline() const
-{
-    return m_graphicsPipeline;
-}
-
-VkPipelineLayout VulkanPipeline::pipelineLayout() const
-{
-    return m_pipelineLayout;
-}
-
 void VulkanPipeline::cleanUp(VkDevice device)
 {
     if (m_graphicsPipeline != VK_NULL_HANDLE)

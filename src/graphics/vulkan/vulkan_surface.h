@@ -24,11 +24,25 @@ public:
 
     bool present(VkSemaphore waitSemaphore, uint32_t imageIndex) const;
 
-    VkExtent2D extent() const;
-    VkFormat format() const;
-    uint32_t imageCount() const;
+    VkExtent2D extent() const
+    {
+        return m_swapChainExtent;
+    }
 
-    std::vector<VkImageView> swapChainImageViews() const;
+    VkFormat format() const
+    {
+        return m_swapChainImageFormat;
+    }
+
+    uint32_t imageCount() const
+    {
+        return static_cast<uint32_t>(m_swapChainImages.size());
+    }
+
+    std::vector<VkImageView> swapChainImageViews() const
+    {
+        return m_swapChainImageViews;
+    }
 
 private:
     void createSurface();

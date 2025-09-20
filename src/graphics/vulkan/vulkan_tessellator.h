@@ -67,14 +67,6 @@ private:
         glm::vec2 normalUnitVec
     ) const;
 
-    // for triangulation
-
-    // det(c-a, b-a)
-    // det(a, b, c): b->c is counter-clockwise if >0, clockwise if <0  (because: y-axis is down)
-    static float det(const Point& a, const Point& b, const Point& c);
-    static bool isConvex(const Point& a, const Point& b, const Point& c);
-    static bool isPointInTriangle(const Point& p, const Point& a, const Point& b, const Point& c);
-
     VulkanRendererImpl* m_renderer;
 
     static constexpr int CAP_ROUND_SEGMENTS = 8;

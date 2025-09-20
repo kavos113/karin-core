@@ -19,7 +19,7 @@ public:
         const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts,
         const std::vector<VkPushConstantRange>& pushConstantRanges
     );
-    ~VulkanPipeline();
+    ~VulkanPipeline() = default;
 
     enum class ShapeType : uint32_t
     {
@@ -30,8 +30,15 @@ public:
 
     void cleanUp(VkDevice device);
 
-    VkPipeline pipeline() const;
-    VkPipelineLayout pipelineLayout() const;
+    VkPipeline pipeline() const
+    {
+        return m_graphicsPipeline;
+    }
+
+    VkPipelineLayout pipelineLayout() const
+    {
+        return m_pipelineLayout;
+    }
 
     struct Vertex
     {

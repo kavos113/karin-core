@@ -362,16 +362,6 @@ std::vector<VkDescriptorSet> VulkanDeviceResources::textureDescriptorSet(Image i
     throw std::runtime_error("texture not found in VulkanDeviceResources");
 }
 
-VkDescriptorSetLayout VulkanDeviceResources::geometryDescriptorSetLayout() const
-{
-    return m_geometryDescriptorSetLayout;
-}
-
-VkDescriptorSetLayout VulkanDeviceResources::atlasDescriptorSetLayout() const
-{
-    return m_glyphCache->atlasDescriptorSetLayout();
-}
-
 Image VulkanDeviceResources::createImage(const std::vector<std::byte>& data, uint32_t width, uint32_t height)
 {
     VkBuffer stagingBuffer;

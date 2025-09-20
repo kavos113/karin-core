@@ -34,7 +34,15 @@ public:
     bool beginDraw() override;
     void endDraw() override;
     void resize(Size size) override;
-    void setClearColor(const Color& color) override;
+
+    void setClearColor(const Color& color) override
+    {
+        m_clearColor = {
+            .color = {
+                .float32 = {color.r, color.g, color.b, color.a}
+            }
+        };
+    }
 
     void addCommand(
         const std::vector<VulkanPipeline::Vertex>& vertices,
@@ -43,15 +51,78 @@ public:
         const Pattern& pattern, bool isGeometry
     );
 
-    Image createImage(const std::vector<std::byte>& data, uint32_t width, uint32_t height) override;
+    Image createImage(const std::vector<std::byte>& data, uint32_t width, uint32_t height) override
+    {
+        return m_deviceResources->createImage(data, width, height);
+    }
 
     // pixel coordinates -> normalized coordinates [-1, 1]
-    Rectangle normalize(Rectangle rect) const;
-    Point normalize(Point point) const;
-    glm::vec2 normalize(glm::vec2 v) const;
-    glm::vec2 unNormalize(glm::vec2 v) const;
+    Rectangle normalize(Rectangle rect) const
+    {
+        VkExtent2D extent = m_surface->extent();
+
+        return {
+            {
+                (rect.pos.x / static_cast<float>(extent.width)) * 2.0f - 1.0f,
+                (rect.pos.y / static_cast<float>(extent.height)) * 2.0f - 1.0f
+            },
+            {
+                (rect.size.width / static_cast<float>(extent.width)) * 2.0f,
+                (rect.size.height / static_cast<float>(extent.height)) * 2.0f
+            }
+        };
+    }
+
+    Point normalize(Point point) const
+    {
+        VkExtent2D extent = m_surface->extent();
+
+        return {
+            (point.x / static_cast<float>(extent.width)) * 2.0f - 1.0f,
+            (point.y / static_cast<float>(extent.height)) * 2.0f - 1.0f
+        };
+    }
+
+    glm::vec2 normalize(glm::vec2 v) const
+    {
+        VkExtent2D extent = m_surface->extent();
+
+        return {
+            (v.x / static_cast<float>(extent.width)) * 2.0f - 1.0f,
+            (v.y / static_cast<float>(extent.height)) * 2.0f - 1.0f
+        };
+    }
+
+    glm::vec2 unNormalize(glm::vec2 v) const
+    {
+        VkExtent2D extent = m_surface->extent();
+
+        return {
+            (v.x + 1.0f) / 2.0f * static_cast<float>(extent.width),
+            (v.y + 1.0f) / 2.0f * static_cast<float>(extent.height)
+        };
+    }
+
     // only change scale
-    glm::vec2 normalizeVec(glm::vec2 vec) const;
+    glm::vec2 normalizeVec(glm::vec2 vec) const
+    {
+        VkExtent2D extent = m_surface->extent();
+
+        return {
+            (vec.x / static_cast<float>(extent.width)) * 2.0f,
+            (vec.y / static_cast<float>(extent.height)) * 2.0f
+        };
+    }
+
+    Point normalizeVec(Point vec) const
+    {
+        VkExtent2D extent = m_surface->extent();
+
+        return {
+            (vec.x / static_cast<float>(extent.width)) * 2.0f,
+            (vec.y / static_cast<float>(extent.height)) * 2.0f
+        };
+    }
 
     VulkanDeviceResources* deviceResources() const
     {

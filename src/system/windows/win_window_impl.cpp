@@ -100,7 +100,7 @@ LRESULT WinWindowImpl::handleMessage(UINT message, WPARAM wParam, LPARAM lParam)
 
 LRESULT WinWindowImpl::windowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    WinWindowImpl* self = nullptr;
+    WinWindowImpl * self = nullptr;
 
     if (message == WM_CREATE)
     {

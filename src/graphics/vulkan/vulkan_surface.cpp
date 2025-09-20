@@ -142,7 +142,7 @@ void VulkanSurface::createSurface()
 #elifdef KARIN_PLATFORM_UNIX
     VkXlibSurfaceCreateInfoKHR createInfo = {
         .sType = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR,
-        .dpy = reinterpret_cast<Display *>(m_window.display),
+        .dpy = reinterpret_cast<Display*>(m_window.display),
         .window = m_window.window,
     };
 
@@ -167,7 +167,7 @@ void VulkanSurface::createSwapChain()
     height = rc.bottom - rc.top;
 #elifdef KARIN_PLATFORM_UNIX
     XWindowAttributes attributes;
-    XGetWindowAttributes(reinterpret_cast<Display *>(m_window.display), m_window.window, &attributes);
+    XGetWindowAttributes(reinterpret_cast<Display*>(m_window.display), m_window.window, &attributes);
     width = attributes.width;
     height = attributes.height;
 #endif
@@ -277,23 +277,4 @@ void VulkanSurface::createViewport()
     };
 }
 
-VkExtent2D VulkanSurface::extent() const
-{
-    return m_swapChainExtent;
-}
-
-std::vector<VkImageView> VulkanSurface::swapChainImageViews() const
-{
-    return m_swapChainImageViews;
-}
-
-VkFormat VulkanSurface::format() const
-{
-    return m_swapChainImageFormat;
-}
-
-uint32_t VulkanSurface::imageCount() const
-{
-    return static_cast<uint32_t>(m_swapChainImages.size());
-}
 } // karin

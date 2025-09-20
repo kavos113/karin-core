@@ -36,7 +36,8 @@ void D2DSurfaceManager::resize(Size size)
             static_cast<UINT>(size.width),
             static_cast<UINT>(size.height),
             DXGI_FORMAT_B8G8R8A8_UNORM,
-            0)
+            0
+        )
     ))
     {
         throw std::runtime_error("Failed to resize swap chain buffers");
@@ -85,7 +86,8 @@ void D2DSurfaceManager::createSwapChain()
             &swapChainDesc,
             nullptr,
             nullptr,
-            &m_swapChain)
+            &m_swapChain
+        )
     ))
     {
         throw std::runtime_error("Failed to create swap chain");
