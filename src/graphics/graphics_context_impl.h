@@ -7,6 +7,7 @@
 #include <karin/graphics/pattern.h>
 #include <karin/graphics/stroke_style.h>
 #include <karin/graphics/image.h>
+#include <karin/graphics/text_layout.h>
 
 namespace karin
 {
@@ -31,6 +32,7 @@ public:
     virtual void drawPath(const PathImpl& path, Pattern& pattern, const StrokeStyle& strokeStyle) = 0;
 
     virtual void drawImage(Image image, Rectangle destRect, Rectangle srcRect = Rectangle(), float opacity = 1.0f) = 0;
+    virtual void drawText(const TextLayout& text, Point start, Pattern& pattern) = 0;
 };
 } // karin
 

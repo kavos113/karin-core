@@ -3,6 +3,7 @@
 
 #ifdef __cplusplus
 #include <glm/glm.hpp>
+#include <karin/graphics/pattern.h>
 
 namespace karin
 {
@@ -21,13 +22,16 @@ struct PushConstants
     // offset(vec2) + scale(vec2) in image
     glm::vec4 color;
 
-    glm::vec3 shapeParams;
-    ShapeType shapeType = ShapeType::Nothing;
+    // only used in rounded rectangle. vec2: normalized radius (radiusX / (width / 2), radiusY / (height / 2))
+    glm::vec2 shapeParams;
+    uint32_t shapeType = static_cast<uint32_t>(ShapeType::Nothing);
+    uint32_t patternType = static_cast<uint32_t>(PatternType::SolidColor);
 
     // aspect(float) in linear gradient (width / height)
     // radiusX(float) + radiusY(float) in radial gradient
     // uvMode(float) in image (0 = uv(image), 1 = window coordinates(image pattern))
     glm::vec2 global;
+    glm::vec2 padding{0.0f, 0.0f};
 };
 }
 
@@ -36,9 +40,11 @@ struct PushConstants
 layout (push_constant) uniform PushConstants
 {
     vec4 color;
-    vec3 shapeParams;
+    vec2 shapeParams;
     uint shapeType;
+    uint patternType;
     vec2 global;
+    vec2 padding;
 } push;
 
 #endif

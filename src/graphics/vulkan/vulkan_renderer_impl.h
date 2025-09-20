@@ -14,13 +14,19 @@
 #include <karin/system/window.h>
 
 #include <vector>
+#include <cstdint>
+#include <memory>
 
 namespace karin
 {
 class VulkanRendererImpl : public IRendererImpl
 {
 public:
-    VulkanRendererImpl(VulkanGraphicsDevice* device, Window::NativeHandle nativeHandle);
+    VulkanRendererImpl(
+        VulkanGraphicsDevice* device,
+        Window::NativeHandle nativeHandle,
+        std::unique_ptr<FontLoader> fontLoader
+    );
     ~VulkanRendererImpl() override = default;
 
     void cleanUp() override;
@@ -34,7 +40,7 @@ public:
         const std::vector<VulkanPipeline::Vertex>& vertices,
         std::vector<uint16_t>& indices,
         const PushConstants& fragData,
-        const Pattern& pattern
+        const Pattern& pattern, bool isGeometry
     );
 
     Image createImage(const std::vector<std::byte>& data, uint32_t width, uint32_t height) override;
@@ -47,6 +53,11 @@ public:
     // only change scale
     glm::vec2 normalizeVec(glm::vec2 vec) const;
 
+    VulkanDeviceResources* deviceResources() const
+    {
+        return m_deviceResources.get();
+    }
+
 private:
     struct DrawCommand
     {
@@ -54,8 +65,7 @@ private:
         uint32_t indexOffset{};
         PushConstants fragData;
         VulkanPipeline* pipeline = nullptr;
-        VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
-        PatternType patternType = PatternType::SolidColor;
+        std::vector<VkDescriptorSet> descriptorSets;
     };
 
     void createCommandBuffers();
@@ -65,18 +75,13 @@ private:
     void createRenderPass();
     void createFrameBuffers();
     void createPipeline();
-    void createLinearGradientPipeline();
-    void createRadialGradientPipeline();
-    void createImagePipeline();
 
     void doResize();
 
     VulkanGraphicsDevice* m_device;
     std::unique_ptr<VulkanSurface> m_surface;
-    std::unique_ptr<VulkanPipeline> m_pipeline;
-    std::unique_ptr<VulkanPipeline> m_linearGradientPipeline;
-    std::unique_ptr<VulkanPipeline> m_radialGradientPipeline;
-    std::unique_ptr<VulkanPipeline> m_imagePipeline;
+    std::unique_ptr<VulkanPipeline> m_geometryPipeline;
+    std::unique_ptr<VulkanPipeline> m_textPipeline;
     std::unique_ptr<VulkanDeviceResources> m_deviceResources;
 
     std::vector<DrawCommand> m_drawCommands;

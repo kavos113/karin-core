@@ -4,7 +4,7 @@ set(GRAPHICS_SOURCE
         graphics_context.cpp
         path.cpp
         path_impl.cpp
-        pattern.cpp
+        hash.cpp
         ${THIRD_PARTY_DIR}/stb_image/stb_image_impl.cpp
 )
 
@@ -27,20 +27,23 @@ elseif (VULKAN)
             vulkan/vulkan_pipeline.cpp
             vulkan/vulkan_tessellator.cpp
             vulkan/vulkan_device_resources.cpp
+            vulkan/vulkan_glyph_cache.cpp
             vulkan/vma_impl.cpp
+            text/font_loader.cpp
     )
 endif ()
 
 add_library(karin_graphics STATIC ${GRAPHICS_SOURCE})
 target_include_directories(karin_graphics PUBLIC ${INCLUDE_DIR})
 target_include_directories(karin_graphics PRIVATE ${COMMON_DIR})
-target_include_directories(karin_graphics PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(karin_graphics PRIVATE ${THIRD_PARTY_DIR})
+target_include_directories(karin_graphics PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 if (DIRECTX)
     target_link_libraries(karin_graphics PRIVATE d2d1.lib)
     target_link_libraries(karin_graphics PRIVATE dxgi.lib)
     target_link_libraries(karin_graphics PRIVATE d3d11.lib)
+    target_link_libraries(karin_graphics PRIVATE dwrite.lib)
 
     target_compile_definitions(karin_graphics PUBLIC KARIN_PLATFORM_DIRECTX)
     target_compile_definitions(karin_graphics PUBLIC UNICODE)
@@ -63,11 +66,8 @@ elseif (VULKAN)
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             COMMAND ${BASH_EXECUTABLE} ${SCRIPTS_DIR}/shader.sh vulkan/shaders SRC_GRAPHICS_VULKAN_SHADERS_SHADER_H
             DEPENDS
-            vulkan/shaders/solid.vert
-            vulkan/shaders/solid.frag
-            vulkan/shaders/gradient.vert
-            vulkan/shaders/linear_gradient.frag
-            vulkan/shaders/radial_gradient.frag
+            vulkan/shaders/geometry.vert
+            vulkan/shaders/geometry.frag
             COMMENT "Compiling graphics shaders"
     )
     add_custom_target(
@@ -85,6 +85,12 @@ elseif (VULKAN)
 
     find_package(glm CONFIG REQUIRED)
     target_link_libraries(karin_graphics PRIVATE glm::glm)
+
+    find_package(Freetype CONFIG REQUIRED)
+    target_link_libraries(karin_graphics PRIVATE Freetype::Freetype)
+
+    find_package(harfbuzz CONFIG REQUIRED)
+    target_link_libraries(karin_graphics PRIVATE harfbuzz::harfbuzz)
 
     target_compile_definitions(karin_graphics PUBLIC KARIN_PLATFORM_VULKAN)
 endif ()

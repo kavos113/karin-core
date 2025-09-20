@@ -83,12 +83,12 @@ struct ImagePattern
 
 using Pattern = std::variant<SolidColorPattern, LinearGradientPattern, RadialGradientPattern, ImagePattern>;
 
-enum class PatternType
+enum class PatternType : uint32_t
 {
-    SolidColor,
-    LinearGradient,
-    RadialGradient,
-    Image
+    SolidColor = 0,
+    LinearGradient = 1,
+    RadialGradient = 2,
+    Image = 3
 };
 }
 

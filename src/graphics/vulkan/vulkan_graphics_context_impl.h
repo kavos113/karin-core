@@ -13,8 +13,6 @@
 #include <karin/graphics/pattern.h>
 #include <karin/graphics/stroke_style.h>
 
-#include <glm/glm.hpp>
-
 #include <memory>
 
 namespace karin
@@ -40,6 +38,7 @@ public:
     void drawPath(const PathImpl& path, Pattern& pattern, const StrokeStyle& strokeStyle) override;
 
     void drawImage(Image image, Rectangle destRect, Rectangle srcRect, float opacity) override;
+    void drawText(const TextLayout& text, Point start, Pattern& pattern) override;
 
 private:
     PushConstants createPushConstantData(const Pattern& pattern) const;

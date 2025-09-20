@@ -27,3 +27,5 @@ sed -i 's/unsigned char/inline const unsigned char/' "$output_file"
 sed -i 's/unsigned int/inline const unsigned int/' "$output_file"
 
 echo "#endif // $include_guard" >> "$output_file"
+
+sed -i 's/\r$//' "$output_file"

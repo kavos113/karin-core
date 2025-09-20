@@ -1,18 +1,25 @@
 #include "vulkan_device_resources.h"
 
-#include "vma.h"
-
 #include <karin/common/color/color.h>
+
+#include <ft2build.h>
+#include FT_FREETYPE_H
+#include <harfbuzz/hb.h>
+#include <harfbuzz/hb-ft.h>
+
 #include <ranges>
 #include <cstring>
 #include <stdexcept>
 #include <functional>
 #include <string_view>
+#include <iostream>
 
 namespace karin
 {
 void VulkanDeviceResources::cleanup()
 {
+    m_glyphCache->cleanup();
+
     for (auto& val : m_gradientPointLutMap | std::views::values)
     {
         vmaDestroyImage(m_device->allocator(), val.image, val.allocation);
@@ -25,9 +32,13 @@ void VulkanDeviceResources::cleanup()
         vkDestroyImageView(m_device->device(), val.imageView, nullptr);
     }
 
-    m_gradientPointLutMap.clear();
+    vmaDestroyImage(m_device->allocator(), m_dummyTexture.image, m_dummyTexture.allocation);
+    vkDestroyImageView(m_device->device(), m_dummyTexture.imageView, nullptr);
 
-    vkDestroyDescriptorSetLayout(m_device->device(), m_textureDescriptorSetLayout, nullptr);
+    m_gradientPointLutMap.clear();
+    m_textureMap.clear();
+
+    vkDestroyDescriptorSetLayout(m_device->device(), m_geometryDescriptorSetLayout, nullptr);
 
     vkDestroySampler(m_device->device(), m_clampSampler, nullptr);
     vkDestroySampler(m_device->device(), m_repeatSampler, nullptr);
@@ -79,7 +90,7 @@ std::vector<VkDescriptorSet> VulkanDeviceResources::gradientPointLutDescriptorSe
     };
     VkImageCreateInfo imageInfo = {
         .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
-        .imageType = VK_IMAGE_TYPE_1D,
+        .imageType = VK_IMAGE_TYPE_2D,
         .format = VK_FORMAT_R8G8B8A8_UNORM,
         .extent = {LUT_WIDTH, 1, 1},
         .mipLevels = 1,
@@ -172,7 +183,7 @@ std::vector<VkDescriptorSet> VulkanDeviceResources::gradientPointLutDescriptorSe
     VkImageViewCreateInfo viewInfo = {
         .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
         .image = gradientPointLutImage,
-        .viewType = VK_IMAGE_VIEW_TYPE_1D,
+        .viewType = VK_IMAGE_VIEW_TYPE_2D,
         .format = VK_FORMAT_R8G8B8A8_UNORM,
         .components = {
             .r = VK_COMPONENT_SWIZZLE_IDENTITY,
@@ -194,7 +205,7 @@ std::vector<VkDescriptorSet> VulkanDeviceResources::gradientPointLutDescriptorSe
         throw std::runtime_error("failed to create gradient point LUT image view");
     }
 
-    std::vector layouts(m_maxFramesInFlight, m_textureDescriptorSetLayout);
+    std::vector layouts(m_maxFramesInFlight, m_geometryDescriptorSetLayout);
     std::vector<VkDescriptorSet> descriptorSets(m_maxFramesInFlight);
 
     VkDescriptorSetAllocateInfo allocInfo = {
@@ -351,9 +362,14 @@ std::vector<VkDescriptorSet> VulkanDeviceResources::textureDescriptorSet(Image i
     throw std::runtime_error("texture not found in VulkanDeviceResources");
 }
 
-VkDescriptorSetLayout VulkanDeviceResources::textureDescriptorSetLayout() const
+VkDescriptorSetLayout VulkanDeviceResources::geometryDescriptorSetLayout() const
 {
-    return m_textureDescriptorSetLayout;
+    return m_geometryDescriptorSetLayout;
+}
+
+VkDescriptorSetLayout VulkanDeviceResources::atlasDescriptorSetLayout() const
+{
+    return m_glyphCache->atlasDescriptorSetLayout();
 }
 
 Image VulkanDeviceResources::createImage(const std::vector<std::byte>& data, uint32_t width, uint32_t height)
@@ -504,7 +520,7 @@ Image VulkanDeviceResources::createImage(const std::vector<std::byte>& data, uin
         throw std::runtime_error("failed to create image view");
     }
 
-    std::vector layouts(m_maxFramesInFlight, m_textureDescriptorSetLayout);
+    std::vector layouts(m_maxFramesInFlight, m_geometryDescriptorSetLayout);
     std::vector<VkDescriptorSet> descriptorSets(m_maxFramesInFlight);
     VkDescriptorSetAllocateInfo allocInfo = {
         .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
@@ -552,7 +568,7 @@ Image VulkanDeviceResources::createImage(const std::vector<std::byte>& data, uin
     return Image(hash, width, height);
 }
 
-void VulkanDeviceResources::createDescriptorSetLayout()
+void VulkanDeviceResources::createDescriptorSetLayouts()
 {
     VkDescriptorSetLayoutBinding binding = {
         .binding = 0,
@@ -567,10 +583,635 @@ void VulkanDeviceResources::createDescriptorSetLayout()
         .pBindings = &binding
     };
     if (vkCreateDescriptorSetLayout(
-        m_device->device(), &layoutInfo, nullptr, &m_textureDescriptorSetLayout
+        m_device->device(), &layoutInfo, nullptr, &m_geometryDescriptorSetLayout
     ) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create descriptor set layout for linear gradient pipeline");
     }
+}
+
+std::vector<VulkanDeviceResources::GlyphPosition> VulkanDeviceResources::textLayout(const TextLayout& layout)
+{
+    if (auto it = m_textLayoutCache.find(layout.hash()); it != m_textLayoutCache.end())
+    {
+        return it->second;
+    }
+
+    FT_Face face = m_fontLoader->loadFont(layout.format.font);
+    FT_Error error = FT_Set_Pixel_Sizes(face, 0, static_cast<FT_UInt>(layout.format.size));
+    if (error)
+    {
+        throw std::runtime_error("failed to set pixel sizes for font");
+    }
+
+    std::vector<std::string> lines = std::views::split(layout.text, '\n')
+        | std::views::transform(
+            [](auto&& rng)
+            {
+                return std::string(rng.begin(), rng.end());
+            }
+        )
+        | std::ranges::to<std::vector<std::string>>();
+
+    std::vector<GlyphPosition> glyphs;
+
+    hb_direction_t direction = HB_DIRECTION_LTR;
+    switch (layout.format.readingDirection)
+    {
+    case TextFormat::Direction::LEFT_TO_RIGHT:
+        direction = HB_DIRECTION_LTR;
+        break;
+    case TextFormat::Direction::RIGHT_TO_LEFT:
+        direction = HB_DIRECTION_RTL;
+        break;
+    case TextFormat::Direction::TOP_TO_BOTTOM:
+        direction = HB_DIRECTION_TTB;
+        break;
+    case TextFormat::Direction::BOTTOM_TO_TOP:
+        direction = HB_DIRECTION_BTT;
+        break;
+    }
+
+    hb_font_t* hbFont = hb_ft_font_create(face, nullptr);
+
+    if (direction == HB_DIRECTION_LTR || direction == HB_DIRECTION_RTL)
+    {
+        float initPenX = 0;
+        float lineHeight = static_cast<float>(face->size->metrics.height >> 6);
+        float penX = 0;
+        float penY = lineHeight;
+
+        switch (layout.format.flowDirection)
+        {
+        case TextFormat::Direction::TOP_TO_BOTTOM:
+            if (layout.format.lineSpacingMode == TextFormat::LineSpacingMode::UNIFORM)
+            {
+                lineHeight = layout.format.lineSpacing;
+                penY = layout.format.baseline;
+            }
+            else if (layout.format.lineSpacingMode == TextFormat::LineSpacingMode::PROPORTIONAL)
+            {
+                lineHeight = layout.format.size * layout.format.lineSpacing;
+                penY = layout.format.size * layout.format.baseline;
+            }
+            break;
+        case TextFormat::Direction::BOTTOM_TO_TOP:
+        {
+            lineHeight = -lineHeight;
+            if (layout.format.lineSpacingMode == TextFormat::LineSpacingMode::UNIFORM)
+            {
+                lineHeight = -layout.format.lineSpacing;
+                penY = layout.size.height + lineHeight + layout.format.baseline;
+            }
+            else if (layout.format.lineSpacingMode == TextFormat::LineSpacingMode::PROPORTIONAL)
+            {
+                lineHeight = -layout.format.size * layout.format.lineSpacing;
+                penY = layout.size.height + lineHeight + layout.format.size * layout.format.baseline;
+            }
+
+            float minBottom = 0.0f;
+            for (const char c : lines[0])
+            {
+                if (FT_Load_Char(face, c, FT_LOAD_DEFAULT))
+                {
+                    continue;
+                }
+                float bottom = static_cast<float>(face->glyph->metrics.horiBearingY - face->glyph->metrics.height) /
+                    64.0f;
+                if (bottom < minBottom)
+                {
+                    minBottom = bottom;
+                }
+            }
+            penY += minBottom;
+        }
+        break;
+        default:
+            throw std::runtime_error("unsupported flow direction for horizontal text layout");
+        }
+
+        for (const auto& line : lines)
+        {
+            hb_buffer_t* hbBuffer = hb_buffer_create();
+            hb_buffer_add_utf8(hbBuffer, line.c_str(), -1, 0, -1);
+
+            hb_buffer_set_direction(hbBuffer, direction);
+            hb_buffer_set_language(hbBuffer, hb_language_from_string(layout.format.locale.c_str(), -1));
+
+            hb_shape(hbFont, hbBuffer, nullptr, 0);
+
+            unsigned int glyphCount;
+            hb_glyph_info_t* glyphInfo = hb_buffer_get_glyph_infos(hbBuffer, &glyphCount);
+            hb_glyph_position_t* glyphPos = hb_buffer_get_glyph_positions(hbBuffer, &glyphCount);
+
+            std::vector<VulkanGlyphCache::GlyphInfo> gInfos;
+            gInfos.reserve(glyphCount);
+
+            for (unsigned int i = 0; i < glyphCount; i++)
+            {
+                FT_UInt glyphIndex = glyphInfo[i].codepoint;
+                VulkanGlyphCache::GlyphInfo gInfo = m_glyphCache->getGlyph(
+                    glyphIndex, layout.format.font.hash(), face, layout.format.size
+                );
+                gInfos.push_back(gInfo);
+            }
+
+            if (layout.format.wrapping == TextFormat::Wrapping::NONE)
+            {
+                unsigned int lastSpaceIndex = 0;
+                for (unsigned int i = 0; i < glyphCount; i++)
+                {
+                    if (std::isspace(line[i]))
+                    {
+                        lastSpaceIndex = i;
+                    }
+
+                    GlyphPosition pos;
+                    pos.uv = gInfos[i].uv;
+                    pos.position.pos = Point(penX + gInfos[i].bearingX, penY - gInfos[i].bearingY);
+                    pos.position.size = Size(gInfos[i].width, gInfos[i].height);
+                    glyphs.push_back(pos);
+
+                    penX += glyphPos[i].x_advance >> 6;
+                    penY += glyphPos[i].y_advance >> 6;
+
+                    if (layout.format.trimming == TextFormat::Trimming::CHARACTER && layout.size.width > 0 && penX >
+                        layout.
+                        size.width)
+                    {
+                        glyphs.pop_back();
+                        break;
+                    }
+                    else if (layout.format.trimming == TextFormat::Trimming::WORD && layout.size.width > 0 && penX >
+                        layout.
+                        size.width && lastSpaceIndex > 0)
+                    {
+                        // Move back to last space
+                        for (unsigned int j = i; j > lastSpaceIndex; j--)
+                        {
+                            glyphs.pop_back();
+                        }
+                        break;
+                    }
+                }
+            }
+            else if (layout.format.wrapping == TextFormat::Wrapping::WORD)
+            {
+                unsigned int lastSpaceIndex = 0;
+                for (unsigned int i = 0; i < glyphCount; i++)
+                {
+                    if (std::isspace(line[i]))
+                    {
+                        lastSpaceIndex = i;
+                    }
+
+                    GlyphPosition pos;
+                    pos.uv = gInfos[i].uv;
+                    pos.position.pos = Point(penX + gInfos[i].bearingX, penY - gInfos[i].bearingY);
+                    pos.position.size = Size(gInfos[i].width, gInfos[i].height);
+                    glyphs.push_back(pos);
+
+                    penX += glyphPos[i].x_advance >> 6;
+                    penY += glyphPos[i].y_advance >> 6;
+
+                    if (layout.size.width > 0 && penX > layout.size.width && lastSpaceIndex > 0)
+                    {
+                        // Move back to last space
+                        for (unsigned int j = i; j > lastSpaceIndex; j--)
+                        {
+                            glyphs.pop_back();
+                        }
+
+                        i = lastSpaceIndex;
+                        lastSpaceIndex = 0;
+
+                        penX = initPenX;
+                        penY += lineHeight;
+                    }
+                }
+            }
+            else if (layout.format.wrapping == TextFormat::Wrapping::CHARACTER)
+            {
+                for (unsigned int i = 0; i < glyphCount; i++)
+                {
+                    GlyphPosition pos;
+                    pos.uv = gInfos[i].uv;
+                    pos.position.pos = Point(penX + gInfos[i].bearingX, penY - gInfos[i].bearingY);
+                    pos.position.size = Size(gInfos[i].width, gInfos[i].height);
+                    glyphs.push_back(pos);
+
+                    penX += glyphPos[i].x_advance >> 6;
+                    penY += glyphPos[i].y_advance >> 6;
+
+                    if (layout.size.width > 0 && penX > layout.size.width)
+                    {
+                        penX = initPenX;
+                        penY += lineHeight;
+
+                        glyphs.pop_back();
+                        i--;
+                    }
+                }
+            }
+
+            hb_buffer_destroy(hbBuffer);
+
+            penX = initPenX;
+            penY += lineHeight;
+        }
+    }
+    else
+    {
+        float initPenY = 0;
+        float lineHeight = static_cast<float>(face->size->metrics.height >> 6);
+        float penX = lineHeight;
+        float penY = 0;
+
+        switch (layout.format.flowDirection)
+        {
+        case TextFormat::Direction::RIGHT_TO_LEFT:
+            if (layout.format.lineSpacingMode == TextFormat::LineSpacingMode::UNIFORM)
+            {
+                lineHeight = layout.format.lineSpacing;
+                penX = layout.format.baseline;
+            }
+            else if (layout.format.lineSpacingMode == TextFormat::LineSpacingMode::PROPORTIONAL)
+            {
+                lineHeight = layout.format.size * layout.format.lineSpacing;
+                penX = layout.format.size * layout.format.baseline;
+            }
+            break;
+        case TextFormat::Direction::LEFT_TO_RIGHT:
+        {
+            lineHeight = -lineHeight;
+            if (layout.format.lineSpacingMode == TextFormat::LineSpacingMode::UNIFORM)
+            {
+                lineHeight = -layout.format.lineSpacing;
+                penX = layout.size.width + lineHeight + layout.format.baseline;
+            }
+            else if (layout.format.lineSpacingMode == TextFormat::LineSpacingMode::PROPORTIONAL)
+            {
+                lineHeight = -layout.format.size * layout.format.lineSpacing;
+                penX = layout.size.width + lineHeight + layout.format.size * layout.format.baseline;
+            }
+
+            float minBottom = 0.0f;
+            for (const char c : lines[0])
+            {
+                if (FT_Load_Char(face, c, FT_LOAD_DEFAULT))
+                {
+                    continue;
+                }
+                float bottom = static_cast<float>(face->glyph->metrics.horiBearingY - face->glyph->metrics.height) /
+                    64.0f;
+                if (bottom < minBottom)
+                {
+                    minBottom = bottom;
+                }
+            }
+            penX += minBottom;
+        }
+        break;
+        default:
+            throw std::runtime_error("unsupported flow direction for horizontal text layout");
+        }
+
+        for (const auto& line : lines)
+        {
+            hb_buffer_t* hbBuffer = hb_buffer_create();
+            hb_buffer_add_utf8(hbBuffer, line.c_str(), -1, 0, -1);
+
+            hb_buffer_set_direction(hbBuffer, direction);
+            hb_buffer_set_language(hbBuffer, hb_language_from_string(layout.format.locale.c_str(), -1));
+
+            hb_shape(hbFont, hbBuffer, nullptr, 0);
+
+            unsigned int glyphCount;
+            hb_glyph_info_t* glyphInfo = hb_buffer_get_glyph_infos(hbBuffer, &glyphCount);
+            hb_glyph_position_t* glyphPos = hb_buffer_get_glyph_positions(hbBuffer, &glyphCount);
+
+            std::vector<VulkanGlyphCache::GlyphInfo> gInfos;
+            gInfos.reserve(glyphCount);
+
+            for (unsigned int i = 0; i < glyphCount; i++)
+            {
+                FT_UInt glyphIndex = glyphInfo[i].codepoint;
+                VulkanGlyphCache::GlyphInfo gInfo = m_glyphCache->getGlyph(
+                    glyphIndex, layout.format.font.hash(), face, layout.format.size
+                );
+                gInfos.push_back(gInfo);
+
+                std::cout << "glyphPos" << i << ": " << (glyphPos[i].x_offset >> 6) << ", " << (glyphPos[i].y_offset >>
+                        6)
+                    << " advance: " << (glyphPos[i].x_advance >> 6) << ", " << (glyphPos[i].y_advance >> 6)
+                    << std::endl;
+            }
+
+            std::cout << "line: " << line << std::endl;
+
+            if (layout.format.wrapping == TextFormat::Wrapping::NONE)
+            {
+                unsigned int lastSpaceIndex = 0;
+                for (unsigned int i = 0; i < glyphCount; i++)
+                {
+                    if (std::isspace(line[i]))
+                    {
+                        lastSpaceIndex = i;
+                    }
+
+                    GlyphPosition pos;
+                    pos.uv = gInfos[i].uv;
+                    pos.position.pos = Point(penX + gInfos[i].bearingX, penY - gInfos[i].bearingY);
+                    pos.position.size = Size(gInfos[i].width, gInfos[i].height);
+                    glyphs.push_back(pos);
+
+                    penX += glyphPos[i].x_advance >> 6;
+                    penY += glyphPos[i].y_advance >> 6;
+
+                    if (layout.format.trimming == TextFormat::Trimming::CHARACTER && layout.size.width > 0 && penX >
+                        layout.
+                        size.width)
+                    {
+                        glyphs.pop_back();
+                        break;
+                    }
+                    else if (layout.format.trimming == TextFormat::Trimming::WORD && layout.size.width > 0 && penX >
+                        layout.
+                        size.width && lastSpaceIndex > 0)
+                    {
+                        // Move back to last space
+                        for (unsigned int j = i; j > lastSpaceIndex; j--)
+                        {
+                            glyphs.pop_back();
+                        }
+                        break;
+                    }
+                }
+            }
+            else if (layout.format.wrapping == TextFormat::Wrapping::WORD)
+            {
+                unsigned int lastSpaceIndex = 0;
+                for (unsigned int i = 0; i < glyphCount; i++)
+                {
+                    if (std::isspace(line[i]))
+                    {
+                        lastSpaceIndex = i;
+                    }
+
+                    GlyphPosition pos;
+                    pos.uv = gInfos[i].uv;
+                    pos.position.pos = Point(penX + gInfos[i].bearingX, penY - gInfos[i].bearingY);
+                    pos.position.size = Size(gInfos[i].width, gInfos[i].height);
+                    glyphs.push_back(pos);
+
+                    penX += glyphPos[i].x_advance >> 6;
+                    penY += glyphPos[i].y_advance >> 6;
+
+                    if (layout.size.width > 0 && penX > layout.size.width && lastSpaceIndex > 0)
+                    {
+                        // Move back to last space
+                        for (unsigned int j = i; j > lastSpaceIndex; j--)
+                        {
+                            glyphs.pop_back();
+                        }
+
+                        i = lastSpaceIndex;
+                        lastSpaceIndex = 0;
+
+                        penX = initPenY;
+                        penY += lineHeight;
+                    }
+                }
+            }
+            else if (layout.format.wrapping == TextFormat::Wrapping::CHARACTER)
+            {
+                for (unsigned int i = 0; i < glyphCount; i++)
+                {
+                    GlyphPosition pos;
+                    pos.uv = gInfos[i].uv;
+                    pos.position.pos = Point(penX + gInfos[i].bearingX, penY - gInfos[i].bearingY);
+                    pos.position.size = Size(gInfos[i].width, gInfos[i].height);
+                    glyphs.push_back(pos);
+
+                    penX += glyphPos[i].x_advance >> 6;
+                    penY += glyphPos[i].y_advance >> 6;
+
+                    if (layout.size.width > 0 && penX > layout.size.width)
+                    {
+                        penX = initPenY;
+                        penY += lineHeight;
+
+                        glyphs.pop_back();
+                        i--;
+                    }
+                }
+            }
+
+            hb_buffer_destroy(hbBuffer);
+
+            penX = initPenY;
+            penY += lineHeight;
+        }
+    }
+
+    hb_font_destroy(hbFont);
+
+    m_textLayoutCache[layout.hash()] = glyphs;
+    return glyphs;
+}
+
+std::vector<VkDescriptorSet> VulkanDeviceResources::dummyTextureDescriptorSet() const
+{
+    return m_dummyTexture.descriptorSets;
+}
+
+void VulkanDeviceResources::createDummyTexture()
+{
+    VkBuffer stagingBuffer;
+    VmaAllocation stagingBufferMemory;
+    VmaAllocationCreateInfo stagingBufferAllocationInfo = {
+        .flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT,
+        .usage = VMA_MEMORY_USAGE_AUTO,
+    };
+    std::array whitePixel = {std::byte{255}, std::byte{255}, std::byte{255}, std::byte{255}};
+    VkBufferCreateInfo bufferInfo = {
+        .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+        .size = whitePixel.size(),
+        .usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+    };
+    if (vmaCreateBuffer(
+        m_device->allocator(), &bufferInfo, &stagingBufferAllocationInfo, &stagingBuffer, &stagingBufferMemory, nullptr
+    ) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create staging buffer for dummy texture");
+    }
+
+    void* mappedData;
+    if (vmaMapMemory(m_device->allocator(), stagingBufferMemory, &mappedData) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to map memory for dummy texture staging buffer");
+    }
+    memcpy(mappedData, whitePixel.data(), whitePixel.size());
+    vmaUnmapMemory(m_device->allocator(), stagingBufferMemory);
+
+    VmaAllocationCreateInfo imageAllocationInfo = {
+        .flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
+        .usage = VMA_MEMORY_USAGE_AUTO,
+    };
+    VkImageCreateInfo imageInfo = {
+        .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+        .imageType = VK_IMAGE_TYPE_2D,
+        .format = VK_FORMAT_R8G8B8A8_UNORM,
+        .extent = {1, 1, 1},
+        .mipLevels = 1,
+        .arrayLayers = 1,
+        .samples = VK_SAMPLE_COUNT_1_BIT,
+        .tiling = VK_IMAGE_TILING_OPTIMAL,
+        .usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+        .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+        .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+    };
+    VkImage image;
+    VmaAllocation imageAllocation;
+    if (vmaCreateImage(
+        m_device->allocator(), &imageInfo, &imageAllocationInfo, &image, &imageAllocation, nullptr
+    ) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create dummy texture image");
+    }
+
+    VkCommandBuffer commandBuffer = m_device->beginSingleTimeCommands();
+
+    VkImageMemoryBarrier barrier = {
+        .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+        .srcAccessMask = 0,
+        .dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
+        .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+        .newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+        .image = image,
+        .subresourceRange = {
+            .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+            .baseMipLevel = 0,
+            .levelCount = 1,
+            .baseArrayLayer = 0,
+            .layerCount = 1,
+        },
+    };
+    vkCmdPipelineBarrier(
+        commandBuffer,
+        VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
+        0, 0, nullptr,
+        0, nullptr,
+        1, &barrier
+    );
+
+    VkBufferImageCopy region = {
+        .bufferOffset = 0,
+        .bufferRowLength = 0,
+        .bufferImageHeight = 0,
+        .imageSubresource = {
+            .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+            .mipLevel = 0,
+            .baseArrayLayer = 0,
+            .layerCount = 1,
+        },
+        .imageOffset = {0, 0, 0},
+        .imageExtent = {1, 1, 1},
+    };
+    vkCmdCopyBufferToImage(
+        commandBuffer, stagingBuffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region
+    );
+
+    barrier = {
+        .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+        .srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
+        .dstAccessMask = VK_ACCESS_SHADER_READ_BIT,
+        .oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+        .newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+        .image = image,
+        .subresourceRange = {
+            .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+            .baseMipLevel = 0,
+            .levelCount = 1,
+            .baseArrayLayer = 0,
+            .layerCount = 1,
+        },
+    };
+    vkCmdPipelineBarrier(
+        commandBuffer,
+        VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+        0, 0, nullptr,
+        0, nullptr,
+        1, &barrier
+    );
+    m_device->endSingleTimeCommands(commandBuffer);
+
+    vmaDestroyBuffer(m_device->allocator(), stagingBuffer, stagingBufferMemory);
+
+    VkImageViewCreateInfo viewInfo = {
+        .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+        .image = image,
+        .viewType = VK_IMAGE_VIEW_TYPE_2D,
+        .format = VK_FORMAT_R8G8B8A8_UNORM,
+        .components = {
+            .r = VK_COMPONENT_SWIZZLE_IDENTITY,
+            .g = VK_COMPONENT_SWIZZLE_IDENTITY,
+            .b = VK_COMPONENT_SWIZZLE_IDENTITY,
+            .a = VK_COMPONENT_SWIZZLE_IDENTITY,
+        },
+        .subresourceRange = {
+            .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+            .baseMipLevel = 0,
+            .levelCount = 1,
+            .baseArrayLayer = 0,
+            .layerCount = 1,
+        },
+    };
+    VkImageView imageView;
+    if (vkCreateImageView(m_device->device(), &viewInfo, nullptr, &imageView) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create image view for dummy texture");
+    }
+
+    std::vector layouts(m_maxFramesInFlight, m_geometryDescriptorSetLayout);
+    std::vector<VkDescriptorSet> descriptorSets(m_maxFramesInFlight);
+    VkDescriptorSetAllocateInfo allocInfo = {
+        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+        .descriptorPool = m_device->descriptorPool(),
+        .descriptorSetCount = m_maxFramesInFlight,
+        .pSetLayouts = layouts.data(),
+    };
+    if (vkAllocateDescriptorSets(m_device->device(), &allocInfo, descriptorSets.data()) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to allocate descriptor sets for dummy texture");
+    }
+
+    for (size_t i = 0; i < m_maxFramesInFlight; ++i)
+    {
+        VkDescriptorImageInfo descriptorImageInfo = {
+            .sampler = m_clampSampler,
+            .imageView = imageView,
+            .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+        };
+
+        VkWriteDescriptorSet descriptorWrite = {
+            .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+            .dstSet = descriptorSets[i],
+            .dstBinding = 0,
+            .dstArrayElement = 0,
+            .descriptorCount = 1,
+            .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+            .pImageInfo = &descriptorImageInfo,
+        };
+        vkUpdateDescriptorSets(m_device->device(), 1, &descriptorWrite, 0, nullptr);
+    }
+
+    m_dummyTexture = {
+        .image = image,
+        .allocation = imageAllocation,
+        .imageView = imageView,
+        .descriptorSets = std::move(descriptorSets),
+    };
 }
 } // karin

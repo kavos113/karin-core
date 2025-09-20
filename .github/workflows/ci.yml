@@ -117,7 +117,9 @@ jobs:
         run: |
           mkdir ${{ env.BUILD_DIR }}
           cd ${{ env.BUILD_DIR }}
-          cmake -G Ninja -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_EXPORT_COMPILE_COMMANDS=${{ env.CMAKE_EXPORT_COMPILE_COMMANDS }} -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake ${{ matrix.cmake_options }} ..
+          cmake -G Ninja -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_EXPORT_COMPILE_COMMANDS=${{ env.CMAKE_EXPORT_COMPILE_COMMANDS }} \
+            -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake ${{ matrix.cmake_options }} -DVCPKG_INSTALLED_DIR=../vcpkg_installed \
+            -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..
         shell: bash
 
       - name: Build
