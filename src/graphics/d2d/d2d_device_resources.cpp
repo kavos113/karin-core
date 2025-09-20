@@ -18,6 +18,169 @@
 #include <functional>
 #include <string_view>
 
+namespace
+{
+using namespace karin;
+
+D2D1_CAP_STYLE toD2DCapStyle(StrokeStyle::CapStyle capStyle)
+{
+    switch (capStyle)
+    {
+    case StrokeStyle::CapStyle::Butt:
+        return D2D1_CAP_STYLE_FLAT;
+    case StrokeStyle::CapStyle::Round:
+        return D2D1_CAP_STYLE_ROUND;
+    case StrokeStyle::CapStyle::Square:
+        return D2D1_CAP_STYLE_SQUARE;
+    case StrokeStyle::CapStyle::Triangle:
+        return D2D1_CAP_STYLE_TRIANGLE;
+    default:
+        throw std::invalid_argument("Unknown cap style");
+    }
+}
+
+D2D1_LINE_JOIN toD2DJoinStyle(StrokeStyle::JoinStyle joinStyle)
+{
+    switch (joinStyle)
+    {
+    case StrokeStyle::JoinStyle::Miter:
+        return D2D1_LINE_JOIN_MITER;
+    case StrokeStyle::JoinStyle::Round:
+        return D2D1_LINE_JOIN_ROUND;
+    case StrokeStyle::JoinStyle::Bevel:
+        return D2D1_LINE_JOIN_BEVEL;
+    default:
+        throw std::invalid_argument("Unknown join style");
+    }
+}
+
+D2D1_EXTEND_MODE toD2DExtendMode(ExtendMode extendMode)
+{
+    switch (extendMode)
+    {
+    case ExtendMode::CLAMP:
+        return D2D1_EXTEND_MODE_CLAMP;
+    case ExtendMode::REPEAT:
+        return D2D1_EXTEND_MODE_WRAP;
+    case ExtendMode::MIRROR:
+        return D2D1_EXTEND_MODE_MIRROR;
+    default:
+        throw std::invalid_argument("Unknown extend mode");
+    }
+}
+
+DWRITE_TEXT_ALIGNMENT toDWriteTextAlignment(TextFormat::HorizontalAlignment alignment)
+{
+    switch (alignment)
+    {
+    case TextFormat::HorizontalAlignment::LEADING:
+        return DWRITE_TEXT_ALIGNMENT_LEADING;
+    case TextFormat::HorizontalAlignment::TRAILING:
+        return DWRITE_TEXT_ALIGNMENT_TRAILING;
+    case TextFormat::HorizontalAlignment::CENTER:
+        return DWRITE_TEXT_ALIGNMENT_CENTER;
+    case TextFormat::HorizontalAlignment::JUSTIFIED:
+        return DWRITE_TEXT_ALIGNMENT_JUSTIFIED;
+    default:
+        throw std::invalid_argument("Unknown text alignment");
+    }
+}
+
+DWRITE_PARAGRAPH_ALIGNMENT toDWriteParagraphAlignment(TextFormat::VerticalAlignment alignment)
+{
+    switch (alignment)
+    {
+    case TextFormat::VerticalAlignment::TOP:
+        return DWRITE_PARAGRAPH_ALIGNMENT_NEAR;
+    case TextFormat::VerticalAlignment::CENTER:
+        return DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
+    case TextFormat::VerticalAlignment::BOTTOM:
+        return DWRITE_PARAGRAPH_ALIGNMENT_FAR;
+    default:
+        throw std::invalid_argument("Unknown paragraph alignment");
+    }
+}
+
+DWRITE_WORD_WRAPPING toDWriteWordWrapping(TextFormat::Wrapping wordWrapping)
+{
+    switch (wordWrapping)
+    {
+    case TextFormat::Wrapping::NONE:
+        return DWRITE_WORD_WRAPPING_NO_WRAP;
+    case TextFormat::Wrapping::CHARACTER:
+        return DWRITE_WORD_WRAPPING_CHARACTER;
+    case TextFormat::Wrapping::WORD:
+        return DWRITE_WORD_WRAPPING_WRAP;
+    default:
+        throw std::invalid_argument("Unknown word wrapping");
+    }
+}
+
+DWRITE_TRIMMING_GRANULARITY toDWriteTrimmingGranularity(TextFormat::Trimming trimming)
+{
+    switch (trimming)
+    {
+    case TextFormat::Trimming::NONE:
+        return DWRITE_TRIMMING_GRANULARITY_NONE;
+    case TextFormat::Trimming::WORD:
+        return DWRITE_TRIMMING_GRANULARITY_CHARACTER;
+    case TextFormat::Trimming::CHARACTER:
+        return DWRITE_TRIMMING_GRANULARITY_CHARACTER;
+    default:
+        throw std::invalid_argument("Unknown trimming granularity");
+    }
+}
+
+DWRITE_FLOW_DIRECTION toDWriteFlowDirection(TextFormat::Direction flowDirection)
+{
+    switch (flowDirection)
+    {
+    case TextFormat::Direction::TOP_TO_BOTTOM:
+        return DWRITE_FLOW_DIRECTION_TOP_TO_BOTTOM;
+    case TextFormat::Direction::BOTTOM_TO_TOP:
+        return DWRITE_FLOW_DIRECTION_BOTTOM_TO_TOP;
+    case TextFormat::Direction::LEFT_TO_RIGHT:
+        return DWRITE_FLOW_DIRECTION_LEFT_TO_RIGHT;
+    case TextFormat::Direction::RIGHT_TO_LEFT:
+        return DWRITE_FLOW_DIRECTION_RIGHT_TO_LEFT;
+    default:
+        throw std::invalid_argument("Unknown flow direction");
+    }
+}
+
+DWRITE_READING_DIRECTION toDWriteReadingDirection(TextFormat::Direction readingDirection)
+{
+    switch (readingDirection)
+    {
+    case TextFormat::Direction::TOP_TO_BOTTOM:
+        return DWRITE_READING_DIRECTION_TOP_TO_BOTTOM;
+    case TextFormat::Direction::BOTTOM_TO_TOP:
+        return DWRITE_READING_DIRECTION_BOTTOM_TO_TOP;
+    case TextFormat::Direction::LEFT_TO_RIGHT:
+        return DWRITE_READING_DIRECTION_LEFT_TO_RIGHT;
+    case TextFormat::Direction::RIGHT_TO_LEFT:
+        return DWRITE_READING_DIRECTION_RIGHT_TO_LEFT;
+    default:
+        throw std::invalid_argument("Unknown reading direction");
+    }
+}
+
+DWRITE_LINE_SPACING_METHOD toDWriteLineSpacingMethod(TextFormat::LineSpacingMode lineSpacingMode)
+{
+    switch (lineSpacingMode)
+    {
+    case TextFormat::LineSpacingMode::DEFAULT:
+        return DWRITE_LINE_SPACING_METHOD_DEFAULT;
+    case TextFormat::LineSpacingMode::UNIFORM:
+        return DWRITE_LINE_SPACING_METHOD_UNIFORM;
+    case TextFormat::LineSpacingMode::PROPORTIONAL:
+        return DWRITE_LINE_SPACING_METHOD_PROPORTIONAL;
+    default:
+        throw std::invalid_argument("Unknown line spacing method");
+    }
+}
+}
+
 namespace karin
 {
 void D2DDeviceResources::clear()
@@ -517,163 +680,5 @@ Microsoft::WRL::ComPtr<IDWriteTextLayout> D2DDeviceResources::textLayout(const T
 
     m_textLayouts[layout.hash()] = textLayout;
     return textLayout;
-}
-
-D2D1_CAP_STYLE D2DDeviceResources::toD2DCapStyle(StrokeStyle::CapStyle capStyle)
-{
-    switch (capStyle)
-    {
-    case StrokeStyle::CapStyle::Butt:
-        return D2D1_CAP_STYLE_FLAT;
-    case StrokeStyle::CapStyle::Round:
-        return D2D1_CAP_STYLE_ROUND;
-    case StrokeStyle::CapStyle::Square:
-        return D2D1_CAP_STYLE_SQUARE;
-    case StrokeStyle::CapStyle::Triangle:
-        return D2D1_CAP_STYLE_TRIANGLE;
-    default:
-        throw std::invalid_argument("Unknown cap style");
-    }
-}
-
-D2D1_LINE_JOIN D2DDeviceResources::toD2DJoinStyle(StrokeStyle::JoinStyle joinStyle)
-{
-    switch (joinStyle)
-    {
-    case StrokeStyle::JoinStyle::Miter:
-        return D2D1_LINE_JOIN_MITER;
-    case StrokeStyle::JoinStyle::Round:
-        return D2D1_LINE_JOIN_ROUND;
-    case StrokeStyle::JoinStyle::Bevel:
-        return D2D1_LINE_JOIN_BEVEL;
-    default:
-        throw std::invalid_argument("Unknown join style");
-    }
-}
-
-D2D1_EXTEND_MODE D2DDeviceResources::toD2DExtendMode(ExtendMode extendMode)
-{
-    switch (extendMode)
-    {
-    case ExtendMode::CLAMP:
-        return D2D1_EXTEND_MODE_CLAMP;
-    case ExtendMode::REPEAT:
-        return D2D1_EXTEND_MODE_WRAP;
-    case ExtendMode::MIRROR:
-        return D2D1_EXTEND_MODE_MIRROR;
-    default:
-        throw std::invalid_argument("Unknown extend mode");
-    }
-}
-
-DWRITE_TEXT_ALIGNMENT D2DDeviceResources::toDWriteTextAlignment(TextFormat::HorizontalAlignment alignment)
-{
-    switch (alignment)
-    {
-    case TextFormat::HorizontalAlignment::LEADING:
-        return DWRITE_TEXT_ALIGNMENT_LEADING;
-    case TextFormat::HorizontalAlignment::TRAILING:
-        return DWRITE_TEXT_ALIGNMENT_TRAILING;
-    case TextFormat::HorizontalAlignment::CENTER:
-        return DWRITE_TEXT_ALIGNMENT_CENTER;
-    case TextFormat::HorizontalAlignment::JUSTIFIED:
-        return DWRITE_TEXT_ALIGNMENT_JUSTIFIED;
-    default:
-        throw std::invalid_argument("Unknown text alignment");
-    }
-}
-
-DWRITE_PARAGRAPH_ALIGNMENT D2DDeviceResources::toDWriteParagraphAlignment(TextFormat::VerticalAlignment alignment)
-{
-    switch (alignment)
-    {
-    case TextFormat::VerticalAlignment::TOP:
-        return DWRITE_PARAGRAPH_ALIGNMENT_NEAR;
-    case TextFormat::VerticalAlignment::CENTER:
-        return DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
-    case TextFormat::VerticalAlignment::BOTTOM:
-        return DWRITE_PARAGRAPH_ALIGNMENT_FAR;
-    default:
-        throw std::invalid_argument("Unknown paragraph alignment");
-    }
-}
-
-DWRITE_WORD_WRAPPING D2DDeviceResources::toDWriteWordWrapping(TextFormat::Wrapping wordWrapping)
-{
-    switch (wordWrapping)
-    {
-    case TextFormat::Wrapping::NONE:
-        return DWRITE_WORD_WRAPPING_NO_WRAP;
-    case TextFormat::Wrapping::CHARACTER:
-        return DWRITE_WORD_WRAPPING_CHARACTER;
-    case TextFormat::Wrapping::WORD:
-        return DWRITE_WORD_WRAPPING_WRAP;
-    default:
-        throw std::invalid_argument("Unknown word wrapping");
-    }
-}
-
-DWRITE_TRIMMING_GRANULARITY D2DDeviceResources::toDWriteTrimmingGranularity(TextFormat::Trimming trimming)
-{
-    switch (trimming)
-    {
-    case TextFormat::Trimming::NONE:
-        return DWRITE_TRIMMING_GRANULARITY_NONE;
-    case TextFormat::Trimming::WORD:
-        return DWRITE_TRIMMING_GRANULARITY_CHARACTER;
-    case TextFormat::Trimming::CHARACTER:
-        return DWRITE_TRIMMING_GRANULARITY_CHARACTER;
-    default:
-        throw std::invalid_argument("Unknown trimming granularity");
-    }
-}
-
-DWRITE_FLOW_DIRECTION D2DDeviceResources::toDWriteFlowDirection(TextFormat::Direction flowDirection)
-{
-    switch (flowDirection)
-    {
-    case TextFormat::Direction::TOP_TO_BOTTOM:
-        return DWRITE_FLOW_DIRECTION_TOP_TO_BOTTOM;
-    case TextFormat::Direction::BOTTOM_TO_TOP:
-        return DWRITE_FLOW_DIRECTION_BOTTOM_TO_TOP;
-    case TextFormat::Direction::LEFT_TO_RIGHT:
-        return DWRITE_FLOW_DIRECTION_LEFT_TO_RIGHT;
-    case TextFormat::Direction::RIGHT_TO_LEFT:
-        return DWRITE_FLOW_DIRECTION_RIGHT_TO_LEFT;
-    default:
-        throw std::invalid_argument("Unknown flow direction");
-    }
-}
-
-DWRITE_READING_DIRECTION D2DDeviceResources::toDWriteReadingDirection(TextFormat::Direction readingDirection)
-{
-    switch (readingDirection)
-    {
-    case TextFormat::Direction::TOP_TO_BOTTOM:
-        return DWRITE_READING_DIRECTION_TOP_TO_BOTTOM;
-    case TextFormat::Direction::BOTTOM_TO_TOP:
-        return DWRITE_READING_DIRECTION_BOTTOM_TO_TOP;
-    case TextFormat::Direction::LEFT_TO_RIGHT:
-        return DWRITE_READING_DIRECTION_LEFT_TO_RIGHT;
-    case TextFormat::Direction::RIGHT_TO_LEFT:
-        return DWRITE_READING_DIRECTION_RIGHT_TO_LEFT;
-    default:
-        throw std::invalid_argument("Unknown reading direction");
-    }
-}
-
-DWRITE_LINE_SPACING_METHOD D2DDeviceResources::toDWriteLineSpacingMethod(TextFormat::LineSpacingMode lineSpacingMode)
-{
-    switch (lineSpacingMode)
-    {
-    case TextFormat::LineSpacingMode::DEFAULT:
-        return DWRITE_LINE_SPACING_METHOD_DEFAULT;
-    case TextFormat::LineSpacingMode::UNIFORM:
-        return DWRITE_LINE_SPACING_METHOD_UNIFORM;
-    case TextFormat::LineSpacingMode::PROPORTIONAL:
-        return DWRITE_LINE_SPACING_METHOD_PROPORTIONAL;
-    default:
-        throw std::invalid_argument("Unknown line spacing method");
-    }
 }
 } // karin

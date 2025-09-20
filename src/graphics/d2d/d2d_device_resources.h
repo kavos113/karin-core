@@ -46,17 +46,6 @@ public:
     Microsoft::WRL::ComPtr<IDWriteTextLayout> textLayout(const TextLayout& layout);
 
 private:
-    static D2D1_CAP_STYLE toD2DCapStyle(StrokeStyle::CapStyle capStyle);
-    static D2D1_LINE_JOIN toD2DJoinStyle(StrokeStyle::JoinStyle joinStyle);
-    static D2D1_EXTEND_MODE toD2DExtendMode(ExtendMode extendMode);
-    static DWRITE_TEXT_ALIGNMENT toDWriteTextAlignment(TextFormat::HorizontalAlignment alignment);
-    static DWRITE_PARAGRAPH_ALIGNMENT toDWriteParagraphAlignment(TextFormat::VerticalAlignment alignment);
-    static DWRITE_WORD_WRAPPING toDWriteWordWrapping(TextFormat::Wrapping wordWrapping);
-    static DWRITE_TRIMMING_GRANULARITY toDWriteTrimmingGranularity(TextFormat::Trimming trimming);
-    static DWRITE_FLOW_DIRECTION toDWriteFlowDirection(TextFormat::Direction flowDirection);
-    static DWRITE_READING_DIRECTION toDWriteReadingDirection(TextFormat::Direction readingDirection);
-    static DWRITE_LINE_SPACING_METHOD toDWriteLineSpacingMethod(TextFormat::LineSpacingMode lineSpacingMode);
-
     // TODO: create before starting draw calls?
     std::unordered_map<size_t, Microsoft::WRL::ComPtr<ID2D1SolidColorBrush>> m_solidColorBrushes;
     std::unordered_map<size_t, Microsoft::WRL::ComPtr<ID2D1LinearGradientBrush>> m_linearGradientBrushes;
