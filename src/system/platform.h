@@ -3,6 +3,7 @@
 
 #include "application_impl.h"
 #include "window_impl.h"
+#include "system_font_impl.h"
 
 #include <memory>
 #include <string>
@@ -54,7 +55,7 @@ inline std::unique_ptr<SystemFontImpl> createSystemFontImpl()
 #ifdef KARIN_PLATFORM_WINDOWS
     return std::make_unique<WinSystemFontImpl>();
 #elifdef KARIN_PLATFORM_UNIX
-
+    return nullptr; // TODO: Implement X11SystemFontImpl
 #endif
     return nullptr;
 }
