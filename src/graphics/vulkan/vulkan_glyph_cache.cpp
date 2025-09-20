@@ -6,6 +6,7 @@
 #include FT_FREETYPE_H
 #include <stdexcept>
 #include <cmath>
+#include <cstring>
 
 namespace karin
 {
