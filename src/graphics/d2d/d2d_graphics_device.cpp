@@ -27,7 +27,8 @@ void D2DGraphicsDevice::createD2DFactory()
     if (FAILED(
         D2D1CreateFactory(
             D2D1_FACTORY_TYPE_SINGLE_THREADED,
-            IID_PPV_ARGS(&m_d2dFactory))
+            IID_PPV_ARGS(&m_d2dFactory)
+        )
     ))
     {
         throw std::runtime_error("Failed to create D2D factory");
@@ -39,7 +40,8 @@ void D2DGraphicsDevice::createD2DDevice()
     if (FAILED(
         m_d2dFactory->CreateDevice(
             m_dxgiDevice.Get(),
-            &m_d2dDevice)
+            &m_d2dDevice
+        )
     ))
     {
         throw std::runtime_error("Failed to create D2D device");
@@ -74,7 +76,8 @@ void D2DGraphicsDevice::createDXGIDevice()
             D3D11_SDK_VERSION,
             &d3dDevice,
             nullptr, // Feature level not needed
-            &d3dContext)
+            &d3dContext
+        )
     ))
     {
         throw std::runtime_error("Failed to create D3D11 device");
