@@ -277,23 +277,4 @@ void VulkanSurface::createViewport()
     };
 }
 
-VkExtent2D VulkanSurface::extent() const
-{
-    return m_swapChainExtent;
-}
-
-std::vector<VkImageView> VulkanSurface::swapChainImageViews() const
-{
-    return m_swapChainImageViews;
-}
-
-VkFormat VulkanSurface::format() const
-{
-    return m_swapChainImageFormat;
-}
-
-uint32_t VulkanSurface::imageCount() const
-{
-    return static_cast<uint32_t>(m_swapChainImages.size());
-}
 } // karin

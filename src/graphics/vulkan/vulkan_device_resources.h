@@ -51,8 +51,16 @@ public:
     std::vector<VkDescriptorSet> gradientPointLutDescriptorSet(const GradientPoints& points);
     std::vector<VkDescriptorSet> textureDescriptorSet(Image image);
     std::vector<VkDescriptorSet> dummyTextureDescriptorSet() const;
-    VkDescriptorSetLayout geometryDescriptorSetLayout() const;
-    VkDescriptorSetLayout atlasDescriptorSetLayout() const;
+
+    VkDescriptorSetLayout geometryDescriptorSetLayout() const
+    {
+        return m_geometryDescriptorSetLayout;
+    }
+
+    VkDescriptorSetLayout atlasDescriptorSetLayout() const
+    {
+        return m_glyphCache->atlasDescriptorSetLayout();
+    }
 
     struct GlyphPosition
     {

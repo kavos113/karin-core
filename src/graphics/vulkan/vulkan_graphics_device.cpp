@@ -25,9 +25,7 @@ VulkanGraphicsDevice::VulkanGraphicsDevice()
     choosePhysicalDevice();
 }
 
-VulkanGraphicsDevice::~VulkanGraphicsDevice()
-{
-}
+VulkanGraphicsDevice::~VulkanGraphicsDevice() = default;
 
 void VulkanGraphicsDevice::cleanUp()
 {
@@ -321,50 +319,5 @@ void VulkanGraphicsDevice::createDescriptorPool()
     {
         throw std::runtime_error("failed to create descriptor pool");
     }
-}
-
-VkInstance VulkanGraphicsDevice::instance() const
-{
-    return m_instance;
-}
-
-VkPhysicalDevice VulkanGraphicsDevice::physicalDevice() const
-{
-    return m_physicalDevice;
-}
-
-VkDevice VulkanGraphicsDevice::device() const
-{
-    return m_device;
-}
-
-VmaAllocator VulkanGraphicsDevice::allocator() const
-{
-    return m_allocator;
-}
-
-uint32_t VulkanGraphicsDevice::queueFamilyIndex(QueueFamily family) const
-{
-    return m_queueFamilyIndices.at(family);
-}
-
-VkCommandPool VulkanGraphicsDevice::commandPool() const
-{
-    return m_commandPool;
-}
-
-VkQueue VulkanGraphicsDevice::graphicsQueue() const
-{
-    return m_graphicsQueue;
-}
-
-VkQueue VulkanGraphicsDevice::presentQueue() const
-{
-    return m_presentQueue;
-}
-
-VkDescriptorPool VulkanGraphicsDevice::descriptorPool() const
-{
-    return m_descriptorPool;
 }
 } // karin

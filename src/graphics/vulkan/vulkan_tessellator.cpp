@@ -7,6 +7,32 @@
 #include <list>
 #include <numbers>
 
+namespace
+{
+using karin::Point;
+
+// det(c-a, b-a)
+// det(a, b, c): b->c is counter-clockwise if >0, clockwise if <0  (because: y-axis is down)
+float det(const Point& a, const Point& b, const Point& c)
+{
+    return (c.x - a.x) * (b.y - a.y) - (c.y - a.y) * (b.x - a.x);
+}
+
+bool isConvex(const Point& a, const Point& b, const Point& c)
+{
+    return det(a, b, c) > 0;
+}
+
+bool isPointInTriangle(const Point& p, const Point& a, const Point& b, const Point& c)
+{
+    float p_ab = det(a, b, p);
+    float p_bc = det(b, c, p);
+    float p_ca = det(c, a, p);
+
+    return (p_ab > 0 && p_bc > 0 && p_ca > 0) || (p_ab < 0 && p_bc < 0 && p_ca < 0);
+}
+}
+
 namespace karin
 {
 float VulkanTessellator::addLine(
@@ -514,24 +540,5 @@ std::vector<uint16_t> VulkanTessellator::triangulate(const std::vector<Point>& p
     }
 
     return triangleIndices;
-}
-
-float VulkanTessellator::det(const Point& a, const Point& b, const Point& c)
-{
-    return (c.x - a.x) * (b.y - a.y) - (c.y - a.y) * (b.x - a.x);
-}
-
-bool VulkanTessellator::isConvex(const Point& a, const Point& b, const Point& c)
-{
-    return det(a, b, c) > 0;
-}
-
-bool VulkanTessellator::isPointInTriangle(const Point& p, const Point& a, const Point& b, const Point& c)
-{
-    float p_ab = det(a, b, p);
-    float p_bc = det(b, c, p);
-    float p_ca = det(c, a, p);
-
-    return (p_ab > 0 && p_bc > 0 && p_ca > 0) || (p_ab < 0 && p_bc < 0 && p_ca < 0);
 }
 } // karin
