@@ -6,6 +6,7 @@ set(GRAPHICS_SOURCE
         path_impl.cpp
         hash.cpp
         ${THIRD_PARTY_DIR}/stb_image/stb_image_impl.cpp
+        ${COMMON_DIR}/geometry/transform2d.cpp
 )
 
 if (DIRECTX)
@@ -39,6 +40,9 @@ target_include_directories(karin_graphics PRIVATE ${COMMON_DIR})
 target_include_directories(karin_graphics PRIVATE ${THIRD_PARTY_DIR})
 target_include_directories(karin_graphics PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
+
+find_package(glm CONFIG REQUIRED)
+target_link_libraries(karin_graphics PRIVATE glm::glm)
 if (DIRECTX)
     target_link_libraries(karin_graphics PRIVATE d2d1.lib)
     target_link_libraries(karin_graphics PRIVATE dxgi.lib)
@@ -82,9 +86,6 @@ elseif (VULKAN)
 
     find_package(VulkanMemoryAllocator CONFIG REQUIRED)
     target_link_libraries(karin_graphics PRIVATE GPUOpen::VulkanMemoryAllocator)
-
-    find_package(glm CONFIG REQUIRED)
-    target_link_libraries(karin_graphics PRIVATE glm::glm)
 
     find_package(Freetype CONFIG REQUIRED)
     target_link_libraries(karin_graphics PRIVATE Freetype::Freetype)

@@ -25,7 +25,7 @@ VulkanGraphicsContextImpl::VulkanGraphicsContextImpl(VulkanRendererImpl* rendere
     m_tessellator = std::make_unique<VulkanTessellator>(m_renderer);
 }
 
-void VulkanGraphicsContextImpl::fillRect(Rectangle rect, Pattern& pattern)
+void VulkanGraphicsContextImpl::fillRect(Rectangle rect, Pattern& pattern, const Transform2D& transform)
 {
     Rectangle normalizedRect = m_renderer->normalize(rect);
 
@@ -57,7 +57,9 @@ void VulkanGraphicsContextImpl::fillRect(Rectangle rect, Pattern& pattern)
     m_renderer->addCommand(vertices, indices, createPushConstantData(pattern), pattern, true);
 }
 
-void VulkanGraphicsContextImpl::fillEllipse(Point center, float radiusX, float radiusY, Pattern& pattern)
+void VulkanGraphicsContextImpl::fillEllipse(
+    Point center, float radiusX, float radiusY, Pattern& pattern, const Transform2D& transform
+)
 {
     Rectangle rect = m_renderer->normalize(
         Rectangle(
@@ -97,7 +99,9 @@ void VulkanGraphicsContextImpl::fillEllipse(Point center, float radiusX, float r
     m_renderer->addCommand(vertices, indices, fragData, pattern, true);
 }
 
-void VulkanGraphicsContextImpl::fillRoundedRect(Rectangle rect, float radiusX, float radiusY, Pattern& pattern)
+void VulkanGraphicsContextImpl::fillRoundedRect(
+    Rectangle rect, float radiusX, float radiusY, Pattern& pattern, const Transform2D& transform
+)
 {
     Rectangle normalizedRect = m_renderer->normalize(rect);
 
@@ -133,7 +137,9 @@ void VulkanGraphicsContextImpl::fillRoundedRect(Rectangle rect, float radiusX, f
     m_renderer->addCommand(vertices, indices, fragData, pattern, true);
 }
 
-void VulkanGraphicsContextImpl::drawLine(Point start, Point end, Pattern& pattern, const StrokeStyle& strokeStyle)
+void VulkanGraphicsContextImpl::drawLine(
+    Point start, Point end, Pattern& pattern, const StrokeStyle& strokeStyle, const Transform2D& transform
+)
 {
     std::vector<VulkanPipeline::Vertex> vertices;
     std::vector<uint16_t> indices;
@@ -143,7 +149,9 @@ void VulkanGraphicsContextImpl::drawLine(Point start, Point end, Pattern& patter
     m_renderer->addCommand(vertices, indices, createPushConstantData(pattern), pattern, true);
 }
 
-void VulkanGraphicsContextImpl::drawRect(Rectangle rect, Pattern& pattern, const StrokeStyle& strokeStyle)
+void VulkanGraphicsContextImpl::drawRect(
+    Rectangle rect, Pattern& pattern, const StrokeStyle& strokeStyle, const Transform2D& transform
+)
 {
     std::vector<VulkanPipeline::Vertex> vertices;
     std::vector<uint16_t> indices;
@@ -187,7 +195,8 @@ void VulkanGraphicsContextImpl::drawRect(Rectangle rect, Pattern& pattern, const
 }
 
 void VulkanGraphicsContextImpl::drawEllipse(
-    Point center, float radiusX, float radiusY, Pattern& pattern, const StrokeStyle& strokeStyle
+    Point center, float radiusX, float radiusY, Pattern& pattern, const StrokeStyle& strokeStyle, const Transform2D&
+    transform
 )
 {
     std::vector<VulkanPipeline::Vertex> vertices;
@@ -217,7 +226,7 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
     float radiusX,
     float radiusY,
     Pattern& pattern,
-    const StrokeStyle& strokeStyle
+    const StrokeStyle& strokeStyle, const Transform2D& transform
 )
 {
     std::vector<VulkanPipeline::Vertex> vertices;
@@ -310,7 +319,7 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
     m_renderer->addCommand(vertices, indices, createPushConstantData(pattern), pattern, true);
 }
 
-void VulkanGraphicsContextImpl::fillPath(const PathImpl& path, Pattern& pattern)
+void VulkanGraphicsContextImpl::fillPath(const PathImpl& path, Pattern& pattern, const Transform2D& transform)
 {
     std::vector<VulkanPipeline::Vertex> vertices;
     std::vector<uint16_t> indices;
@@ -387,7 +396,9 @@ void VulkanGraphicsContextImpl::fillPath(const PathImpl& path, Pattern& pattern)
     m_renderer->addCommand(vertices, indices, createPushConstantData(pattern), pattern, true);
 }
 
-void VulkanGraphicsContextImpl::drawPath(const PathImpl& path, Pattern& pattern, const StrokeStyle& strokeStyle)
+void VulkanGraphicsContextImpl::drawPath(
+    const PathImpl& path, Pattern& pattern, const StrokeStyle& strokeStyle, const Transform2D& transform
+)
 {
     std::vector<VulkanPipeline::Vertex> vertices;
     std::vector<uint16_t> indices;
@@ -450,7 +461,9 @@ void VulkanGraphicsContextImpl::drawPath(const PathImpl& path, Pattern& pattern,
     m_renderer->addCommand(vertices, indices, createPushConstantData(pattern), pattern, true);
 }
 
-void VulkanGraphicsContextImpl::drawImage(Image image, Rectangle destRect, Rectangle srcRect, float opacity)
+void VulkanGraphicsContextImpl::drawImage(
+    Image image, Rectangle destRect, Rectangle srcRect, float opacity, const Transform2D& transform
+)
 {
     Rectangle normalizedRect = m_renderer->normalize(destRect);
 
