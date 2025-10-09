@@ -53,7 +53,7 @@ public:
     void drawImage(
         Image image, Rectangle destRect, Rectangle srcRect, float opacity, const Transform2D& transform
     ) override;
-    void drawText(const TextLayout& text, Point start, Pattern& pattern) override;
+    void drawText(const TextLayout& text, Point start, Pattern& pattern, const Transform2D& transform) override;
 
 private:
     PushConstants createPushConstantData(const Pattern& pattern) const;

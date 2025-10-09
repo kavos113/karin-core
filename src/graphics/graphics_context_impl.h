@@ -48,7 +48,7 @@ public:
     virtual void drawImage(
         Image image, Rectangle destRect, Rectangle srcRect, float opacity, const Transform2D& transform
     ) = 0;
-    virtual void drawText(const TextLayout& text, Point start, Pattern& pattern) = 0;
+    virtual void drawText(const TextLayout& text, Point start, Pattern& pattern, const Transform2D& transform) = 0;
 };
 } // karin
 

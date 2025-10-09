@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <stdexcept>
+#include <d2d/matrix_converter.h>
 
 namespace karin
 {
@@ -18,6 +19,10 @@ D2DGraphicsContextImpl::D2DGraphicsContextImpl(
 
 void D2DGraphicsContextImpl::fillRect(const Rectangle rect, Pattern& pattern, const Transform2D& transform)
 {
+    D2D1_MATRIX_3X2_F oldTransform;
+    m_deviceContext->GetTransform(&oldTransform);
+    m_deviceContext->SetTransform(toD2DMatrix(transform) * oldTransform);
+
     auto brush = m_deviceResources->brush(pattern);
     if (!brush)
     {
@@ -28,12 +33,18 @@ void D2DGraphicsContextImpl::fillRect(const Rectangle rect, Pattern& pattern, co
         toD2DRect(rect),
         brush.Get()
     );
+
+    m_deviceContext->SetTransform(oldTransform);
 }
 
 void D2DGraphicsContextImpl::fillEllipse(
     Point center, float radiusX, float radiusY, Pattern& pattern, const Transform2D& transform
 )
 {
+    D2D1_MATRIX_3X2_F oldTransform;
+    m_deviceContext->GetTransform(&oldTransform);
+    m_deviceContext->SetTransform(toD2DMatrix(transform) * oldTransform);
+
     auto brush = m_deviceResources->brush(pattern);
     if (!brush)
     {
@@ -49,12 +60,18 @@ void D2DGraphicsContextImpl::fillEllipse(
         ellipse,
         brush.Get()
     );
+
+    m_deviceContext->SetTransform(oldTransform);
 }
 
 void D2DGraphicsContextImpl::fillRoundedRect(
     Rectangle rect, float radiusX, float radiusY, Pattern& pattern, const Transform2D& transform
 )
 {
+    D2D1_MATRIX_3X2_F oldTransform;
+    m_deviceContext->GetTransform(&oldTransform);
+    m_deviceContext->SetTransform(toD2DMatrix(transform) * oldTransform);
+
     auto brush = m_deviceResources->brush(pattern);
     if (!brush)
     {
@@ -70,12 +87,18 @@ void D2DGraphicsContextImpl::fillRoundedRect(
         roundedRect,
         brush.Get()
     );
+
+    m_deviceContext->SetTransform(oldTransform);
 }
 
 void D2DGraphicsContextImpl::drawLine(
     Point start, Point end, Pattern& pattern, const StrokeStyle& strokeStyle, const Transform2D& transform
 )
 {
+    D2D1_MATRIX_3X2_F oldTransform;
+    m_deviceContext->GetTransform(&oldTransform);
+    m_deviceContext->SetTransform(toD2DMatrix(transform) * oldTransform);
+
     auto brush = m_deviceResources->brush(pattern);
     if (!brush)
     {
@@ -89,12 +112,18 @@ void D2DGraphicsContextImpl::drawLine(
         strokeStyle.width,
         m_deviceResources->strokeStyle(strokeStyle).Get()
     );
+
+    m_deviceContext->SetTransform(oldTransform);
 }
 
 void D2DGraphicsContextImpl::drawRect(
     Rectangle rect, Pattern& pattern, const StrokeStyle& strokeStyle, const Transform2D& transform
 )
 {
+    D2D1_MATRIX_3X2_F oldTransform;
+    m_deviceContext->GetTransform(&oldTransform);
+    m_deviceContext->SetTransform(toD2DMatrix(transform) * oldTransform);
+
     auto brush = m_deviceResources->brush(pattern);
     if (!brush)
     {
@@ -107,6 +136,8 @@ void D2DGraphicsContextImpl::drawRect(
         strokeStyle.width,
         m_deviceResources->strokeStyle(strokeStyle).Get()
     );
+
+    m_deviceContext->SetTransform(oldTransform);
 }
 
 void D2DGraphicsContextImpl::drawEllipse(
@@ -117,6 +148,10 @@ void D2DGraphicsContextImpl::drawEllipse(
     const StrokeStyle& strokeStyle, const Transform2D& transform
 )
 {
+    D2D1_MATRIX_3X2_F oldTransform;
+    m_deviceContext->GetTransform(&oldTransform);
+    m_deviceContext->SetTransform(toD2DMatrix(transform) * oldTransform);
+
     auto brush = m_deviceResources->brush(pattern);
     if (!brush)
     {
@@ -134,6 +169,8 @@ void D2DGraphicsContextImpl::drawEllipse(
         strokeStyle.width,
         m_deviceResources->strokeStyle(strokeStyle).Get()
     );
+
+    m_deviceContext->SetTransform(oldTransform);
 }
 
 void D2DGraphicsContextImpl::drawRoundedRect(
@@ -144,6 +181,10 @@ void D2DGraphicsContextImpl::drawRoundedRect(
     const StrokeStyle& strokeStyle, const Transform2D& transform
 )
 {
+    D2D1_MATRIX_3X2_F oldTransform;
+    m_deviceContext->GetTransform(&oldTransform);
+    m_deviceContext->SetTransform(toD2DMatrix(transform) * oldTransform);
+
     auto brush = m_deviceResources->brush(pattern);
     if (!brush)
     {
@@ -161,10 +202,16 @@ void D2DGraphicsContextImpl::drawRoundedRect(
         strokeStyle.width,
         m_deviceResources->strokeStyle(strokeStyle).Get()
     );
+
+    m_deviceContext->SetTransform(oldTransform);
 }
 
 void D2DGraphicsContextImpl::fillPath(const PathImpl& path, Pattern& pattern, const Transform2D& transform)
 {
+    D2D1_MATRIX_3X2_F oldTransform;
+    m_deviceContext->GetTransform(&oldTransform);
+    m_deviceContext->SetTransform(toD2DMatrix(transform) * oldTransform);
+
     auto geometry = m_deviceResources->pathGeometry(path);
     if (!geometry)
     {
@@ -182,12 +229,18 @@ void D2DGraphicsContextImpl::fillPath(const PathImpl& path, Pattern& pattern, co
         brush.Get(),
         nullptr
     );
+
+    m_deviceContext->SetTransform(oldTransform);
 }
 
 void D2DGraphicsContextImpl::drawPath(
     const PathImpl& path, Pattern& pattern, const StrokeStyle& strokeStyle, const Transform2D& transform
 )
 {
+    D2D1_MATRIX_3X2_F oldTransform;
+    m_deviceContext->GetTransform(&oldTransform);
+    m_deviceContext->SetTransform(toD2DMatrix(transform) * oldTransform);
+
     auto geometry = m_deviceResources->pathGeometry(path);
     if (!geometry)
     {
@@ -206,12 +259,18 @@ void D2DGraphicsContextImpl::drawPath(
         strokeStyle.width,
         m_deviceResources->strokeStyle(strokeStyle).Get()
     );
+
+    m_deviceContext->SetTransform(oldTransform);
 }
 
 void D2DGraphicsContextImpl::drawImage(
     Image image, Rectangle destRect, Rectangle srcRect, float opacity, const Transform2D& transform
 )
 {
+    D2D1_MATRIX_3X2_F oldTransform;
+    m_deviceContext->GetTransform(&oldTransform);
+    m_deviceContext->SetTransform(toD2DMatrix(transform) * oldTransform);
+
     auto bitmap = m_deviceResources->bitmap(image);
     if (!bitmap)
     {
@@ -233,10 +292,16 @@ void D2DGraphicsContextImpl::drawImage(
         D2D1_BITMAP_INTERPOLATION_MODE_LINEAR,
         srcRectPtr
     );
+
+    m_deviceContext->SetTransform(oldTransform);
 }
 
-void D2DGraphicsContextImpl::drawText(const TextLayout& text, Point start, Pattern& pattern)
+void D2DGraphicsContextImpl::drawText(const TextLayout& text, Point start, Pattern& pattern, const Transform2D& transform)
 {
+    D2D1_MATRIX_3X2_F oldTransform;
+    m_deviceContext->GetTransform(&oldTransform);
+    m_deviceContext->SetTransform(toD2DMatrix(transform) * oldTransform);
+
     auto textLayout = m_deviceResources->textLayout(text);
     if (!textLayout)
     {
@@ -255,5 +320,7 @@ void D2DGraphicsContextImpl::drawText(const TextLayout& text, Point start, Patte
         brush.Get(),
         D2D1_DRAW_TEXT_OPTIONS_NONE
     );
+
+    m_deviceContext->SetTransform(oldTransform);
 }
 } // karin
