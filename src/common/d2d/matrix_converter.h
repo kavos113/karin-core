@@ -3,6 +3,7 @@
 
 #include <d2d1.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <karin/common/geometry/transform2d.h>
 
 namespace karin
