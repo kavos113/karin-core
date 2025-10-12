@@ -7,6 +7,7 @@ set(TEST_SRCS
         common/geometry/point_test.cpp
         common/geometry/size_test.cpp
         common/geometry/rectangle_test.cpp
+        common/geometry/transform2d_test.cpp
         common/color/color_test.cpp
 )
 
@@ -25,12 +26,16 @@ add_dependencies(karin_test karin_system)
 target_link_libraries(karin_test
     PRIVATE
         karin_system
+        karin_graphics
         GTest::gtest_main
 )
 target_include_directories(karin_test
     PRIVATE
         ${INCLUDE_DIR}
 )
+
+find_package(glm CONFIG REQUIRED)
+target_link_libraries(karin_test PRIVATE glm::glm)
 
 include(GoogleTest)
 gtest_discover_tests(karin_test)

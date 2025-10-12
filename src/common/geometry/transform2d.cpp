@@ -32,7 +32,7 @@ Transform2D& Transform2D::rotate(float angle)
 
 Transform2D& Transform2D::scale(float sx, float sy)
 {
-    m_impl->mat = glm::scale(m_impl->mat, glm::vec3(sx, sy, 1.0f));
+    m_impl->mat = glm::scale(glm::mat4(1.0f), glm::vec3(sx, sy, 1.0f)) * m_impl->mat;
     return *this;
 }
 
