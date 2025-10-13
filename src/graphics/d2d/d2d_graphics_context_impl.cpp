@@ -58,9 +58,9 @@ void D2DGraphicsContextImpl::fillEllipse(
     }
 
     D2D1_ELLIPSE ellipse = {
-        toD2DPoint(center),
-        radiusX,
-        radiusY
+        D2D1::Point2F(0.0f, 0.0f),
+        1.0f,
+        1.0f
     };
     m_deviceContext->FillEllipse(
         ellipse,
@@ -88,9 +88,9 @@ void D2DGraphicsContextImpl::fillRoundedRect(
     }
 
     D2D1_ROUNDED_RECT roundedRect = {
-        toD2DRect(rect),
-        std::max(0.0f, radiusX),
-        std::max(0.0f, radiusY)
+        D2D1::RectF(-0.5f, -0.5f, 0.5f, 0.5f),
+        std::max(0.0f, radiusX / rect.size.width),
+        std::max(0.0f, radiusY / rect.size.height)
     };
     m_deviceContext->FillRoundedRectangle(
         roundedRect,
@@ -143,7 +143,7 @@ void D2DGraphicsContextImpl::drawRect(
     }
 
     m_deviceContext->DrawRectangle(
-        toD2DRect(rect),
+        D2D1::RectF(-0.5f, -0.5f, 0.5f, 0.5f),
         brush.Get(),
         strokeStyle.width,
         m_deviceResources->strokeStyle(strokeStyle).Get()
@@ -174,9 +174,9 @@ void D2DGraphicsContextImpl::drawEllipse(
     }
 
     D2D1_ELLIPSE ellipse = {
-        toD2DPoint(center),
-        radiusX,
-        radiusY
+        D2D1::Point2F(0.0f, 0.0f),
+        1.0f,
+        1.0f
     };
     m_deviceContext->DrawEllipse(
         ellipse,
@@ -210,9 +210,9 @@ void D2DGraphicsContextImpl::drawRoundedRect(
     }
 
     D2D1_ROUNDED_RECT roundedRect = {
-        toD2DRect(rect),
-        std::max(0.0f, radiusX),
-        std::max(0.0f, radiusY)
+        D2D1::RectF(-0.5f, -0.5f, 0.5f, 0.5f),
+        std::max(0.0f, radiusX / rect.size.width),
+        std::max(0.0f, radiusY / rect.size.height)
     };
     m_deviceContext->DrawRoundedRectangle(
         roundedRect,
