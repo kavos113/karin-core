@@ -3,6 +3,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <iostream>
+
 namespace karin
 {
 class Transform2DImpl
@@ -24,10 +26,15 @@ Transform2D& Transform2D::translate(float tx, float ty)
     return *this;
 }
 
-Transform2D& Transform2D::rotate(float angle)
+Transform2D& Transform2D::rotate(float radian)
 {
-    m_impl->mat = glm::rotate(glm::mat4(1.0f), angle, glm::vec3(0.0f, 0.0f, 1.0f)) * m_impl->mat;
+    m_impl->mat = glm::rotate(glm::mat4(1.0f), radian, glm::vec3(0.0f, 0.0f, 1.0f)) * m_impl->mat;
     return *this;
+}
+
+Transform2D& Transform2D::rotateDeg(float degree)
+{
+    return rotate(glm::radians(degree));
 }
 
 Transform2D& Transform2D::scale(float sx, float sy)
@@ -39,5 +46,15 @@ Transform2D& Transform2D::scale(float sx, float sy)
 const float* Transform2D::data() const
 {
     return &m_impl->mat[0][0];
+}
+
+std::ostream& operator<<(std::ostream& os, const Transform2D& transform)
+{
+    const float* d = transform.data();
+    return os << "Transform Matrix:\n"
+       << d[0] << " " << d[4] << " " << d[8]  << " " << d[12] << "\n"
+       << d[1] << " " << d[5] << " " << d[9]  << " " << d[13] << "\n"
+       << d[2] << " " << d[6] << " " << d[10] << " " << d[14] << "\n"
+       << d[3] << " " << d[7] << " " << d[11] << " " << d[15] << "\n";
 }
 }

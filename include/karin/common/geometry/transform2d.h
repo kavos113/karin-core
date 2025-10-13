@@ -16,7 +16,8 @@ public:
     Transform2D& translate(float tx, float ty);
 
     // radians. counter-clockwise
-    Transform2D& rotate(float angle);
+    Transform2D& rotate(float radian);
+    Transform2D& rotateDeg(float degree);
 
     Transform2D& scale(float sx, float sy);
 
@@ -25,6 +26,8 @@ public:
 private:
     std::unique_ptr<Transform2DImpl> m_impl;
 };
+
+std::ostream& operator<<(std::ostream& os, const Transform2D& transform);
 } // karin
 
 #endif //KARIN_COMMON_GEOMETRY_TRANSFORM2D_H

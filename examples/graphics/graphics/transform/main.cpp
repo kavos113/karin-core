@@ -3,6 +3,7 @@
 #include <karin/common.h>
 
 #include <memory>
+#include <numbers>
 
 int main()
 {
@@ -20,8 +21,8 @@ int main()
     renderer.addDrawCommand(
         [&cyanPattern, &magentaPattern](karin::GraphicsContext& gc)
         {
-            gc.fillRect(karin::Rectangle(100, 100, 200, 200), cyanPattern, karin::Transform2D().rotate(45).translate(150, 0));
-            gc.fillRect(karin::Rectangle(400, 100, 200, 200), magentaPattern, karin::Transform2D().rotate(-45).translate(-150, 0));
+            gc.fillRect(karin::Rectangle(100, 100, 100, 100), cyanPattern, karin::Transform2D().rotate(-std::numbers::pi / 4).translate(0, 100));
+            gc.fillRect(karin::Rectangle(400, 100, 100, 100), magentaPattern, karin::Transform2D().rotateDeg(45).translate(0, 100));
         }
     );
 

@@ -21,7 +21,10 @@ void D2DGraphicsContextImpl::fillRect(const Rectangle rect, Pattern& pattern, co
 {
     D2D1_MATRIX_3X2_F oldTransform;
     m_deviceContext->GetTransform(&oldTransform);
-    m_deviceContext->SetTransform(toD2DMatrix(transform) * oldTransform);
+
+    D2D1_MATRIX_3X2_F scaleMatrix = D2D1::Matrix3x2F::Scale(rect.size.width, rect.size.height);
+    D2D1_MATRIX_3X2_F transitionMatrix = D2D1::Matrix3x2F::Translation(rect.pos.x + rect.size.width / 2, rect.pos.y + rect.size.height / 2);
+    m_deviceContext->SetTransform(scaleMatrix * toD2DMatrix(transform) * transitionMatrix * oldTransform);
 
     auto brush = m_deviceResources->brush(pattern);
     if (!brush)
@@ -30,7 +33,7 @@ void D2DGraphicsContextImpl::fillRect(const Rectangle rect, Pattern& pattern, co
     }
 
     m_deviceContext->FillRectangle(
-        toD2DRect(rect),
+        D2D1::RectF(-0.5f, -0.5f, 0.5f, 0.5f),
         brush.Get()
     );
 
@@ -43,7 +46,10 @@ void D2DGraphicsContextImpl::fillEllipse(
 {
     D2D1_MATRIX_3X2_F oldTransform;
     m_deviceContext->GetTransform(&oldTransform);
-    m_deviceContext->SetTransform(toD2DMatrix(transform) * oldTransform);
+
+    D2D1_MATRIX_3X2_F scaleMatrix = D2D1::Matrix3x2F::Scale(radiusX, radiusY);
+    D2D1_MATRIX_3X2_F transitionMatrix = D2D1::Matrix3x2F::Translation(center.x, center.y);
+    m_deviceContext->SetTransform(scaleMatrix * toD2DMatrix(transform) * transitionMatrix * oldTransform);
 
     auto brush = m_deviceResources->brush(pattern);
     if (!brush)
@@ -70,7 +76,10 @@ void D2DGraphicsContextImpl::fillRoundedRect(
 {
     D2D1_MATRIX_3X2_F oldTransform;
     m_deviceContext->GetTransform(&oldTransform);
-    m_deviceContext->SetTransform(toD2DMatrix(transform) * oldTransform);
+
+    D2D1_MATRIX_3X2_F scaleMatrix = D2D1::Matrix3x2F::Scale(rect.size.width, rect.size.height);
+    D2D1_MATRIX_3X2_F transitionMatrix = D2D1::Matrix3x2F::Translation(rect.pos.x + rect.size.width / 2, rect.pos.y + rect.size.height / 2);
+    m_deviceContext->SetTransform(scaleMatrix * toD2DMatrix(transform) * transitionMatrix * oldTransform);
 
     auto brush = m_deviceResources->brush(pattern);
     if (!brush)
@@ -122,7 +131,10 @@ void D2DGraphicsContextImpl::drawRect(
 {
     D2D1_MATRIX_3X2_F oldTransform;
     m_deviceContext->GetTransform(&oldTransform);
-    m_deviceContext->SetTransform(toD2DMatrix(transform) * oldTransform);
+
+    D2D1_MATRIX_3X2_F scaleMatrix = D2D1::Matrix3x2F::Scale(rect.size.width, rect.size.height);
+    D2D1_MATRIX_3X2_F transitionMatrix = D2D1::Matrix3x2F::Translation(rect.pos.x + rect.size.width / 2, rect.pos.y + rect.size.height / 2);
+    m_deviceContext->SetTransform(scaleMatrix * toD2DMatrix(transform) * transitionMatrix * oldTransform);
 
     auto brush = m_deviceResources->brush(pattern);
     if (!brush)
@@ -150,7 +162,10 @@ void D2DGraphicsContextImpl::drawEllipse(
 {
     D2D1_MATRIX_3X2_F oldTransform;
     m_deviceContext->GetTransform(&oldTransform);
-    m_deviceContext->SetTransform(toD2DMatrix(transform) * oldTransform);
+
+    D2D1_MATRIX_3X2_F scaleMatrix = D2D1::Matrix3x2F::Scale(radiusX, radiusY);
+    D2D1_MATRIX_3X2_F transitionMatrix = D2D1::Matrix3x2F::Translation(center.x, center.y);
+    m_deviceContext->SetTransform(scaleMatrix * toD2DMatrix(transform) * transitionMatrix * oldTransform);
 
     auto brush = m_deviceResources->brush(pattern);
     if (!brush)
@@ -183,7 +198,10 @@ void D2DGraphicsContextImpl::drawRoundedRect(
 {
     D2D1_MATRIX_3X2_F oldTransform;
     m_deviceContext->GetTransform(&oldTransform);
-    m_deviceContext->SetTransform(toD2DMatrix(transform) * oldTransform);
+
+    D2D1_MATRIX_3X2_F scaleMatrix = D2D1::Matrix3x2F::Scale(rect.size.width, rect.size.height);
+    D2D1_MATRIX_3X2_F transitionMatrix = D2D1::Matrix3x2F::Translation(rect.pos.x + rect.size.width / 2, rect.pos.y + rect.size.height / 2);
+    m_deviceContext->SetTransform(scaleMatrix * toD2DMatrix(transform) * transitionMatrix * oldTransform);
 
     auto brush = m_deviceResources->brush(pattern);
     if (!brush)
