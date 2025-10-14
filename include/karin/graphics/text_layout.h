@@ -15,11 +15,11 @@ struct TextLayout
 {
     Size size = {0.0f, 0.0f};
 
-    bool underline = false;
-    bool lineThrough = false;
-
     TextFormat format;
     std::string text;
+
+    bool underline = false;
+    bool lineThrough = false;
 
     size_t hash() const;
 
@@ -34,6 +34,19 @@ struct TextLayout
         format.size = fontSize;
         format.font.family = std::move(fontFamily);
     }
+
+    TextLayout(
+        std::string text,
+        const TextFormat& textFormat,
+        Size textRegion,
+        bool underline = false,
+        bool lineThrough = false
+    ) : size(textRegion),
+        format(textFormat),
+        text(std::move(text)),
+        underline(underline),
+        lineThrough(lineThrough)
+    {}
 };
 } // karin
 
