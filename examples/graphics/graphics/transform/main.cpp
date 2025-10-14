@@ -67,6 +67,25 @@ int main()
                     .rotate(std::numbers::pi / 8)
                     .translate(0, -50)
             );
+
+            gc.drawText(
+                karin::TextLayout("Hello, Karin!", 24, "Segoe UI", karin::Size(200, 50)),
+                karin::Point(300, 50),
+                blackPattern,
+                karin::Transform2D()
+                    .rotate(-std::numbers::pi / 12)
+                    .translate(0, 50)
+                    .scale(2.0f, 1.0f)
+            );
+            gc.drawRect(
+                karin::Rectangle(300, 50, 200, 50),
+                magentaPattern,
+                karin::StrokeStyle(1),
+                karin::Transform2D()
+                    .rotate(-std::numbers::pi / 12)
+                    .translate(0, 50)
+                    .scale(2.0f, 1.0f)
+            );
         }
     );
 

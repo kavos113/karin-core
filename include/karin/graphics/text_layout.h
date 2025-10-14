@@ -6,6 +6,7 @@
 #include <karin/common/geometry/size.h>
 
 #include <string>
+#include <utility>
 
 namespace karin
 {
@@ -21,6 +22,18 @@ struct TextLayout
     std::string text;
 
     size_t hash() const;
+
+    TextLayout(
+        std::string text,
+        float fontSize,
+        std::string fontFamily,
+        Size textRegion
+    ) : size(textRegion),
+        text(std::move(text))
+    {
+        format.size = fontSize;
+        format.font.family = std::move(fontFamily);
+    }
 };
 } // karin
 
