@@ -15,8 +15,8 @@ int main()
 
     karin::Pattern magentaPattern = karin::SolidColorPattern(karin::Color(255, 0, 255));
     karin::TextLayout textLayout = {
-        .size = {400.0f, 200.0f},
-        .format = {
+        "Hello, Karin Graphics!\nnew line support.\n\nvery very very very very very loooooooooooong text.",
+        karin::TextFormat{
             .font = {
                 .family = "Arial",
             },
@@ -27,7 +27,7 @@ int main()
             .trimming = karin::TextFormat::Trimming::WORD,
             .wrapping = karin::TextFormat::Wrapping::WORD,
         },
-        .text = "Hello, Karin Graphics!\nnew line support.\n\nvery very very very very very loooooooooooong text.",
+        {400.0f, 200.0f},
     };
 
     renderer.addDrawCommand(

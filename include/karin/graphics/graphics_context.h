@@ -5,6 +5,7 @@
 
 #include <karin/common/geometry/rectangle.h>
 #include <karin/common/geometry/point.h>
+#include <karin/common/geometry/transform2d.h>
 
 #include "path.h"
 #include "stroke_style.h"
@@ -31,23 +32,41 @@ private:
     friend class Renderer;
 
 public:
-    void fillRect(Rectangle rect, Pattern& pattern) const;
-    void fillEllipse(Point center, float radiusX, float radiusY, Pattern& pattern) const;
-    void fillRoundedRect(Rectangle rect, float radiusX, float radiusY, Pattern& pattern) const;
-    void fillPath(const Path& path, Pattern& pattern) const;
+    void fillRect(Rectangle rect, Pattern& pattern, const Transform2D& transform = Transform2D()) const;
+    void fillEllipse(
+        Point center, float radiusX, float radiusY, Pattern& pattern, const Transform2D& transform = Transform2D()
+    ) const;
+    void fillRoundedRect(
+        Rectangle rect, float radiusX, float radiusY, Pattern& pattern, const Transform2D& transform = Transform2D()
+    ) const;
+    void fillPath(const Path& path, Pattern& pattern, const Transform2D& transform = Transform2D()) const;
 
-    void drawLine(Point start, Point end, Pattern& pattern, const StrokeStyle& strokeStyle = StrokeStyle()) const;
-    void drawRect(Rectangle rect, Pattern& pattern, const StrokeStyle& strokeStyle = StrokeStyle()) const;
+    void drawLine(
+        Point start, Point end, Pattern& pattern, const StrokeStyle& strokeStyle = StrokeStyle(),
+        const Transform2D& transform = Transform2D()
+    ) const;
+    void drawRect(
+        Rectangle rect, Pattern& pattern, const StrokeStyle& strokeStyle = StrokeStyle(),
+        const Transform2D& transform = Transform2D()
+    ) const;
     void drawEllipse(
-        Point center, float radiusX, float radiusY, Pattern& pattern, const StrokeStyle& strokeStyle = StrokeStyle()
+        Point center, float radiusX, float radiusY, Pattern& pattern, const StrokeStyle& strokeStyle = StrokeStyle(),
+        const Transform2D& transform = Transform2D()
     ) const;
     void drawRoundedRect(
-        Rectangle rect, float radiusX, float radiusY, Pattern& pattern, const StrokeStyle& strokeStyle = StrokeStyle()
+        Rectangle rect, float radiusX, float radiusY, Pattern& pattern, const StrokeStyle& strokeStyle = StrokeStyle(),
+        const Transform2D& transform = Transform2D()
     ) const;
-    void drawPath(const Path& path, Pattern& pattern, const StrokeStyle& strokeStyle = StrokeStyle()) const;
+    void drawPath(
+        const Path& path, Pattern& pattern, const StrokeStyle& strokeStyle = StrokeStyle(),
+        const Transform2D& transform = Transform2D()
+    ) const;
 
-    void drawImage(Image image, Rectangle destRect, Rectangle srcRect = Rectangle(), float opacity = 1.0f) const;
-    void drawText(const TextLayout& text, Point start, Pattern& pattern) const;
+    void drawImage(
+        Image image, Rectangle destRect, Rectangle srcRect = Rectangle(), float opacity = 1.0f,
+        const Transform2D& transform = Transform2D()
+    ) const;
+    void drawText(const TextLayout& text, Point start, Pattern& pattern, const Transform2D& transform = Transform2D()) const;
 
 private:
     IRendererImpl* m_rendererImpl;
