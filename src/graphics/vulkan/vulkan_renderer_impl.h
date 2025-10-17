@@ -139,10 +139,16 @@ private:
         std::vector<VkDescriptorSet> descriptorSets;
     };
 
+    struct MatrixBufferObject
+    {
+        glm::mat4 proj;
+    };
+
     void createCommandBuffers();
     void createSyncObjects();
     void createVertexBuffer();
     void createIndexBuffer();
+    void createMatrixBuffer();
     void createRenderPass();
     void createFrameBuffers();
     void createPipeline();
@@ -180,6 +186,13 @@ private:
     uint16_t* m_indexStartPoint = nullptr;
     uint16_t m_vertexOffset = 0;
     size_t m_indexCount = 0;
+
+    MatrixBufferObject m_projMatrixData = {};
+    VkDescriptorSetLayout m_projMatrixDescriptorSetLayout = VK_NULL_HANDLE;
+    std::vector<VkDescriptorSet> m_projMatrixDescriptorSets;
+    std::vector<VkBuffer> m_projMatrixBuffers;
+    std::vector<VmaAllocation> m_projMatrixBufferAllocations;
+    std::vector<VmaAllocationInfo> m_projMatrixBufferMemoryInfos;
 
     static constexpr VkDeviceSize vertexBufferSize = 1024 * 128; // 2MB
     static constexpr VkDeviceSize indexBufferSize = 1024 * 512; // 2MB

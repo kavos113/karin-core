@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <iostream>
 #include <cstring>
+#include <glm/ext/matrix_clip_space.hpp>
 
 namespace karin
 {
@@ -27,6 +28,7 @@ VulkanRendererImpl::VulkanRendererImpl(
 
     createVertexBuffer();
     createIndexBuffer();
+    createMatrixBuffer();
 
     createPipeline();
 }
@@ -388,6 +390,102 @@ void VulkanRendererImpl::createIndexBuffer()
 
     m_indexMapPoint = static_cast<uint16_t*>(memoryInfo.pMappedData);
     m_indexStartPoint = m_indexMapPoint;
+}
+
+void VulkanRendererImpl::createMatrixBuffer()
+{
+    VkDescriptorSetLayoutBinding projMatrixLayoutBinding = {
+        .binding = 0,
+        .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+        .descriptorCount = 1,
+        .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
+        .pImmutableSamplers = nullptr,
+    };
+    VkDescriptorSetLayoutCreateInfo layoutInfo = {
+        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+        .bindingCount = 1,
+        .pBindings = &projMatrixLayoutBinding,
+    };
+    if (vkCreateDescriptorSetLayout(
+        m_device->device(), &layoutInfo, nullptr, &m_projMatrixDescriptorSetLayout
+    ) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create projection matrix descriptor set layout");
+    }
+
+    m_projMatrixData.proj = glm::orthoLH_ZO(
+        0.0f,
+        static_cast<float>(m_extent.width),
+        static_cast<float>(m_extent.height),
+        0.0f,
+        0.0f,
+        1.0f
+    );
+
+    m_projMatrixDescriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
+    m_projMatrixBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+    m_projMatrixBufferAllocations.resize(MAX_FRAMES_IN_FLIGHT);
+    m_projMatrixBufferMemoryInfos.resize(MAX_FRAMES_IN_FLIGHT);
+
+    std::vector layouts(MAX_FRAMES_IN_FLIGHT, m_projMatrixDescriptorSetLayout);
+    VkDescriptorSetAllocateInfo allocInfoDesc = {
+        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+        .descriptorPool = m_device->descriptorPool(),
+        .descriptorSetCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT),
+        .pSetLayouts = layouts.data(),
+    };
+    if (vkAllocateDescriptorSets(
+        m_device->device(), &allocInfoDesc, m_projMatrixDescriptorSets.data()
+    ) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to allocate projection matrix descriptor sets");
+    }
+
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+    {
+        VkDeviceSize bufferSize = sizeof(MatrixBufferObject);
+        VmaAllocationCreateInfo allocInfo = {
+            .flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT,
+            .usage = VMA_MEMORY_USAGE_AUTO,
+        };
+
+        VkBufferCreateInfo bufferInfo = {
+            .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+            .size = bufferSize,
+            .usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+            .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+        };
+
+        if (vmaCreateBuffer(
+            m_device->allocator(), &bufferInfo, &allocInfo,
+            &m_projMatrixBuffers[i], &m_projMatrixBufferAllocations[i], &m_projMatrixBufferMemoryInfos[i]
+        ) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to create projection matrix buffer");
+        }
+
+        memcpy(
+            m_projMatrixBufferMemoryInfos[i].pMappedData,
+            &m_projMatrixData,
+            sizeof(MatrixBufferObject)
+        );
+
+        VkDescriptorBufferInfo bufferInfoDesc = {
+            .buffer = m_projMatrixBuffers[i],
+            .offset = 0,
+            .range = sizeof(MatrixBufferObject),
+        };
+        VkWriteDescriptorSet descriptorWrite = {
+            .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+            .dstSet = m_projMatrixDescriptorSets[i],
+            .dstBinding = 0,
+            .dstArrayElement = 0,
+            .descriptorCount = 1,
+            .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+            .pBufferInfo = &bufferInfoDesc,
+        };
+        vkUpdateDescriptorSets(m_device->device(), 1, &descriptorWrite, 0, nullptr);
+    }
 }
 
 void VulkanRendererImpl::createRenderPass()
