@@ -584,6 +584,11 @@ void VulkanRendererImpl::createPipeline()
             .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
             .offset = 0,
             .size = sizeof(PushConstants)
+        },
+        VkPushConstantRange{
+            .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
+            .offset = sizeof(PushConstants),
+            .size = sizeof(VertexPushConstants)
         }
     };
     m_geometryPipeline = std::make_unique<VulkanPipeline>(

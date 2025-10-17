@@ -1,5 +1,6 @@
 #version 450
 
+#define FRAGMENT_SHADER
 #include "push_constants.h"
 
 layout(location = 0) out vec4 outColor;

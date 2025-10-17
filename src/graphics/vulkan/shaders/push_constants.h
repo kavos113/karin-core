@@ -33,9 +33,16 @@ struct PushConstants
     glm::vec2 global;
     glm::vec2 padding{0.0f, 0.0f};
 };
+
+struct VertexPushConstants
+{
+    glm::mat4 model;
+};
 }
 
 #else // glsl
+
+#ifdef FRAGMENT_SHADER
 
 layout (push_constant) uniform PushConstants
 {
@@ -46,6 +53,15 @@ layout (push_constant) uniform PushConstants
     vec2 global;
     vec2 padding;
 } push;
+
+#elifdef VERTEX_SHADER
+
+layout (push_constant) uniform TransformMatrix
+{
+    mat4 model;
+} push;
+
+#endif
 
 #endif
 

@@ -1,5 +1,8 @@
 #version 450
 
+#define VERTEX_SHADER
+#include "push_constants.h"
+
 layout(location = 0) in vec2 pos;
 layout(location = 1) in vec2 inUv;
 layout(location = 0) out vec2 uv;
