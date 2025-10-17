@@ -69,6 +69,12 @@ void VulkanRendererImpl::cleanUp()
 
     vmaDestroyBuffer(m_device->allocator(), m_vertexBuffer, m_vertexAllocation);
     vmaDestroyBuffer(m_device->allocator(), m_indexBuffer, m_indexAllocation);
+    for (size_t i = 0; i < m_projMatrixBuffers.size(); ++i)
+    {
+        vmaDestroyBuffer(m_device->allocator(), m_projMatrixBuffers[i], m_projMatrixBufferAllocations[i]);
+    }
+
+    vkDestroyDescriptorSetLayout(m_device->device(), m_projMatrixDescriptorSetLayout, nullptr);
 
     m_deviceResources->cleanup();
 
@@ -569,7 +575,10 @@ void VulkanRendererImpl::createFrameBuffers()
 
 void VulkanRendererImpl::createPipeline()
 {
-    std::vector descriptorSetLayouts = {m_deviceResources->geometryDescriptorSetLayout()};
+    std::vector descriptorSetLayouts = {
+        m_deviceResources->geometryDescriptorSetLayout(),
+        m_projMatrixDescriptorSetLayout
+    };
     std::vector pushConstantRanges = {
         VkPushConstantRange{
             .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
@@ -586,7 +595,8 @@ void VulkanRendererImpl::createPipeline()
 
     std::vector textDescriptorSetLayouts = {
         m_deviceResources->geometryDescriptorSetLayout(),
-        m_deviceResources->atlasDescriptorSetLayout()
+        m_deviceResources->atlasDescriptorSetLayout(),
+        m_projMatrixDescriptorSetLayout
     };
     m_textPipeline = std::make_unique<VulkanPipeline>(
         m_device->device(), m_renderPass,
