@@ -7,6 +7,7 @@
 #include <iostream>
 #include <cstring>
 #include <glm/ext/matrix_clip_space.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace karin
 {
@@ -177,8 +178,6 @@ void VulkanRendererImpl::endDraw()
             0, nullptr
         );
 
-        glm::mat4 sample_matrix = glm::mat4(1.0f);
-
         vkCmdPushConstants(
             m_commandBuffers[m_currentFrame],
             command.pipeline->pipelineLayout(),
@@ -189,7 +188,7 @@ void VulkanRendererImpl::endDraw()
             m_commandBuffers[m_currentFrame],
             command.pipeline->pipelineLayout(),
             VK_SHADER_STAGE_VERTEX_BIT,
-            sizeof(FragPushConstants), sizeof(VertexPushConstants), &sample_matrix
+            sizeof(FragPushConstants), sizeof(VertexPushConstants), &command.vertData
         );
 
         vkCmdDrawIndexed(m_commandBuffers[m_currentFrame], command.indexCount, 1, command.indexOffset, 0, 0);
@@ -238,7 +237,8 @@ void VulkanRendererImpl::addCommand(
     std::vector<uint16_t>& indices,
     const FragPushConstants& fragData,
     const Pattern& pattern,
-    bool isGeometry
+    bool isGeometry,
+    const Transform2D& transform
 )
 {
     memcpy(m_vertexMapPoint, vertices.data(), vertices.size() * sizeof(VulkanPipeline::Vertex));
@@ -259,6 +259,7 @@ void VulkanRendererImpl::addCommand(
         .indexCount = static_cast<uint32_t>(indices.size()),
         .indexOffset = static_cast<uint32_t>(m_indexCount - indices.size()),
         .fragData = fragData,
+        .vertData = {glm::make_mat4(transform.data())},
         .pipeline = isGeometry ? m_geometryPipeline.get() : m_textPipeline.get(),
     };
 

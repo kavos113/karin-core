@@ -10,6 +10,7 @@
 #include <renderer_impl.h>
 #include <karin/common/geometry/point.h>
 #include <karin/common/geometry/rectangle.h>
+#include <karin/common/geometry/transform2d.h>
 #include <karin/graphics/pattern.h>
 #include <karin/system/window.h>
 
@@ -48,7 +49,9 @@ public:
         const std::vector<VulkanPipeline::Vertex>& vertices,
         std::vector<uint16_t>& indices,
         const FragPushConstants& fragData,
-        const Pattern& pattern, bool isGeometry
+        const Pattern& pattern,
+        bool isGeometry,
+        const Transform2D& transform
     );
 
     Image createImage(const std::vector<std::byte>& data, uint32_t width, uint32_t height) override
@@ -135,6 +138,7 @@ private:
         uint32_t indexCount{};
         uint32_t indexOffset{};
         FragPushConstants fragData;
+        VertexPushConstants vertData;
         VulkanPipeline* pipeline = nullptr;
         std::vector<VkDescriptorSet> descriptorSets;
     };
