@@ -56,7 +56,7 @@ public:
     void drawText(const TextLayout& text, Point start, Pattern& pattern, const Transform2D& transform) override;
 
 private:
-    PushConstants createPushConstantData(const Pattern& pattern) const;
+    FragPushConstants createPushConstantData(const Pattern& pattern) const;
 
     VulkanRendererImpl* m_renderer;
 

@@ -47,7 +47,7 @@ public:
     void addCommand(
         const std::vector<VulkanPipeline::Vertex>& vertices,
         std::vector<uint16_t>& indices,
-        const PushConstants& fragData,
+        const FragPushConstants& fragData,
         const Pattern& pattern, bool isGeometry
     );
 
@@ -134,7 +134,7 @@ private:
     {
         uint32_t indexCount{};
         uint32_t indexOffset{};
-        PushConstants fragData;
+        FragPushConstants fragData;
         VulkanPipeline* pipeline = nullptr;
         std::vector<VkDescriptorSet> descriptorSets;
     };

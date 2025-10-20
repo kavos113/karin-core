@@ -177,11 +177,19 @@ void VulkanRendererImpl::endDraw()
             0, nullptr
         );
 
+        glm::mat4 sample_matrix = glm::mat4(1.0f);
+
         vkCmdPushConstants(
             m_commandBuffers[m_currentFrame],
             command.pipeline->pipelineLayout(),
             VK_SHADER_STAGE_FRAGMENT_BIT,
-            0, sizeof(PushConstants), &command.fragData
+            0, sizeof(FragPushConstants), &command.fragData
+        );
+        vkCmdPushConstants(
+            m_commandBuffers[m_currentFrame],
+            command.pipeline->pipelineLayout(),
+            VK_SHADER_STAGE_VERTEX_BIT,
+            sizeof(FragPushConstants), sizeof(VertexPushConstants), &sample_matrix
         );
 
         vkCmdDrawIndexed(m_commandBuffers[m_currentFrame], command.indexCount, 1, command.indexOffset, 0, 0);
@@ -228,7 +236,7 @@ void VulkanRendererImpl::resize(Size size)
 void VulkanRendererImpl::addCommand(
     const std::vector<VulkanPipeline::Vertex>& vertices,
     std::vector<uint16_t>& indices,
-    const PushConstants& fragData,
+    const FragPushConstants& fragData,
     const Pattern& pattern,
     bool isGeometry
 )
@@ -583,11 +591,11 @@ void VulkanRendererImpl::createPipeline()
         VkPushConstantRange{
             .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
             .offset = 0,
-            .size = sizeof(PushConstants)
+            .size = sizeof(FragPushConstants)
         },
         VkPushConstantRange{
             .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
-            .offset = sizeof(PushConstants),
+            .offset = sizeof(FragPushConstants),
             .size = sizeof(VertexPushConstants)
         }
     };

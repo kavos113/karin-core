@@ -14,7 +14,7 @@ enum class ShapeType : uint32_t
     RoundedRectangle = 2,
 };
 
-struct PushConstants
+struct FragPushConstants
 {
     // color(vec4) in solid color
     // start(vec2) + end(vec2) in linear gradient
@@ -54,7 +54,7 @@ layout (push_constant) uniform PushConstants
     vec2 padding;
 } push;
 
-#elifdef VERTEX_SHADER
+#elif defined(VERTEX_SHADER)
 
 layout (push_constant) uniform TransformMatrix
 {

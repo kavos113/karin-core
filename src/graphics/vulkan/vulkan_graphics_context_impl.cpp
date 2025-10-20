@@ -513,7 +513,7 @@ void VulkanGraphicsContextImpl::drawImage(
         .scaleX = normalizedSrcRect.size.width,
         .scaleY = normalizedSrcRect.size.height
     };
-    PushConstants pushConstants = createPushConstantData(imagePattern);
+    FragPushConstants pushConstants = createPushConstantData(imagePattern);
     pushConstants.global.x = 0.0f;
 
     m_renderer->addCommand(vertices, indices, pushConstants, imagePattern, true);
@@ -578,16 +578,16 @@ void VulkanGraphicsContextImpl::drawText(const TextLayout& text, Point start, Pa
     m_renderer->addCommand(vertices, indices, createPushConstantData(pattern), pattern, false);
 }
 
-PushConstants VulkanGraphicsContextImpl::createPushConstantData(const Pattern& pattern) const
+FragPushConstants VulkanGraphicsContextImpl::createPushConstantData(const Pattern& pattern) const
 {
     return std::visit(
-        [this]<typename T0>(const T0& p) -> PushConstants
+        [this]<typename T0>(const T0& p) -> FragPushConstants
         {
             using T = std::decay_t<T0>;
             if constexpr (std::is_same_v<T, SolidColorPattern>)
             {
                 Color color = p.color();
-                return PushConstants{
+                return FragPushConstants{
                     .color = {color.r, color.g, color.b, color.a},
                     .patternType = static_cast<uint32_t>(PatternType::SolidColor)
                 };
@@ -596,7 +596,7 @@ PushConstants VulkanGraphicsContextImpl::createPushConstantData(const Pattern& p
             {
                 Point start = m_renderer->normalize(p.start);
                 Point end = m_renderer->normalize(p.end);
-                return PushConstants{
+                return FragPushConstants{
                     .color = {start.x, start.y, end.x, end.y},
                     .patternType = static_cast<uint32_t>(PatternType::LinearGradient),
                 };
@@ -606,7 +606,7 @@ PushConstants VulkanGraphicsContextImpl::createPushConstantData(const Pattern& p
                 Point center = m_renderer->normalize(p.center);
                 glm::vec2 offset = m_renderer->normalizeVec(glm::vec2(p.offset.x, p.offset.y));
                 glm::vec2 radius = m_renderer->normalizeVec(glm::vec2(p.radiusX, p.radiusY));
-                return PushConstants{
+                return FragPushConstants{
                     .color = {center.x, center.y, offset.x, offset.y},
                     .patternType = static_cast<uint32_t>(PatternType::RadialGradient),
                     .global = {radius.x, radius.y},
@@ -617,7 +617,7 @@ PushConstants VulkanGraphicsContextImpl::createPushConstantData(const Pattern& p
                 glm::vec2 offset = m_renderer->normalizeVec(glm::vec2(p.offset.x, p.offset.y));
                 float scaleX = p.scaleX;
                 float scaleY = p.scaleY;
-                return PushConstants{
+                return FragPushConstants{
                     .color = {offset.x, offset.y, scaleX, scaleY},
                     .patternType = static_cast<uint32_t>(PatternType::Image),
                     .global = {1.0f, 0.0f}
