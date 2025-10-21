@@ -570,7 +570,7 @@ void VulkanGraphicsContextImpl::drawText(const TextLayout& text, Point start, Pa
 FragPushConstants VulkanGraphicsContextImpl::createPushConstantData(const Pattern& pattern) const
 {
     return std::visit(
-        [this]<typename T0>(const T0& p) -> FragPushConstants
+        []<typename T0>(const T0& p) -> FragPushConstants
         {
             using T = std::decay_t<T0>;
             if constexpr (std::is_same_v<T, SolidColorPattern>)
