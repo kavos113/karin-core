@@ -17,11 +17,10 @@ float signedDistanceFromUv(vec2 uv, uint shapeType, vec2 shapeParams) {
 }
 
 float linear_gradient_t() {
-    vec2 aspect = vec2(push.global.x, 1.0);
-    vec2 startPoint = push.color.xy * aspect;
-    vec2 endPoint = push.color.zw * aspect;
+    vec2 startPoint = push.color.xy;
+    vec2 endPoint = push.color.zw;
     vec2 direction = endPoint - startPoint;
-    vec2 pixel = pixelPos * aspect - startPoint;
+    vec2 pixel = pixelPos - startPoint;
 
     float lengthSq = dot(direction, direction);
 
@@ -38,7 +37,7 @@ float linear_gradient_t() {
 float radial_gradient_t() {
     vec2 center = push.color.xy;
     vec2 offset = push.color.zw;
-    vec2 radius = push.global.xy;
+    vec2 radius = push.patternParams.xy;
 
     vec2 d = (pixelPos - center - offset) / radius;
     vec2 o = -offset / radius;
@@ -70,16 +69,15 @@ float radial_gradient_t() {
 vec4 image_color() {
     vec4 color;
 
-    float uvMode = push.global.x;
+    float uvMode = push.patternParams.z;
     if (uvMode == 0.0) {
         color = texture(tex, uv);
     } else {
         vec2 offset = push.color.xy;
         vec2 scale = push.color.zw;
+        vec2 size = push.patternParams.xy;
 
-        vec2 windowUv = pixelPos / scale + offset;
-        windowUv = (windowUv + 1.0) * 0.5;
-
+        vec2 windowUv = (pixelPos + offset) / (size * scale);
         color = texture(tex, windowUv);
     }
 

@@ -275,7 +275,7 @@ void VulkanRendererImpl::addCommand(
                 drawCommand.descriptorSets.push_back(descriptorSets[m_currentFrame]);
 
                 VkExtent2D extent = m_surface->extent();
-                drawCommand.fragData.global.x = extent.width / static_cast<float>(extent.height);
+                drawCommand.fragData.patternParams.x = extent.width / static_cast<float>(extent.height);
             }
             else if constexpr (std::is_same_v<T, RadialGradientPattern>)
             {

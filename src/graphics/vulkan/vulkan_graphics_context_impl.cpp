@@ -370,10 +370,9 @@ void VulkanGraphicsContextImpl::fillPath(const PathImpl& path, Pattern& pattern,
 
     for (auto point : polygonPoints)
     {
-        Point normalizedPoint = m_renderer->normalize(point);
         vertices.push_back(
             {
-                .pos = {normalizedPoint.x, normalizedPoint.y},
+                .pos = {point.x, point.y},
                 .uv = {-1.0f, -1.0f} // UV coordinates are not used for fill
             }
         );
@@ -459,8 +458,6 @@ void VulkanGraphicsContextImpl::drawImage(
     Image image, Rectangle destRect, Rectangle srcRect, float opacity, const Transform2D& transform
 )
 {
-    Rectangle normalizedRect = m_renderer->normalize(destRect);
-
     Rectangle normalizedSrcRect{
         srcRect.pos.x / image.width(),
         srcRect.pos.y / image.height(),
@@ -475,16 +472,16 @@ void VulkanGraphicsContextImpl::drawImage(
 
     std::vector<VulkanPipeline::Vertex> vertices = {
         {
-            .pos = {normalizedRect.pos.x, normalizedRect.pos.y},
+            .pos = {destRect.pos.x, destRect.pos.y},
             .uv = {normalizedSrcRect.pos.x, normalizedSrcRect.pos.y},
         },
         {
-            .pos = {normalizedRect.pos.x + normalizedRect.size.width, normalizedRect.pos.y},
+            .pos = {destRect.pos.x + destRect.size.width, destRect.pos.y},
             .uv = {normalizedSrcRect.pos.x + normalizedSrcRect.size.width, normalizedSrcRect.pos.y},
         },
         {
             .pos = {
-                normalizedRect.pos.x + normalizedRect.size.width, normalizedRect.pos.y + normalizedRect.size.height
+                destRect.pos.x + destRect.size.width, destRect.pos.y + destRect.size.height
             },
             .uv = {
                 normalizedSrcRect.pos.x + normalizedSrcRect.size.width,
@@ -492,7 +489,7 @@ void VulkanGraphicsContextImpl::drawImage(
             },
         },
         {
-            .pos = {normalizedRect.pos.x, normalizedRect.pos.y + normalizedRect.size.height},
+            .pos = {destRect.pos.x, destRect.pos.y + destRect.size.height},
             .uv = {normalizedSrcRect.pos.x, normalizedSrcRect.pos.y + normalizedSrcRect.size.height},
         }
     };
@@ -508,7 +505,7 @@ void VulkanGraphicsContextImpl::drawImage(
         .scaleY = normalizedSrcRect.size.height
     };
     FragPushConstants pushConstants = createPushConstantData(imagePattern);
-    pushConstants.global.x = 0.0f;
+    pushConstants.patternParams.z = 0.0f;
 
     m_renderer->addCommand(vertices, indices, pushConstants, imagePattern, true, transform);
 }
@@ -522,13 +519,11 @@ void VulkanGraphicsContextImpl::drawText(const TextLayout& text, Point start, Pa
 
     for (const auto& glyphInfo : glyphInfos)
     {
-        Rectangle pos = m_renderer->normalize(
-            Rectangle(
-                start.x + glyphInfo.position.pos.x,
-                start.y + glyphInfo.position.pos.y,
-                glyphInfo.position.size.width,
-                glyphInfo.position.size.height
-            )
+        Rectangle pos = Rectangle(
+            start.x + glyphInfo.position.pos.x,
+            start.y + glyphInfo.position.pos.y,
+            glyphInfo.position.size.width,
+            glyphInfo.position.size.height
         );
 
         size_t baseIndex = vertices.size();
@@ -588,33 +583,25 @@ FragPushConstants VulkanGraphicsContextImpl::createPushConstantData(const Patter
             }
             else if constexpr (std::is_same_v<T, LinearGradientPattern>)
             {
-                Point start = m_renderer->normalize(p.start);
-                Point end = m_renderer->normalize(p.end);
                 return FragPushConstants{
-                    .color = {start.x, start.y, end.x, end.y},
+                    .color = {p.start.x, p.start.y, p.end.x, p.end.y},
                     .patternType = static_cast<uint32_t>(PatternType::LinearGradient),
                 };
             }
             else if constexpr (std::is_same_v<T, RadialGradientPattern>)
             {
-                Point center = m_renderer->normalize(p.center);
-                glm::vec2 offset = m_renderer->normalizeVec(glm::vec2(p.offset.x, p.offset.y));
-                glm::vec2 radius = m_renderer->normalizeVec(glm::vec2(p.radiusX, p.radiusY));
                 return FragPushConstants{
-                    .color = {center.x, center.y, offset.x, offset.y},
+                    .color = {p.center.x, p.center.y, p.offset.x, p.offset.y},
                     .patternType = static_cast<uint32_t>(PatternType::RadialGradient),
-                    .global = {radius.x, radius.y},
+                    .patternParams = {p.radiusX, p.radiusY, 0.0f, 0.0f},
                 };
             }
             else if constexpr (std::is_same_v<T, ImagePattern>)
             {
-                glm::vec2 offset = m_renderer->normalizeVec(glm::vec2(p.offset.x, p.offset.y));
-                float scaleX = p.scaleX;
-                float scaleY = p.scaleY;
                 return FragPushConstants{
-                    .color = {offset.x, offset.y, scaleX, scaleY},
+                    .color = {p.offset.x, p.offset.y, p.scaleX, p.scaleY},
                     .patternType = static_cast<uint32_t>(PatternType::Image),
-                    .global = {1.0f, 0.0f}
+                    .patternParams = {p.image.width(), p.image.height(), 1.0f, 0.0f}
                 };
             }
             else

@@ -27,11 +27,9 @@ struct FragPushConstants
     uint32_t shapeType = static_cast<uint32_t>(ShapeType::Nothing);
     uint32_t patternType = static_cast<uint32_t>(PatternType::SolidColor);
 
-    // aspect(float) in linear gradient (width / height)
     // radiusX(float) + radiusY(float) in radial gradient
-    // uvMode(float) in image (0 = uv(image), 1 = window coordinates(image pattern))
-    glm::vec2 global;
-    glm::vec2 padding{0.0f, 0.0f};
+    // imageSize(vec2), uvMode(float) in image (0 = uv(image), 1 = window coordinates(image pattern))
+    glm::vec4 patternParams;
 };
 
 struct VertexPushConstants
@@ -50,8 +48,7 @@ layout (push_constant) uniform PushConstants
     vec2 shapeParams;
     uint shapeType;
     uint patternType;
-    vec2 global;
-    vec2 padding;
+    vec4 patternParams;
 } push;
 
 #elif defined(VERTEX_SHADER)
