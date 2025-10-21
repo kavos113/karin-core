@@ -263,6 +263,8 @@ void VulkanRendererImpl::addCommand(
         .pipeline = isGeometry ? m_geometryPipeline.get() : m_textPipeline.get(),
     };
 
+    drawCommand.descriptorSets.push_back(m_projMatrixDescriptorSets[m_currentFrame]);
+
     std::visit(
         [this, &drawCommand]<typename T0>(const T0& p)
         {
@@ -585,8 +587,8 @@ void VulkanRendererImpl::createFrameBuffers()
 void VulkanRendererImpl::createPipeline()
 {
     std::vector descriptorSetLayouts = {
+        m_projMatrixDescriptorSetLayout,
         m_deviceResources->geometryDescriptorSetLayout(),
-        m_projMatrixDescriptorSetLayout
     };
     std::vector pushConstantRanges = {
         VkPushConstantRange{
@@ -608,9 +610,9 @@ void VulkanRendererImpl::createPipeline()
     );
 
     std::vector textDescriptorSetLayouts = {
+        m_projMatrixDescriptorSetLayout,
         m_deviceResources->geometryDescriptorSetLayout(),
         m_deviceResources->atlasDescriptorSetLayout(),
-        m_projMatrixDescriptorSetLayout
     };
     m_textPipeline = std::make_unique<VulkanPipeline>(
         m_device->device(), m_renderPass,

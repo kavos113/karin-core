@@ -58,7 +58,7 @@ layout (push_constant) uniform PushConstants
 
 layout (push_constant) uniform TransformMatrix
 {
-    mat4 model;
+    layout(offset = 48) mat4 model;
 } push;
 
 #endif

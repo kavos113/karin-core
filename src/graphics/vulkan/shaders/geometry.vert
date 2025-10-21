@@ -8,12 +8,12 @@ layout(location = 1) in vec2 inUv;
 layout(location = 0) out vec2 uv;
 layout(location = 1) out vec2 pixelPos;
 
-layout(set = 2, binding = 0) uniform Matrices {
+layout(set = 0, binding = 0) uniform Matrices {
     mat4 projection;
 } matrices;
 
 void main() {
-    gl_Position = vec4(pos, 0.0, 1.0);
+    gl_Position = matrices.projection * push.model * vec4(pos, 0.0, 1.0);
     uv = inUv;
     pixelPos = pos;
 }
