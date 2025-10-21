@@ -20,6 +20,14 @@
 
 namespace karin
 {
+/*
+ * Push Constant Layout:
+ * | FragPushConstants | VertexPushConstants |
+ * more details, see shaders/push_constants.h
+ *
+ * Descriptor Set Layout:
+ * | Projection Matrix | Geometry Resources(gradient LUT / Image) | (Glyph Atlas: text only) |
+ */
 class VulkanRendererImpl : public IRendererImpl
 {
 public:
