@@ -61,10 +61,9 @@ private:
         std::vector<VulkanPipeline::Vertex>& vertices,
         std::vector<uint16_t>& indices,
         const glm::vec2& centerVec,
-        const Point& direction,
-        float width, // pixel
-        glm::vec2 dirUnitVec,
-        glm::vec2 normalUnitVec
+        const glm::vec2& dirUnitVec,
+        const glm::vec2& normalVec,
+        float width
     ) const;
 
     VulkanRendererImpl* m_renderer;
