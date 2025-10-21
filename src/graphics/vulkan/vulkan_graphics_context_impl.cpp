@@ -2,6 +2,7 @@
 
 #include "glm_geometry.h"
 #include "vulkan_renderer_impl.h"
+#include "vulkan_tessellator.h"
 
 #include <karin/common/color/color.h>
 #include <karin/common/geometry/point.h>
@@ -22,7 +23,6 @@ namespace karin
 VulkanGraphicsContextImpl::VulkanGraphicsContextImpl(VulkanRendererImpl* renderer)
     : m_renderer(renderer)
 {
-    m_tessellator = std::make_unique<VulkanTessellator>(m_renderer);
 }
 
 void VulkanGraphicsContextImpl::fillRect(Rectangle rect, Pattern& pattern, const Transform2D& transform)
@@ -138,7 +138,7 @@ void VulkanGraphicsContextImpl::drawLine(
     std::vector<VulkanPipeline::Vertex> vertices;
     std::vector<uint16_t> indices;
 
-    m_tessellator->addLine(start, end, strokeStyle, vertices, indices);
+    VulkanTessellator::addLine(start, end, strokeStyle, vertices, indices);
 
     m_renderer->addCommand(vertices, indices, createPushConstantData(pattern), pattern, true, transform);
 }
@@ -153,7 +153,7 @@ void VulkanGraphicsContextImpl::drawRect(
     StrokeStyle style = strokeStyle;
     style.start_cap_style = style.dash_cap_style;
     style.end_cap_style = style.dash_cap_style;
-    float dashOffset = m_tessellator->addLine(
+    float dashOffset = VulkanTessellator::addLine(
         Point(rect.pos.x, rect.pos.y),
         Point(rect.pos.x + rect.size.width, rect.pos.y),
         style,
@@ -161,7 +161,7 @@ void VulkanGraphicsContextImpl::drawRect(
         indices
     );
     style.dash_offset = dashOffset;
-    dashOffset = m_tessellator->addLine(
+    dashOffset = VulkanTessellator::addLine(
         Point(rect.pos.x + rect.size.width, rect.pos.y),
         Point(rect.pos.x + rect.size.width, rect.pos.y + rect.size.height),
         style,
@@ -169,7 +169,7 @@ void VulkanGraphicsContextImpl::drawRect(
         indices
     );
     style.dash_offset = dashOffset;
-    dashOffset = m_tessellator->addLine(
+    dashOffset = VulkanTessellator::addLine(
         Point(rect.pos.x + rect.size.width, rect.pos.y + rect.size.height),
         Point(rect.pos.x, rect.pos.y + rect.size.height),
         style,
@@ -177,7 +177,7 @@ void VulkanGraphicsContextImpl::drawRect(
         indices
     );
     style.dash_offset = dashOffset;
-    m_tessellator->addLine(
+    VulkanTessellator::addLine(
         Point(rect.pos.x, rect.pos.y + rect.size.height),
         Point(rect.pos.x, rect.pos.y),
         style,
@@ -200,7 +200,7 @@ void VulkanGraphicsContextImpl::drawEllipse(
     style.start_cap_style = style.dash_cap_style;
     style.end_cap_style = style.dash_cap_style;
 
-    m_tessellator->addArc(
+    VulkanTessellator::addArc(
         center,
         radiusX,
         radiusY,
@@ -230,7 +230,7 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
     style.start_cap_style = style.dash_cap_style;
     style.end_cap_style = style.dash_cap_style;
 
-    float offset = m_tessellator->addArc(
+    float offset = VulkanTessellator::addArc(
         Point(rect.pos.x + radiusX, rect.pos.y + radiusY),
         radiusX,
         radiusY,
@@ -242,7 +242,7 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
         indices
     );
     style.dash_offset = offset;
-    offset = m_tessellator->addLine(
+    offset = VulkanTessellator::addLine(
         Point(rect.pos.x + radiusX, rect.pos.y),
         Point(rect.pos.x + rect.size.width - radiusX, rect.pos.y),
         style,
@@ -250,7 +250,7 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
         indices
     );
     style.dash_offset = offset;
-    offset = m_tessellator->addArc(
+    offset = VulkanTessellator::addArc(
         Point(rect.pos.x + rect.size.width - radiusX, rect.pos.y + radiusY),
         radiusX,
         radiusY,
@@ -262,7 +262,7 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
         indices
     );
     style.dash_offset = offset;
-    offset = m_tessellator->addLine(
+    offset = VulkanTessellator::addLine(
         Point(rect.pos.x + rect.size.width, rect.pos.y + radiusY),
         Point(rect.pos.x + rect.size.width, rect.pos.y + rect.size.height - radiusY),
         style,
@@ -270,7 +270,7 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
         indices
     );
     style.dash_offset = offset;
-    offset = m_tessellator->addArc(
+    offset = VulkanTessellator::addArc(
         Point(rect.pos.x + rect.size.width - radiusX, rect.pos.y + rect.size.height - radiusY),
         radiusX,
         radiusY,
@@ -282,7 +282,7 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
         indices
     );
     style.dash_offset = offset;
-    offset = m_tessellator->addLine(
+    offset = VulkanTessellator::addLine(
         Point(rect.pos.x + rect.size.width - radiusX, rect.pos.y + rect.size.height),
         Point(rect.pos.x + radiusX, rect.pos.y + rect.size.height),
         style,
@@ -290,7 +290,7 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
         indices
     );
     style.dash_offset = offset;
-    offset = m_tessellator->addArc(
+    offset = VulkanTessellator::addArc(
         Point(rect.pos.x + radiusX, rect.pos.y + rect.size.height - radiusY),
         radiusX,
         radiusY,
@@ -302,7 +302,7 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
         indices
     );
     style.dash_offset = offset;
-    m_tessellator->addLine(
+    VulkanTessellator::addLine(
         Point(rect.pos.x, rect.pos.y + rect.size.height - radiusY),
         Point(rect.pos.x, rect.pos.y + radiusY),
         style,
@@ -325,7 +325,7 @@ void VulkanGraphicsContextImpl::fillPath(const PathImpl& path, Pattern& pattern,
     for (const auto& command : commands)
     {
         std::visit(
-            [this, &polygonPoints]<typename T0>(const T0& args)
+            [&polygonPoints]<typename T0>(const T0& args)
             {
                 using T = std::decay_t<T0>;
                 if constexpr (std::is_same_v<T, PathImpl::LineArgs>)
@@ -407,12 +407,12 @@ void VulkanGraphicsContextImpl::drawPath(
     for (const auto& command : commands)
     {
         std::visit(
-            [&style, this, &vertices, &indices, &currentPoint]<typename T0>(const T0& args)
+            [&style, &vertices, &indices, &currentPoint]<typename T0>(const T0& args)
             {
                 using T = std::decay_t<T0>;
                 if constexpr (std::is_same_v<T, PathImpl::LineArgs>)
                 {
-                    float offset = m_tessellator->addLine(
+                    float offset = VulkanTessellator::addLine(
                         currentPoint,
                         args.end,
                         style,
@@ -429,7 +429,7 @@ void VulkanGraphicsContextImpl::drawPath(
                                            ? (args.endAngle < args.startAngle)
                                            : (args.endAngle > args.startAngle);
 
-                    float offset = m_tessellator->addArc(
+                    float offset = VulkanTessellator::addArc(
                         args.center,
                         args.radiusX,
                         args.radiusY,

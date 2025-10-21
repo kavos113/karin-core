@@ -41,7 +41,7 @@ float VulkanTessellator::addLine(
     const StrokeStyle& strokeStyle,
     std::vector<VulkanPipeline::Vertex>& vertices,
     std::vector<uint16_t>& indices
-) const
+)
 {
     if (start == end)
     {
@@ -244,7 +244,7 @@ float VulkanTessellator::addArc(
     const StrokeStyle& strokeStyle,
     std::vector<VulkanPipeline::Vertex>& vertices,
     std::vector<uint16_t>& indices
-) const
+)
 {
     StrokeStyle style = strokeStyle;
 
@@ -272,7 +272,7 @@ void VulkanTessellator::addCapStyle(
     const glm::vec2& dirUnitVec,
     const glm::vec2& normalVec,
     const float width
-) const
+)
 {
     switch (capStyle)
     {
