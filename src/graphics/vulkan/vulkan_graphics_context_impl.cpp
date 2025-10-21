@@ -59,13 +59,11 @@ void VulkanGraphicsContextImpl::fillEllipse(
     Point center, float radiusX, float radiusY, Pattern& pattern, const Transform2D& transform
 )
 {
-    Rectangle rect = m_renderer->normalize(
-        Rectangle(
-            center.x - radiusX,
-            center.y - radiusY,
-            radiusX * 2.0f,
-            radiusY * 2.0f
-        )
+    Rectangle rect(
+        center.x - radiusX,
+        center.y - radiusY,
+        radiusX * 2.0f,
+        radiusY * 2.0f
     );
 
     std::vector<VulkanPipeline::Vertex> vertices = {
@@ -101,25 +99,23 @@ void VulkanGraphicsContextImpl::fillRoundedRect(
     Rectangle rect, float radiusX, float radiusY, Pattern& pattern, const Transform2D& transform
 )
 {
-    Rectangle normalizedRect = m_renderer->normalize(rect);
-
     std::vector<VulkanPipeline::Vertex> vertices = {
         {
-            .pos = {normalizedRect.pos.x, normalizedRect.pos.y},
+            .pos = {rect.pos.x, rect.pos.y},
             .uv = {-1.0f, -1.0f},
         },
         {
-            .pos = {normalizedRect.pos.x + normalizedRect.size.width, normalizedRect.pos.y},
+            .pos = {rect.pos.x + rect.size.width, rect.pos.y},
             .uv = {1.0f, -1.0f},
         },
         {
             .pos = {
-                normalizedRect.pos.x + normalizedRect.size.width, normalizedRect.pos.y + normalizedRect.size.height
+                rect.pos.x + rect.size.width, rect.pos.y + rect.size.height
             },
             .uv = {1.0f, 1.0f},
         },
         {
-            .pos = {normalizedRect.pos.x, normalizedRect.pos.y + normalizedRect.size.height},
+            .pos = {rect.pos.x, rect.pos.y + rect.size.height},
             .uv = {-1.0f, 1.0f},
         }
     };
