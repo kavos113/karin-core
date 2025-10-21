@@ -430,14 +430,11 @@ void VulkanRendererImpl::createMatrixBuffer()
         throw std::runtime_error("failed to create projection matrix descriptor set layout");
     }
 
-    m_projMatrixData.proj = glm::orthoLH_ZO(
-        0.0f,
-        static_cast<float>(m_extent.width),
-        static_cast<float>(m_extent.height),
-        0.0f,
-        0.0f,
-        1.0f
-    );
+    m_projMatrixData.proj = glm::mat4(1.0f);
+    m_projMatrixData.proj[0][0] = 2.0f / m_extent.width;
+    m_projMatrixData.proj[1][1] = 2.0f / m_extent.height;
+    m_projMatrixData.proj[3][0] = -1.0f;
+    m_projMatrixData.proj[3][1] = -1.0f;
 
     m_projMatrixDescriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
     m_projMatrixBuffers.resize(MAX_FRAMES_IN_FLIGHT);

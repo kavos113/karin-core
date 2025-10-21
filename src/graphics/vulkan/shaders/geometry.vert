@@ -13,7 +13,7 @@ layout(set = 0, binding = 0) uniform Matrices {
 } matrices;
 
 void main() {
-    gl_Position = matrices.projection * push.model * vec4(pos, 0.0, 1.0);
+    gl_Position = matrices.projection * vec4(pos, 0.0, 1.0);
     uv = inUv;
     pixelPos = pos;
 }
