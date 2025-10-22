@@ -9,7 +9,6 @@
 
 #include <renderer_impl.h>
 #include <karin/common/geometry/rectangle.h>
-#include <karin/common/geometry/transform2d.h>
 #include <karin/graphics/pattern.h>
 #include <karin/system/window.h>
 
@@ -56,9 +55,9 @@ public:
         const std::vector<VulkanPipeline::Vertex>& vertices,
         std::vector<uint16_t>& indices,
         const FragPushConstants& fragData,
+        const VertexPushConstants& vertData,
         const Pattern& pattern,
-        bool isGeometry,
-        const Transform2D& transform
+        bool isGeometry
     );
 
     Image createImage(const std::vector<std::byte>& data, uint32_t width, uint32_t height) override

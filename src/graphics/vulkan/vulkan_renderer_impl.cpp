@@ -235,9 +235,9 @@ void VulkanRendererImpl::addCommand(
     const std::vector<VulkanPipeline::Vertex>& vertices,
     std::vector<uint16_t>& indices,
     const FragPushConstants& fragData,
+    const VertexPushConstants& vertData,
     const Pattern& pattern,
-    bool isGeometry,
-    const Transform2D& transform
+    bool isGeometry
 )
 {
     memcpy(m_vertexMapPoint, vertices.data(), vertices.size() * sizeof(VulkanPipeline::Vertex));
@@ -258,7 +258,7 @@ void VulkanRendererImpl::addCommand(
         .indexCount = static_cast<uint32_t>(indices.size()),
         .indexOffset = static_cast<uint32_t>(m_indexCount - indices.size()),
         .fragData = fragData,
-        .vertData = {glm::make_mat4(transform.data())},
+        .vertData = vertData,
         .pipeline = isGeometry ? m_geometryPipeline.get() : m_textPipeline.get(),
     };
 
@@ -274,7 +274,7 @@ void VulkanRendererImpl::addCommand(
                 drawCommand.descriptorSets.push_back(descriptorSets[m_currentFrame]);
 
                 VkExtent2D extent = m_surface->extent();
-                drawCommand.fragData.patternParams.x = extent.width / static_cast<float>(extent.height);
+                drawCommand.fragData.patternParams.x = static_cast<float>(extent.width) / static_cast<float>(extent.height);
             }
             else if constexpr (std::is_same_v<T, RadialGradientPattern>)
             {

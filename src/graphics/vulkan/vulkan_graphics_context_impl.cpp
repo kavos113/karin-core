@@ -3,6 +3,7 @@
 #include "glm_geometry.h"
 #include "vulkan_renderer_impl.h"
 #include "vulkan_tessellator.h"
+#include "shaders/push_constants.h"
 
 #include <karin/common/color/color.h>
 #include <karin/common/geometry/point.h>
@@ -17,6 +18,68 @@
 #include <variant>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+namespace
+{
+using namespace karin;
+
+FragPushConstants createFragPushConstantData(const Pattern& pattern)
+{
+    return std::visit(
+        []<typename T0>(const T0& p) -> FragPushConstants
+        {
+            using T = std::decay_t<T0>;
+            if constexpr (std::is_same_v<T, SolidColorPattern>)
+            {
+                Color color = p.color();
+                return FragPushConstants{
+                    .color = {color.r, color.g, color.b, color.a},
+                    .patternType = static_cast<uint32_t>(PatternType::SolidColor)
+                };
+            }
+            else if constexpr (std::is_same_v<T, LinearGradientPattern>)
+            {
+                return FragPushConstants{
+                    .color = {p.start.x, p.start.y, p.end.x, p.end.y},
+                    .patternType = static_cast<uint32_t>(PatternType::LinearGradient),
+                };
+            }
+            else if constexpr (std::is_same_v<T, RadialGradientPattern>)
+            {
+                return FragPushConstants{
+                    .color = {p.center.x, p.center.y, p.offset.x, p.offset.y},
+                    .patternType = static_cast<uint32_t>(PatternType::RadialGradient),
+                    .patternParams = {p.radiusX, p.radiusY, 0.0f, 0.0f},
+                };
+            }
+            else if constexpr (std::is_same_v<T, ImagePattern>)
+            {
+                return FragPushConstants{
+                    .color = {p.offset.x, p.offset.y, p.scaleX, p.scaleY},
+                    .patternType = static_cast<uint32_t>(PatternType::Image),
+                    .patternParams = {p.image.width(), p.image.height(), 1.0f, 0.0f}
+                };
+            }
+            else
+            {
+                throw std::runtime_error("Unsupported pattern type");
+            }
+        }, pattern
+    );
+}
+
+VertexPushConstants createVertexPushConstantData(const Transform2D& transform, const Point& position)
+{
+    glm::mat4 translateMatrix = glm::translate(
+        glm::mat4(1.0f),
+        glm::vec3(position.x, position.y, 0.0f)
+    );
+    return VertexPushConstants{
+        .model = translateMatrix * glm::make_mat4(transform.data())
+    };
+}
+}
 
 namespace karin
 {
@@ -29,21 +92,19 @@ void VulkanGraphicsContextImpl::fillRect(Rectangle rect, Pattern& pattern, const
 {
     std::vector<VulkanPipeline::Vertex> vertices = {
         {
-            .pos = {rect.pos.x, rect.pos.y},
+            .pos = {-rect.size.width / 2.0f, -rect.size.height / 2.0f},
             .uv = {-1.0f, -1.0f},
         },
         {
-            .pos = {rect.pos.x + rect.size.width, rect.pos.y},
+            .pos = {rect.size.width / 2.0f, -rect.size.height / 2.0f},
             .uv = {1.0f, -1.0f},
         },
         {
-            .pos = {
-                rect.pos.x + rect.size.width, rect.pos.y + rect.size.height
-            },
+            .pos = {rect.size.width / 2.0f, rect.size.height / 2.0f},
             .uv = {1.0f, 1.0f},
         },
         {
-            .pos = {rect.pos.x, rect.pos.y + rect.size.height},
+            .pos = { -rect.size.width / 2.0f, rect.size.height / 2.0f},
             .uv = {-1.0f, 1.0f},
         }
     };
@@ -52,35 +113,37 @@ void VulkanGraphicsContextImpl::fillRect(Rectangle rect, Pattern& pattern, const
         0, 1, 2, 2, 3, 0
     };
 
-    m_renderer->addCommand(vertices, indices, createPushConstantData(pattern), pattern, true, transform);
+    m_renderer->addCommand(
+        vertices, indices,
+        createFragPushConstantData(pattern),
+        createVertexPushConstantData(transform, Point(
+            rect.pos.x + rect.size.width / 2.0f,
+            rect.pos.y + rect.size.height / 2.0f
+        )),
+        pattern,
+        true
+    );
 }
 
 void VulkanGraphicsContextImpl::fillEllipse(
     Point center, float radiusX, float radiusY, Pattern& pattern, const Transform2D& transform
 )
 {
-    Rectangle rect(
-        center.x - radiusX,
-        center.y - radiusY,
-        radiusX * 2.0f,
-        radiusY * 2.0f
-    );
-
     std::vector<VulkanPipeline::Vertex> vertices = {
         {
-            .pos = {rect.pos.x, rect.pos.y},
+            .pos = {-radiusX, -radiusY},
             .uv = {-1.0f, -1.0f},
         },
         {
-            .pos = {rect.pos.x + rect.size.width, rect.pos.y},
+            .pos = {radiusX, -radiusY},
             .uv = {1.0f, -1.0f},
         },
         {
-            .pos = {rect.pos.x + rect.size.width, rect.pos.y + rect.size.height},
+            .pos = {radiusX, radiusY},
             .uv = {1.0f, 1.0f},
         },
         {
-            .pos = {rect.pos.x, rect.pos.y + rect.size.height},
+            .pos = { -radiusX, radiusY},
             .uv = {-1.0f, 1.0f},
         }
     };
@@ -89,10 +152,16 @@ void VulkanGraphicsContextImpl::fillEllipse(
         0, 1, 2, 2, 3, 0
     };
 
-    auto fragData = createPushConstantData(pattern);
+    auto fragData = createFragPushConstantData(pattern);
     fragData.shapeType = static_cast<uint32_t>(ShapeType::Ellipse);
 
-    m_renderer->addCommand(vertices, indices, fragData, pattern, true, transform);
+    m_renderer->addCommand(
+        vertices, indices,
+        fragData,
+        createVertexPushConstantData(transform, center),
+        pattern,
+        true
+    );
 }
 
 void VulkanGraphicsContextImpl::fillRoundedRect(
@@ -101,21 +170,19 @@ void VulkanGraphicsContextImpl::fillRoundedRect(
 {
     std::vector<VulkanPipeline::Vertex> vertices = {
         {
-            .pos = {rect.pos.x, rect.pos.y},
+            .pos = {-rect.size.width / 2.0f, -rect.size.height / 2.0f},
             .uv = {-1.0f, -1.0f},
         },
         {
-            .pos = {rect.pos.x + rect.size.width, rect.pos.y},
+            .pos = {rect.size.width / 2.0f, -rect.size.height / 2.0f},
             .uv = {1.0f, -1.0f},
         },
         {
-            .pos = {
-                rect.pos.x + rect.size.width, rect.pos.y + rect.size.height
-            },
+            .pos = {rect.size.width / 2.0f, rect.size.height / 2.0f},
             .uv = {1.0f, 1.0f},
         },
         {
-            .pos = {rect.pos.x, rect.pos.y + rect.size.height},
+            .pos = { -rect.size.width / 2.0f, rect.size.height / 2.0f},
             .uv = {-1.0f, 1.0f},
         }
     };
@@ -124,11 +191,20 @@ void VulkanGraphicsContextImpl::fillRoundedRect(
         0, 1, 2, 2, 3, 0
     };
 
-    auto fragData = createPushConstantData(pattern);
+    auto fragData = createFragPushConstantData(pattern);
     fragData.shapeType = static_cast<uint32_t>(ShapeType::RoundedRectangle);
     fragData.shapeParams = glm::vec2(radiusX / rect.size.width * 2.0f, radiusY / rect.size.height * 2.0f);
 
-    m_renderer->addCommand(vertices, indices, fragData, pattern, true, transform);
+    m_renderer->addCommand(
+        vertices, indices,
+        fragData,
+        createVertexPushConstantData(transform, Point(
+            rect.pos.x + rect.size.width / 2.0f,
+            rect.pos.y + rect.size.height / 2.0f
+        )),
+        pattern,
+        true
+    );
 }
 
 void VulkanGraphicsContextImpl::drawLine(
@@ -138,9 +214,22 @@ void VulkanGraphicsContextImpl::drawLine(
     std::vector<VulkanPipeline::Vertex> vertices;
     std::vector<uint16_t> indices;
 
-    VulkanTessellator::addLine(start, end, strokeStyle, vertices, indices);
+    VulkanTessellator::addLine(
+        Point(start.x - (start.x + end.x) / 2, start.y - (start.y + end.y) / 2),
+        Point(end.x - (start.x + end.x) / 2, end.y - (start.y + end.y) / 2),
+        strokeStyle, vertices, indices
+    );
 
-    m_renderer->addCommand(vertices, indices, createPushConstantData(pattern), pattern, true, transform);
+    m_renderer->addCommand(
+        vertices, indices,
+        createFragPushConstantData(pattern),
+        createVertexPushConstantData(transform, Point(
+            (start.x + end.x) / 2.0f,
+            (start.y + end.y) / 2.0f
+        )),
+        pattern,
+        true
+    );
 }
 
 void VulkanGraphicsContextImpl::drawRect(
@@ -154,38 +243,47 @@ void VulkanGraphicsContextImpl::drawRect(
     style.start_cap_style = style.dash_cap_style;
     style.end_cap_style = style.dash_cap_style;
     float dashOffset = VulkanTessellator::addLine(
-        Point(rect.pos.x, rect.pos.y),
-        Point(rect.pos.x + rect.size.width, rect.pos.y),
+        Point(-rect.size.width / 2.0f, -rect.size.height / 2.0f),
+        Point(rect.size.width / 2.0f, -rect.size.height / 2.0f),
         style,
         vertices,
         indices
     );
     style.dash_offset = dashOffset;
     dashOffset = VulkanTessellator::addLine(
-        Point(rect.pos.x + rect.size.width, rect.pos.y),
-        Point(rect.pos.x + rect.size.width, rect.pos.y + rect.size.height),
+        Point(rect.size.width / 2.0f, -rect.size.height / 2.0f),
+        Point(rect.size.width / 2.0f, rect.size.height / 2.0f),
         style,
         vertices,
         indices
     );
     style.dash_offset = dashOffset;
     dashOffset = VulkanTessellator::addLine(
-        Point(rect.pos.x + rect.size.width, rect.pos.y + rect.size.height),
-        Point(rect.pos.x, rect.pos.y + rect.size.height),
+        Point(rect.size.width / 2.0f, rect.size.height / 2.0f),
+        Point(-rect.size.width / 2.0f, rect.size.height / 2.0f),
         style,
         vertices,
         indices
     );
     style.dash_offset = dashOffset;
     VulkanTessellator::addLine(
-        Point(rect.pos.x, rect.pos.y + rect.size.height),
-        Point(rect.pos.x, rect.pos.y),
+        Point(-rect.size.width / 2.0f, rect.size.height / 2.0f),
+        Point(-rect.size.width / 2.0f, -rect.size.height / 2.0f),
         style,
         vertices,
         indices
     );
 
-    m_renderer->addCommand(vertices, indices, createPushConstantData(pattern), pattern, true, transform);
+    m_renderer->addCommand(
+        vertices, indices,
+        createFragPushConstantData(pattern),
+        createVertexPushConstantData(transform, Point(
+            rect.pos.x + rect.size.width / 2.0f,
+            rect.pos.y + rect.size.height / 2.0f
+        )),
+        pattern,
+        true
+    );
 }
 
 void VulkanGraphicsContextImpl::drawEllipse(
@@ -201,7 +299,7 @@ void VulkanGraphicsContextImpl::drawEllipse(
     style.end_cap_style = style.dash_cap_style;
 
     VulkanTessellator::addArc(
-        center,
+        Point(0.0f, 0.0f),
         radiusX,
         radiusY,
         0.0f,
@@ -212,7 +310,13 @@ void VulkanGraphicsContextImpl::drawEllipse(
         indices
     );
 
-    m_renderer->addCommand(vertices, indices, createPushConstantData(pattern), pattern, true, transform);
+    m_renderer->addCommand(
+        vertices, indices,
+        createFragPushConstantData(pattern),
+        createVertexPushConstantData(transform, center),
+        pattern,
+        true
+    );
 }
 
 void VulkanGraphicsContextImpl::drawRoundedRect(
@@ -231,7 +335,7 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
     style.end_cap_style = style.dash_cap_style;
 
     float offset = VulkanTessellator::addArc(
-        Point(rect.pos.x + radiusX, rect.pos.y + radiusY),
+        Point(-rect.size.width / 2.0f + radiusX, -rect.size.height / 2.0f + radiusY),
         radiusX,
         radiusY,
         std::numbers::pi,
@@ -243,15 +347,15 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
     );
     style.dash_offset = offset;
     offset = VulkanTessellator::addLine(
-        Point(rect.pos.x + radiusX, rect.pos.y),
-        Point(rect.pos.x + rect.size.width - radiusX, rect.pos.y),
+        Point(-rect.size.width / 2.0f + radiusX, -rect.size.height / 2.0f),
+        Point(rect.size.width / 2.0f - radiusX, -rect.size.height / 2.0f),
         style,
         vertices,
         indices
     );
     style.dash_offset = offset;
     offset = VulkanTessellator::addArc(
-        Point(rect.pos.x + rect.size.width - radiusX, rect.pos.y + radiusY),
+        Point(rect.size.width / 2.0f - radiusX, -rect.size.height / 2.0f + radiusY),
         radiusX,
         radiusY,
         0.5f * std::numbers::pi,
@@ -263,15 +367,15 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
     );
     style.dash_offset = offset;
     offset = VulkanTessellator::addLine(
-        Point(rect.pos.x + rect.size.width, rect.pos.y + radiusY),
-        Point(rect.pos.x + rect.size.width, rect.pos.y + rect.size.height - radiusY),
+        Point(rect.size.width / 2.0f, -rect.size.height / 2.0f + radiusY),
+        Point(rect.size.width / 2.0f, rect.size.height / 2.0f - radiusY),
         style,
         vertices,
         indices
     );
     style.dash_offset = offset;
     offset = VulkanTessellator::addArc(
-        Point(rect.pos.x + rect.size.width - radiusX, rect.pos.y + rect.size.height - radiusY),
+        Point(rect.size.width / 2.0f - radiusX, rect.size.height / 2.0f - radiusY),
         radiusX,
         radiusY,
         0.0f,
@@ -283,15 +387,15 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
     );
     style.dash_offset = offset;
     offset = VulkanTessellator::addLine(
-        Point(rect.pos.x + rect.size.width - radiusX, rect.pos.y + rect.size.height),
-        Point(rect.pos.x + radiusX, rect.pos.y + rect.size.height),
+        Point(rect.size.width / 2.0f - radiusX, rect.size.height / 2.0f),
+        Point(-rect.size.width / 2.0f + radiusX, rect.size.height / 2.0f),
         style,
         vertices,
         indices
     );
     style.dash_offset = offset;
     offset = VulkanTessellator::addArc(
-        Point(rect.pos.x + radiusX, rect.pos.y + rect.size.height - radiusY),
+        Point(-rect.size.width / 2.0f + radiusX, rect.size.height / 2.0f - radiusY),
         radiusX,
         radiusY,
         1.5f * std::numbers::pi,
@@ -303,14 +407,23 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
     );
     style.dash_offset = offset;
     VulkanTessellator::addLine(
-        Point(rect.pos.x, rect.pos.y + rect.size.height - radiusY),
-        Point(rect.pos.x, rect.pos.y + radiusY),
+        Point(-rect.size.width / 2.0f, rect.size.height / 2.0f - radiusY),
+        Point(-rect.size.width / 2.0f, -rect.size.height / 2.0f + radiusY),
         style,
         vertices,
         indices
     );
 
-    m_renderer->addCommand(vertices, indices, createPushConstantData(pattern), pattern, true, transform);
+    m_renderer->addCommand(
+        vertices, indices,
+        createFragPushConstantData(pattern),
+        createVertexPushConstantData(transform, Point(
+            rect.pos.x + rect.size.width / 2.0f,
+            rect.pos.y + rect.size.height / 2.0f
+        )),
+        pattern,
+        true
+    );
 }
 
 void VulkanGraphicsContextImpl::fillPath(const PathImpl& path, Pattern& pattern, const Transform2D& transform)
@@ -386,7 +499,13 @@ void VulkanGraphicsContextImpl::fillPath(const PathImpl& path, Pattern& pattern,
         indices.push_back(triangles[i + 2]);
     }
 
-    m_renderer->addCommand(vertices, indices, createPushConstantData(pattern), pattern, true, transform);
+    m_renderer->addCommand(
+        vertices, indices,
+        createFragPushConstantData(pattern),
+        createVertexPushConstantData(transform, Point(0.0f, 0.0f)),
+        pattern,
+        true
+    );
 }
 
 void VulkanGraphicsContextImpl::drawPath(
@@ -451,7 +570,13 @@ void VulkanGraphicsContextImpl::drawPath(
         );
     }
 
-    m_renderer->addCommand(vertices, indices, createPushConstantData(pattern), pattern, true, transform);
+    m_renderer->addCommand(
+        vertices, indices,
+        createFragPushConstantData(pattern),
+        createVertexPushConstantData(transform, Point(0.0f, 0.0f)),
+        pattern,
+        true
+    );
 }
 
 void VulkanGraphicsContextImpl::drawImage(
@@ -472,24 +597,22 @@ void VulkanGraphicsContextImpl::drawImage(
 
     std::vector<VulkanPipeline::Vertex> vertices = {
         {
-            .pos = {destRect.pos.x, destRect.pos.y},
+            .pos = {-destRect.size.width / 2.0f, -destRect.size.height / 2.0f},
             .uv = {normalizedSrcRect.pos.x, normalizedSrcRect.pos.y},
         },
         {
-            .pos = {destRect.pos.x + destRect.size.width, destRect.pos.y},
+            .pos = {destRect.size.width / 2.0f, -destRect.size.height / 2.0f},
             .uv = {normalizedSrcRect.pos.x + normalizedSrcRect.size.width, normalizedSrcRect.pos.y},
         },
         {
-            .pos = {
-                destRect.pos.x + destRect.size.width, destRect.pos.y + destRect.size.height
-            },
+            .pos = {destRect.size.width / 2.0f, destRect.size.height / 2.0f},
             .uv = {
                 normalizedSrcRect.pos.x + normalizedSrcRect.size.width,
                 normalizedSrcRect.pos.y + normalizedSrcRect.size.height
             },
         },
         {
-            .pos = {destRect.pos.x, destRect.pos.y + destRect.size.height},
+            .pos = { -destRect.size.width / 2.0f, destRect.size.height / 2.0f},
             .uv = {normalizedSrcRect.pos.x, normalizedSrcRect.pos.y + normalizedSrcRect.size.height},
         }
     };
@@ -499,15 +622,24 @@ void VulkanGraphicsContextImpl::drawImage(
     };
 
     ImagePattern imagePattern{
-        .image = std::move(image),
+        .image = image,
         .offset = Point(0.0f, 0.0f),
         .scaleX = normalizedSrcRect.size.width,
         .scaleY = normalizedSrcRect.size.height
     };
-    FragPushConstants pushConstants = createPushConstantData(imagePattern);
+    FragPushConstants pushConstants = createFragPushConstantData(imagePattern);
     pushConstants.patternParams.z = 0.0f;
 
-    m_renderer->addCommand(vertices, indices, pushConstants, imagePattern, true, transform);
+    m_renderer->addCommand(
+        vertices, indices,
+        pushConstants,
+        createVertexPushConstantData(transform, Point(
+            destRect.pos.x + destRect.size.width / 2.0f,
+            destRect.pos.y + destRect.size.height / 2.0f
+        )),
+        imagePattern,
+        true
+    );
 }
 
 void VulkanGraphicsContextImpl::drawText(const TextLayout& text, Point start, Pattern& pattern, const Transform2D& transform)
@@ -520,8 +652,8 @@ void VulkanGraphicsContextImpl::drawText(const TextLayout& text, Point start, Pa
     for (const auto& glyphInfo : glyphInfos)
     {
         Rectangle pos = Rectangle(
-            start.x + glyphInfo.position.pos.x,
-            start.y + glyphInfo.position.pos.y,
+            -text.size.width / 2.0f + glyphInfo.position.pos.x,
+            -text.size.height / 2.0f + glyphInfo.position.pos.y,
             glyphInfo.position.size.width,
             glyphInfo.position.size.height
         );
@@ -564,51 +696,15 @@ void VulkanGraphicsContextImpl::drawText(const TextLayout& text, Point start, Pa
         indices.push_back(static_cast<uint16_t>(baseIndex));
     }
 
-    m_renderer->addCommand(vertices, indices, createPushConstantData(pattern), pattern, false, transform);
-}
-
-FragPushConstants VulkanGraphicsContextImpl::createPushConstantData(const Pattern& pattern) const
-{
-    return std::visit(
-        []<typename T0>(const T0& p) -> FragPushConstants
-        {
-            using T = std::decay_t<T0>;
-            if constexpr (std::is_same_v<T, SolidColorPattern>)
-            {
-                Color color = p.color();
-                return FragPushConstants{
-                    .color = {color.r, color.g, color.b, color.a},
-                    .patternType = static_cast<uint32_t>(PatternType::SolidColor)
-                };
-            }
-            else if constexpr (std::is_same_v<T, LinearGradientPattern>)
-            {
-                return FragPushConstants{
-                    .color = {p.start.x, p.start.y, p.end.x, p.end.y},
-                    .patternType = static_cast<uint32_t>(PatternType::LinearGradient),
-                };
-            }
-            else if constexpr (std::is_same_v<T, RadialGradientPattern>)
-            {
-                return FragPushConstants{
-                    .color = {p.center.x, p.center.y, p.offset.x, p.offset.y},
-                    .patternType = static_cast<uint32_t>(PatternType::RadialGradient),
-                    .patternParams = {p.radiusX, p.radiusY, 0.0f, 0.0f},
-                };
-            }
-            else if constexpr (std::is_same_v<T, ImagePattern>)
-            {
-                return FragPushConstants{
-                    .color = {p.offset.x, p.offset.y, p.scaleX, p.scaleY},
-                    .patternType = static_cast<uint32_t>(PatternType::Image),
-                    .patternParams = {p.image.width(), p.image.height(), 1.0f, 0.0f}
-                };
-            }
-            else
-            {
-                throw std::runtime_error("Unsupported pattern type");
-            }
-        }, pattern
+    m_renderer->addCommand(
+        vertices, indices,
+        createFragPushConstantData(pattern),
+        createVertexPushConstantData(transform, Point(
+            start.x + text.size.width / 2.0f,
+            start.y + text.size.height / 2.0f
+        )),
+        pattern,
+        false
     );
 }
 } // karin
