@@ -41,7 +41,7 @@ float VulkanTessellator::addLine(
     const StrokeStyle& strokeStyle,
     std::vector<VulkanPipeline::Vertex>& vertices,
     std::vector<uint16_t>& indices
-) const
+)
 {
     if (start == end)
     {
@@ -50,14 +50,13 @@ float VulkanTessellator::addLine(
 
     float dashOffset = 0.0f;
 
-    auto startVec = toGlmVec2(m_renderer->normalize(start));
-    auto endVec = toGlmVec2(m_renderer->normalize(end));
+    auto startVec = toGlmVec2(start);
+    auto endVec = toGlmVec2(end);
 
-    auto direction = end - start;
-    auto normalVec = glm::normalize(glm::vec2(-direction.y, direction.x)) * strokeStyle.width / 2.0f;
-
-    auto normalUnitVec = m_renderer->normalizeVec(normalVec);
-    auto dirUnitVec = m_renderer->normalizeVec(glm::normalize(toGlmVec2(direction)) * strokeStyle.width);
+    // 1 unit = 1 width
+    auto dirUnitVec = glm::normalize(toGlmVec2(end - start)) * strokeStyle.width;
+    // 1 unit = 1/2 width
+    auto normalVec = glm::vec2(-dirUnitVec.y, dirUnitVec.x) / 2.0f;
 
     std::vector<std::pair<glm::vec2, glm::vec2>> lines;
     auto current = startVec - dirUnitVec * strokeStyle.dash_offset;
@@ -152,19 +151,19 @@ float VulkanTessellator::addLine(
             vertices.end(),
             {
                 {
-                    .pos = lines[i].first + normalUnitVec,
+                    .pos = lines[i].first + normalVec,
                     .uv = {-1.0f, -1.0f},
                 },
                 {
-                    .pos = lines[i].first - normalUnitVec,
+                    .pos = lines[i].first - normalVec,
                     .uv = {1.0f, -1.0f},
                 },
                 {
-                    .pos = lines[i].second - normalUnitVec,
+                    .pos = lines[i].second - normalVec,
                     .uv = {1.0f, 1.0f},
                 },
                 {
-                    .pos = lines[i].second + normalUnitVec,
+                    .pos = lines[i].second + normalVec,
                     .uv = {-1.0f, 1.0f},
                 }
             }
@@ -195,10 +194,9 @@ float VulkanTessellator::addLine(
         vertices,
         indices,
         lines[startIndex].first,
-        -direction,
-        strokeStyle.width,
         dirUnitVec,
-        normalUnitVec
+        normalVec,
+        strokeStyle.width
     );
 
     addCapStyle(
@@ -206,10 +204,9 @@ float VulkanTessellator::addLine(
         vertices,
         indices,
         lines[endIndex].second,
-        direction,
-        strokeStyle.width,
         -dirUnitVec,
-        normalUnitVec
+        normalVec,
+        strokeStyle.width
     );
 
     for (int i = startIndex + 2; i <= endIndex; i += 2)
@@ -219,20 +216,18 @@ float VulkanTessellator::addLine(
             vertices,
             indices,
             lines[i - 2].second,
-            direction,
-            strokeStyle.width,
             -dirUnitVec,
-            normalUnitVec
+            normalVec,
+            strokeStyle.width
         );
         addCapStyle(
             strokeStyle.dash_cap_style,
             vertices,
             indices,
             lines[i].first,
-            -direction,
-            strokeStyle.width,
             dirUnitVec,
-            normalUnitVec
+            normalVec,
+            strokeStyle.width
         );
     }
 
@@ -249,7 +244,7 @@ float VulkanTessellator::addArc(
     const StrokeStyle& strokeStyle,
     std::vector<VulkanPipeline::Vertex>& vertices,
     std::vector<uint16_t>& indices
-) const
+)
 {
     StrokeStyle style = strokeStyle;
 
@@ -270,15 +265,14 @@ float VulkanTessellator::addArc(
 }
 
 void VulkanTessellator::addCapStyle(
-    StrokeStyle::CapStyle capStyle,
+    const StrokeStyle::CapStyle capStyle,
     std::vector<VulkanPipeline::Vertex>& vertices,
     std::vector<uint16_t>& indices,
     const glm::vec2& centerVec,
-    const Point& direction,
-    float width,
-    glm::vec2 dirUnitVec,
-    glm::vec2 normalUnitVec
-) const
+    const glm::vec2& dirUnitVec,
+    const glm::vec2& normalVec,
+    const float width
+)
 {
     switch (capStyle)
     {
@@ -287,22 +281,20 @@ void VulkanTessellator::addCapStyle(
 
     case StrokeStyle::CapStyle::Round:
     {
-        float baseAngle = std::atan2(direction.y, direction.x);
+        float baseAngle = std::atan2(-dirUnitVec.y, -dirUnitVec.x);
         float startAngle = baseAngle - std::numbers::pi / 2.0f;
         float endAngle = baseAngle + std::numbers::pi / 2.0f;
         float angleStep = (endAngle - startAngle) / CAP_ROUND_SEGMENTS;
         float radius = width / 2.0f;
-        auto pixStart = m_renderer->unNormalize(centerVec);
 
         for (int i = 0; i <= CAP_ROUND_SEGMENTS; ++i)
         {
             float angle = startAngle + i * angleStep;
-
-            auto pos = pixStart + glm::vec2(std::cos(angle), std::sin(angle)) * radius;
+            auto pos = centerVec + glm::vec2(std::cos(angle), std::sin(angle)) * radius;
 
             vertices.push_back(
                 {
-                    .pos = m_renderer->normalize(pos),
+                    .pos = pos,
                     .uv = {-1.0f, -1.0f},
                 }
             );
@@ -335,19 +327,19 @@ void VulkanTessellator::addCapStyle(
             vertices.end(),
             {
                 {
-                    .pos = centerVec - dirUnitVec + normalUnitVec,
+                    .pos = centerVec - dirUnitVec + normalVec,
                     .uv = {-1.0f, -1.0f},
                 },
                 {
-                    .pos = centerVec - dirUnitVec - normalUnitVec,
+                    .pos = centerVec - dirUnitVec - normalVec,
                     .uv = {1.0f, -1.0f},
                 },
                 {
-                    .pos = centerVec + normalUnitVec,
+                    .pos = centerVec + normalVec,
                     .uv = {1.0f, 1.0f},
                 },
                 {
-                    .pos = centerVec - normalUnitVec,
+                    .pos = centerVec - normalVec,
                     .uv = {-1.0f, 1.0f},
                 }
             }
@@ -373,11 +365,11 @@ void VulkanTessellator::addCapStyle(
             vertices.end(),
             {
                 {
-                    .pos = centerVec + normalUnitVec,
+                    .pos = centerVec + normalVec,
                     .uv = {-1.0f, -1.0f},
                 },
                 {
-                    .pos = centerVec - normalUnitVec,
+                    .pos = centerVec - normalVec,
                     .uv = {1.0f, -1.0f},
                 },
                 {

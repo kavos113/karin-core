@@ -14,7 +14,7 @@ enum class ShapeType : uint32_t
     RoundedRectangle = 2,
 };
 
-struct PushConstants
+struct FragPushConstants
 {
     // color(vec4) in solid color
     // start(vec2) + end(vec2) in linear gradient
@@ -27,15 +27,20 @@ struct PushConstants
     uint32_t shapeType = static_cast<uint32_t>(ShapeType::Nothing);
     uint32_t patternType = static_cast<uint32_t>(PatternType::SolidColor);
 
-    // aspect(float) in linear gradient (width / height)
     // radiusX(float) + radiusY(float) in radial gradient
-    // uvMode(float) in image (0 = uv(image), 1 = window coordinates(image pattern))
-    glm::vec2 global;
-    glm::vec2 padding{0.0f, 0.0f};
+    // imageSize(vec2), uvMode(float) in image (0 = uv(image), 1 = window coordinates(image pattern))
+    glm::vec4 patternParams;
+};
+
+struct VertexPushConstants
+{
+    glm::mat4 model;
 };
 }
 
 #else // glsl
+
+#ifdef FRAGMENT_SHADER
 
 layout (push_constant) uniform PushConstants
 {
@@ -43,9 +48,17 @@ layout (push_constant) uniform PushConstants
     vec2 shapeParams;
     uint shapeType;
     uint patternType;
-    vec2 global;
-    vec2 padding;
+    vec4 patternParams;
 } push;
+
+#elif defined(VERTEX_SHADER)
+
+layout (push_constant) uniform TransformMatrix
+{
+    layout(offset = 48) mat4 model;
+} push;
+
+#endif
 
 #endif
 

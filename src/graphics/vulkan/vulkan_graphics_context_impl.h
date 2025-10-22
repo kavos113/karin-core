@@ -2,8 +2,6 @@
 #define SRC_GRAPHICS_GRAPHICS_VULKAN_VK_GRAPHICS_CONTEXT_IMPL_H
 
 #include "vulkan_renderer_impl.h"
-#include "vulkan_tessellator.h"
-#include "shaders/push_constants.h"
 
 #include <graphics_context_impl.h>
 #include <path_impl.h>
@@ -12,8 +10,6 @@
 #include <karin/common/geometry/rectangle.h>
 #include <karin/graphics/pattern.h>
 #include <karin/graphics/stroke_style.h>
-
-#include <memory>
 
 namespace karin
 {
@@ -56,11 +52,7 @@ public:
     void drawText(const TextLayout& text, Point start, Pattern& pattern, const Transform2D& transform) override;
 
 private:
-    PushConstants createPushConstantData(const Pattern& pattern) const;
-
     VulkanRendererImpl* m_renderer;
-
-    std::unique_ptr<VulkanTessellator> m_tessellator;
 
     static constexpr int CAP_ROUND_SEGMENTS = 8;
     static constexpr int ELLIPSE_SEGMENTS = 32;

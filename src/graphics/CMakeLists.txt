@@ -72,6 +72,8 @@ elseif (VULKAN)
             DEPENDS
             vulkan/shaders/geometry.vert
             vulkan/shaders/geometry.frag
+            vulkan/shaders/text.frag
+            vulkan/shaders/push_constants.h
             COMMENT "Compiling graphics shaders"
     )
     add_custom_target(

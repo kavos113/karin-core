@@ -8,7 +8,6 @@
 #include "shaders/push_constants.h"
 
 #include <renderer_impl.h>
-#include <karin/common/geometry/point.h>
 #include <karin/common/geometry/rectangle.h>
 #include <karin/graphics/pattern.h>
 #include <karin/system/window.h>
@@ -19,6 +18,14 @@
 
 namespace karin
 {
+/*
+ * Push Constant Layout:
+ * | FragPushConstants | VertexPushConstants |
+ * more details, see shaders/push_constants.h
+ *
+ * Descriptor Set Layout:
+ * | Projection Matrix | Geometry Resources(gradient LUT / Image) | (Glyph Atlas: text only) |
+ */
 class VulkanRendererImpl : public IRendererImpl
 {
 public:
@@ -47,81 +54,15 @@ public:
     void addCommand(
         const std::vector<VulkanPipeline::Vertex>& vertices,
         std::vector<uint16_t>& indices,
-        const PushConstants& fragData,
-        const Pattern& pattern, bool isGeometry
+        const FragPushConstants& fragData,
+        const VertexPushConstants& vertData,
+        const Pattern& pattern,
+        bool isGeometry
     );
 
     Image createImage(const std::vector<std::byte>& data, uint32_t width, uint32_t height) override
     {
         return m_deviceResources->createImage(data, width, height);
-    }
-
-    // pixel coordinates -> normalized coordinates [-1, 1]
-    Rectangle normalize(Rectangle rect) const
-    {
-        VkExtent2D extent = m_surface->extent();
-
-        return {
-            {
-                (rect.pos.x / static_cast<float>(extent.width)) * 2.0f - 1.0f,
-                (rect.pos.y / static_cast<float>(extent.height)) * 2.0f - 1.0f
-            },
-            {
-                (rect.size.width / static_cast<float>(extent.width)) * 2.0f,
-                (rect.size.height / static_cast<float>(extent.height)) * 2.0f
-            }
-        };
-    }
-
-    Point normalize(Point point) const
-    {
-        VkExtent2D extent = m_surface->extent();
-
-        return {
-            (point.x / static_cast<float>(extent.width)) * 2.0f - 1.0f,
-            (point.y / static_cast<float>(extent.height)) * 2.0f - 1.0f
-        };
-    }
-
-    glm::vec2 normalize(glm::vec2 v) const
-    {
-        VkExtent2D extent = m_surface->extent();
-
-        return {
-            (v.x / static_cast<float>(extent.width)) * 2.0f - 1.0f,
-            (v.y / static_cast<float>(extent.height)) * 2.0f - 1.0f
-        };
-    }
-
-    glm::vec2 unNormalize(glm::vec2 v) const
-    {
-        VkExtent2D extent = m_surface->extent();
-
-        return {
-            (v.x + 1.0f) / 2.0f * static_cast<float>(extent.width),
-            (v.y + 1.0f) / 2.0f * static_cast<float>(extent.height)
-        };
-    }
-
-    // only change scale
-    glm::vec2 normalizeVec(glm::vec2 vec) const
-    {
-        VkExtent2D extent = m_surface->extent();
-
-        return {
-            (vec.x / static_cast<float>(extent.width)) * 2.0f,
-            (vec.y / static_cast<float>(extent.height)) * 2.0f
-        };
-    }
-
-    Point normalizeVec(Point vec) const
-    {
-        VkExtent2D extent = m_surface->extent();
-
-        return {
-            (vec.x / static_cast<float>(extent.width)) * 2.0f,
-            (vec.y / static_cast<float>(extent.height)) * 2.0f
-        };
     }
 
     VulkanDeviceResources* deviceResources() const
@@ -134,15 +75,22 @@ private:
     {
         uint32_t indexCount{};
         uint32_t indexOffset{};
-        PushConstants fragData;
+        FragPushConstants fragData;
+        VertexPushConstants vertData;
         VulkanPipeline* pipeline = nullptr;
         std::vector<VkDescriptorSet> descriptorSets;
+    };
+
+    struct MatrixBufferObject
+    {
+        glm::mat4 proj;
     };
 
     void createCommandBuffers();
     void createSyncObjects();
     void createVertexBuffer();
     void createIndexBuffer();
+    void createMatrixBuffer();
     void createRenderPass();
     void createFrameBuffers();
     void createPipeline();
@@ -180,6 +128,13 @@ private:
     uint16_t* m_indexStartPoint = nullptr;
     uint16_t m_vertexOffset = 0;
     size_t m_indexCount = 0;
+
+    MatrixBufferObject m_projMatrixData = {};
+    VkDescriptorSetLayout m_projMatrixDescriptorSetLayout = VK_NULL_HANDLE;
+    std::vector<VkDescriptorSet> m_projMatrixDescriptorSets;
+    std::vector<VkBuffer> m_projMatrixBuffers;
+    std::vector<VmaAllocation> m_projMatrixBufferAllocations;
+    std::vector<VmaAllocationInfo> m_projMatrixBufferMemoryInfos;
 
     static constexpr VkDeviceSize vertexBufferSize = 1024 * 128; // 2MB
     static constexpr VkDeviceSize indexBufferSize = 1024 * 512; // 2MB

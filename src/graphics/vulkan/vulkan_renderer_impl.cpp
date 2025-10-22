@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <iostream>
 #include <cstring>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace karin
 {
@@ -27,6 +28,7 @@ VulkanRendererImpl::VulkanRendererImpl(
 
     createVertexBuffer();
     createIndexBuffer();
+    createMatrixBuffer();
 
     createPipeline();
 }
@@ -67,6 +69,12 @@ void VulkanRendererImpl::cleanUp()
 
     vmaDestroyBuffer(m_device->allocator(), m_vertexBuffer, m_vertexAllocation);
     vmaDestroyBuffer(m_device->allocator(), m_indexBuffer, m_indexAllocation);
+    for (size_t i = 0; i < m_projMatrixBuffers.size(); ++i)
+    {
+        vmaDestroyBuffer(m_device->allocator(), m_projMatrixBuffers[i], m_projMatrixBufferAllocations[i]);
+    }
+
+    vkDestroyDescriptorSetLayout(m_device->device(), m_projMatrixDescriptorSetLayout, nullptr);
 
     m_deviceResources->cleanup();
 
@@ -173,7 +181,13 @@ void VulkanRendererImpl::endDraw()
             m_commandBuffers[m_currentFrame],
             command.pipeline->pipelineLayout(),
             VK_SHADER_STAGE_FRAGMENT_BIT,
-            0, sizeof(PushConstants), &command.fragData
+            0, sizeof(FragPushConstants), &command.fragData
+        );
+        vkCmdPushConstants(
+            m_commandBuffers[m_currentFrame],
+            command.pipeline->pipelineLayout(),
+            VK_SHADER_STAGE_VERTEX_BIT,
+            sizeof(FragPushConstants), sizeof(VertexPushConstants), &command.vertData
         );
 
         vkCmdDrawIndexed(m_commandBuffers[m_currentFrame], command.indexCount, 1, command.indexOffset, 0, 0);
@@ -220,7 +234,8 @@ void VulkanRendererImpl::resize(Size size)
 void VulkanRendererImpl::addCommand(
     const std::vector<VulkanPipeline::Vertex>& vertices,
     std::vector<uint16_t>& indices,
-    const PushConstants& fragData,
+    const FragPushConstants& fragData,
+    const VertexPushConstants& vertData,
     const Pattern& pattern,
     bool isGeometry
 )
@@ -243,8 +258,11 @@ void VulkanRendererImpl::addCommand(
         .indexCount = static_cast<uint32_t>(indices.size()),
         .indexOffset = static_cast<uint32_t>(m_indexCount - indices.size()),
         .fragData = fragData,
+        .vertData = vertData,
         .pipeline = isGeometry ? m_geometryPipeline.get() : m_textPipeline.get(),
     };
+
+    drawCommand.descriptorSets.push_back(m_projMatrixDescriptorSets[m_currentFrame]);
 
     std::visit(
         [this, &drawCommand]<typename T0>(const T0& p)
@@ -256,7 +274,7 @@ void VulkanRendererImpl::addCommand(
                 drawCommand.descriptorSets.push_back(descriptorSets[m_currentFrame]);
 
                 VkExtent2D extent = m_surface->extent();
-                drawCommand.fragData.global.x = extent.width / static_cast<float>(extent.height);
+                drawCommand.fragData.patternParams.x = static_cast<float>(extent.width) / static_cast<float>(extent.height);
             }
             else if constexpr (std::is_same_v<T, RadialGradientPattern>)
             {
@@ -390,6 +408,99 @@ void VulkanRendererImpl::createIndexBuffer()
     m_indexStartPoint = m_indexMapPoint;
 }
 
+void VulkanRendererImpl::createMatrixBuffer()
+{
+    VkDescriptorSetLayoutBinding projMatrixLayoutBinding = {
+        .binding = 0,
+        .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+        .descriptorCount = 1,
+        .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
+        .pImmutableSamplers = nullptr,
+    };
+    VkDescriptorSetLayoutCreateInfo layoutInfo = {
+        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+        .bindingCount = 1,
+        .pBindings = &projMatrixLayoutBinding,
+    };
+    if (vkCreateDescriptorSetLayout(
+        m_device->device(), &layoutInfo, nullptr, &m_projMatrixDescriptorSetLayout
+    ) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create projection matrix descriptor set layout");
+    }
+
+    m_projMatrixData.proj = glm::mat4(1.0f);
+    m_projMatrixData.proj[0][0] = 2.0f / m_extent.width;
+    m_projMatrixData.proj[1][1] = 2.0f / m_extent.height;
+    m_projMatrixData.proj[3][0] = -1.0f;
+    m_projMatrixData.proj[3][1] = -1.0f;
+
+    m_projMatrixDescriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
+    m_projMatrixBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+    m_projMatrixBufferAllocations.resize(MAX_FRAMES_IN_FLIGHT);
+    m_projMatrixBufferMemoryInfos.resize(MAX_FRAMES_IN_FLIGHT);
+
+    std::vector layouts(MAX_FRAMES_IN_FLIGHT, m_projMatrixDescriptorSetLayout);
+    VkDescriptorSetAllocateInfo allocInfoDesc = {
+        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+        .descriptorPool = m_device->descriptorPool(),
+        .descriptorSetCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT),
+        .pSetLayouts = layouts.data(),
+    };
+    if (vkAllocateDescriptorSets(
+        m_device->device(), &allocInfoDesc, m_projMatrixDescriptorSets.data()
+    ) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to allocate projection matrix descriptor sets");
+    }
+
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+    {
+        VkDeviceSize bufferSize = sizeof(MatrixBufferObject);
+        VmaAllocationCreateInfo allocInfo = {
+            .flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT,
+            .usage = VMA_MEMORY_USAGE_AUTO,
+        };
+
+        VkBufferCreateInfo bufferInfo = {
+            .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+            .size = bufferSize,
+            .usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+            .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+        };
+
+        if (vmaCreateBuffer(
+            m_device->allocator(), &bufferInfo, &allocInfo,
+            &m_projMatrixBuffers[i], &m_projMatrixBufferAllocations[i], &m_projMatrixBufferMemoryInfos[i]
+        ) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to create projection matrix buffer");
+        }
+
+        memcpy(
+            m_projMatrixBufferMemoryInfos[i].pMappedData,
+            &m_projMatrixData,
+            sizeof(MatrixBufferObject)
+        );
+
+        VkDescriptorBufferInfo bufferInfoDesc = {
+            .buffer = m_projMatrixBuffers[i],
+            .offset = 0,
+            .range = sizeof(MatrixBufferObject),
+        };
+        VkWriteDescriptorSet descriptorWrite = {
+            .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+            .dstSet = m_projMatrixDescriptorSets[i],
+            .dstBinding = 0,
+            .dstArrayElement = 0,
+            .descriptorCount = 1,
+            .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+            .pBufferInfo = &bufferInfoDesc,
+        };
+        vkUpdateDescriptorSets(m_device->device(), 1, &descriptorWrite, 0, nullptr);
+    }
+}
+
 void VulkanRendererImpl::createRenderPass()
 {
     VkAttachmentDescription colorAttachment = {
@@ -471,12 +582,20 @@ void VulkanRendererImpl::createFrameBuffers()
 
 void VulkanRendererImpl::createPipeline()
 {
-    std::vector descriptorSetLayouts = {m_deviceResources->geometryDescriptorSetLayout()};
+    std::vector descriptorSetLayouts = {
+        m_projMatrixDescriptorSetLayout,
+        m_deviceResources->geometryDescriptorSetLayout(),
+    };
     std::vector pushConstantRanges = {
         VkPushConstantRange{
             .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
             .offset = 0,
-            .size = sizeof(PushConstants)
+            .size = sizeof(FragPushConstants)
+        },
+        VkPushConstantRange{
+            .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
+            .offset = sizeof(FragPushConstants),
+            .size = sizeof(VertexPushConstants)
         }
     };
     m_geometryPipeline = std::make_unique<VulkanPipeline>(
@@ -487,8 +606,9 @@ void VulkanRendererImpl::createPipeline()
     );
 
     std::vector textDescriptorSetLayouts = {
+        m_projMatrixDescriptorSetLayout,
         m_deviceResources->geometryDescriptorSetLayout(),
-        m_deviceResources->atlasDescriptorSetLayout()
+        m_deviceResources->atlasDescriptorSetLayout(),
     };
     m_textPipeline = std::make_unique<VulkanPipeline>(
         m_device->device(), m_renderPass,
