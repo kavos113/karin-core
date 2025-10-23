@@ -31,7 +31,12 @@ public:
     Transform2D& setScale(float sx, float sy);
     Point getScale() const;
 
-    const float* data() const;
+    // column-major order. for OpenGL, Vulkan
+    // translate * rotate * scale
+    const float* colMajorData() const;
+    // row-major order. for DirectX
+    // scale * rotate * translate
+    const float* rowMajorData() const;
 
 private:
     std::unique_ptr<Transform2DImpl> m_impl;
