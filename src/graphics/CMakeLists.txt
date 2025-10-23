@@ -6,7 +6,6 @@ set(GRAPHICS_SOURCE
         path_impl.cpp
         hash.cpp
         ${THIRD_PARTY_DIR}/stb_image/stb_image_impl.cpp
-        ${COMMON_DIR}/geometry/transform2d.cpp
 )
 
 if (DIRECTX)
