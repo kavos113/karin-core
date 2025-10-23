@@ -76,7 +76,7 @@ VertexPushConstants createVertexPushConstantData(const Transform2D& transform, c
         glm::vec3(position.x, position.y, 0.0f)
     );
     return VertexPushConstants{
-        .model = translateMatrix * glm::make_mat4(transform.data())
+        .model = translateMatrix * transform.toMatrix()
     };
 }
 }
