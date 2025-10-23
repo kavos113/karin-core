@@ -16,19 +16,35 @@ public:
     float rotation = 0.0f; // in radians
     Point scale = Point(1.0f, 1.0f);
 
+    // unintended to be called with (isColMajor == false) and (isColMajor == true) from same process.
+    // results of below code:
+    //     auto m1 = matrix(true);
+    //     auto m2 = matrix(false);
+    // m1 and m2 will be same(m2 overrides m1)
     const glm::mat4& matrix(bool isColMajor)
     {
         if (isColMajor)
         {
-            m_matrix = glm::translate(glm::mat4(1.0f), glm::vec3(translation.x, translation.y, 0.0f))
-                * glm::rotate(glm::mat4(1.0f), rotation, glm::vec3(0.0f, 0.0f, 1.0f))
-                * glm::scale(glm::mat4(1.0f), glm::vec3(scale.x, scale.y, 1.0f));
+            m_matrix = glm::translate(
+                glm::rotate(
+                    glm::scale(glm::mat4(1.0f), glm::vec3(scale.x, scale.y, 1.0f)),
+                    rotation,
+                    glm::vec3(0.0f, 0.0f, 1.0f)
+                ),
+                glm::vec3(translation.x, translation.y, 0.0f)
+            );
             return m_matrix;
         }
 
-        m_matrix = glm::scale(glm::mat4(1.0f), glm::vec3(scale.x, scale.y, 1.0f))
-            * glm::rotate(glm::mat4(1.0f), rotation, glm::vec3(0.0f, 0.0f, 1.0f))
-            * glm::translate(glm::mat4(1.0f), glm::vec3(translation.x, translation.y, 0.0f));
+
+        m_matrix = glm::scale(
+            glm::rotate(
+                glm::translate(glm::mat4(1.0f), glm::vec3(translation.x, translation.y, 0.0f)),
+                rotation,
+                glm::vec3(0.0f, 0.0f, 1.0f)
+            ),
+            glm::vec3(scale.x, scale.y, 1.0f)
+        );
         return m_matrix;
     }
 
