@@ -25,25 +25,24 @@ public:
     {
         if (isColMajor)
         {
-            m_matrix = glm::translate(
+            m_matrix = glm::scale(
                 glm::rotate(
-                    glm::scale(glm::mat4(1.0f), glm::vec3(scale.x, scale.y, 1.0f)),
+                    glm::translate(glm::mat4(1.0f), glm::vec3(translation.x, translation.y, 0.0f)),
                     rotation,
                     glm::vec3(0.0f, 0.0f, 1.0f)
                 ),
-                glm::vec3(translation.x, translation.y, 0.0f)
+                glm::vec3(scale.x, scale.y, 1.0f)
             );
             return m_matrix;
         }
 
-
-        m_matrix = glm::scale(
+        m_matrix = glm::translate(
             glm::rotate(
-                glm::translate(glm::mat4(1.0f), glm::vec3(translation.x, translation.y, 0.0f)),
+                glm::scale(glm::mat4(1.0f), glm::vec3(scale.x, scale.y, 1.0f)),
                 rotation,
                 glm::vec3(0.0f, 0.0f, 1.0f)
             ),
-            glm::vec3(scale.x, scale.y, 1.0f)
+            glm::vec3(translation.x, translation.y, 0.0f)
         );
         return m_matrix;
     }

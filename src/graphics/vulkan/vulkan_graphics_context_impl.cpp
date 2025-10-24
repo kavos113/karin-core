@@ -121,7 +121,7 @@ void VulkanGraphicsContextImpl::fillRect(Rectangle rect, Pattern& pattern, const
             rect.pos.y + rect.size.height / 2.0f
         )),
         pattern,
-        true
+        VulkanRendererImpl::PipelineType::Geometry
     );
 }
 
@@ -160,7 +160,7 @@ void VulkanGraphicsContextImpl::fillEllipse(
         fragData,
         createVertexPushConstantData(transform, center),
         pattern,
-        true
+        VulkanRendererImpl::PipelineType::Geometry
     );
 }
 
@@ -203,7 +203,7 @@ void VulkanGraphicsContextImpl::fillRoundedRect(
             rect.pos.y + rect.size.height / 2.0f
         )),
         pattern,
-        true
+        VulkanRendererImpl::PipelineType::Geometry
     );
 }
 
@@ -228,7 +228,7 @@ void VulkanGraphicsContextImpl::drawLine(
             (start.y + end.y) / 2.0f
         )),
         pattern,
-        true
+        VulkanRendererImpl::PipelineType::Geometry
     );
 }
 
@@ -282,7 +282,7 @@ void VulkanGraphicsContextImpl::drawRect(
             rect.pos.y + rect.size.height / 2.0f
         )),
         pattern,
-        true
+        VulkanRendererImpl::PipelineType::Geometry
     );
 }
 
@@ -315,7 +315,7 @@ void VulkanGraphicsContextImpl::drawEllipse(
         createFragPushConstantData(pattern),
         createVertexPushConstantData(transform, center),
         pattern,
-        true
+        VulkanRendererImpl::PipelineType::Geometry
     );
 }
 
@@ -422,7 +422,7 @@ void VulkanGraphicsContextImpl::drawRoundedRect(
             rect.pos.y + rect.size.height / 2.0f
         )),
         pattern,
-        true
+        VulkanRendererImpl::PipelineType::Geometry
     );
 }
 
@@ -504,7 +504,7 @@ void VulkanGraphicsContextImpl::fillPath(const PathImpl& path, Pattern& pattern,
         createFragPushConstantData(pattern),
         createVertexPushConstantData(transform, Point(0.0f, 0.0f)),
         pattern,
-        true
+        VulkanRendererImpl::PipelineType::Geometry
     );
 }
 
@@ -575,7 +575,7 @@ void VulkanGraphicsContextImpl::drawPath(
         createFragPushConstantData(pattern),
         createVertexPushConstantData(transform, Point(0.0f, 0.0f)),
         pattern,
-        true
+        VulkanRendererImpl::PipelineType::Geometry
     );
 }
 
@@ -638,7 +638,7 @@ void VulkanGraphicsContextImpl::drawImage(
             destRect.pos.y + destRect.size.height / 2.0f
         )),
         imagePattern,
-        true
+        VulkanRendererImpl::PipelineType::Geometry
     );
 }
 
@@ -704,7 +704,7 @@ void VulkanGraphicsContextImpl::drawText(const TextLayout& text, Point start, Pa
             start.y + text.size.height / 2.0f
         )),
         pattern,
-        false
+        VulkanRendererImpl::PipelineType::Text
     );
 }
 } // karin
