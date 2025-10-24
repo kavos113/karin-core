@@ -70,13 +70,13 @@ TEST_F(Transform2DTest, CombinedTransformations)
     Transform2D t;
     t.translate(1.0f, 2.0f).rotate(glm::radians(90.0f)).scale(2.0f, 2.0f);
     const float* d = t.colMajorData();
-    glm::mat4 expected = glm::translate(
+    glm::mat4 expected = glm::scale(
         glm::rotate(
-            glm::scale(glm::mat4(1.0f), glm::vec3(2.0f, 2.0f, 1.0f)),
+            glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 2.0f, 0.0f)),
             glm::radians(90.0f),
             glm::vec3(0.0f, 0.0f, 1.0f)
         ),
-        glm::vec3(1.0f, 2.0f, 0.0f)
+        glm::vec3(2.0f, 2.0f, 1.0f)
     );
     for (int i = 0; i < 16; ++i)
     {
@@ -111,13 +111,13 @@ TEST_F(Transform2DTest, RowMajorData)
     t.translate(1.0f, 2.0f).rotate(glm::radians(45.0f)).scale(2.0f, 3.0f);
     const float* colData = t.colMajorData();
     // scale -> rotate -> translate
-    glm::mat4 expectedCol = glm::translate(
+    glm::mat4 expectedCol = glm::scale(
         glm::rotate(
-            glm::scale(glm::mat4(1.0f), glm::vec3(2.0f, 3.0f, 1.0f)),
+            glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 2.0f, 0.0f)),
             glm::radians(45.0f),
             glm::vec3(0.0f, 0.0f, 1.0f)
         ),
-        glm::vec3(1.0f, 2.0f, 0.0f)
+        glm::vec3(2.0f, 3.0f, 1.0f)
     );
     for (int i = 0; i < 16; ++i)
     {
@@ -127,13 +127,13 @@ TEST_F(Transform2DTest, RowMajorData)
     const float* rowData = t.rowMajorData();
 
     // translate -> rotate -> scale
-    glm::mat4 expectedRow = glm::scale(
+    glm::mat4 expectedRow = glm::translate(
         glm::rotate(
-            glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 2.0f, 0.0f)),
+            glm::scale(glm::mat4(1.0f), glm::vec3(2.0f, 3.0f, 1.0f)),
             glm::radians(45.0f),
             glm::vec3(0.0f, 0.0f, 1.0f)
         ),
-        glm::vec3(2.0f, 3.0f, 1.0f)
+        glm::vec3(1.0f, 2.0f, 0.0f)
     );
     for (int i = 0; i < 16; ++i)
     {
