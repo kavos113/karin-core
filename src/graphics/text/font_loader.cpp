@@ -50,4 +50,42 @@ FT_Face FontLoader::loadFont(const Font& font)
     m_faces[font.hash()] = face;
     return face;
 }
+
+FontLoader::FontMetrics FontLoader::glyphMetrics(const Font &font, uint32_t size, uint32_t glyphIndex)
+{
+    if (auto it = m_glyphMetricsCache.find(Glyph{font, glyphIndex}.hash()); it != m_glyphMetricsCache.end())
+    {
+        return it->second;
+    }
+
+    FT_Face face = loadFont(font);
+    FT_Error error = FT_Set_Pixel_Sizes(face, 0, static_cast<FT_UInt>(size));
+    if (error)
+    {
+        throw std::runtime_error("failed to set pixel sizes for font");
+    }
+
+    error = FT_Load_Glyph(face, glyphIndex, FT_LOAD_DEFAULT);
+    if (error)
+    {
+        throw std::runtime_error("failed to load glyph");
+    }
+
+    error = FT_Render_Glyph(face->glyph, FT_RENDER_MODE_NORMAL);
+    if (error)
+    {
+        throw std::runtime_error("failed to render glyph");
+    }
+
+    FT_GlyphSlot slot = face->glyph;
+    FontMetrics metrics = {
+        .width = static_cast<float>(slot->bitmap.width),
+        .height = static_cast<float>(slot->bitmap.rows),
+        .bearingX = static_cast<float>(slot->bitmap_left),
+        .bearingY = static_cast<float>(slot->bitmap_top),
+        .advanceX = static_cast<float>(slot->advance.x) / 64.0f,
+    };
+    m_glyphMetricsCache[Glyph{font, glyphIndex}.hash()] = metrics;
+    return metrics;
+}
 } // karin
