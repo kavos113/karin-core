@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <iostream>
 #include <cstring>
+#include <ranges>
 #include <glm/gtc/type_ptr.hpp>
 
 namespace karin
@@ -78,8 +79,10 @@ void VulkanRendererImpl::cleanUp()
 
     m_deviceResources->cleanup();
 
-    m_geometryPipeline->cleanUp(m_device->device());
-    m_textPipeline->cleanUp(m_device->device());
+    for (auto &pipeline: m_pipelines | std::views::values)
+    {
+        pipeline->cleanUp(m_device->device());
+    }
     vkDestroyRenderPass(m_device->device(), m_renderPass, nullptr);
 
     m_surface->cleanUp();
@@ -146,46 +149,48 @@ void VulkanRendererImpl::endDraw()
         m_drawCommands,
         [](const DrawCommand& a, const DrawCommand& b)
         {
-            return a.pipeline < b.pipeline;
+            return a.pipelineType < b.pipelineType;
         }
     );
 
     vkCmdBindPipeline(
         m_commandBuffers[m_currentFrame],
         VK_PIPELINE_BIND_POINT_GRAPHICS,
-        m_drawCommands.empty() ? m_geometryPipeline->pipeline() : m_drawCommands.front().pipeline->pipeline()
+        m_drawCommands.empty() ? m_pipelines[PipelineType::Geometry]->pipeline() : m_pipelines[m_drawCommands.front().pipelineType]->pipeline()
     );
-    VulkanPipeline* lastPipeline = m_drawCommands.empty() ? m_geometryPipeline.get() : m_drawCommands.front().pipeline;
+    PipelineType lastPipelineType = m_drawCommands.empty() ? PipelineType::Geometry : m_drawCommands.front().pipelineType;
 
     for (const auto& command : m_drawCommands)
     {
-        if (command.pipeline != lastPipeline)
+        VulkanPipeline* pipeline = m_pipelines[command.pipelineType].get();
+
+        if (command.pipelineType != lastPipelineType)
         {
             vkCmdBindPipeline(
                 m_commandBuffers[m_currentFrame],
                 VK_PIPELINE_BIND_POINT_GRAPHICS,
-                command.pipeline->pipeline()
+                pipeline->pipeline()
             );
-            lastPipeline = command.pipeline;
+            lastPipelineType = command.pipelineType;
         }
 
         vkCmdBindDescriptorSets(
             m_commandBuffers[m_currentFrame],
             VK_PIPELINE_BIND_POINT_GRAPHICS,
-            command.pipeline->pipelineLayout(),
+            pipeline->pipelineLayout(),
             0, command.descriptorSets.size(), command.descriptorSets.data(),
             0, nullptr
         );
 
         vkCmdPushConstants(
             m_commandBuffers[m_currentFrame],
-            command.pipeline->pipelineLayout(),
+            pipeline->pipelineLayout(),
             VK_SHADER_STAGE_FRAGMENT_BIT,
             0, sizeof(FragPushConstants), &command.fragData
         );
         vkCmdPushConstants(
             m_commandBuffers[m_currentFrame],
-            command.pipeline->pipelineLayout(),
+            pipeline->pipelineLayout(),
             VK_SHADER_STAGE_VERTEX_BIT,
             sizeof(FragPushConstants), sizeof(VertexPushConstants), &command.vertData
         );
@@ -237,7 +242,7 @@ void VulkanRendererImpl::addCommand(
     const FragPushConstants& fragData,
     const VertexPushConstants& vertData,
     const Pattern& pattern,
-    bool isGeometry
+    PipelineType pipelineType
 )
 {
     memcpy(m_vertexMapPoint, vertices.data(), vertices.size() * sizeof(VulkanPipeline::Vertex));
@@ -259,7 +264,7 @@ void VulkanRendererImpl::addCommand(
         .indexOffset = static_cast<uint32_t>(m_indexCount - indices.size()),
         .fragData = fragData,
         .vertData = vertData,
-        .pipeline = isGeometry ? m_geometryPipeline.get() : m_textPipeline.get(),
+        .pipelineType = pipelineType,
     };
 
     drawCommand.descriptorSets.push_back(m_projMatrixDescriptorSets[m_currentFrame]);
@@ -298,7 +303,7 @@ void VulkanRendererImpl::addCommand(
         }, pattern
     );
 
-    if (!isGeometry)
+    if (pipelineType == PipelineType::Text)
     {
         auto glyphAtlasSets = m_deviceResources->glyphAtlasDescriptorSets();
         drawCommand.descriptorSets.push_back(glyphAtlasSets[m_currentFrame]);
@@ -598,7 +603,7 @@ void VulkanRendererImpl::createPipeline()
             .size = sizeof(VertexPushConstants)
         }
     };
-    m_geometryPipeline = std::make_unique<VulkanPipeline>(
+    m_pipelines[PipelineType::Geometry] = std::make_unique<VulkanPipeline>(
         m_device->device(), m_renderPass,
         geometry_vert_spv, geometry_vert_spv_len,
         geometry_frag_spv, geometry_frag_spv_len,
@@ -610,7 +615,7 @@ void VulkanRendererImpl::createPipeline()
         m_deviceResources->geometryDescriptorSetLayout(),
         m_deviceResources->atlasDescriptorSetLayout(),
     };
-    m_textPipeline = std::make_unique<VulkanPipeline>(
+    m_pipelines[PipelineType::Text] = std::make_unique<VulkanPipeline>(
         m_device->device(), m_renderPass,
         geometry_vert_spv, geometry_vert_spv_len,
         text_frag_spv, text_frag_spv_len,
