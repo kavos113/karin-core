@@ -277,9 +277,6 @@ void VulkanRendererImpl::addCommand(
             {
                 auto descriptorSets = m_deviceResources->gradientPointLutDescriptorSet(p.gradientPoints);
                 drawCommand.descriptorSets.push_back(descriptorSets[m_currentFrame]);
-
-                VkExtent2D extent = m_surface->extent();
-                drawCommand.fragData.patternParams.x = static_cast<float>(extent.width) / static_cast<float>(extent.height);
             }
             else if constexpr (std::is_same_v<T, RadialGradientPattern>)
             {
