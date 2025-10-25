@@ -6,6 +6,10 @@
 #include <karin/common/geometry/rectangle.h>
 #include <karin/graphics/text_layout.h>
 
+#include <cstdint>
+#include <memory>
+#include <vector>
+
 namespace karin
 {
 class FontLayouter
@@ -16,11 +20,10 @@ public:
         // position in layout. pixels
         Rectangle position;
 
-        // uv in atlas. 0.0 - 1.0
-        Rectangle uv;
+        uint32_t glyphIndex;
     };
 
-    std::vector<GlyphPosition> layout(const TextLayout& layout);
+    std::vector<GlyphPosition> layout(const TextLayout& layout) const;
 
 private:
     std::unique_ptr<FontLoader> m_fontLoader;
