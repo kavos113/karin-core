@@ -15,6 +15,7 @@
 #include <vector>
 #include <cstdint>
 #include <memory>
+#include <unordered_map>
 
 namespace karin
 {
@@ -29,6 +30,12 @@ namespace karin
 class VulkanRendererImpl : public IRendererImpl
 {
 public:
+    enum class PipelineType
+    {
+        Geometry,
+        Text,
+    };
+
     VulkanRendererImpl(
         VulkanGraphicsDevice* device,
         Window::NativeHandle nativeHandle,
@@ -57,7 +64,7 @@ public:
         const FragPushConstants& fragData,
         const VertexPushConstants& vertData,
         const Pattern& pattern,
-        bool isGeometry
+        PipelineType pipelineType
     );
 
     Image createImage(const std::vector<std::byte>& data, uint32_t width, uint32_t height) override
@@ -77,7 +84,7 @@ private:
         uint32_t indexOffset{};
         FragPushConstants fragData;
         VertexPushConstants vertData;
-        VulkanPipeline* pipeline = nullptr;
+        PipelineType pipelineType;
         std::vector<VkDescriptorSet> descriptorSets;
     };
 
@@ -99,8 +106,7 @@ private:
 
     VulkanGraphicsDevice* m_device;
     std::unique_ptr<VulkanSurface> m_surface;
-    std::unique_ptr<VulkanPipeline> m_geometryPipeline;
-    std::unique_ptr<VulkanPipeline> m_textPipeline;
+    std::unordered_map<PipelineType, std::unique_ptr<VulkanPipeline>> m_pipelines;
     std::unique_ptr<VulkanDeviceResources> m_deviceResources;
 
     std::vector<DrawCommand> m_drawCommands;
