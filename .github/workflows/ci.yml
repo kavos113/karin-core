@@ -1,8 +1,5 @@
 name: build.yml
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
@@ -63,7 +60,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: C:/VulkanSDK/${{ matrix.vulkan_version }}
-          key: ${{ runner.os }}-vulkan-sdk-${{ matrix.vulkan_version }}
+          key: pr-${{ runner.os }}-vulkan-sdk-${{ matrix.vulkan_version }}
+          restore-keys:
+            main-${{ runner.os }}-vulkan-sdk-${{ matrix.vulkan_version }}
 
       - name: Download and Install Vulkan SDK
         if: contains(matrix.name, 'vulkan') && steps.cache-vulkan-sdk.outputs.cache-hit != 'true'
@@ -102,7 +101,9 @@ jobs:
             ./vcpkg_installed
           key: ${{ runner.os }}-${{ matrix.triplet }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.triplet }}-vcpkg-
+            pr-${{ runner.os }}-${{ matrix.triplet }}-vcpkg-
+            main-${{ runner.os }}-${{ matrix.triplet }}-vcpkg-${ hashFiles('**/vcpkg.json') }}
+            main-${{ runner.os }}-${{ matrix.triplet }}-vcpkg-
 
       - name: Install with vcpkg
         run: |
