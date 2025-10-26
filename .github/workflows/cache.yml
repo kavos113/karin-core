@@ -1,0 +1,72 @@
+name: cache.yml
+on:
+  schedule:
+    - cron: '0 0 * * 0'
+
+  push:
+    branches:
+      - main
+
+jobs:
+  save-cache:
+    name: save-cache-${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: "ubuntu-latest"
+            triplet: "x64-linux"
+
+          - os: "windows-latest"
+            triplet: "x64-windows"
+            vulkan_version: "1.4.321.1"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Vulkan SDK Cache
+        if: contains(matrix.os, 'windows-latest')
+        id: cache-vulkan-sdk
+        uses: actions/cache@v4
+        with:
+          path: C:\VulkanSDK\${{ matrix.vulkan_version }}
+          key: main-${{ runner.os }}-vulkan-sdk-${{ matrix.vulkan_version }}
+
+      - name: Download and Install Vulkan SDK
+        if: contains(matrix.os, 'windows-latest') && steps.cache-vulkan-sdk.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          INSTALLER_URL="https://sdk.lunarg.com/sdk/download/${{ matrix.vulkan_version }}/windows/vulkansdk-windows-X64-${{ matrix.vulkan_version }}.exe"
+          INSTALLER_PATH="$TEMP/VulkanSDK-Installer.exe"
+          INSTALL_DIR="C:/VulkanSDK/${{ matrix.vulkan_version }}"
+          
+          echo "Downloading Vulkan SDK version ${{ matrix.vulkan_version }}..."
+          curl -L -o "$INSTALLER_PATH" "$INSTALLER_URL"
+          
+          echo "Installing Vulkan SDK to $INSTALL_DIR..."
+          "$INSTALLER_PATH" --root "$INSTALL_DIR" --accept-licenses --default-answer --confirm-command install
+          
+          rm "$INSTALLER_PATH"
+          
+          echo "Vulkan SDK setup complete."
+
+      - name: Vcpkg Cache
+        id: cache-vcpkg
+        uses: actions/cache@v4
+        with:
+          path: |
+            ./vcpkg
+            ./vcpkg_installed
+          key: main-${{ runner.os }}-${{ matrix.triplet }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
+          restore-keys: |
+            main-${{ runner.os }}-${{ matrix.triplet }}-vcpkg-
+
+      - name: Install with vcpkg
+        run: |
+          if [ ! -d "./vcpkg" ]; then
+            git clone https://github.com/microsoft/vcpkg.git            
+          fi
+          ./vcpkg/bootstrap-vcpkg.sh
+          ./vcpkg/vcpkg install --triplet ${{ matrix.triplet }}
+        shell: bash
