@@ -7,7 +7,7 @@
 
 #include <ranges>
 #include <string>
-#include <stdexcept>
+#include <vector>
 
 namespace
 {
@@ -33,57 +33,62 @@ namespace karin
 {
 std::vector<FontLayouter::GlyphPosition> FontLayouter::layout(const TextLayout &layout, FT_Face face) const
 {
+    std::vector<std::string> lines = std::views::split(layout.text, '\n')
+        | std::views::transform(
+            [](auto&& rng)
+            {
+                return std::string(rng.begin(), rng.end());
+            }
+        )
+        | std::ranges::to<std::vector<std::string>>();
+
     hb_font_t* hbFont = hb_ft_font_create(face, nullptr);
-    hb_buffer_t* hbBuffer = hb_buffer_create();
-
-    hb_buffer_add_utf8(hbBuffer, layout.text.c_str(), -1, 0, -1);
-    hb_buffer_set_direction(hbBuffer, toHBDirection(layout.format.readingDirection));
-    hb_buffer_set_language(hbBuffer, hb_language_from_string(layout.format.locale.c_str(), -1));
-
-    hb_shape(hbFont, hbBuffer, nullptr, 0);
-
-    uint32_t glyphCount = 0;
-    hb_glyph_info_t* glyphInfo = hb_buffer_get_glyph_infos(hbBuffer, &glyphCount);
-    hb_glyph_position_t* glyphPos = hb_buffer_get_glyph_positions(hbBuffer, &glyphCount);
-
-    float penX = 0.0f;
-    float penY = 0.0f;
-
     std::vector<GlyphPosition> glyphs;
-    glyphs.reserve(glyphCount);
 
-    for (uint32_t i = 0; i < glyphCount; ++i)
+    float initPenX = 0;
+    float lineHeight = layout.format.size;
+    float penX = 0;
+    float penY = lineHeight;
+
+    for (const auto& line : lines)
     {
-        uint32_t glyphIndex = glyphInfo[i].codepoint;
-        auto metrics = m_fontLoader->glyphMetrics(layout.format.font, static_cast<uint32_t>(layout.format.size), glyphIndex);
+        hb_buffer_t* hbBuffer = hb_buffer_create();
+        hb_buffer_add_utf8(hbBuffer, line.c_str(), -1, 0, -1);
+        hb_buffer_set_direction(hbBuffer, toHBDirection(layout.format.readingDirection));
+        hb_buffer_set_language(hbBuffer, hb_language_from_string(layout.format.locale.c_str(), -1));
 
-        Rectangle position{
-            penX + metrics.bearingX,
-            penY - metrics.bearingY,
-            metrics.width,
-            metrics.height
-        };
+        hb_shape(hbFont, hbBuffer, nullptr, 0);
 
-        glyphs.push_back(GlyphPosition{
-            .position = position,
-            .glyphIndex = glyphIndex
-        });
+        uint32_t glyphCount = 0;
+        hb_glyph_info_t* glyphInfo = hb_buffer_get_glyph_infos(hbBuffer, &glyphCount);
+        hb_glyph_position_t* glyphPos = hb_buffer_get_glyph_positions(hbBuffer, &glyphCount);
 
-        penX += static_cast<float>(glyphPos[i].x_advance) / 64.0f;
-        penY += static_cast<float>(glyphPos[i].y_advance) / 64.0f;
+        for (uint32_t i = 0; i < glyphCount; i++)
+        {
+            FT_UInt glyphIndex = glyphInfo[i].codepoint;
+            auto metrics = m_fontLoader->glyphMetrics(layout.format.font, static_cast<uint32_t>(layout.format.size), glyphIndex);
+
+            Rectangle position{
+                penX + metrics.bearingX,
+                penY - metrics.bearingY,
+                metrics.width,
+                metrics.height
+            };
+
+            glyphs.push_back(GlyphPosition{
+                .position = position,
+                .glyphIndex = glyphIndex
+            });
+
+            penX += static_cast<float>(glyphPos[i].x_advance) / 64.0f;
+        }
+
+        hb_buffer_destroy(hbBuffer);
+
+        penX = initPenX;
+        penY += lineHeight;
     }
 
-    float minY = 0;
-    for (const auto& glyph : glyphs)
-    {
-        minY = std::min(minY, glyph.position.pos.y);
-    }
-    for (auto& glyph : glyphs)
-    {
-        glyph.position.pos.y -= minY;
-    }
-
-    hb_buffer_destroy(hbBuffer);
     hb_font_destroy(hbFont);
 
     return glyphs;
