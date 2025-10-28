@@ -15,6 +15,12 @@ namespace karin
 class FontLayouter
 {
 public:
+    FontLayouter(FontLoader* fontLoader)
+        : m_fontLoader(fontLoader)
+    {
+    }
+    ~FontLayouter() = default;
+
     struct GlyphPosition
     {
         // position in layout. pixels
@@ -23,10 +29,10 @@ public:
         uint32_t glyphIndex;
     };
 
-    std::vector<GlyphPosition> layout(const TextLayout& layout) const;
+    std::vector<GlyphPosition> layout(const TextLayout& layout, FT_Face face) const;
 
 private:
-    std::unique_ptr<FontLoader> m_fontLoader;
+    FontLoader* m_fontLoader = nullptr;
 };
 } // karin
 

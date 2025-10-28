@@ -31,15 +31,8 @@ hb_direction_t toHBDirection(karin::TextFormat::Direction dir)
 
 namespace karin
 {
-std::vector<FontLayouter::GlyphPosition> FontLayouter::layout(const TextLayout &layout) const
+std::vector<FontLayouter::GlyphPosition> FontLayouter::layout(const TextLayout &layout, FT_Face face) const
 {
-    FT_Face face = m_fontLoader->loadFont(layout.format.font);
-    FT_Error error = FT_Set_Pixel_Sizes(face, 0, static_cast<FT_UInt>(layout.format.size));
-    if (error)
-    {
-        throw std::runtime_error("failed to set pixel sizes for font");
-    }
-
     hb_font_t* hbFont = hb_ft_font_create(face, nullptr);
     hb_buffer_t* hbBuffer = hb_buffer_create();
 
