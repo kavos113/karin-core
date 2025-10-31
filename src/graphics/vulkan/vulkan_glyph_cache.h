@@ -28,12 +28,8 @@ public:
         // coordinates in the atlas. 0.0 - 1.0
         Rectangle uv{};
 
-        // glyph metrics. pixels
         float width = 0.0f;
         float height = 0.0f;
-        float bearingX = 0.0f;
-        float bearingY = 0.0f;
-        float advanceX = 0.0f;
     };
 
     struct GlyphUploadInfo

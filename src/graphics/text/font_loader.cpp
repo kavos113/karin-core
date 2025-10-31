@@ -65,7 +65,7 @@ FontLoader::FontMetrics FontLoader::glyphMetrics(const Font &font, uint32_t size
         throw std::runtime_error("failed to set pixel sizes for font");
     }
 
-    error = FT_Load_Glyph(face, glyphIndex, FT_LOAD_DEFAULT);
+    error = FT_Load_Glyph(face, glyphIndex, FT_LOAD_NO_BITMAP);
     if (error)
     {
         throw std::runtime_error("failed to load glyph");

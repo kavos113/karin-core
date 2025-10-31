@@ -5,6 +5,7 @@
 #include "vulkan_graphics_device.h"
 #include "vma.h"
 #include <text/font_loader.h>
+#include <text/font_layouter.h>
 
 #include <karin/graphics/image.h>
 #include <karin/graphics/pattern.h>
@@ -40,6 +41,7 @@ public:
         createDummyTexture();
 
         m_glyphCache = std::make_unique<VulkanGlyphCache>(m_device, maxFramesInFlight);
+        m_fontLayouter = std::make_unique<FontLayouter>(m_fontLoader.get());
     }
 
     ~VulkanDeviceResources() = default;
@@ -108,6 +110,7 @@ private:
 
     std::unique_ptr<VulkanGlyphCache> m_glyphCache;
     std::unique_ptr<FontLoader> m_fontLoader;
+    std::unique_ptr<FontLayouter> m_fontLayouter;
 
     VulkanGraphicsDevice* m_device = nullptr;
 
