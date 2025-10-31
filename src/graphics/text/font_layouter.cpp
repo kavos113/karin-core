@@ -11,20 +11,58 @@
 
 namespace
 {
-hb_direction_t toHBDirection(karin::TextFormat::Direction dir)
+using namespace karin;
+
+hb_direction_t toHBDirection(TextFormat::Direction dir)
 {
     switch (dir)
     {
-    case karin::TextFormat::Direction::LEFT_TO_RIGHT:
+    case TextFormat::Direction::LEFT_TO_RIGHT:
         return HB_DIRECTION_LTR;
-    case karin::TextFormat::Direction::RIGHT_TO_LEFT:
+    case TextFormat::Direction::RIGHT_TO_LEFT:
         return HB_DIRECTION_RTL;
-    case karin::TextFormat::Direction::TOP_TO_BOTTOM:
+    case TextFormat::Direction::TOP_TO_BOTTOM:
         return HB_DIRECTION_TTB;
-    case karin::TextFormat::Direction::BOTTOM_TO_TOP:
+    case TextFormat::Direction::BOTTOM_TO_TOP:
         return HB_DIRECTION_BTT;
     default:
         return HB_DIRECTION_LTR;
+    }
+}
+
+float calculateLineHeight(
+    float lineSpacing,
+    TextFormat::LineSpacingMode mode,
+    float fontSize,
+    float metricsHeight
+)
+{
+    switch (mode)
+    {
+    case TextFormat::LineSpacingMode::PROPORTIONAL:
+        return fontSize * lineSpacing;
+    case TextFormat::LineSpacingMode::UNIFORM:
+        return lineSpacing;
+    default:
+        return metricsHeight * 64.0f;
+    }
+}
+
+float calculateBaseLine(
+    float baseline,
+    TextFormat::LineSpacingMode mode,
+    float fontSize,
+    float metricsHeight
+)
+{
+    switch (mode)
+    {
+    case TextFormat::LineSpacingMode::PROPORTIONAL:
+        return fontSize * baseline;
+    case TextFormat::LineSpacingMode::UNIFORM:
+        return baseline;
+    default:
+        return metricsHeight * 64.0f;
     }
 }
 }
@@ -46,9 +84,19 @@ std::vector<FontLayouter::GlyphPosition> FontLayouter::layout(const TextLayout &
     std::vector<GlyphPosition> glyphs;
 
     float initPenX = 0;
-    float lineHeight = layout.format.size;
+    float lineHeight = calculateLineHeight(
+        layout.format.lineSpacing,
+        layout.format.lineSpacingMode,
+        layout.format.size,
+        static_cast<float>(face->size->metrics.height)
+    );
+    float penY = calculateBaseLine(
+        layout.format.baseline,
+        layout.format.lineSpacingMode,
+        layout.format.size,
+        static_cast<float>(face->size->metrics.height)
+    );
     float penX = 0;
-    float penY = lineHeight;
 
     for (const auto& line : lines)
     {
