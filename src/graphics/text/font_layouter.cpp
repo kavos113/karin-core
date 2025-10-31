@@ -65,6 +65,12 @@ float calculateBaseLine(
         return metricsHeight * 64.0f;
     }
 }
+
+struct Metrics
+{
+    FontLoader::FontMetrics metrics;
+    uint32_t glyphIndex;
+};
 }
 
 namespace karin
@@ -111,24 +117,98 @@ std::vector<FontLayouter::GlyphPosition> FontLayouter::layout(const TextLayout &
         hb_glyph_info_t* glyphInfo = hb_buffer_get_glyph_infos(hbBuffer, &glyphCount);
         hb_glyph_position_t* glyphPos = hb_buffer_get_glyph_positions(hbBuffer, &glyphCount);
 
+        std::vector<Metrics> metricsList;
+        metricsList.reserve(glyphCount);
         for (uint32_t i = 0; i < glyphCount; i++)
         {
             FT_UInt glyphIndex = glyphInfo[i].codepoint;
             auto metrics = m_fontLoader->glyphMetrics(layout.format.font, static_cast<uint32_t>(layout.format.size), glyphIndex);
+            metricsList.emplace_back(metrics, glyphIndex);
+        }
 
-            Rectangle position{
-                penX + metrics.bearingX,
-                penY - metrics.bearingY,
-                metrics.width,
-                metrics.height
-            };
+        if (layout.format.wrapping == TextFormat::Wrapping::NONE)
+        {
+            for (uint32_t i = 0; i < glyphCount; i++)
+            {
+                Rectangle position = {
+                    penX + metricsList[i].metrics.bearingX,
+                    penY - metricsList[i].metrics.bearingY,
+                    metricsList[i].metrics.width,
+                    metricsList[i].metrics.height
+                };
 
-            glyphs.push_back(GlyphPosition{
-                .position = position,
-                .glyphIndex = glyphIndex
-            });
+                glyphs.push_back(GlyphPosition{
+                    .position = position,
+                    .glyphIndex = metricsList[i].glyphIndex,
+                });
+                penX += static_cast<float>(glyphPos[i].x_advance) / 64.0f;
+            }
+        }
+        else if (layout.format.wrapping == TextFormat::Wrapping::WORD)
+        {
+            uint32_t lastSpaceIndex = 0;
+            for (uint32_t i = 0; i < glyphCount; i++)
+            {
+                if (std::isspace(line[i]))
+                {
+                    lastSpaceIndex = i;
+                }
 
-            penX += static_cast<float>(glyphPos[i].x_advance) / 64.0f;
+                Rectangle position = {
+                    penX + metricsList[i].metrics.bearingX,
+                    penY - metricsList[i].metrics.bearingY,
+                    metricsList[i].metrics.width,
+                    metricsList[i].metrics.height
+                };
+
+                glyphs.push_back(GlyphPosition{
+                    .position = position,
+                    .glyphIndex = metricsList[i].glyphIndex,
+                });
+                penX += static_cast<float>(glyphPos[i].x_advance) / 64.0f;
+
+                if (layout.size.width > 0 && penX > layout.size.width && lastSpaceIndex > 0)
+                {
+                    // move back to last space
+                    for (uint32_t j = i; j > lastSpaceIndex; j--)
+                    {
+                        glyphs.pop_back();
+                    }
+
+                    i = lastSpaceIndex;
+                    lastSpaceIndex = 0;
+
+                    penX = initPenX;
+                    penY += lineHeight;
+                }
+            }
+        }
+        else if (layout.format.wrapping == TextFormat::Wrapping::CHARACTER)
+        {
+            for (uint32_t i = 0; i < glyphCount; i++)
+            {
+                Rectangle position = {
+                    penX + metricsList[i].metrics.bearingX,
+                    penY - metricsList[i].metrics.bearingY,
+                    metricsList[i].metrics.width,
+                    metricsList[i].metrics.height
+                };
+
+                glyphs.push_back(GlyphPosition{
+                    .position = position,
+                    .glyphIndex = metricsList[i].glyphIndex,
+                });
+                penX += static_cast<float>(glyphPos[i].x_advance) / 64.0f;
+
+                if (layout.size.width > 0 && penX > layout.size.width)
+                {
+                    penX = initPenX;
+                    penY += lineHeight;
+
+                    glyphs.pop_back();
+                    i--;
+                }
+            }
         }
 
         hb_buffer_destroy(hbBuffer);
