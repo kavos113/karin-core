@@ -111,6 +111,7 @@ jobs:
             git clone https://github.com/microsoft/vcpkg.git            
           fi
           ./vcpkg/bootstrap-vcpkg.sh
+          curl -o ./vcpkg/downloads/GNOME-pango-1.56.1.tar.gz "https://gitlab.gnome.org/GNOME/pango/-/archive/1.56.1/pango-1.56.1.tar.gz"
           ./vcpkg/vcpkg install --triplet ${{ matrix.triplet }}
         shell: bash
 
