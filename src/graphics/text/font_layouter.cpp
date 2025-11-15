@@ -207,10 +207,11 @@ std::vector<FontLayouter::GlyphPosition> FontLayouter::layout(const TextLayout &
 
                     if (layout.format.trimming == TextFormat::Trimming::WORD && lastSpaceIndex != 0)
                     {
-                        for (uint32_t j = i; j >= lastSpaceIndex; j--)
+                        for (uint32_t j = i; j > lastSpaceIndex; j--)
                         {
                             glyphs.pop_back();
                         }
+                        glyphs.pop_back();
                         break;
                     }
                 }
@@ -225,10 +226,11 @@ std::vector<FontLayouter::GlyphPosition> FontLayouter::layout(const TextLayout &
                 {
                     penX = initPenX;
                     penY += lineHeight;
-                    for (uint32_t j = i; j >= lastSpaceIndex; j--)
+                    for (uint32_t j = i; j > lastSpaceIndex; j--)
                     {
                         glyphs.pop_back();
                     }
+                    glyphs.pop_back();
                     i = lastSpaceIndex;
                     lastSpaceIndex = 0;
                 }

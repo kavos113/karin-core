@@ -35,15 +35,16 @@ private:
     {
         Font font;
         uint32_t glyphIndex;
-        float size;
+        uint32_t size;
 
         size_t hash() const
         {
             size_t seed = 0;
             hash_combine(seed, font.hash());
             hash_combine(seed, glyphIndex);
+            hash_combine(seed, size);
 
-            return static_cast<uint32_t>(seed);
+            return seed;
         }
     };
 

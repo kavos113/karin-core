@@ -53,13 +53,13 @@ FT_Face FontLoader::loadFont(const Font& font)
 
 FontLoader::FontMetrics FontLoader::glyphMetrics(const Font &font, uint32_t size, uint32_t glyphIndex)
 {
-    if (auto it = m_glyphMetricsCache.find(Glyph{font, glyphIndex}.hash()); it != m_glyphMetricsCache.end())
+    if (auto it = m_glyphMetricsCache.find(Glyph{font, glyphIndex, size}.hash()); it != m_glyphMetricsCache.end())
     {
         return it->second;
     }
 
     FT_Face face = loadFont(font);
-    FT_Error error = FT_Set_Pixel_Sizes(face, 0, static_cast<FT_UInt>(size));
+    FT_Error error = FT_Set_Pixel_Sizes(face, 0, size);
     if (error)
     {
         throw std::runtime_error("failed to set pixel sizes for font");
@@ -85,7 +85,7 @@ FontLoader::FontMetrics FontLoader::glyphMetrics(const Font &font, uint32_t size
         .bearingY = static_cast<float>(slot->bitmap_top),
         .advanceX = static_cast<float>(slot->advance.x) / 64.0f,
     };
-    m_glyphMetricsCache[Glyph{font, glyphIndex}.hash()] = metrics;
+    m_glyphMetricsCache[Glyph{font, glyphIndex, size}.hash()] = metrics;
     return metrics;
 }
 } // karin
