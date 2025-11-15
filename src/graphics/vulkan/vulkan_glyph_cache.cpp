@@ -62,9 +62,6 @@ VulkanGlyphCache::GlyphInfo VulkanGlyphCache::getGlyph(uint32_t glyphIndex, uint
         ),
         .width = static_cast<float>(slot->bitmap.width),
         .height = static_cast<float>(slot->bitmap.rows),
-        .bearingX = static_cast<float>(slot->bitmap_left),
-        .bearingY = static_cast<float>(slot->bitmap_top),
-        .advanceX = static_cast<float>(slot->advance.x >> 6),
     };
     m_glyphMap[glyphKey(glyphIndex, fontKey, size)] = info;
 

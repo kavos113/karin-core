@@ -31,6 +31,7 @@ elseif (VULKAN)
             vulkan/vulkan_glyph_cache.cpp
             vulkan/vma_impl.cpp
             text/font_loader.cpp
+            text/font_layouter.cpp
     )
 endif ()
 
