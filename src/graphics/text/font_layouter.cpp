@@ -66,6 +66,54 @@ float calculateBaseLine(
     }
 }
 
+uint32_t getCodepoint(const std::string& text, size_t index)
+{
+    if (index >= text.size())
+    {
+        return 0xFFFD;
+    }
+
+    const auto *str = reinterpret_cast<const unsigned char*>(text.c_str());
+    unsigned char c = str[index];
+    if (c < 0x80)
+    {
+        return c;
+    }
+    else if ((c & 0xE0) == 0xC0) // starts with 110
+    {
+        if (index + 1 >= text.size()) return 0xFFFD;
+        return ((c & 0x1F) << 6) | (str[index + 1] & 0x3F);
+    }
+    else if ((c & 0xF0) == 0xE0) // starts with 1110
+    {
+        if (index + 2 >= text.size()) return 0xFFFD;
+        return ((c & 0x0F) << 12) | ((str[index + 1] & 0x3F) << 6) | (str[index + 2] & 0x3F);
+    }
+    else if ((c & 0xF8) == 0xF0) // starts with 11110
+    {
+        if (index + 3 >= text.size()) return 0xFFFD;
+        return ((c & 0x07) << 18) | ((str[index + 1] & 0x3F) << 12) | ((str[index + 2] & 0x3F) << 6) | (str[index + 3] & 0x3F);
+    }
+
+    return 0;
+}
+
+bool isBreakable(uint32_t codepoint)
+{
+    if (codepoint <= 0x00FF)
+    {
+        return std::isspace(static_cast<char>(codepoint)) != 0;
+    }
+    // TODO: Add more comprehensive Unicode breakable character checks. Now: CJK characters are all breakable.
+    else if (
+        (codepoint >= 0x3000 && codepoint <= 0x9FFF)
+    )
+    {
+        return true;
+    }
+    return false;
+}
+
 struct Metrics
 {
     FontLoader::FontMetrics metrics;
@@ -129,7 +177,7 @@ std::vector<FontLayouter::GlyphPosition> FontLayouter::layout(const TextLayout &
         uint32_t lastSpaceIndex = 0;
         for (uint32_t i = 0; i < glyphCount; i++)
         {
-            if (std::isspace(line[i]))
+            if (isBreakable(getCodepoint(line, glyphInfo[i].cluster)))
             {
                 lastSpaceIndex = i;
             }
@@ -157,9 +205,9 @@ std::vector<FontLayouter::GlyphPosition> FontLayouter::layout(const TextLayout &
                         break;
                     }
 
-                    if (layout.format.trimming == TextFormat::Trimming::WORD)
+                    if (layout.format.trimming == TextFormat::Trimming::WORD && lastSpaceIndex != 0)
                     {
-                        for (uint32_t j = i; j > lastSpaceIndex; j--)
+                        for (uint32_t j = i; j >= lastSpaceIndex; j--)
                         {
                             glyphs.pop_back();
                         }
@@ -173,11 +221,11 @@ std::vector<FontLayouter::GlyphPosition> FontLayouter::layout(const TextLayout &
                     glyphs.pop_back();
                     i--;
                 }
-                else if (layout.format.wrapping == TextFormat::Wrapping::WORD)
+                else if (layout.format.wrapping == TextFormat::Wrapping::WORD && lastSpaceIndex != 0)
                 {
                     penX = initPenX;
                     penY += lineHeight;
-                    for (uint32_t j = i; j > lastSpaceIndex; j--)
+                    for (uint32_t j = i; j >= lastSpaceIndex; j--)
                     {
                         glyphs.pop_back();
                     }

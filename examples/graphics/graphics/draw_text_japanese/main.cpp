@@ -15,7 +15,7 @@ int main()
 
     karin::Pattern magentaPattern = karin::SolidColorPattern(karin::Color(255, 0, 255));
     karin::TextLayout textLayout = {
-        "日本語も描画できます。",
+        "日本語も描画できます。とても長い文章の場合、改行やトリミングが適切に行われるか確認します。",
         karin::TextFormat{
             .font = {
                 .family = "Meiryo UI",
@@ -25,7 +25,7 @@ int main()
             .baseline = 1.0f,
             .lineSpacingMode = karin::TextFormat::LineSpacingMode::PROPORTIONAL,
             .trimming = karin::TextFormat::Trimming::CHARACTER,
-            .wrapping = karin::TextFormat::Wrapping::CHARACTER,
+            .wrapping = karin::TextFormat::Wrapping::WORD,
         },
         {400.0f, 200.0f},
     };
