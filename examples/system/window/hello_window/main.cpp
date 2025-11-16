@@ -9,5 +9,27 @@ int main()
 
     app.run();
 
+    /*
+     * Event e;
+     * while (app.pollEvent(e))
+     * {
+     *    switch (e.type)
+     *    {
+     *    case Event::Type::CLOSE:
+     *        // Handle close event
+     *        break;
+     *    case Event::Type::RESIZE:
+     *        // Handle resize event
+     *        break;
+     *    case Event::Type::PAINT:
+     *        GraphicsContext gc = renderer.beginFrame();
+     *        // Perform drawing operations using gc
+     *        renderer.endFrame();
+     *        break;
+     *    // Handle other event types...
+     *    }
+     * }
+     */
+
     return 0;
 }
