@@ -30,6 +30,38 @@ void WinApplicationImpl::run()
     WinWindowClassRegistry::unregisterClasses();
 }
 
+bool WinApplicationImpl::pollEvent(Event &event)
+{
+    if (!m_eventQueue.empty())
+    {
+        event = std::move(m_eventQueue.front());
+        m_eventQueue.pop();
+        return true;
+    }
+
+    MSG msg;
+    while (GetMessage(&msg, nullptr, 0, 0))
+    {
+        if (msg.message == WM_QUIT)
+        {
+            m_isRunning = false;
+            return false;
+        }
+
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+
+        if (!m_eventQueue.empty())
+        {
+            event = std::move(m_eventQueue.front());
+            m_eventQueue.pop();
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void WinApplicationImpl::shutdown()
 {
     if (!m_isRunning)

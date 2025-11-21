@@ -17,6 +17,11 @@ void Application::run()
     m_impl->run();
 }
 
+bool Application::pollEvent(Event &event) const
+{
+    return m_impl->pollEvent(event);
+}
+
 Window Application::createWindow(const std::wstring& title, int x, int y, int width, int height)
 {
     return Window(

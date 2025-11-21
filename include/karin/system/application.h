@@ -3,6 +3,7 @@
 
 #include "system_font.h"
 #include "window.h"
+#include "event.h"
 
 #include <memory>
 
@@ -17,6 +18,7 @@ public:
     static Application& instance();
 
     void run();
+    bool pollEvent(Event& event) const;
 
     Window createWindow(
         const std::wstring& title,
