@@ -1,5 +1,6 @@
 #ifndef KARIN_SYSTEM_EVENT_H
 #define KARIN_SYSTEM_EVENT_H
+#include <any>
 #include <variant>
 
 namespace karin
@@ -138,13 +139,28 @@ private:
     int m_height;
 };
 
+class ActionEvent
+{
+public:
+    ActionEvent(uint32_t actionId, std::any data = {})
+        : m_actionId(actionId)
+        , m_data(std::move(data))
+    {
+    }
+
+private:
+    uint32_t m_actionId;
+    std::any m_data;
+};
+
 using Event = std::variant<
     KeyEvent,
     MouseMoveEvent,
     MouseButtonEvent,
     MouseWheelEvent,
     WindowEvent,
-    WindowResizeEvent
+    WindowResizeEvent,
+    ActionEvent
 >;
 
 } // karin
