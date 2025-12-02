@@ -39,5 +39,85 @@ Event translateWinEvent(UINT message, WPARAM wParam, LPARAM lParam)
             toString(wsChar)
         );
     }
+
+    case WM_LBUTTONDOWN:
+        return MouseButtonEvent(
+            MouseButtonEvent::Type::ButtonPress,
+            MouseButtonEvent::Button::Left,
+            LOWORD(lParam),
+            HIWORD(lParam)
+        );
+
+    case WM_LBUTTONUP:
+        return MouseButtonEvent(
+            MouseButtonEvent::Type::ButtonRelease,
+            MouseButtonEvent::Button::Left,
+            LOWORD(lParam),
+            HIWORD(lParam)
+        );
+
+    case WM_RBUTTONDOWN:
+        return MouseButtonEvent(
+            MouseButtonEvent::Type::ButtonPress,
+            MouseButtonEvent::Button::Right,
+            LOWORD(lParam),
+            HIWORD(lParam)
+        );
+
+    case WM_RBUTTONUP:
+        return MouseButtonEvent(
+            MouseButtonEvent::Type::ButtonRelease,
+            MouseButtonEvent::Button::Right,
+            LOWORD(lParam),
+            HIWORD(lParam)
+        );
+
+    case WM_MBUTTONDOWN:
+        return MouseButtonEvent(
+            MouseButtonEvent::Type::ButtonPress,
+            MouseButtonEvent::Button::Middle,
+            LOWORD(lParam),
+            HIWORD(lParam)
+        );
+
+    case WM_MBUTTONUP:
+        return MouseButtonEvent(
+            MouseButtonEvent::Type::ButtonRelease,
+            MouseButtonEvent::Button::Middle,
+            LOWORD(lParam),
+            HIWORD(lParam)
+        );
+
+    case WM_MOUSEMOVE:
+        return MouseMoveEvent(
+            LOWORD(lParam),
+            HIWORD(lParam)
+        );
+
+    case WM_MOUSEWHEEL:
+        return MouseWheelEvent(
+            GET_WHEEL_DELTA_WPARAM(wParam),
+            LOWORD(lParam),
+            HIWORD(lParam)
+        );
+
+    case WM_CLOSE:
+        return WindowEvent(WindowEvent::Type::Close);
+
+    case WM_PAINT:
+        return WindowEvent(WindowEvent::Type::Paint);
+
+    case WM_SIZE:
+        return WindowResizeEvent(
+            LOWORD(lParam),
+            HIWORD(lParam)
+        );
+
+    case WM_KARIN_ACTION:
+        return ActionEvent(
+            static_cast<uint32_t>(wParam),
+            *reinterpret_cast<std::shared_ptr<std::any>*>(lParam)
+        );
+    }
 }
 } // karin

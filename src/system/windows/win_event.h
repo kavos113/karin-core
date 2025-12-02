@@ -4,6 +4,8 @@
 #include <windows.h>
 #include <karin/system/event.h>
 
+#define WM_KARIN_ACTION (WM_USER + 1)
+
 namespace karin
 {
 Event translateWinEvent(UINT message, WPARAM wParam, LPARAM lParam);
