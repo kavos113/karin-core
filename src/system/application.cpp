@@ -12,11 +12,6 @@ Application& Application::instance()
     return instance;
 }
 
-void Application::run()
-{
-    m_impl->run();
-}
-
 bool Application::pollEvent(Event &event) const
 {
     return m_impl->pollEvent(event);

@@ -31,24 +31,11 @@ WinApplicationImpl::~WinApplicationImpl()
     WinWindowClassRegistry::unregisterClasses();
 }
 
-void WinApplicationImpl::run()
-{
-    m_isRunning = true;
-
-    MSG msg;
-    while (GetMessage(&msg, nullptr, 0, 0))
-    {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-    }
-
-    m_isRunning = false;
-
-    WinWindowClassRegistry::unregisterClasses();
-}
-
 bool WinApplicationImpl::pollEvent(Event &event)
 {
+    if (!m_isRunning)
+        m_isRunning = true;
+
     if (!m_eventQueue.empty())
     {
         event = m_eventQueue.front();
@@ -61,6 +48,7 @@ bool WinApplicationImpl::pollEvent(Event &event)
     {
         if (msg.message == WM_QUIT)
         {
+            m_isRunning = false;
             return false;
         }
 

@@ -41,6 +41,11 @@ LRESULT WinWindowImpl::handleMessage(UINT message, WPARAM wParam, LPARAM lParam)
         return 0;
     }
 
+    if (message == WM_CLOSE)
+    {
+        DestroyWindow(m_hwnd);
+    }
+
     std::optional<Event> event = translateWinEvent(message, wParam, lParam);
     if (event.has_value())
     {

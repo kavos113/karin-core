@@ -10,6 +10,7 @@ if (WIN32)
             windows/win_window_impl.cpp
             windows/win_window_class_registry.cpp
             windows/win_event.cpp
+            windows/win_converter.cpp
             windows/win_system_font_impl.cpp
     )
 elseif (UNIX)

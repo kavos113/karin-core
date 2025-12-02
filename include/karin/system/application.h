@@ -17,7 +17,6 @@ class Application
 public:
     static Application& instance();
 
-    void run();
     bool pollEvent(Event& event) const;
 
     Window createWindow(

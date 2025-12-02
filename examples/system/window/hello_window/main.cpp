@@ -7,29 +7,24 @@ int main()
 
     window.setStatus(karin::Window::ShowStatus::SHOW);
 
-    app.run();
+    karin::Event event;
+    while (app.pollEvent(event))
+    {
+        if (const auto* windowEvent = std::get_if<karin::WindowEvent>(&event))
+        {
+            if (windowEvent->type == karin::WindowEvent::Type::Close)
+            {
+                std::cout << "Window close event received." << std::endl;
+            }
+        }
+        else if (const auto* resizeEvent = std::get_if<karin::WindowResizeEvent>(&event))
+        {
+            int newWidth = resizeEvent->width;
+            int newHeight = resizeEvent->height;
 
-    /*
-     * Event e;
-     * while (app.pollEvent(e))
-     * {
-     *    switch (e.type)
-     *    {
-     *    case Event::Type::CLOSE:
-     *        // Handle close event
-     *        break;
-     *    case Event::Type::RESIZE:
-     *        // Handle resize event
-     *        break;
-     *    case Event::Type::PAINT:
-     *        GraphicsContext gc = renderer.beginFrame();
-     *        // Perform drawing operations using gc
-     *        renderer.endFrame();
-     *        break;
-     *    // Handle other event types...
-     *    }
-     * }
-     */
+            std::cout << "Window resized to " << newWidth << "x" << newHeight << std::endl;
+        }
+    }
 
     return 0;
 }

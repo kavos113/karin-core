@@ -10,7 +10,6 @@ class IApplicationImpl
 public:
     virtual ~IApplicationImpl() = default;
 
-    virtual void run() = 0;
     virtual void shutdown() = 0;
 
     virtual bool pollEvent(Event& event) = 0;
