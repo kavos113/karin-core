@@ -1,5 +1,6 @@
 #include "win_window_impl.h"
 
+#include "win_event.h"
 #include "win_window_class_registry.h"
 
 namespace karin
@@ -34,33 +35,20 @@ WinWindowImpl::WinWindowImpl(
 
 LRESULT WinWindowImpl::handleMessage(UINT message, WPARAM wParam, LPARAM lParam)
 {
-    switch (message)
+    if (message == WM_DESTROY)
     {
-    case WM_DESTROY:
         PostQuitMessage(0);
         return 0;
-
-    case WM_CLOSE:
-        m_appImpl->pushEvent(WindowEvent(WindowEvent::Type::Close));
-        DestroyWindow(m_hwnd);
-        return 0;
-
-    case WM_PAINT:
-        m_appImpl->pushEvent(WindowEvent(WindowEvent::Type::Paint));
-        return 0;
-
-    case WM_SIZE:
-        m_appImpl->pushEvent(
-            WindowResizeEvent(
-                LOWORD(lParam),
-                HIWORD(lParam)
-            )
-        );
-        return 0;
-
-    default:
-        return DefWindowProc(m_hwnd, message, wParam, lParam);
     }
+
+    Event event = translateWinEvent(message, wParam, lParam);
+    if (const auto* undefinedEvent = std::get_if<UndefinedEvent>(&event); undefinedEvent == nullptr)
+    {
+        m_appImpl->pushEvent(event);
+        return 0;
+    }
+
+    return DefWindowProc(m_hwnd, message, wParam, lParam);
 }
 
 LRESULT WinWindowImpl::windowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -70,7 +58,7 @@ LRESULT WinWindowImpl::windowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
     if (message == WM_CREATE)
     {
         auto cs = reinterpret_cast<CREATESTRUCT*>(lParam);
-        self = reinterpret_cast<WinWindowImpl*>(cs->lpCreateParams);
+        self = static_cast<WinWindowImpl*>(cs->lpCreateParams);
         SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(self));
 
         self->m_hwnd = hwnd;
@@ -111,6 +99,8 @@ void WinWindowImpl::minimize()
     {
         ShowWindow(m_hwnd, SW_MINIMIZE);
     }
+
+    m_appImpl->pushEvent(WindowEvent(WindowEvent::Type::Minimize));
 }
 
 void WinWindowImpl::maximize()
@@ -119,6 +109,8 @@ void WinWindowImpl::maximize()
     {
         ShowWindow(m_hwnd, SW_MAXIMIZE);
     }
+
+    m_appImpl->pushEvent(WindowEvent(WindowEvent::Type::Maximize));
 }
 
 void WinWindowImpl::setPosition(int x, int y)

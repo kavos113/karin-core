@@ -119,5 +119,7 @@ Event translateWinEvent(UINT message, WPARAM wParam, LPARAM lParam)
             *reinterpret_cast<std::shared_ptr<std::any>*>(lParam)
         );
     }
+
+    return UndefinedEvent();
 }
 } // karin
