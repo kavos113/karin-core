@@ -387,6 +387,7 @@ public:
         RightShift = 0xE5,
         RightAlt = 0xE6,
         RightGUI = 0xE7,
+        Undefined = 0xFF
     };
 };
 
