@@ -14,7 +14,7 @@ public:
     WinApplicationImpl();
     ~WinApplicationImpl() override;
 
-    bool pollEvent(Event& event) override;
+    bool waitEvent(Event& event) override;
     void shutdown() override;
 
     void pushEvent(const Event& event)

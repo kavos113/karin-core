@@ -8,7 +8,7 @@ int main()
     window.setStatus(karin::Window::ShowStatus::SHOW);
 
     karin::Event event;
-    while (app.pollEvent(event))
+    while (app.waitEvent(event))
     {
         if (const auto* windowEvent = std::get_if<karin::WindowEvent>(&event))
         {

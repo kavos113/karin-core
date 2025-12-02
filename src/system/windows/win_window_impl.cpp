@@ -35,22 +35,32 @@ WinWindowImpl::WinWindowImpl(
 
 LRESULT WinWindowImpl::handleMessage(UINT message, WPARAM wParam, LPARAM lParam)
 {
-    if (message == WM_DESTROY)
-    {
-        PostQuitMessage(0);
-        return 0;
-    }
-
-    if (message == WM_CLOSE)
-    {
-        DestroyWindow(m_hwnd);
-    }
-
     std::optional<Event> event = translateWinEvent(message, wParam, lParam);
     if (event.has_value())
     {
         m_appImpl->pushEvent(*event);
+        std::cout << "Event pushed to application event queue." << std::endl;
+    }
+
+    switch (message)
+    {
+    case WM_DESTROY:
+        PostQuitMessage(0);
         return 0;
+
+    case WM_CLOSE:
+        DestroyWindow(m_hwnd);
+        return 0;
+
+    case WM_PAINT:
+        ValidateRect(m_hwnd, nullptr);
+        return 0;
+
+    default:
+        if (event.has_value())
+        {
+            return 0;
+        }
     }
 
     return DefWindowProc(m_hwnd, message, wParam, lParam);

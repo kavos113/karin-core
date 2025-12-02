@@ -31,7 +31,7 @@ WinApplicationImpl::~WinApplicationImpl()
     WinWindowClassRegistry::unregisterClasses();
 }
 
-bool WinApplicationImpl::pollEvent(Event &event)
+bool WinApplicationImpl::waitEvent(Event &event)
 {
     if (!m_isRunning)
         m_isRunning = true;
@@ -44,26 +44,25 @@ bool WinApplicationImpl::pollEvent(Event &event)
     }
 
     MSG msg;
-    while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+    if (!GetMessage(&msg, nullptr, 0, 0))
     {
-        if (msg.message == WM_QUIT)
-        {
-            m_isRunning = false;
-            return false;
-        }
-
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-
-        if (!m_eventQueue.empty())
-        {
-            event = m_eventQueue.front();
-            m_eventQueue.pop();
-            return true;
-        }
+        m_isRunning = false;
+        return false;
     }
 
-    return false;
+    TranslateMessage(&msg);
+    DispatchMessage(&msg);
+
+    std::cout << "event queue size after message dispatch: " << m_eventQueue.size() << std::endl;
+
+    if (!m_eventQueue.empty())
+    {
+        event = m_eventQueue.front();
+        m_eventQueue.pop();
+        return true;
+    }
+
+    return true;
 }
 
 void WinApplicationImpl::shutdown()

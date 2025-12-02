@@ -17,7 +17,10 @@ class Application
 public:
     static Application& instance();
 
-    bool pollEvent(Event& event) const;
+    // return true if event loop should continue, false to quit.
+    bool waitEvent(Event& event) const;
+
+    // TODO: peekEvent
 
     Window createWindow(
         const std::wstring& title,
