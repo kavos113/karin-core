@@ -1,34 +1,130 @@
 #ifndef SRC_COMMON_UTILS_STRING_H
 #define SRC_COMMON_UTILS_STRING_H
+
+#ifdef KARIN_PLATFORM_WINDOWS
+#include <windows.h>
+#else
+#include <clocale>
+#include <cstdlib>
+#endif
+
 #include <string>
 #include <vector>
 
 inline std::string toString(std::wstring str)
 {
-    const wchar_t* wcs = str.c_str();
-    size_t size = wcstombs(nullptr, wcs, 0);
-    if (size == static_cast<size_t>(-1))
+    if (str.empty())
     {
         return "";
     }
 
-    std::vector<char> buffer(size + 1);
-    wcstombs(buffer.data(), wcs, size + 1);
+#ifdef KARIN_PLATFORM_WINDOWS
+    int newSize = WideCharToMultiByte(
+        CP_UTF8,
+        0,
+        str.c_str(),
+        static_cast<int>(str.size()),
+        nullptr,
+        0,
+        nullptr,
+        nullptr
+    );
+    if (newSize == 0)
+    {
+        return "";
+    }
+    std::vector<char> buffer(newSize);
+    int result = WideCharToMultiByte(
+        CP_UTF8,
+        0,
+        str.c_str(),
+        static_cast<int>(str.size()),
+        buffer.data(),
+        newSize,
+        nullptr,
+        nullptr
+    );
+    if (result == 0)
+    {
+        return "";
+    }
+
+    return std::string(buffer.data(), newSize);
+#else
+    setlocale(LC_ALL, "");
+
+    size_t newSize;
+    auto err = wcstombs_s(&newSize, nullptr, 0, str.c_str(), 0);
+    if (err != 0 || newSize == 0)
+    {
+        return "";
+    }
+
+    std::vector<char> buffer(newSize);
+    err = wcstombs_s(&newSize, buffer.data(), newSize, str.c_str(), str.size());
+    if (err != 0)
+    {
+        return "";
+    }
+
     return std::string(buffer.data());
+#endif
 }
 
 inline std::wstring toWString(std::string str)
 {
-    const char* cstr = str.c_str();
-    size_t size = mbstowcs(nullptr, cstr, 0);
-    if (size == static_cast<size_t>(-1))
+    if (str.empty())
     {
         return L"";
     }
 
-    std::vector<wchar_t> buffer(size + 1);
-    mbstowcs(buffer.data(), cstr, size + 1);
+#ifdef KARIN_PLATFORM_WINDOWS
+    int newSize = MultiByteToWideChar(
+        CP_UTF8,
+        0,
+        str.c_str(),
+        static_cast<int>(str.size()),
+        nullptr,
+        0
+    );
+    if (newSize == 0)
+    {
+        return L"";
+    }
+    std::vector<wchar_t> buffer(newSize);
+    int result = MultiByteToWideChar(
+        CP_UTF8,
+        0,
+        str.c_str(),
+        static_cast<int>(str.size()),
+        buffer.data(),
+        newSize
+    );
+    if (result == 0)
+    {
+        return L"";
+    }
+
+    return std::wstring(buffer.data(), newSize);
+#else
+    setlocale(LC_ALL, "");
+
+    size_t newSize;
+    auto err = mbstowcs_s(&newSize, nullptr, 0, str.c_str(), 0);
+    if (err != 0 || newSize == 0)
+    {
+        return L"";
+    }
+
+    std::vector<wchar_t> buffer(newSize);
+    err = mbstowcs_s(&newSize, buffer.data(), newSize, str.c_str(), str.size());
+    if (err != 0)
+    {
+        return L"";
+    }
+
     return std::wstring(buffer.data());
+#endif
 }
 
 #endif //SRC_COMMON_UTILS_STRING_H
