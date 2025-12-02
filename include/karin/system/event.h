@@ -2,6 +2,7 @@
 #define KARIN_SYSTEM_EVENT_H
 #include <any>
 #include <variant>
+#include <string>
 
 namespace karin
 {
@@ -44,9 +45,10 @@ class MouseButtonEvent
 public:
     enum class Button
     {
-        LEFT,
-        RIGHT,
-        MIDDLE
+        // TODO: Add more buttons if needed
+        Left,
+        Right,
+        Middle
     };
 
     enum class Type
@@ -143,6 +145,7 @@ public:
     {
         KeyPress,
         KeyRelease,
+        KeyType
     };
 
     KeyEvent(Type type, KeyCode keyCode, Modifier modifierState, const std::string& character)

@@ -6,7 +6,7 @@
 
 namespace karin
 {
-std::unique_ptr<Event> translateWinEvent(UINT message, WPARAM wParam, LPARAM lParam);
+Event translateWinEvent(UINT message, WPARAM wParam, LPARAM lParam);
 } // karin
 
 #endif //KARIN_WIN_EVENT_H

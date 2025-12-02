@@ -46,7 +46,6 @@ LRESULT WinWindowImpl::handleMessage(UINT message, WPARAM wParam, LPARAM lParam)
         return 0;
 
     case WM_PAINT:
-
         m_appImpl->pushEvent(WindowEvent(WindowEvent::Type::Paint));
         return 0;
 

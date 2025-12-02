@@ -1,5 +1,7 @@
 #include "win_converter.h"
 
+#include <utils/string.h>
+
 namespace
 {
 using namespace karin;
@@ -793,8 +795,8 @@ KeyEvent::KeyCode winVirtualKeyToKeyCode(WPARAM wParam)
 
 KeyEvent::KeyCode winScanCodeToKeyCode(LPARAM lParam)
 {
-    uint8_t scanCode = (lParam >> 16) & 0xFF;
-    bool isExtended = (lParam >> 24) & 0x01;
+    uint8_t scanCode = lParam >> 16 & 0xFF;
+    bool isExtended = lParam >> 24 & 0x01;
     return windowsScanCodeToKeyCode[isExtended][scanCode];
 }
 
@@ -812,5 +814,24 @@ KeyEvent::Modifier getWinModifierState()
     if (GetKeyState(VK_LWIN) & 0x8000 || GetKeyState(VK_RWIN) & 0x8000)
         modifiers = modifiers | Super;
     return modifiers;
+}
+
+std::string winKeyToChar(WPARAM wParam, LPARAM lParam)
+{
+    BYTE keyboardState[256];
+    GetKeyboardState(keyboardState);
+
+    wchar_t buffer[5] = {};
+
+    UINT scanCode = lParam >> 16 & 0xFF;
+
+    int result = ToUnicode(static_cast<UINT>(wParam), scanCode, keyboardState, buffer, 4, 0);
+    if (result > 0)
+    {
+        std::wstring ws(buffer);
+        return toString(ws);
+    }
+    // TODO: handle dead keys
+    return "";
 }
 }
