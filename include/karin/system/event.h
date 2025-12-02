@@ -7,13 +7,13 @@
 namespace karin
 {
 
-class KeyEvent;
-class MouseMoveEvent;
-class MouseButtonEvent;
-class MouseWheelEvent;
-class WindowEvent;
-class WindowResizeEvent;
-class ActionEvent;
+struct KeyEvent;
+struct MouseMoveEvent;
+struct MouseButtonEvent;
+struct MouseWheelEvent;
+struct WindowEvent;
+struct WindowResizeEvent;
+struct ActionEvent;
 
 using Event = std::variant<
     std::monostate,
@@ -26,25 +26,16 @@ using Event = std::variant<
     ActionEvent
 >;
 
-class MouseMoveEvent
+struct MouseMoveEvent
 {
-public:
-    MouseMoveEvent(int x, int y)
-        : m_x(x)
-        , m_y(y)
-    {
-    }
-
-private:
-    int m_x;
-    int m_y;
-
+    int x;
+    int y;
 };
 
-class MouseButtonEvent
+struct MouseButtonEvent
 {
-public:
-    enum class Button
+
+    enum struct Button
     {
         // TODO: Add more buttons if needed
         Left,
@@ -52,47 +43,29 @@ public:
         Middle
     };
 
-    enum class Type
+    enum struct Type
     {
         ButtonPress,
         ButtonRelease
     };
 
-    MouseButtonEvent(Type type, Button button, int x, int y)
-        : m_type(type)
-        , m_button(button)
-        , m_x(x)
-        , m_y(y)
-    {
-    }
-
-private:
-    Type m_type;
-    Button m_button;
-    int m_x;
-    int m_y;
+    Type type;
+    Button button;
+    int x;
+    int y;
 };
 
-class MouseWheelEvent
+struct MouseWheelEvent
 {
-public:
-    MouseWheelEvent(int delta, int x, int y)
-        : m_delta(delta)
-        , m_x(x)
-        , m_y(y)
-    {
-    }
-
-private:
-    int m_delta;
-    int m_x;
-    int m_y;
+    int delta;
+    int x;
+    int y;
 };
 
-class WindowEvent
+struct WindowEvent
 {
-public:
-    enum class Type
+
+    enum struct Type
     {
         Close,
         Maximize,
@@ -100,70 +73,39 @@ public:
         Paint
     };
 
-    WindowEvent(Type type)
-        : m_type(type)
-    {
-    }
-
-private:
-    Type m_type;
+    Type type;
 };
 
-class WindowResizeEvent
+struct WindowResizeEvent
 {
-public:
-    WindowResizeEvent(int width, int height)
-        : m_width(width)
-        , m_height(height)
-    {
-    }
-
-private:
-    int m_width;
-    int m_height;
+    int width;
+    int height;
 };
 
-class ActionEvent
+struct ActionEvent
 {
-public:
-    ActionEvent(uint32_t actionId, std::any data = {})
-        : m_actionId(actionId)
-        , m_data(std::move(data))
-    {
-    }
-
-private:
-    uint32_t m_actionId;
-    std::any m_data;
+    uint32_t actionId;
+    std::any data;
 };
 
-class KeyEvent
+struct KeyEvent
 {
-public:
-    enum class KeyCode : uint8_t;
-    enum class Modifier : uint8_t;
-    enum class Type
+
+    enum struct KeyCode : uint8_t;
+    enum struct Modifier : uint8_t;
+    enum struct Type
     {
         KeyPress,
         KeyRelease,
         KeyType
     };
 
-    KeyEvent(Type type, KeyCode keyCode, Modifier modifierState, const std::string& character)
-        : m_type(type)
-        , m_keyCode(keyCode)
-        , m_modifierState(modifierState)
-        , m_char(character)
-    {
-    }
-private:
-    Type m_type;
-    KeyCode m_keyCode;
-    Modifier m_modifierState;
-    std::string m_char;
+    Type type;
+    KeyCode keyCode;
+    Modifier modifierState;
+    std::string character;
 
-public:
-    enum class Modifier : uint8_t
+    enum struct Modifier : uint8_t
     {
         None    = 0x0,
         Shift   = 0x1,
@@ -173,7 +115,7 @@ public:
     };
 
     // based on USB HID Usage Page for Keyboard/Keypad (0x07)
-    enum class KeyCode : uint8_t
+    enum struct KeyCode : uint8_t
     {
         ErrorRollOver = 0x01,
         POSTFail = 0x02,
@@ -204,16 +146,16 @@ public:
         X = 0x1B,
         Y = 0x1C,
         Z = 0x1D,
-        Num_1 = 0x1E,
-        Num_2 = 0x1F,
-        Num_3 = 0x20,
-        Num_4 = 0x21,
-        Num_5 = 0x22,
-        Num_6 = 0x23,
-        Num_7 = 0x24,
-        Num_8 = 0x25,
-        Num_9 = 0x26,
-        Num_0 = 0x27,
+        Nu1 = 0x1E,
+        Nu2 = 0x1F,
+        Nu3 = 0x20,
+        Nu4 = 0x21,
+        Nu5 = 0x22,
+        Nu6 = 0x23,
+        Nu7 = 0x24,
+        Nu8 = 0x25,
+        Nu9 = 0x26,
+        Nu0 = 0x27,
         Enter = 0x28,
         Escape = 0x29,
         Backspace = 0x2A,
