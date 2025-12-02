@@ -9,7 +9,7 @@
 
 namespace karin
 {
-Event translateWinEvent(UINT message, WPARAM wParam, LPARAM lParam)
+std::optional<Event> translateWinEvent(UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
@@ -118,8 +118,9 @@ Event translateWinEvent(UINT message, WPARAM wParam, LPARAM lParam)
             static_cast<uint32_t>(wParam),
             *reinterpret_cast<std::shared_ptr<std::any>*>(lParam)
         );
-    }
 
-    return UndefinedEvent();
+    default:
+        return std::nullopt;
+    }
 }
 } // karin

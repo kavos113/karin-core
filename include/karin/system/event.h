@@ -14,17 +14,16 @@ class MouseWheelEvent;
 class WindowEvent;
 class WindowResizeEvent;
 class ActionEvent;
-class UndefinedEvent;
 
 using Event = std::variant<
+    std::monostate,
     KeyEvent,
     MouseMoveEvent,
     MouseButtonEvent,
     MouseWheelEvent,
     WindowEvent,
     WindowResizeEvent,
-    ActionEvent,
-    UndefinedEvent
+    ActionEvent
 >;
 
 class MouseMoveEvent
@@ -413,12 +412,6 @@ constexpr KeyEvent::Modifier& operator|=(KeyEvent::Modifier& a, KeyEvent::Modifi
     a = a | b;
     return a;
 }
-
-class UndefinedEvent
-{
-public:
-    UndefinedEvent() = default;
-};
 
 } // karin
 

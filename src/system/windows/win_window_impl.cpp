@@ -41,10 +41,10 @@ LRESULT WinWindowImpl::handleMessage(UINT message, WPARAM wParam, LPARAM lParam)
         return 0;
     }
 
-    Event event = translateWinEvent(message, wParam, lParam);
-    if (const auto* undefinedEvent = std::get_if<UndefinedEvent>(&event); undefinedEvent == nullptr)
+    std::optional<Event> event = translateWinEvent(message, wParam, lParam);
+    if (event.has_value())
     {
-        m_appImpl->pushEvent(event);
+        m_appImpl->pushEvent(*event);
         return 0;
     }
 
