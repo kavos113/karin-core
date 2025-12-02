@@ -10,6 +10,7 @@ namespace karin
 
 KeyEvent::KeyCode winVirtualKeyToKeyCode(WPARAM wParam);
 KeyEvent::KeyCode winScanCodeToKeyCode(LPARAM lParam);
+KeyEvent::Modifier getWinModifierState();
 }
 
 #endif //SRC_SYSTEM_WINDOWS_WIN_CONVERTER_H

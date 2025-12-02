@@ -797,4 +797,20 @@ KeyEvent::KeyCode winScanCodeToKeyCode(LPARAM lParam)
     bool isExtended = (lParam >> 24) & 0x01;
     return windowsScanCodeToKeyCode[isExtended][scanCode];
 }
+
+KeyEvent::Modifier getWinModifierState()
+{
+    using enum KeyEvent::Modifier;
+
+    KeyEvent::Modifier modifiers = None;
+    if (GetKeyState(VK_SHIFT) & 0x8000)
+        modifiers = modifiers | Shift;
+    if (GetKeyState(VK_CONTROL) & 0x8000)
+        modifiers = modifiers | Control;
+    if (GetKeyState(VK_MENU) & 0x8000)
+        modifiers = modifiers | Alt;
+    if (GetKeyState(VK_LWIN) & 0x8000 || GetKeyState(VK_RWIN) & 0x8000)
+        modifiers = modifiers | Super;
+    return modifiers;
+}
 }

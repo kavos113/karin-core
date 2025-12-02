@@ -161,9 +161,11 @@ private:
 public:
     enum class Modifier : uint8_t
     {
+        None    = 0x0,
         Shift   = 0x1,
         Control = 0x2,
         Alt     = 0x4,
+        Super   = 0x8,
     };
 
     // based on USB HID Usage Page for Keyboard/Keypad (0x07)
