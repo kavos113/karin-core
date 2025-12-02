@@ -3,15 +3,32 @@
 #include <windows.h>
 
 #include "win_window_class_registry.h"
+#include "win_window_impl.h"
 
 namespace karin
 {
 WinApplicationImpl::WinApplicationImpl()
 {
+    WNDCLASSEX wc = {
+        .cbSize = sizeof(WNDCLASSEX),
+        .style = CS_HREDRAW | CS_VREDRAW,
+        .lpfnWndProc = WinWindowImpl::windowProc,
+        .cbClsExtra = 0,
+        .cbWndExtra = 0,
+        .hInstance = GetModuleHandle(nullptr),
+        .hIcon = LoadIcon(nullptr, IDI_APPLICATION),
+        .hCursor = LoadCursor(nullptr, IDC_ARROW),
+        .hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1),
+        .lpszMenuName = nullptr,
+        .hIconSm = LoadIcon(nullptr, IDI_APPLICATION)
+    };
+
+    WinWindowClassRegistry::registerClass(wc, CLASS_NAME);
 }
 
 WinApplicationImpl::~WinApplicationImpl()
 {
+    WinWindowClassRegistry::unregisterClasses();
 }
 
 void WinApplicationImpl::run()
@@ -34,17 +51,16 @@ bool WinApplicationImpl::pollEvent(Event &event)
 {
     if (!m_eventQueue.empty())
     {
-        event = std::move(m_eventQueue.front());
+        event = m_eventQueue.front();
         m_eventQueue.pop();
         return true;
     }
 
     MSG msg;
-    while (GetMessage(&msg, nullptr, 0, 0))
+    while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
     {
         if (msg.message == WM_QUIT)
         {
-            m_isRunning = false;
             return false;
         }
 
@@ -53,7 +69,7 @@ bool WinApplicationImpl::pollEvent(Event &event)
 
         if (!m_eventQueue.empty())
         {
-            event = std::move(m_eventQueue.front());
+            event = m_eventQueue.front();
             m_eventQueue.pop();
             return true;
         }

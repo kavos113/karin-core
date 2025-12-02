@@ -1,26 +1,22 @@
 #include "win_window_impl.h"
 
-#include <iostream>
-
 #include "win_window_class_registry.h"
 
 namespace karin
 {
-std::once_flag WinWindowImpl::m_registerClassFlag;
-
 WinWindowImpl::WinWindowImpl(
     const std::wstring& title,
     const int x,
     const int y,
     const int width,
-    const int height
+    const int height,
+    WinApplicationImpl* appImpl
 )
+    : m_appImpl(appImpl)
 {
-    std::call_once(m_registerClassFlag, &WinWindowImpl::registerClass);
-
     m_hwnd = CreateWindowEx(
         0,
-        CLASS_NAME,
+        WinApplicationImpl::CLASS_NAME,
         title.c_str(),
         WS_OVERLAPPEDWINDOW,
         x, y,
@@ -36,25 +32,6 @@ WinWindowImpl::WinWindowImpl(
     }
 }
 
-void WinWindowImpl::registerClass()
-{
-    WNDCLASSEX wc = {
-        .cbSize = sizeof(WNDCLASSEX),
-        .style = CS_HREDRAW | CS_VREDRAW,
-        .lpfnWndProc = windowProc,
-        .cbClsExtra = 0,
-        .cbWndExtra = 0,
-        .hInstance = GetModuleHandle(nullptr),
-        .hIcon = LoadIcon(nullptr, IDI_APPLICATION),
-        .hCursor = LoadCursor(nullptr, IDC_ARROW),
-        .hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1),
-        .lpszMenuName = nullptr,
-        .hIconSm = LoadIcon(nullptr, IDI_APPLICATION)
-    };
-
-    WinWindowClassRegistry::registerClass(wc, CLASS_NAME);
-}
-
 LRESULT WinWindowImpl::handleMessage(UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
@@ -64,33 +41,22 @@ LRESULT WinWindowImpl::handleMessage(UINT message, WPARAM wParam, LPARAM lParam)
         return 0;
 
     case WM_CLOSE:
+        m_appImpl->pushEvent(WindowEvent(WindowEvent::Type::Close));
         DestroyWindow(m_hwnd);
         return 0;
 
     case WM_PAINT:
-    {
-        PAINTSTRUCT ps;
-        BeginPaint(m_hwnd, &ps);
 
-        if (m_onPaint)
-        {
-            m_onPaint();
-        }
-
-        EndPaint(m_hwnd, &ps);
+        m_appImpl->pushEvent(WindowEvent(WindowEvent::Type::Paint));
         return 0;
-    }
+
     case WM_SIZE:
-        if (m_onResize)
-        {
-            m_onResize(
-                Size(
-                    static_cast<float>(LOWORD(lParam)),
-                    static_cast<float>(HIWORD(lParam))
-                )
-            );
-            InvalidateRect(m_hwnd, nullptr, FALSE);
-        }
+        m_appImpl->pushEvent(
+            WindowResizeEvent(
+                LOWORD(lParam),
+                HIWORD(lParam)
+            )
+        );
         return 0;
 
     default:

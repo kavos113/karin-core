@@ -5,10 +5,10 @@
 #include <window_impl.h>
 
 #include <karin/system/window.h>
-#include <mutex>
 #include <string>
-#include <memory>
 #include <functional>
+
+#include "win_application_impl.h"
 
 namespace karin
 {
@@ -20,7 +20,8 @@ public:
         int x,
         int y,
         int width,
-        int height
+        int height,
+        WinApplicationImpl* appImpl
     );
     ~WinWindowImpl() override = default;
 
@@ -38,11 +39,9 @@ public:
 
     [[nodiscard]] Window::NativeHandle handle() const override;
 
-private:
-    static void registerClass();
-    static std::once_flag m_registerClassFlag;
-
     static LRESULT CALLBACK windowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+
+private:
     LRESULT handleMessage(UINT message, WPARAM wParam, LPARAM lParam);
 
     HWND m_hwnd;
@@ -50,7 +49,7 @@ private:
     std::function<void()> m_onPaint;
     std::function<void(Size)> m_onResize;
 
-    static constexpr auto CLASS_NAME = L"KarinWindow";
+    WinApplicationImpl* m_appImpl = nullptr;
 };
 } // karin
 

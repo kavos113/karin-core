@@ -18,7 +18,14 @@ public:
     bool pollEvent(Event& event) override;
     void shutdown() override;
 
+    void pushEvent(const Event& event)
+    {
+        m_eventQueue.push(event);
+    }
+
     bool m_isRunning = false;
+
+    static constexpr auto CLASS_NAME = L"KarinWindow";
 
 private:
     std::queue<Event> m_eventQueue;
