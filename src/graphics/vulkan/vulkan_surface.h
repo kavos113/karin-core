@@ -46,7 +46,7 @@ public:
 
 private:
     void createSurface();
-    void createSwapChain();
+    void createSwapChain(bool isRecreating);
     void createImageView();
     void createViewport();
 

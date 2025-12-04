@@ -23,7 +23,7 @@ VulkanSurface::VulkanSurface(VulkanGraphicsDevice* device, Window::NativeHandle 
 
     m_device->initDevices(m_surface);
 
-    createSwapChain();
+    createSwapChain(false);
 
     createImageView();
     createViewport();
@@ -57,9 +57,7 @@ void VulkanSurface::resize()
         vkDestroyImageView(m_device->device(), imageView, nullptr);
     }
 
-    vkDestroySwapchainKHR(m_device->device(), m_swapChain, nullptr);
-
-    createSwapChain();
+    createSwapChain(true);
     createImageView();
     createViewport();
 }
@@ -153,11 +151,17 @@ void VulkanSurface::createSurface()
 #endif
 }
 
-void VulkanSurface::createSwapChain()
+void VulkanSurface::createSwapChain(bool isRecreating)
 {
     VkSurfaceFormatKHR surfaceFormat = VulkanUtils::getBestSwapSurfaceFormat(m_device->physicalDevice(), m_surface);
     VkPresentModeKHR presentMode = VulkanUtils::getBestSwapPresentMode(m_device->physicalDevice(), m_surface);
     VkSurfaceCapabilitiesKHR capabilities = VulkanUtils::getSwapCapabilities(m_device->physicalDevice(), m_surface);
+
+    VkSwapchainKHR oldSwapChain = VK_NULL_HANDLE;
+    if (isRecreating)
+    {
+        oldSwapChain = m_swapChain;
+    }
 
     int width, height;
 #ifdef KARIN_PLATFORM_WINDOWS
@@ -190,9 +194,9 @@ void VulkanSurface::createSwapChain()
         .imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
         .preTransform = capabilities.currentTransform,
         .compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
-        .presentMode = VK_PRESENT_MODE_FIFO_RELAXED_KHR,
+        .presentMode = presentMode,
         .clipped = VK_TRUE,
-        .oldSwapchain = VK_NULL_HANDLE,
+        .oldSwapchain = oldSwapChain,
     };
 
     std::array queueFamilyIndices = {
@@ -213,9 +217,17 @@ void VulkanSurface::createSwapChain()
         createInfo.pQueueFamilyIndices = nullptr;
     }
 
-    if (vkCreateSwapchainKHR(m_device->device(), &createInfo, nullptr, &m_swapChain) != VK_SUCCESS)
+    VkSwapchainKHR swapChain;
+    if (vkCreateSwapchainKHR(m_device->device(), &createInfo, nullptr, &swapChain) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create swap chain");
+    }
+
+    m_swapChain = swapChain;
+
+    if (oldSwapChain != VK_NULL_HANDLE)
+    {
+        vkDestroySwapchainKHR(m_device->device(), oldSwapChain, nullptr);
     }
 
     uint32_t swapChainImageCount = 0;
