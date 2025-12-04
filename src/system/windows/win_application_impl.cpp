@@ -53,8 +53,6 @@ bool WinApplicationImpl::waitEvent(Event &event)
     TranslateMessage(&msg);
     DispatchMessage(&msg);
 
-    std::cout << "event queue size after message dispatch: " << m_eventQueue.size() << std::endl;
-
     if (!m_eventQueue.empty())
     {
         event = m_eventQueue.front();

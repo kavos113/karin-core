@@ -33,13 +33,12 @@ WinWindowImpl::WinWindowImpl(
     }
 }
 
-LRESULT WinWindowImpl::handleMessage(UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT WinWindowImpl::handleMessage(UINT message, WPARAM wParam, LPARAM lParam) const
 {
     std::optional<Event> event = translateWinEvent(message, wParam, lParam);
     if (event.has_value())
     {
         m_appImpl->pushEvent(*event);
-        std::cout << "Event pushed to application event queue." << std::endl;
     }
 
     switch (message)
@@ -54,6 +53,18 @@ LRESULT WinWindowImpl::handleMessage(UINT message, WPARAM wParam, LPARAM lParam)
 
     case WM_PAINT:
         ValidateRect(m_hwnd, nullptr);
+        if (m_onPaint)
+        {
+            m_onPaint();
+        }
+        return 0;
+
+    case WM_SIZE:
+        if (m_onResize)
+        {
+            Size newSize(LOWORD(lParam), HIWORD(lParam));
+            m_onResize(newSize);
+        }
         return 0;
 
     default:

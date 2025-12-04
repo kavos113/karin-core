@@ -42,7 +42,7 @@ public:
     static LRESULT CALLBACK windowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
-    LRESULT handleMessage(UINT message, WPARAM wParam, LPARAM lParam);
+    LRESULT handleMessage(UINT message, WPARAM wParam, LPARAM lParam) const;
 
     HWND m_hwnd;
 

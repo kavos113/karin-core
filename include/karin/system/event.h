@@ -12,7 +12,6 @@ struct MouseMoveEvent;
 struct MouseButtonEvent;
 struct MouseWheelEvent;
 struct WindowEvent;
-struct WindowResizeEvent;
 struct ActionEvent;
 
 using Event = std::variant<
@@ -22,7 +21,6 @@ using Event = std::variant<
     MouseButtonEvent,
     MouseWheelEvent,
     WindowEvent,
-    WindowResizeEvent,
     ActionEvent
 >;
 
@@ -70,16 +68,9 @@ struct WindowEvent
         Close,
         Maximize,
         Minimize,
-        Paint
     };
 
     Type type;
-};
-
-struct WindowResizeEvent
-{
-    int width;
-    int height;
 };
 
 struct ActionEvent

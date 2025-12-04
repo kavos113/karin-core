@@ -7,6 +7,11 @@ int main()
 
     window.setStatus(karin::Window::ShowStatus::SHOW);
 
+    window.setOnResize([](karin::Size newSize)
+    {
+        std::cout << "Window resized to " << newSize.width << "x" << newSize.height << std::endl;
+    });
+
     karin::Event event;
     while (app.waitEvent(event))
     {
@@ -16,13 +21,6 @@ int main()
             {
                 std::cout << "Window close event received." << std::endl;
             }
-        }
-        else if (const auto* resizeEvent = std::get_if<karin::WindowResizeEvent>(&event))
-        {
-            int newWidth = resizeEvent->width;
-            int newHeight = resizeEvent->height;
-
-            std::cout << "Window resized to " << newWidth << "x" << newHeight << std::endl;
         }
     }
 

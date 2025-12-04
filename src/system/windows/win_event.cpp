@@ -1,5 +1,6 @@
 #include "win_event.h"
 
+#include <iostream>
 #include <karin/system/event.h>
 
 #include "win_converter.h"
@@ -104,14 +105,17 @@ std::optional<Event> translateWinEvent(UINT message, WPARAM wParam, LPARAM lPara
     case WM_CLOSE:
         return WindowEvent(WindowEvent::Type::Close);
 
-    case WM_PAINT:
-        return WindowEvent(WindowEvent::Type::Paint);
-
     case WM_SIZE:
-        return WindowResizeEvent(
-            LOWORD(lParam),
-            HIWORD(lParam)
-        );
+        switch (wParam)
+        {
+        case SIZE_MAXIMIZED:
+            return WindowEvent(WindowEvent::Type::Maximize);
+        case SIZE_MINIMIZED:
+            return WindowEvent(WindowEvent::Type::Minimize);
+        default:
+            break;
+        }
+        return std::nullopt;
 
     case WM_KARIN_ACTION:
         return ActionEvent(
