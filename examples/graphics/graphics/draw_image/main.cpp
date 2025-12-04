@@ -25,7 +25,9 @@ int main()
     renderer.update();
 
     window.setStatus(karin::Window::ShowStatus::SHOW);
-    app.run();
+
+    karin::Event event;
+    while (app.waitEvent(event)) {}
 
     renderer.cleanUp();
     device->cleanUp();
