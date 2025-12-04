@@ -307,6 +307,7 @@ void VulkanRendererImpl::endDraw()
 
 void VulkanRendererImpl::resize(Size size)
 {
+    doResize();
 }
 
 void VulkanRendererImpl::addCommand(
@@ -497,8 +498,8 @@ void VulkanRendererImpl::createMatrixBuffer()
     }
 
     m_projMatrixData.proj = glm::mat4(1.0f);
-    m_projMatrixData.proj[0][0] = 2.0f / m_extent.width;
-    m_projMatrixData.proj[1][1] = 2.0f / m_extent.height;
+    m_projMatrixData.proj[0][0] = 2.0f / static_cast<float>(m_extent.width);
+    m_projMatrixData.proj[1][1] = 2.0f / static_cast<float>(m_extent.height);
     m_projMatrixData.proj[3][0] = -1.0f;
     m_projMatrixData.proj[3][1] = -1.0f;
 
@@ -698,5 +699,19 @@ void VulkanRendererImpl::doResize()
     m_extent = m_surface->extent();
 
     createFrameBuffers();
+
+    m_projMatrixData.proj[0][0] = 2.0f / static_cast<float>(m_extent.width);
+    m_projMatrixData.proj[1][1] = 2.0f / static_cast<float>(m_extent.height);
+    m_projMatrixData.proj[3][0] = -1.0f;
+    m_projMatrixData.proj[3][1] = -1.0f;
+
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+    {
+        memcpy(
+            m_projMatrixBufferMemoryInfos[i].pMappedData,
+            &m_projMatrixData,
+            sizeof(MatrixBufferObject)
+        );
+    }
 }
 } // karin

@@ -190,7 +190,7 @@ void VulkanSurface::createSwapChain()
         .imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
         .preTransform = capabilities.currentTransform,
         .compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
-        .presentMode = presentMode,
+        .presentMode = VK_PRESENT_MODE_FIFO_RELAXED_KHR,
         .clipped = VK_TRUE,
         .oldSwapchain = VK_NULL_HANDLE,
     };
