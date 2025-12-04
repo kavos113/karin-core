@@ -7,7 +7,8 @@ int main()
 
     window.setStatus(karin::Window::ShowStatus::MAXIMIZE);
 
-    app.run();
+    karin::Event event;
+    while (app.waitEvent(event)) {}
 
     return 0;
 }

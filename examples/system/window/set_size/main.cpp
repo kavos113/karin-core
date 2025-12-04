@@ -9,7 +9,8 @@ int main()
     window.setStatus(karin::Window::ShowStatus::SHOW);
     window.setSize(karin::Size(1600, 900));
 
-    app.run();
+    karin::Event event;
+    while (app.waitEvent(event)) {}
 
     return 0;
 }
