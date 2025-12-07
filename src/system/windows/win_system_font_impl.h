@@ -12,7 +12,7 @@ class IDWriteFactory;
 
 namespace karin
 {
-class WinSystemFontImpl : public SystemFontImpl
+class WinSystemFontImpl : public ISystemFontImpl
 {
 public:
     WinSystemFontImpl();

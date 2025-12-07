@@ -9,7 +9,7 @@
 
 namespace karin
 {
-class SystemFontImpl;
+class ISystemFontImpl;
 
 class SystemFont
 {
@@ -20,7 +20,7 @@ public:
     std::vector<std::byte> getFontData(const Font& font) const;
 
 private:
-    std::unique_ptr<SystemFontImpl> m_impl;
+    std::unique_ptr<ISystemFontImpl> m_impl;
 };
 }
 
