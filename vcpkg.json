@@ -4,24 +4,28 @@
   "builtin-baseline": "984f9232b2fe0eb94f5e9f161d6c632c581fff0c",
   "dependencies": [
     {
-      "name": "vulkan-memory-allocator",
-      "version>=": "3.3.0"
+      "name": "freetype",
+      "version>=": "2.13.3"
     },
     {
       "name": "glm",
       "version>=": "1.0.1#3"
     },
     {
+      "name": "harfbuzz",
+      "version>=": "11.2.0"
+    },
+    {
       "name": "stb",
       "version>=": "2024-07-29#1"
     },
     {
-      "name": "freetype",
-      "version>=": "2.13.3"
+      "name": "vulkan-memory-allocator",
+      "version>=": "3.3.0"
     },
     {
-      "name": "harfbuzz",
-      "version>=": "11.2.0"
+      "name": "fontconfig",
+      "version>=": "2.15.0#4"
     }
   ]
 }
