@@ -7,10 +7,10 @@
 
 namespace karin
 {
-class SystemFontImpl
+class ISystemFontImpl
 {
 public:
-    virtual ~SystemFontImpl() = default;
+    virtual ~ISystemFontImpl() = default;
 
     virtual std::vector<Font> getSystemFonts() = 0;
     virtual std::vector<std::byte> getFontData(const Font& font) = 0;

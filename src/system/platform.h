@@ -15,6 +15,7 @@
 #elifdef KARIN_PLATFORM_UNIX
 #include "x11/x11_application_impl.h"
 #include "x11/x11_window_impl.h"
+#include "x11/x11_system_font_impl.h"
 #endif
 
 namespace karin
@@ -50,12 +51,12 @@ inline std::unique_ptr<IWindowImpl> createWindowImpl(
     return nullptr;
 }
 
-inline std::unique_ptr<SystemFontImpl> createSystemFontImpl()
+inline std::unique_ptr<ISystemFontImpl> createSystemFontImpl()
 {
 #ifdef KARIN_PLATFORM_WINDOWS
     return std::make_unique<WinSystemFontImpl>();
 #elifdef KARIN_PLATFORM_UNIX
-    return nullptr; // TODO: Implement X11SystemFontImpl
+    return std::make_unique<X11SystemFontImpl>();
 #endif
     return nullptr;
 }

@@ -17,6 +17,7 @@ elseif (UNIX)
     set(SYSTEM_SOURCE ${SYSTEM_SOURCE}
             x11/x11_application_impl.cpp
             x11/x11_window_impl.cpp
+            x11/x11_system_font_impl.cpp
     )
 endif ()
 
@@ -38,4 +39,7 @@ endif ()
 
 if (UNIX)
     target_link_libraries(karin_system PRIVATE X11)
+
+    find_package(Fontconfig REQUIRED)
+    target_link_libraries(karin_system PRIVATE Fontconfig::Fontconfig)
 endif ()
