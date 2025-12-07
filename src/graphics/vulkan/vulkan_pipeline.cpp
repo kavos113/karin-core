@@ -2,7 +2,25 @@
 
 #include <stdexcept>
 
-#include "vulkan/vulkan_utils.h"
+namespace
+{
+VkShaderModule loadShader(VkDevice device, const unsigned char* code, unsigned int codeSize)
+{
+    VkShaderModuleCreateInfo createInfo = {
+        .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+        .codeSize = codeSize,
+        .pCode = reinterpret_cast<const uint32_t*>(code),
+    };
+
+    VkShaderModule shaderModule;
+    if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create shader module");
+    }
+
+    return shaderModule;
+}
+}
 
 namespace karin
 {
@@ -43,8 +61,8 @@ void VulkanPipeline::createPipeline(
     const std::vector<VkPushConstantRange>& pushConstantRanges
 )
 {
-    auto vertShader = VulkanUtils::loadShader(device, vertShaderCode, vertShaderSize);
-    auto fragShader = VulkanUtils::loadShader(device, fragShaderCode, fragShaderSize);
+    auto vertShader = loadShader(device, vertShaderCode, vertShaderSize);
+    auto fragShader = loadShader(device, fragShaderCode, fragShaderSize);
 
     VkPipelineShaderStageCreateInfo vertShaderStageInfo = {
         .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,

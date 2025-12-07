@@ -2,17 +2,104 @@
 
 #include <array>
 #include <iostream>
-
-#include "vulkan_utils.h"
-
+#include <limits>
+#include <stdexcept>
+#include <vector>
+#include <algorithm>
+#include <ranges>
 
 #ifdef KARIN_PLATFORM_WINDOWS
+#define NOMINMAX
 #include <windows.h>
 #include <vulkan/vulkan_win32.h>
 #elifdef KARIN_PLATFORM_UNIX
 #include <X11/Xlib.h>
 #include <vulkan/vulkan_xlib.h>
 #endif
+
+namespace
+{
+VkSurfaceFormatKHR getBestSwapSurfaceFormat(VkPhysicalDevice device, VkSurfaceKHR surface)
+{
+    uint32_t formatCount;
+    vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
+
+    if (formatCount == 0)
+    {
+        return {VK_FORMAT_UNDEFINED, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
+    }
+
+    std::vector<VkSurfaceFormatKHR> availableFormats(formatCount);
+    vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, availableFormats.data());
+
+    for (const auto& availableFormat : availableFormats)
+    {
+        if (availableFormat.format == VK_FORMAT_B8G8R8A8_UNORM
+            && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+        {
+            return availableFormat;
+        }
+    }
+
+    return availableFormats[0];
+}
+
+VkPresentModeKHR getBestSwapPresentMode(VkPhysicalDevice device, VkSurfaceKHR surface, bool enableVsync)
+{
+    uint32_t presentModeCount;
+    vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
+
+    if (presentModeCount == 0)
+    {
+        return VK_PRESENT_MODE_FIFO_KHR; // Default present mode
+    }
+
+    std::vector<VkPresentModeKHR> availablePresentModes(presentModeCount);
+    vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, availablePresentModes.data());
+
+    if (std::ranges::contains(availablePresentModes, VK_PRESENT_MODE_MAILBOX_KHR))
+    {
+        return VK_PRESENT_MODE_MAILBOX_KHR;
+    }
+
+    if (!enableVsync && std::ranges::contains(availablePresentModes, VK_PRESENT_MODE_IMMEDIATE_KHR))
+    {
+        return VK_PRESENT_MODE_IMMEDIATE_KHR;
+    }
+
+    return VK_PRESENT_MODE_FIFO_KHR;
+}
+
+VkSurfaceCapabilitiesKHR getSwapCapabilities(VkPhysicalDevice device, VkSurfaceKHR surface)
+{
+    VkSurfaceCapabilitiesKHR capabilities;
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &capabilities);
+
+    return capabilities;
+}
+
+VkExtent2D getSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, int width, int height)
+{
+    if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
+    {
+        return capabilities.currentExtent;
+    }
+
+    VkExtent2D actualExtent = {
+        .width = static_cast<uint32_t>(width),
+        .height = static_cast<uint32_t>(height),
+    };
+
+    actualExtent.width = std::clamp(
+        actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width
+    );
+    actualExtent.height = std::clamp(
+        actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height
+    );
+
+    return actualExtent;
+}
+}
 
 namespace karin
 {
@@ -153,9 +240,9 @@ void VulkanSurface::createSurface()
 
 void VulkanSurface::createSwapChain(bool isRecreating)
 {
-    VkSurfaceFormatKHR surfaceFormat = VulkanUtils::getBestSwapSurfaceFormat(m_device->physicalDevice(), m_surface);
-    VkPresentModeKHR presentMode = VulkanUtils::getBestSwapPresentMode(m_device->physicalDevice(), m_surface, !m_isResizing);
-    VkSurfaceCapabilitiesKHR capabilities = VulkanUtils::getSwapCapabilities(m_device->physicalDevice(), m_surface);
+    VkSurfaceFormatKHR surfaceFormat = getBestSwapSurfaceFormat(m_device->physicalDevice(), m_surface);
+    VkPresentModeKHR presentMode = getBestSwapPresentMode(m_device->physicalDevice(), m_surface, !m_isResizing);
+    VkSurfaceCapabilitiesKHR capabilities = getSwapCapabilities(m_device->physicalDevice(), m_surface);
 
     VkSwapchainKHR oldSwapChain = VK_NULL_HANDLE;
     if (isRecreating)
@@ -175,7 +262,7 @@ void VulkanSurface::createSwapChain(bool isRecreating)
     width = attributes.width;
     height = attributes.height;
 #endif
-    VkExtent2D extent = VulkanUtils::getSwapExtent(capabilities, width, height);
+    VkExtent2D extent = getSwapExtent(capabilities, width, height);
 
     if (extent.width == 0 || extent.height == 0)
     {

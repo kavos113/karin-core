@@ -1,12 +1,11 @@
 #include "vulkan_graphics_device.h"
 
-#include "vulkan_utils.h"
-
 #include <algorithm>
 #include <array>
 #include <set>
 #include <memory>
 #include <stdexcept>
+#include <vector>
 
 #ifdef KARIN_PLATFORM_WINDOWS
 #include <windows.h>
@@ -15,6 +14,96 @@
 #include <X11/Xlib.h>
 #include <vulkan/vulkan_xlib.h>
 #endif
+
+namespace
+{
+const std::vector DEVICE_EXTENSIONS = {
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+};
+
+bool checkDeviceExtensionSupport(VkPhysicalDevice device)
+{
+    uint32_t extensionCount;
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+
+    std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+
+    for (const auto& extension : DEVICE_EXTENSIONS)
+    {
+        bool extensionFound = false;
+
+        for (const auto& availableExtension : availableExtensions)
+        {
+            if (strcmp(extension, availableExtension.extensionName) == 0)
+            {
+                extensionFound = true;
+                break;
+            }
+        }
+
+        if (!extensionFound)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+int rateDeviceScore(VkPhysicalDevice device)
+{
+    VkPhysicalDeviceProperties deviceProperties;
+    VkPhysicalDeviceFeatures deviceFeatures;
+    vkGetPhysicalDeviceProperties(device, &deviceProperties);
+    vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+
+    int score = 100;
+
+    if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+    {
+        score += 1000;
+    }
+
+    if (!checkDeviceExtensionSupport(device))
+    {
+        return 0;
+    }
+
+    if (!deviceFeatures.samplerAnisotropy)
+    {
+        return 0;
+    }
+
+    uint32_t queueFamilyCount;
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+
+    std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+
+    VkBool32 hasGraphicsFamily = false;
+
+    // TODO: hasPresentFamily (requires a surface)
+    for (const auto& queueFamily : queueFamilies)
+    {
+        if (queueFamily.queueCount == 0)
+        {
+            continue;
+        }
+        if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+        {
+            hasGraphicsFamily = true;
+        }
+    }
+
+    if (!hasGraphicsFamily)
+    {
+        return 0;
+    }
+
+    return score;
+}
+}
 
 namespace karin
 {
@@ -156,7 +245,7 @@ void VulkanGraphicsDevice::choosePhysicalDevice()
     std::vector<int> deviceScores(deviceCount);
     for (size_t i = 0; i < devices.size(); ++i)
     {
-        deviceScores[i] = VulkanUtils::rateDeviceScore(devices[i]);
+        deviceScores[i] = rateDeviceScore(devices[i]);
     }
 
     auto bestDeviceIt = std::max_element(deviceScores.begin(), deviceScores.end());
@@ -260,8 +349,8 @@ void VulkanGraphicsDevice::createLogicalDevice()
         .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
         .queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size()),
         .pQueueCreateInfos = queueCreateInfos.data(),
-        .enabledExtensionCount = static_cast<uint32_t>(VulkanUtils::DEVICE_EXTENSIONS.size()),
-        .ppEnabledExtensionNames = VulkanUtils::DEVICE_EXTENSIONS.data(),
+        .enabledExtensionCount = static_cast<uint32_t>(DEVICE_EXTENSIONS.size()),
+        .ppEnabledExtensionNames = DEVICE_EXTENSIONS.data(),
         .pEnabledFeatures = &deviceFeatures,
     };
 
