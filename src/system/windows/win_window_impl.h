@@ -36,6 +36,8 @@ public:
 
     void setOnPaint(std::function<bool()> onPaint) override;
     void setOnResize(std::function<void(Size)> onResize) override;
+    void setOnStartResize(std::function<void()> onStartResize) override;
+    void setOnFinishResize(std::function<void()> onFinishResize) override;
 
     [[nodiscard]] Window::NativeHandle handle() const override;
 
@@ -48,6 +50,8 @@ private:
 
     std::function<void()> m_onPaint;
     std::function<void(Size)> m_onResize;
+    std::function<void()> m_onStartResize;
+    std::function<void()> m_onFinishResize;
 
     WinApplicationImpl* m_appImpl = nullptr;
 };

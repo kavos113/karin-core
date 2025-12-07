@@ -11,7 +11,7 @@ WinApplicationImpl::WinApplicationImpl()
 {
     WNDCLASSEX wc = {
         .cbSize = sizeof(WNDCLASSEX),
-        .style = CS_HREDRAW | CS_VREDRAW,
+        .style = 0,
         .lpfnWndProc = WinWindowImpl::windowProc,
         .cbClsExtra = 0,
         .cbWndExtra = 0,

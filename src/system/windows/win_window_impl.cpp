@@ -65,6 +65,24 @@ LRESULT WinWindowImpl::handleMessage(UINT message, WPARAM wParam, LPARAM lParam)
             Size newSize(LOWORD(lParam), HIWORD(lParam));
             m_onResize(newSize);
         }
+        if (m_onPaint)
+        {
+            m_onPaint();
+        }
+        return 0;
+
+    case WM_ENTERSIZEMOVE:
+        if (m_onStartResize)
+        {
+            m_onStartResize();
+        }
+        return 0;
+
+    case WM_EXITSIZEMOVE:
+        if (m_onFinishResize)
+        {
+            m_onFinishResize();
+        }
         return 0;
 
     default:
@@ -188,5 +206,15 @@ void WinWindowImpl::setOnPaint(std::function<bool()> onPaint)
 void WinWindowImpl::setOnResize(std::function<void(Size)> onResize)
 {
     m_onResize = std::move(onResize);
+}
+
+void WinWindowImpl::setOnStartResize(std::function<void()> onStartResize)
+{
+    m_onStartResize = std::move(onStartResize);
+}
+
+void WinWindowImpl::setOnFinishResize(std::function<void()> onFinishResize)
+{
+    m_onFinishResize = std::move(onFinishResize);
 }
 } // karin

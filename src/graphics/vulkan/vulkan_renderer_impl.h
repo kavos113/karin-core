@@ -67,6 +67,16 @@ public:
         PipelineType pipelineType
     );
 
+    void startResizing() override
+    {
+        m_surface->startResizing();
+    }
+
+    void finishResizing() override
+    {
+        m_surface->finishResizing();
+    }
+
     Image createImage(const std::vector<std::byte>& data, uint32_t width, uint32_t height) override
     {
         return m_deviceResources->createImage(data, width, height);

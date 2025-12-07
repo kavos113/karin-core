@@ -65,6 +65,8 @@ public:
     // expected to return false if it should redraw
     void setOnPaint(std::function<bool()> onPaint);
     void setOnResize(std::function<void(Size)> onResize);
+    void setOnStartResize(std::function<void()> onStartResize);
+    void setOnFinishResize(std::function<void()> onFinishResize);
 
     static constexpr int DEFAULT_WIDTH = 800;
     static constexpr int DEFAULT_HEIGHT = 600;

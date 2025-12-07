@@ -23,6 +23,8 @@ public:
 
     virtual void setOnPaint(std::function<bool()> onPaint) = 0;
     virtual void setOnResize(std::function<void(Size)> onResize) = 0;
+    virtual void setOnStartResize(std::function<void()> onStartResize) = 0;
+    virtual void setOnFinishResize(std::function<void()> onFinishResize) = 0;
 
     virtual Window::NativeHandle handle() const = 0;
 };

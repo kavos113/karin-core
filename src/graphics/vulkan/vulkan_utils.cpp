@@ -153,7 +153,7 @@ VkSurfaceFormatKHR VulkanUtils::getBestSwapSurfaceFormat(VkPhysicalDevice device
     return availableFormats[0];
 }
 
-VkPresentModeKHR VulkanUtils::getBestSwapPresentMode(VkPhysicalDevice device, VkSurfaceKHR surface)
+VkPresentModeKHR VulkanUtils::getBestSwapPresentMode(VkPhysicalDevice device, VkSurfaceKHR surface, bool enableVsync)
 {
     uint32_t presentModeCount;
     vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
@@ -166,12 +166,14 @@ VkPresentModeKHR VulkanUtils::getBestSwapPresentMode(VkPhysicalDevice device, Vk
     std::vector<VkPresentModeKHR> availablePresentModes(presentModeCount);
     vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, availablePresentModes.data());
 
-    for (const auto& availablePresentMode : availablePresentModes)
+    if (std::ranges::contains(availablePresentModes, VK_PRESENT_MODE_MAILBOX_KHR))
     {
-        if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
-        {
-            return availablePresentMode;
-        }
+        return VK_PRESENT_MODE_MAILBOX_KHR;
+    }
+
+    if (!enableVsync && std::ranges::contains(availablePresentModes, VK_PRESENT_MODE_IMMEDIATE_KHR))
+    {
+        return VK_PRESENT_MODE_IMMEDIATE_KHR;
     }
 
     return VK_PRESENT_MODE_FIFO_KHR;

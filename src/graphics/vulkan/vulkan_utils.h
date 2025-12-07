@@ -13,7 +13,7 @@ public:
     static int rateDeviceScore(VkPhysicalDevice device);
 
     static VkSurfaceFormatKHR getBestSwapSurfaceFormat(VkPhysicalDevice device, VkSurfaceKHR surface);
-    static VkPresentModeKHR getBestSwapPresentMode(VkPhysicalDevice device, VkSurfaceKHR surface);
+    static VkPresentModeKHR getBestSwapPresentMode(VkPhysicalDevice device, VkSurfaceKHR surface, bool enableVsync = true);
     static VkSurfaceCapabilitiesKHR getSwapCapabilities(VkPhysicalDevice device, VkSurfaceKHR surface);
     static VkExtent2D getSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, int width, int height);
 

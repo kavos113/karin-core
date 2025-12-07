@@ -154,7 +154,7 @@ void VulkanSurface::createSurface()
 void VulkanSurface::createSwapChain(bool isRecreating)
 {
     VkSurfaceFormatKHR surfaceFormat = VulkanUtils::getBestSwapSurfaceFormat(m_device->physicalDevice(), m_surface);
-    VkPresentModeKHR presentMode = VulkanUtils::getBestSwapPresentMode(m_device->physicalDevice(), m_surface);
+    VkPresentModeKHR presentMode = VulkanUtils::getBestSwapPresentMode(m_device->physicalDevice(), m_surface, !m_isResizing);
     VkSurfaceCapabilitiesKHR capabilities = VulkanUtils::getSwapCapabilities(m_device->physicalDevice(), m_surface);
 
     VkSwapchainKHR oldSwapChain = VK_NULL_HANDLE;
@@ -176,6 +176,11 @@ void VulkanSurface::createSwapChain(bool isRecreating)
     height = attributes.height;
 #endif
     VkExtent2D extent = VulkanUtils::getSwapExtent(capabilities, width, height);
+
+    if (extent.width == 0 || extent.height == 0)
+    {
+        return;
+    }
 
     uint32_t imageCount = capabilities.minImageCount + 1;
     if (capabilities.maxImageCount > 0 && imageCount > capabilities.maxImageCount)

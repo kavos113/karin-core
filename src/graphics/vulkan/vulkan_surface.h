@@ -44,6 +44,16 @@ public:
         return m_swapChainImageViews;
     }
 
+    void startResizing()
+    {
+        m_isResizing = true;
+    }
+
+    void finishResizing()
+    {
+        m_isResizing = false;
+    }
+
 private:
     void createSurface();
     void createSwapChain(bool isRecreating);
@@ -62,6 +72,9 @@ private:
 
     VkViewport m_viewport = {};
     VkRect2D m_scissor = {};
+
+    std::vector<VkSwapchainKHR> m_oldSwapChains;
+    bool m_isResizing = false;
 };
 } // karin
 
