@@ -9,7 +9,7 @@
 
 namespace karin
 {
-class X11SystemFontImpl : SystemFontImpl
+class X11SystemFontImpl : public ISystemFontImpl
 {
 public:
     X11SystemFontImpl();
