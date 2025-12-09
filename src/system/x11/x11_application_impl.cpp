@@ -29,15 +29,31 @@ void X11ApplicationImpl::addWindow(XlibWindow window, X11WindowImpl* impl)
     m_windows[window] = impl;
 }
 
-void X11ApplicationImpl::run()
+bool X11ApplicationImpl::waitEvent(Event& event)
 {
-    XEvent event;
-    while (m_running)
-    {
-        XNextEvent(m_display, &event);
+    if (!m_running)
+        return false;
 
-        m_windows[event.xany.window]->handleEvent(event);
+    if (!m_eventQueue.empty())
+    {
+        event = m_eventQueue.front();
+        m_eventQueue.pop();
+        return true;
     }
+
+    XEvent xevent;
+    XNextEvent(m_display, &xevent);
+
+    m_windows[xevent.xany.window]->handleEvent(xevent);
+
+    if (!m_eventQueue.empty())
+    {
+        event = m_eventQueue.front();
+        m_eventQueue.pop();
+        return true;
+    }
+
+    return true;
 }
 
 void X11ApplicationImpl::shutdown()

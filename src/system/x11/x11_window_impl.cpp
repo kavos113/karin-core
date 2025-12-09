@@ -284,6 +284,16 @@ void X11WindowImpl::setOnResize(std::function<void(Size)> onResize)
     m_onResize = std::move(onResize);
 }
 
+void X11WindowImpl::setOnStartResize(std::function<void()> onStartResize)
+{
+    m_onStartResize = std::move(onStartResize);
+}
+
+void X11WindowImpl::setOnFinishResize(std::function<void()> onFinishResize)
+{
+    m_onFinishResize = std::move(onFinishResize);
+}
+
 Window::NativeHandle X11WindowImpl::handle() const
 {
     return Window::NativeHandle{
