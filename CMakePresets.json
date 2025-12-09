@@ -1,0 +1,64 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 28,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "common",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
+      "name": "windows-debug",
+      "inherits": ["common"],
+      "description": "windows debug build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_C_COMPILER": "cl.exe",
+        "CMAKE_CXX_COMPILER": "cl.exe"
+      }
+    },
+    {
+      "name": "windows-vulkan-debug",
+      "inherits": ["windows-debug"],
+      "description": "windows debug build with Vulkan support",
+      "cacheVariables": {
+        "WINDOWS_VULKAN": "ON"
+      }
+    },
+    {
+      "name": "ubuntu-debug",
+      "inherits": ["common"],
+      "description": "ubuntu debug build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_CXX_FLAGS": "-stdlib=libc++",
+        "CMAKE_EXE_LINKER_FLAGS": "-stdlib=libc++",
+        "CMAKE_SHARED_LINKER_FLAGS": "-stdlib=libc++"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "windows-debug-build",
+      "configurePreset": "windows-debug"
+    },
+    {
+      "name": "windows-vulkan-debug-build",
+      "configurePreset": "windows-vulkan-debug"
+    },
+    {
+      "name": "ubuntu-debug-build",
+      "configurePreset": "ubuntu-debug"
+    }
+  ]
+}
