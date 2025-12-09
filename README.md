@@ -6,17 +6,63 @@ cross-platform GUI library with Direct2D and Vulkan backends
 ### dependencies
 - Vulkan SDK(when using Vulkan backend)
 - Windows SDK(when using Direct2D backend)
+- vcpkg
+- cmake
 
-### installation
+install ubuntu dependencies:
 ```shell
-vcpkg install
-cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=<VCPKG_ROOT>/scripts/buildsystems/vcpkg.cmake
-cmake --build build
+sudo apt install clang clang-tools libc++-dev libc++abi-dev libx11-dev
 ```
 
-if you want to use Vulkan backend on Windows, add `-DWINDOWS_VULKAN=ON` to the cmake command:
+### installation
+cmake presets:
+- windows-debug
+  - for Windows with Direct2D backend
+- windows-vulkan-debug
+  - for Windows with Vulkan backend
+- ubuntu-debug
+  - for Ubuntu with Vulkan backend
+
+It is required to add vcpkg to CMake toolchain file.
+
+example of `CMakeUserPreset.json` (ubuntu):
+```json
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "ubuntu-local-debug",
+      "inherits": ["ubuntu-debug"],
+      "description": "ubuntu local debug build",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "<VCPKG_ROOT>/scripts/buildsystems/vcpkg.cmake"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "ubuntu-local-debug-build",
+      "configurePreset": "ubuntu-local-debug",
+      "jobs": 22
+    },
+    {
+      "name": "ubuntu-local-debug-build-only-libs",
+      "configurePreset": "ubuntu-local-debug",
+      "jobs": 22,
+      "targets": ["karin-graphics", "karin-system"]
+    },
+    {
+      "name": "ubuntu-local-debug-build-clean",
+      "configurePreset": "ubuntu-local-debug",
+      "jobs": 22,
+      "cleanFirst": true
+    }
+  ]
+}
+```
+
+and then
 ```shell
-vcpkg install
-cmake -B build -S . -DWINDOWS_VULKAN=ON -DCMAKE_TOOLCHAIN_FILE=<VCPKG_ROOT>/scripts/buildsystems/vcpkg.cmake
-cmake --build build
+cmake --preset ubuntu-local-debug
+cmake --build --preset ubuntu-local-debug-build
 ```
