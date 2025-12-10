@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-inline std::string toString(std::wstring str)
+inline std::string toString(const std::wstring& str)
 {
     if (str.empty())
     {
@@ -53,25 +53,24 @@ inline std::string toString(std::wstring str)
 #else
     setlocale(LC_ALL, "");
 
-    size_t newSize;
-    auto err = wcstombs_s(&newSize, nullptr, 0, str.c_str(), 0);
-    if (err != 0 || newSize == 0)
+    size_t newSize = std::wcstombs(nullptr, str.c_str(), 0);
+    if (newSize == -1)
     {
         return "";
     }
 
     std::vector<char> buffer(newSize);
-    err = wcstombs_s(&newSize, buffer.data(), newSize, str.c_str(), str.size());
-    if (err != 0)
+    size_t convertedSize = std::wcstombs(buffer.data(), str.c_str(), str.size());
+    if (convertedSize == -1)
     {
         return "";
     }
 
-    return std::string(buffer.data());
+    return {buffer.data()};
 #endif
 }
 
-inline std::wstring toWString(std::string str)
+inline std::wstring toWString(const std::string& str)
 {
     if (str.empty())
     {
@@ -109,21 +108,19 @@ inline std::wstring toWString(std::string str)
 #else
     setlocale(LC_ALL, "");
 
-    size_t newSize;
-    auto err = mbstowcs_s(&newSize, nullptr, 0, str.c_str(), 0);
-    if (err != 0 || newSize == 0)
+    size_t newSize = std::mbstowcs(nullptr, str.c_str(), 0);
+    if (newSize == -1)
     {
         return L"";
     }
 
     std::vector<wchar_t> buffer(newSize);
-    err = mbstowcs_s(&newSize, buffer.data(), newSize, str.c_str(), str.size());
-    if (err != 0)
+    size_t convertedSize = std::mbstowcs(buffer.data(), str.c_str(), str.size());
+    if (convertedSize == -1)
     {
         return L"";
     }
-
-    return std::wstring(buffer.data());
+    return {buffer.data()};
 #endif
 }
 

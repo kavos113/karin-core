@@ -7,6 +7,8 @@
 namespace karin
 {
 
+// some enum has "_" suffix to avoid conflict with macro definitions on Xlib
+
 struct KeyEvent;
 struct MouseMoveEvent;
 struct MouseButtonEvent;
@@ -43,8 +45,8 @@ struct MouseButtonEvent
 
     enum struct Type
     {
-        ButtonPress,
-        ButtonRelease
+        ButtonPress_,
+        ButtonRelease_
     };
 
     Type type;
@@ -86,9 +88,9 @@ struct KeyEvent
     enum struct Modifier : uint8_t;
     enum struct Type
     {
-        KeyPress,
-        KeyRelease,
-        KeyType
+        KeyPress_,
+        KeyRelease_,
+        KeyType_
     };
 
     Type type;
@@ -98,7 +100,7 @@ struct KeyEvent
 
     enum struct Modifier : uint8_t
     {
-        None    = 0x0,
+        None_   = 0x0,
         Shift   = 0x1,
         Control = 0x2,
         Alt     = 0x4,

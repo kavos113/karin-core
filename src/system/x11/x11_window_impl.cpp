@@ -158,6 +158,10 @@ void X11WindowImpl::handleEvent(const XEvent& event)
         break;
 
     case ConfigureNotify:
+        std::cout << "ConfigureNotify: "
+                  << "width=" << event.xconfigure.width
+                  << ", height=" << event.xconfigure.height
+                  << std::endl;
         if (m_onResize)
         {
             m_onResize(
