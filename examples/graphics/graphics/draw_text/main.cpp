@@ -18,7 +18,8 @@ int main()
         "Hello, Karin Graphics!\nnew line support.\n\nvery very very very very very loooooooooooong text.",
         karin::TextFormat{
             .font = {
-                .family = "Arial",
+                // .family = "Arial",
+                .family = "Ubuntu",
             },
             .size = 24.0f,
             .lineSpacing = 1.5f,

@@ -18,7 +18,8 @@ int main()
         "日本語も描画できます。とても長い文章の場合、改行やトリミングが適切に行われるか確認します。",
         karin::TextFormat{
             .font = {
-                .family = "Meiryo UI",
+                // .family = "Meiryo UI",
+                .family = "Ubuntu",
             },
             .size = 24.0f,
             .lineSpacing = 1.5f,
