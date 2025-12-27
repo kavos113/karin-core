@@ -60,7 +60,7 @@ inline std::string toString(const std::wstring& str)
     }
 
     std::vector<char> buffer(newSize);
-    size_t convertedSize = std::wcstombs(buffer.data(), str.c_str(), str.size());
+    size_t convertedSize = std::wcstombs(buffer.data(), str.c_str(), newSize);
     if (convertedSize == -1)
     {
         return "";
@@ -115,7 +115,7 @@ inline std::wstring toWString(const std::string& str)
     }
 
     std::vector<wchar_t> buffer(newSize);
-    size_t convertedSize = std::mbstowcs(buffer.data(), str.c_str(), str.size());
+    size_t convertedSize = std::mbstowcs(buffer.data(), str.c_str(), newSize);
     if (convertedSize == -1)
     {
         return L"";
