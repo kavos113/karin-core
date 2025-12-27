@@ -2,9 +2,11 @@
 #define SRC_SYSTEM_X11_X11_WINDOW_IMPL_H
 #include <mutex>
 #include <string>
+#include <optional>
 #include <X11/Xlib.h>
 
 #include <karin/system/window.h>
+#include <karin/system/event.h>
 #include <x11/window.h>
 #include <window_impl.h>
 #include "x11_application_impl.h"
@@ -35,6 +37,8 @@ public:
 
     void setOnPaint(std::function<bool()> onPaint) override;
     void setOnResize(std::function<void(Size)> onResize) override;
+    void setOnStartResize(std::function<void()> onStartResize) override;
+    void setOnFinishResize(std::function<void()> onFinishResize) override;
 
     [[nodiscard]] Window::NativeHandle handle() const override;
 
@@ -42,13 +46,18 @@ public:
 
 private:
     void applyStatus();
+    std::optional<Event> translateX11Event(XEvent* event);
 
     Display* m_display;
     XlibWindow m_window;
     GC m_gc;
+    XIM m_xim;
+    XIC m_xic;
 
     std::function<bool()> m_onPaint;
     std::function<void(Size)> m_onResize;
+    std::function<void()> m_onStartResize;
+    std::function<void()> m_onFinishResize;
 
     std::function<void()> m_onClose;
     std::function<void()> m_onStartMainLoop;
@@ -62,6 +71,10 @@ private:
 
     X11ShowStatus m_status = X11ShowStatus::NoStatus;
     std::once_flag m_applyStatusFlag;
+
+    X11ApplicationImpl* m_appImpl = nullptr;
+
+    static constexpr float SCROLL_DELTA = 1.0f;
 };
 } // karin
 

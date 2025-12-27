@@ -9,6 +9,8 @@ if (WIN32)
             windows/win_application_impl.cpp
             windows/win_window_impl.cpp
             windows/win_window_class_registry.cpp
+            windows/win_event.cpp
+            windows/win_converter.cpp
             windows/win_system_font_impl.cpp
     )
 elseif (UNIX)
@@ -16,6 +18,7 @@ elseif (UNIX)
             x11/x11_application_impl.cpp
             x11/x11_window_impl.cpp
             x11/x11_system_font_impl.cpp
+            x11/x11_converter.cpp
     )
 endif ()
 

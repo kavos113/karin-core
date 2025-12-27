@@ -3,6 +3,7 @@
 
 #include "system_font.h"
 #include "window.h"
+#include "event.h"
 
 #include <memory>
 
@@ -16,7 +17,10 @@ class Application
 public:
     static Application& instance();
 
-    void run();
+    // return true if event loop should continue, false to quit.
+    bool waitEvent(Event& event) const;
+
+    // TODO: peekEvent
 
     Window createWindow(
         const std::wstring& title,

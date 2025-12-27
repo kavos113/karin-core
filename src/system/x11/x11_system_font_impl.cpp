@@ -154,6 +154,7 @@ std::vector<std::byte> X11SystemFontImpl::getFontData(const Font& font)
         FC_SLANT,
         FC_WEIGHT,
         FC_WIDTH,
+        FC_FILE,
         nullptr
     );
     FcFontSet* fs = FcFontList(nullptr, pat, os);

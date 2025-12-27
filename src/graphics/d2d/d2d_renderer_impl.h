@@ -36,6 +36,9 @@ public:
         return m_deviceResources->createImage(data, width, height);
     }
 
+    void startResizing() override {}
+    void finishResizing() override {}
+
     [[nodiscard]] Microsoft::WRL::ComPtr<ID2D1DeviceContext> deviceContext() const
     {
         return m_deviceContext;

@@ -9,6 +9,7 @@ set(TEST_SRCS
         common/geometry/rectangle_test.cpp
         common/geometry/transform2d_test.cpp
         common/color/color_test.cpp
+        common/utils/string_test.cpp
 )
 
 include(FetchContent)
@@ -32,7 +33,15 @@ target_link_libraries(karin_test
 target_include_directories(karin_test
     PRIVATE
         ${INCLUDE_DIR}
+        ${SOURCE_DIR}/common
 )
+if (WIN32)
+    target_compile_definitions(karin_test PUBLIC KARIN_PLATFORM_WINDOWS)
+elseif (APPLE)
+    target_compile_definitions(karin_test PUBLIC KARIN_PLATFORM_MACOS)
+elseif (UNIX)
+    target_compile_definitions(karin_test PUBLIC KARIN_PLATFORM_UNIX)
+endif ()
 
 find_package(glm CONFIG REQUIRED)
 target_link_libraries(karin_test PRIVATE glm::glm)

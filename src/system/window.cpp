@@ -111,4 +111,14 @@ void Window::setOnResize(std::function<void(Size)> onResize)
 {
     m_impl->setOnResize(std::move(onResize));
 }
+
+void Window::setOnStartResize(std::function<void()> onStartResize)
+{
+    m_impl->setOnStartResize(std::move(onStartResize));
+}
+
+void Window::setOnFinishResize(std::function<void()> onFinishResize)
+{
+    m_impl->setOnFinishResize(std::move(onFinishResize));
+}
 } // karin

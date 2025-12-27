@@ -6,6 +6,7 @@
 #include <application_impl.h>
 #include <x11/window.h>
 #include <map>
+#include <queue>
 
 namespace karin
 {
@@ -19,8 +20,13 @@ public:
 
     void addWindow(XlibWindow window, X11WindowImpl* impl);
 
-    void run() override;
     void shutdown() override;
+    bool waitEvent(Event& event) override;
+
+    void pushEvent(const Event& event)
+    {
+        m_eventQueue.push(event);
+    }
 
     Display* display() const
     {
@@ -35,6 +41,7 @@ private:
     std::map<XlibWindow, X11WindowImpl*> m_windows;
 
     bool m_running = true;
+    std::queue<Event> m_eventQueue;
 };
 } // karin
 

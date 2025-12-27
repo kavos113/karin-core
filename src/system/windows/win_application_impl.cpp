@@ -3,31 +3,64 @@
 #include <windows.h>
 
 #include "win_window_class_registry.h"
+#include "win_window_impl.h"
 
 namespace karin
 {
 WinApplicationImpl::WinApplicationImpl()
 {
+    WNDCLASSEX wc = {
+        .cbSize = sizeof(WNDCLASSEX),
+        .style = 0,
+        .lpfnWndProc = WinWindowImpl::windowProc,
+        .cbClsExtra = 0,
+        .cbWndExtra = 0,
+        .hInstance = GetModuleHandle(nullptr),
+        .hIcon = LoadIcon(nullptr, IDI_APPLICATION),
+        .hCursor = LoadCursor(nullptr, IDC_ARROW),
+        .hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1),
+        .lpszMenuName = nullptr,
+        .hIconSm = LoadIcon(nullptr, IDI_APPLICATION)
+    };
+
+    WinWindowClassRegistry::registerClass(wc, CLASS_NAME);
 }
 
 WinApplicationImpl::~WinApplicationImpl()
 {
+    WinWindowClassRegistry::unregisterClasses();
 }
 
-void WinApplicationImpl::run()
+bool WinApplicationImpl::waitEvent(Event &event)
 {
-    m_isRunning = true;
+    if (!m_isRunning)
+        m_isRunning = true;
 
-    MSG msg;
-    while (GetMessage(&msg, nullptr, 0, 0))
+    if (!m_eventQueue.empty())
     {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
+        event = m_eventQueue.front();
+        m_eventQueue.pop();
+        return true;
     }
 
-    m_isRunning = false;
+    MSG msg;
+    if (!GetMessage(&msg, nullptr, 0, 0))
+    {
+        m_isRunning = false;
+        return false;
+    }
 
-    WinWindowClassRegistry::unregisterClasses();
+    TranslateMessage(&msg);
+    DispatchMessage(&msg);
+
+    if (!m_eventQueue.empty())
+    {
+        event = m_eventQueue.front();
+        m_eventQueue.pop();
+        return true;
+    }
+
+    return true;
 }
 
 void WinApplicationImpl::shutdown()

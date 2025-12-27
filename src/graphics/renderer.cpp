@@ -51,7 +51,25 @@ void Renderer::update() const
     m_window->setOnResize(
         [this](Size size)
         {
+            if (size.width == 0 || size.height == 0)
+            {
+                return;
+            }
             m_impl->resize(size);
+        }
+    );
+
+    m_window->setOnStartResize(
+        [this]
+        {
+            m_impl->startResizing();
+        }
+    );
+
+    m_window->setOnFinishResize(
+        [this]
+        {
+            m_impl->finishResizing();
         }
     );
 }

@@ -12,9 +12,9 @@ Application& Application::instance()
     return instance;
 }
 
-void Application::run()
+bool Application::waitEvent(Event &event) const
 {
-    m_impl->run();
+    return m_impl->waitEvent(event);
 }
 
 Window Application::createWindow(const std::wstring& title, int x, int y, int width, int height)

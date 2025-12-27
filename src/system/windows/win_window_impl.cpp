@@ -1,26 +1,23 @@
 #include "win_window_impl.h"
 
-#include <iostream>
-
+#include "win_event.h"
 #include "win_window_class_registry.h"
 
 namespace karin
 {
-std::once_flag WinWindowImpl::m_registerClassFlag;
-
 WinWindowImpl::WinWindowImpl(
     const std::wstring& title,
     const int x,
     const int y,
     const int width,
-    const int height
+    const int height,
+    WinApplicationImpl* appImpl
 )
+    : m_appImpl(appImpl)
 {
-    std::call_once(m_registerClassFlag, &WinWindowImpl::registerClass);
-
     m_hwnd = CreateWindowEx(
         0,
-        CLASS_NAME,
+        WinApplicationImpl::CLASS_NAME,
         title.c_str(),
         WS_OVERLAPPEDWINDOW,
         x, y,
@@ -36,27 +33,14 @@ WinWindowImpl::WinWindowImpl(
     }
 }
 
-void WinWindowImpl::registerClass()
+LRESULT WinWindowImpl::handleMessage(UINT message, WPARAM wParam, LPARAM lParam) const
 {
-    WNDCLASSEX wc = {
-        .cbSize = sizeof(WNDCLASSEX),
-        .style = CS_HREDRAW | CS_VREDRAW,
-        .lpfnWndProc = windowProc,
-        .cbClsExtra = 0,
-        .cbWndExtra = 0,
-        .hInstance = GetModuleHandle(nullptr),
-        .hIcon = LoadIcon(nullptr, IDI_APPLICATION),
-        .hCursor = LoadCursor(nullptr, IDC_ARROW),
-        .hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1),
-        .lpszMenuName = nullptr,
-        .hIconSm = LoadIcon(nullptr, IDI_APPLICATION)
-    };
+    std::optional<Event> event = translateWinEvent(message, wParam, lParam);
+    if (event.has_value())
+    {
+        m_appImpl->pushEvent(*event);
+    }
 
-    WinWindowClassRegistry::registerClass(wc, CLASS_NAME);
-}
-
-LRESULT WinWindowImpl::handleMessage(UINT message, WPARAM wParam, LPARAM lParam)
-{
     switch (message)
     {
     case WM_DESTROY:
@@ -68,34 +52,47 @@ LRESULT WinWindowImpl::handleMessage(UINT message, WPARAM wParam, LPARAM lParam)
         return 0;
 
     case WM_PAINT:
-    {
-        PAINTSTRUCT ps;
-        BeginPaint(m_hwnd, &ps);
-
+        ValidateRect(m_hwnd, nullptr);
         if (m_onPaint)
         {
             m_onPaint();
         }
-
-        EndPaint(m_hwnd, &ps);
         return 0;
-    }
+
     case WM_SIZE:
         if (m_onResize)
         {
-            m_onResize(
-                Size(
-                    static_cast<float>(LOWORD(lParam)),
-                    static_cast<float>(HIWORD(lParam))
-                )
-            );
-            InvalidateRect(m_hwnd, nullptr, FALSE);
+            Size newSize(LOWORD(lParam), HIWORD(lParam));
+            m_onResize(newSize);
+        }
+        if (m_onPaint)
+        {
+            m_onPaint();
+        }
+        return 0;
+
+    case WM_ENTERSIZEMOVE:
+        if (m_onStartResize)
+        {
+            m_onStartResize();
+        }
+        return 0;
+
+    case WM_EXITSIZEMOVE:
+        if (m_onFinishResize)
+        {
+            m_onFinishResize();
         }
         return 0;
 
     default:
-        return DefWindowProc(m_hwnd, message, wParam, lParam);
+        if (event.has_value())
+        {
+            return 0;
+        }
     }
+
+    return DefWindowProc(m_hwnd, message, wParam, lParam);
 }
 
 LRESULT WinWindowImpl::windowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -105,7 +102,7 @@ LRESULT WinWindowImpl::windowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
     if (message == WM_CREATE)
     {
         auto cs = reinterpret_cast<CREATESTRUCT*>(lParam);
-        self = reinterpret_cast<WinWindowImpl*>(cs->lpCreateParams);
+        self = static_cast<WinWindowImpl*>(cs->lpCreateParams);
         SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(self));
 
         self->m_hwnd = hwnd;
@@ -146,6 +143,8 @@ void WinWindowImpl::minimize()
     {
         ShowWindow(m_hwnd, SW_MINIMIZE);
     }
+
+    m_appImpl->pushEvent(WindowEvent(WindowEvent::Type::Minimize));
 }
 
 void WinWindowImpl::maximize()
@@ -154,6 +153,8 @@ void WinWindowImpl::maximize()
     {
         ShowWindow(m_hwnd, SW_MAXIMIZE);
     }
+
+    m_appImpl->pushEvent(WindowEvent(WindowEvent::Type::Maximize));
 }
 
 void WinWindowImpl::setPosition(int x, int y)
@@ -205,5 +206,15 @@ void WinWindowImpl::setOnPaint(std::function<bool()> onPaint)
 void WinWindowImpl::setOnResize(std::function<void(Size)> onResize)
 {
     m_onResize = std::move(onResize);
+}
+
+void WinWindowImpl::setOnStartResize(std::function<void()> onStartResize)
+{
+    m_onStartResize = std::move(onStartResize);
+}
+
+void WinWindowImpl::setOnFinishResize(std::function<void()> onFinishResize)
+{
+    m_onFinishResize = std::move(onFinishResize);
 }
 } // karin
