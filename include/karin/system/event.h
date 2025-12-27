@@ -1,8 +1,9 @@
 #ifndef KARIN_SYSTEM_EVENT_H
 #define KARIN_SYSTEM_EVENT_H
 #include <any>
-#include <variant>
+#include <cstdint>
 #include <string>
+#include <variant>
 
 namespace karin
 {
