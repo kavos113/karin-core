@@ -10,6 +10,7 @@ namespace karin
 // some enum has "_" suffix to avoid conflict with macro definitions on Xlib
 
 struct KeyEvent;
+struct KeyTypeEvent;
 struct MouseMoveEvent;
 struct MouseButtonEvent;
 struct MouseWheelEvent;
@@ -19,6 +20,7 @@ struct ActionEvent;
 using Event = std::variant<
     std::monostate,
     KeyEvent,
+    KeyTypeEvent,
     MouseMoveEvent,
     MouseButtonEvent,
     MouseWheelEvent,
@@ -90,13 +92,12 @@ struct KeyEvent
     {
         KeyPress_,
         KeyRelease_,
-        KeyType_
     };
 
     Type type;
     KeyCode keyCode;
+    KeyCode scanCode;
     Modifier modifierState;
-    std::string character;
 
     enum struct Modifier : uint8_t
     {
@@ -330,6 +331,11 @@ struct KeyEvent
         RightGUI = 0xE7,
         Undefined = 0xFF
     };
+};
+
+struct KeyTypeEvent
+{
+    std::string character;
 };
 
 constexpr KeyEvent::Modifier operator|(KeyEvent::Modifier a, KeyEvent::Modifier b)

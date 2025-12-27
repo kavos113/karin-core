@@ -18,6 +18,7 @@ elseif (UNIX)
             x11/x11_application_impl.cpp
             x11/x11_window_impl.cpp
             x11/x11_system_font_impl.cpp
+            x11/x11_converter.cpp
     )
 endif ()
 

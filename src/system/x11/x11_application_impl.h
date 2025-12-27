@@ -23,6 +23,11 @@ public:
     void shutdown() override;
     bool waitEvent(Event& event) override;
 
+    void pushEvent(const Event& event)
+    {
+        m_eventQueue.push(event);
+    }
+
     Display* display() const
     {
         return m_display;

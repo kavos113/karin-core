@@ -4,8 +4,11 @@
 #include <iostream>
 #include <stdexcept>
 #include <X11/Xutil.h>
+#include <X11/Xlocale.h>
 
 #include <utils/string.h>
+
+#include "x11_converter.h"
 
 namespace karin
 {
@@ -17,6 +20,7 @@ X11WindowImpl::X11WindowImpl(
     int height,
     X11ApplicationImpl* appImpl
 )
+    : m_appImpl(appImpl)
 {
     m_display = appImpl->display();
 
@@ -97,7 +101,7 @@ X11WindowImpl::X11WindowImpl(
     XSelectInput(
         m_display,
         m_window,
-        ExposureMask | StructureNotifyMask | KeyPressMask
+        ExposureMask | StructureNotifyMask | KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask
     );
 
     Atom wmDelete = XInternAtom(m_display, "WM_DELETE_WINDOW", False);
@@ -126,6 +130,34 @@ X11WindowImpl::X11WindowImpl(
         hide();
         appImpl->shutdown();
     };
+
+    if (setlocale(LC_ALL, "") == nullptr)
+    {
+        throw std::runtime_error("failed to set locale");
+    }
+
+    if (!XSetLocaleModifiers(""))
+    {
+        throw std::runtime_error("failed to set x locale");
+    }
+
+    m_xim = XOpenIM(m_display, nullptr, nullptr, nullptr);
+    if (!m_xim)
+    {
+        throw std::runtime_error("failed to open input method");
+    }
+
+    m_xic = XCreateIC(
+        m_xim,
+        XNInputStyle, XIMPreeditNothing | XIMStatusNothing,
+        XNClientWindow, m_window,
+        XNFocusWindow, m_window,
+        nullptr
+    );
+    if (!m_xic)
+    {
+        throw std::runtime_error("failed to create input context");
+    }
 }
 
 X11WindowImpl::~X11WindowImpl()
@@ -143,6 +175,12 @@ X11WindowImpl::~X11WindowImpl()
 
 void X11WindowImpl::handleEvent(const XEvent& event)
 {
+    std::optional<Event> translatedEvent = translateX11Event(&const_cast<XEvent&>(event));
+    if (translatedEvent.has_value())
+    {
+        m_appImpl->pushEvent(translatedEvent.value());
+    }
+
     switch (event.type)
     {
     case Expose:
@@ -173,6 +211,10 @@ void X11WindowImpl::handleEvent(const XEvent& event)
         }
         break;
 
+    case KeyPress:
+        m_appImpl->pushEvent(KeyTypeEvent(x11ConvertKeyChar(&const_cast<XEvent&>(event), m_xic)));
+        break;
+
     case ClientMessage:
         if (event.xclient.data.l[0] == XInternAtom(m_display, "WM_DELETE_WINDOW", False))
         {
@@ -182,6 +224,102 @@ void X11WindowImpl::handleEvent(const XEvent& event)
 
     default:
         break;
+    }
+}
+
+std::optional<Event> X11WindowImpl::translateX11Event(XEvent* event)
+{
+    switch (event->type)
+    {
+    case ButtonPress:
+    {
+        int x = event->xbutton.x_root;
+        int y = event->xbutton.y_root;
+        switch (event->xbutton.button)
+        {
+        case Button1:
+            return MouseButtonEvent(
+                MouseButtonEvent::Type::ButtonPress_,
+                MouseButtonEvent::Button::Left,
+                x, y
+            );
+        case Button2:
+            return MouseButtonEvent(
+                MouseButtonEvent::Type::ButtonPress_,
+                MouseButtonEvent::Button::Middle,
+                x, y
+            );
+        case Button3:
+            return MouseButtonEvent(
+                MouseButtonEvent::Type::ButtonPress_,
+                MouseButtonEvent::Button::Right,
+                x, y
+            );
+        case Button4:
+            return MouseWheelEvent(
+                SCROLL_DELTA,
+                x, y
+            );
+        case Button5:
+            return MouseWheelEvent(
+                -SCROLL_DELTA,
+                x, y
+            );
+        default:
+            break;
+        }
+    }
+
+    case ButtonRelease:
+    {
+        int x = event->xbutton.x_root;
+        int y = event->xbutton.y_root;
+        switch (event->xbutton.button)
+        {
+        case Button1:
+            return MouseButtonEvent(
+                MouseButtonEvent::Type::ButtonRelease_,
+                MouseButtonEvent::Button::Left,
+                x, y
+            );
+        case Button2:
+            return MouseButtonEvent(
+                MouseButtonEvent::Type::ButtonRelease_,
+                MouseButtonEvent::Button::Middle,
+                x, y
+            );
+        case Button3:
+            return MouseButtonEvent(
+                MouseButtonEvent::Type::ButtonRelease_,
+                MouseButtonEvent::Button::Right,
+                x, y
+            );
+        default:
+            break;
+        }
+    }
+
+    case KeyPress:
+    {
+        KeySym keysym = XLookupKeysym(&event->xkey, 0);
+        return KeyEvent(
+            KeyEvent::Type::KeyPress_,
+            x11ConvertKeyCode(event->xkey.keycode),
+            x11ConvertKeySym(keysym),
+            x11ConvertModifier(event->xkey.state)
+        );
+    }
+
+    case KeyRelease:
+    {
+        KeySym keysym = XLookupKeysym(&event->xkey, 0);
+        return KeyEvent(
+            KeyEvent::Type::KeyRelease_,
+            x11ConvertKeyCode(event->xkey.keycode),
+            x11ConvertKeySym(keysym),
+            x11ConvertModifier(event->xkey.state)
+        );
+    }
     }
 }
 
