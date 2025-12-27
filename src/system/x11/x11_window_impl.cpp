@@ -320,6 +320,9 @@ std::optional<Event> X11WindowImpl::translateX11Event(XEvent* event)
             x11ConvertModifier(event->xkey.state)
         );
     }
+
+    default:
+        return std::nullopt;
     }
 }
 

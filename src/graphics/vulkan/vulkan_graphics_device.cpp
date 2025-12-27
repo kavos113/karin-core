@@ -6,6 +6,7 @@
 #include <memory>
 #include <stdexcept>
 #include <vector>
+#include <cstring>
 
 #ifdef KARIN_PLATFORM_WINDOWS
 #include <windows.h>
