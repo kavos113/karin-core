@@ -804,7 +804,7 @@ KeyEvent::Modifier getWinModifierState()
 {
     using enum KeyEvent::Modifier;
 
-    KeyEvent::Modifier modifiers = None;
+    KeyEvent::Modifier modifiers = None_;
     if (GetKeyState(VK_SHIFT) & 0x8000)
         modifiers = modifiers | Shift;
     if (GetKeyState(VK_CONTROL) & 0x8000)
