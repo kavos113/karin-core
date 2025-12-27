@@ -459,7 +459,7 @@ KeyEvent::KeyCode x11ConvertKeySym(KeySym keysym)
 {
     if (keysym >= XK_0 && keysym <= XK_9)
     {
-        return static_cast<KeyEvent::KeyCode>(static_cast<uint8_t>(Num_1) + (keysym - XK_0));
+        return static_cast<KeyEvent::KeyCode>(static_cast<uint8_t>(Num_0) + (keysym - XK_0));
     }
 
     if (keysym >= XK_A && keysym <= XK_Z)

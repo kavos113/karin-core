@@ -196,10 +196,6 @@ void X11WindowImpl::handleEvent(const XEvent& event)
         break;
 
     case ConfigureNotify:
-        std::cout << "ConfigureNotify: "
-                  << "width=" << event.xconfigure.width
-                  << ", height=" << event.xconfigure.height
-                  << std::endl;
         if (m_onResize)
         {
             m_onResize(
@@ -268,6 +264,7 @@ std::optional<Event> X11WindowImpl::translateX11Event(XEvent* event)
         default:
             break;
         }
+        break;
     }
 
     case ButtonRelease:
@@ -297,6 +294,7 @@ std::optional<Event> X11WindowImpl::translateX11Event(XEvent* event)
         default:
             break;
         }
+        break;
     }
 
     case KeyPress:
