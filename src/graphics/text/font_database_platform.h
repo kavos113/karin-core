@@ -1,0 +1,11 @@
+#ifndef SRC_GRAPHICS_TEXT_FONT_DATABASE_PLATFORM_H
+#define SRC_GRAPHICS_TEXT_FONT_DATABASE_PLATFORM_H
+
+namespace karin
+{
+class IPlatformFontDatabase
+{
+};
+} // karin
+
+#endif //SRC_GRAPHICS_TEXT_FONT_DATABASE_PLATFORM_H

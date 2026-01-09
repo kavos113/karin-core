@@ -1,0 +1,11 @@
+#ifndef SRC_GRAPHICS_TEXT_FONT_RENDERER_PLATFORM_H
+#define SRC_GRAPHICS_TEXT_FONT_RENDERER_PLATFORM_H
+
+namespace karin
+{
+class IPlatformFontRenderer
+{
+};
+} // karin
+
+#endif //SRC_GRAPHICS_TEXT_FONT_RENDERER_PLATFORM_H

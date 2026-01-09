@@ -29,12 +29,13 @@ elseif (VULKAN)
             vulkan/vulkan_device_resources.cpp
             vulkan/vulkan_glyph_cache.cpp
             vulkan/vma_impl.cpp
-            text/font_loader.cpp
-            text/font_layouter.cpp
     )
 endif ()
 
+add_subdirectory(text)
+
 add_library(karin_graphics STATIC ${GRAPHICS_SOURCE})
+target_link_libraries(karin_graphics PRIVATE karin_graphics_text)
 target_include_directories(karin_graphics PUBLIC ${INCLUDE_DIR})
 target_include_directories(karin_graphics PRIVATE ${COMMON_DIR})
 target_include_directories(karin_graphics PRIVATE ${THIRD_PARTY_DIR})

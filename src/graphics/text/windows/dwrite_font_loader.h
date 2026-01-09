@@ -1,0 +1,11 @@
+#ifndef SRC_GRAPHICS_TEXT_WINDOWS_DWRITE_FONT_LOADER_H
+#define SRC_GRAPHICS_TEXT_WINDOWS_DWRITE_FONT_LOADER_H
+
+namespace karin
+{
+class DwriteFontLoader
+{
+};
+} // karin
+
+#endif //SRC_GRAPHICS_TEXT_WINDOWS_DWRITE_FONT_LOADER_H

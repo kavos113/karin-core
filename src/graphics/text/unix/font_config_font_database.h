@@ -1,0 +1,11 @@
+#ifndef SRC_GRAPHICS_TEXT_UNIX_FONT_CONFIG_FONT_DATABASE_H
+#define SRC_GRAPHICS_TEXT_UNIX_FONT_CONFIG_FONT_DATABASE_H
+
+namespace karin
+{
+class FontConfigFontDatabase
+{
+};
+} // karin
+
+#endif //SRC_GRAPHICS_TEXT_UNIX_FONT_CONFIG_FONT_DATABASE_H
