@@ -8,7 +8,7 @@ namespace karin
 class WinContext
 {
 public:
-    static WinContext &instance();
+    static WinContext& instance();
 
     void init();
     void cleanup();
@@ -19,8 +19,8 @@ public:
     }
 
 private:
-    WinContext();
-    ~WinContext();
+    WinContext() = default;
+    ~WinContext() = default;
 
     WinWindowClassRegistry m_windowsClassRegistry;
 };

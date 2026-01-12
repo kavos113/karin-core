@@ -17,8 +17,4 @@ void WinContext::cleanup()
 {
     m_windowsClassRegistry.unregisterClasses();
 }
-
-WinContext::WinContext() = default;
-
-WinContext::~WinContext() = default;
 } // karin
