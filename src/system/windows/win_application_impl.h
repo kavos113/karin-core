@@ -12,7 +12,7 @@ class WinApplicationImpl : public IApplicationImpl
 {
 public:
     WinApplicationImpl();
-    ~WinApplicationImpl() override;
+    ~WinApplicationImpl() override = default;
 
     bool waitEvent(Event& event) override;
     void shutdown() override;

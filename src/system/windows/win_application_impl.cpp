@@ -4,6 +4,7 @@
 
 #include "win_window_class_registry.h"
 #include "win_window_impl.h"
+#include "win_context.h"
 
 namespace karin
 {
@@ -23,12 +24,9 @@ WinApplicationImpl::WinApplicationImpl()
         .hIconSm = LoadIcon(nullptr, IDI_APPLICATION)
     };
 
-    WinWindowClassRegistry::registerClass(wc, CLASS_NAME);
-}
+    WinContext::instance().init();
 
-WinApplicationImpl::~WinApplicationImpl()
-{
-    WinWindowClassRegistry::unregisterClasses();
+    WinContext::instance().windowClassRegistry().registerClass(wc, CLASS_NAME);
 }
 
 bool WinApplicationImpl::waitEvent(Event &event)
