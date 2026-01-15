@@ -1,5 +1,4 @@
 set(GRAPHICS_SOURCE
-        graphics_device.cpp
         renderer.cpp
         graphics_context.cpp
         path.cpp
@@ -11,15 +10,15 @@ set(GRAPHICS_SOURCE
 
 if (DIRECTX)
     set(GRAPHICS_SOURCE ${GRAPHICS_SOURCE}
-            d2d/d2d_graphics_device.cpp
             d2d/d2d_surface_manager.cpp
             d2d/d2d_renderer_impl.cpp
             d2d/d2d_graphics_context_impl.cpp
             d2d/d2d_device_resources.cpp
+            d2d/d2d_context.cpp
     )
 elseif (VULKAN)
     set(GRAPHICS_SOURCE ${GRAPHICS_SOURCE}
-            vulkan/vulkan_graphics_device.cpp
+            vulkan/vulkan_context.cpp
             vulkan/vulkan_debug_manager.cpp
             vulkan/vulkan_surface.cpp
             vulkan/vulkan_renderer_impl.cpp

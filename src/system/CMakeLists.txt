@@ -12,6 +12,7 @@ if (WIN32)
             windows/win_event.cpp
             windows/win_converter.cpp
             windows/win_system_font_impl.cpp
+            windows/win_context.cpp
     )
 elseif (UNIX)
     set(SYSTEM_SOURCE ${SYSTEM_SOURCE}
@@ -19,6 +20,7 @@ elseif (UNIX)
             x11/x11_window_impl.cpp
             x11/x11_system_font_impl.cpp
             x11/x11_converter.cpp
+            x11/x11_context.cpp
     )
 endif ()
 

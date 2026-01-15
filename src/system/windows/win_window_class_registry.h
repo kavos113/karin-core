@@ -10,11 +10,11 @@ namespace karin
 class WinWindowClassRegistry
 {
 public:
-    static void registerClass(WNDCLASSEX& wc, const std::wstring& className);
-    static void unregisterClasses();
+    void registerClass(WNDCLASSEX& wc, const std::wstring& className);
+    void unregisterClasses() const;
 
 private:
-    static std::vector<std::wstring> m_registeredClasses;
+    std::vector<std::wstring> m_registeredClasses;
 };
 } // karin
 

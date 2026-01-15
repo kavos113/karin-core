@@ -2,7 +2,6 @@
 #define SRC_GRAPHICS_VULKAN_VULKAN_DEVICE_RESOURCES_H
 
 #include "vulkan_glyph_cache.h"
-#include "vulkan_graphics_device.h"
 #include "vma.h"
 #include <text/font_loader.h>
 #include <text/font_layouter.h>
@@ -25,22 +24,16 @@ class VulkanDeviceResources
 {
 public:
     explicit VulkanDeviceResources(
-        VulkanGraphicsDevice* device,
         std::unique_ptr<FontLoader> fontLoader,
         size_t maxFramesInFlight
     )
-        : m_fontLoader(std::move(fontLoader)), m_device(device), m_maxFramesInFlight(maxFramesInFlight)
+        : m_fontLoader(std::move(fontLoader)), m_maxFramesInFlight(maxFramesInFlight)
     {
-        if (!m_device)
-        {
-            throw std::runtime_error("VulkanDeviceResources: device is null");
-        }
-
         createSamplers();
         createDescriptorSetLayouts();
         createDummyTexture();
 
-        m_glyphCache = std::make_unique<VulkanGlyphCache>(m_device, maxFramesInFlight);
+        m_glyphCache = std::make_unique<VulkanGlyphCache>(maxFramesInFlight);
         m_fontLayouter = std::make_unique<FontLayouter>(m_fontLoader.get());
     }
 
@@ -111,8 +104,6 @@ private:
     std::unique_ptr<VulkanGlyphCache> m_glyphCache;
     std::unique_ptr<FontLoader> m_fontLoader;
     std::unique_ptr<FontLayouter> m_fontLayouter;
-
-    VulkanGraphicsDevice* m_device = nullptr;
 
     VkSampler m_clampSampler = VK_NULL_HANDLE;
     VkSampler m_repeatSampler = VK_NULL_HANDLE;

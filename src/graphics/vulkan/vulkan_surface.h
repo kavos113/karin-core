@@ -1,7 +1,7 @@
 #ifndef SRC_GRAPHICS_RESOURCES_VULKAN_VK_SURFACE_IMPL_H
 #define SRC_GRAPHICS_RESOURCES_VULKAN_VK_SURFACE_IMPL_H
 
-#include "vulkan_graphics_device.h"
+#include "vulkan_context.h"
 
 #include <karin/system/window.h>
 
@@ -13,7 +13,7 @@ namespace karin
 class VulkanSurface
 {
 public:
-    VulkanSurface(VulkanGraphicsDevice* device, Window::NativeHandle nativeHandle);
+    VulkanSurface(Window::NativeHandle nativeHandle);
     ~VulkanSurface() = default;
 
     void cleanUp();
@@ -60,7 +60,6 @@ private:
     void createImageView();
     void createViewport();
 
-    VulkanGraphicsDevice* m_device;
     Window::NativeHandle m_window;
 
     VkSurfaceKHR m_surface = VK_NULL_HANDLE;

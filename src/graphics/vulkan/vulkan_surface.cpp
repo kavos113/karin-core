@@ -103,12 +103,12 @@ VkExtent2D getSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, int width
 
 namespace karin
 {
-VulkanSurface::VulkanSurface(VulkanGraphicsDevice* device, Window::NativeHandle nativeHandle)
-    : m_device(device), m_window(nativeHandle)
+VulkanSurface::VulkanSurface(Window::NativeHandle nativeHandle)
+    : m_window(nativeHandle)
 {
     createSurface();
 
-    m_device->initDevices(m_surface);
+    VulkanContext::instance().initDevices(m_surface);
 
     createSwapChain(false);
 
@@ -120,19 +120,19 @@ void VulkanSurface::cleanUp()
 {
     for (auto& imageView : m_swapChainImageViews)
     {
-        vkDestroyImageView(m_device->device(), imageView, nullptr);
+        vkDestroyImageView(VulkanContext::instance().device(), imageView, nullptr);
     }
     m_swapChainImageViews.clear();
 
     if (m_swapChain != VK_NULL_HANDLE)
     {
-        vkDestroySwapchainKHR(m_device->device(), m_swapChain, nullptr);
+        vkDestroySwapchainKHR(VulkanContext::instance().device(), m_swapChain, nullptr);
         m_swapChain = VK_NULL_HANDLE;
     }
 
     if (m_surface != VK_NULL_HANDLE)
     {
-        vkDestroySurfaceKHR(m_device->instance(), m_surface, nullptr);
+        vkDestroySurfaceKHR(VulkanContext::instance().vkInstance(), m_surface, nullptr);
         m_surface = VK_NULL_HANDLE;
     }
 }
@@ -141,7 +141,7 @@ void VulkanSurface::resize()
 {
     for (auto& imageView : m_swapChainImageViews)
     {
-        vkDestroyImageView(m_device->device(), imageView, nullptr);
+        vkDestroyImageView(VulkanContext::instance().device(), imageView, nullptr);
     }
 
     createSwapChain(true);
@@ -153,7 +153,7 @@ uint32_t VulkanSurface::acquireNextImage(VkSemaphore semaphore)
 {
     uint32_t imageIndex = 0;
     VkResult result = vkAcquireNextImageKHR(
-        m_device->device(),
+        VulkanContext::instance().device(),
         m_swapChain,
         UINT64_MAX,
         semaphore,
@@ -194,7 +194,7 @@ bool VulkanSurface::present(VkSemaphore waitSemaphore, uint32_t imageIndex) cons
         .pResults = nullptr
     };
 
-    VkResult result = vkQueuePresentKHR(m_device->presentQueue(), &presentInfo);
+    VkResult result = vkQueuePresentKHR(VulkanContext::instance().presentQueue(), &presentInfo);
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
     {
         return false;
@@ -218,7 +218,7 @@ void VulkanSurface::createSurface()
         .hwnd = static_cast<HWND>(m_window.hwnd)
     };
 
-    VkResult result = vkCreateWin32SurfaceKHR(m_device->instance(), &createInfo, nullptr, &m_surface);
+    VkResult result = vkCreateWin32SurfaceKHR(VulkanContext::instance().vkInstance(), &createInfo, nullptr, &m_surface);
     if (result != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create surface");
@@ -231,7 +231,7 @@ void VulkanSurface::createSurface()
         .window = m_window.window,
     };
 
-    if (vkCreateXlibSurfaceKHR(m_device->instance(), &createInfo, nullptr, &m_surface) != VK_SUCCESS)
+    if (vkCreateXlibSurfaceKHR(VulkanContext::instance().vkInstance(), &createInfo, nullptr, &m_surface) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create surface");
     }
@@ -240,9 +240,9 @@ void VulkanSurface::createSurface()
 
 void VulkanSurface::createSwapChain(bool isRecreating)
 {
-    VkSurfaceFormatKHR surfaceFormat = getBestSwapSurfaceFormat(m_device->physicalDevice(), m_surface);
-    VkPresentModeKHR presentMode = getBestSwapPresentMode(m_device->physicalDevice(), m_surface, !m_isResizing);
-    VkSurfaceCapabilitiesKHR capabilities = getSwapCapabilities(m_device->physicalDevice(), m_surface);
+    VkSurfaceFormatKHR surfaceFormat = getBestSwapSurfaceFormat(VulkanContext::instance().physicalDevice(), m_surface);
+    VkPresentModeKHR presentMode = getBestSwapPresentMode(VulkanContext::instance().physicalDevice(), m_surface, !m_isResizing);
+    VkSurfaceCapabilitiesKHR capabilities = getSwapCapabilities(VulkanContext::instance().physicalDevice(), m_surface);
 
     VkSwapchainKHR oldSwapChain = VK_NULL_HANDLE;
     if (isRecreating)
@@ -292,8 +292,8 @@ void VulkanSurface::createSwapChain(bool isRecreating)
     };
 
     std::array queueFamilyIndices = {
-        m_device->queueFamilyIndex(VulkanGraphicsDevice::QueueFamily::Graphics),
-        m_device->queueFamilyIndex(VulkanGraphicsDevice::QueueFamily::Present)
+        VulkanContext::instance().queueFamilyIndex(VulkanContext::QueueFamily::Graphics),
+        VulkanContext::instance().queueFamilyIndex(VulkanContext::QueueFamily::Present)
     };
 
     if (queueFamilyIndices[0] != queueFamilyIndices[1])
@@ -310,7 +310,7 @@ void VulkanSurface::createSwapChain(bool isRecreating)
     }
 
     VkSwapchainKHR swapChain;
-    if (vkCreateSwapchainKHR(m_device->device(), &createInfo, nullptr, &swapChain) != VK_SUCCESS)
+    if (vkCreateSwapchainKHR(VulkanContext::instance().device(), &createInfo, nullptr, &swapChain) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create swap chain");
     }
@@ -319,13 +319,13 @@ void VulkanSurface::createSwapChain(bool isRecreating)
 
     if (oldSwapChain != VK_NULL_HANDLE)
     {
-        vkDestroySwapchainKHR(m_device->device(), oldSwapChain, nullptr);
+        vkDestroySwapchainKHR(VulkanContext::instance().device(), oldSwapChain, nullptr);
     }
 
     uint32_t swapChainImageCount = 0;
-    vkGetSwapchainImagesKHR(m_device->device(), m_swapChain, &swapChainImageCount, nullptr);
+    vkGetSwapchainImagesKHR(VulkanContext::instance().device(), m_swapChain, &swapChainImageCount, nullptr);
     m_swapChainImages.resize(swapChainImageCount);
-    vkGetSwapchainImagesKHR(m_device->device(), m_swapChain, &swapChainImageCount, m_swapChainImages.data());
+    vkGetSwapchainImagesKHR(VulkanContext::instance().device(), m_swapChain, &swapChainImageCount, m_swapChainImages.data());
 
     m_swapChainImageFormat = surfaceFormat.format;
     m_swapChainExtent = extent;
@@ -357,7 +357,7 @@ void VulkanSurface::createImageView()
             }
         };
 
-        if (vkCreateImageView(m_device->device(), &viewInfo, nullptr, &m_swapChainImageViews[i]) != VK_SUCCESS)
+        if (vkCreateImageView(VulkanContext::instance().device(), &viewInfo, nullptr, &m_swapChainImageViews[i]) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create image views");
         }

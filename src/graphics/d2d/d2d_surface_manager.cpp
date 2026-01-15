@@ -1,12 +1,14 @@
 #include "d2d_surface_manager.h"
 
+#include "d2d_context.h"
+
 #include <iostream>
 #include <stdexcept>
 
 namespace karin
 {
-D2DSurfaceManager::D2DSurfaceManager(D2DGraphicsDevice* device, HWND hwnd)
-    : m_device(device), m_hwnd(hwnd)
+D2DSurfaceManager::D2DSurfaceManager(HWND hwnd)
+    : m_hwnd(hwnd)
 {
     createSwapChain();
     acquireBackBuffer();
@@ -68,7 +70,7 @@ void D2DSurfaceManager::createSwapChain()
     };
 
     Microsoft::WRL::ComPtr<IDXGIAdapter> adapter;
-    if (FAILED(m_device->dxgiDevice()->GetAdapter(&adapter)))
+    if (FAILED(D2DContext::instance().dxgiDevice()->GetAdapter(&adapter)))
     {
         throw std::runtime_error("Failed to get DXGI adapter");
     }
@@ -81,7 +83,7 @@ void D2DSurfaceManager::createSwapChain()
 
     if (FAILED(
         factory->CreateSwapChainForHwnd(
-            m_device->dxgiDevice().Get(),
+            D2DContext::instance().dxgiDevice().Get(),
             m_hwnd,
             &swapChainDesc,
             nullptr,

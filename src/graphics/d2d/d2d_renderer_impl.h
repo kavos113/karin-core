@@ -9,7 +9,6 @@
 #include <renderer_impl.h>
 
 #include "d2d_device_resources.h"
-#include "d2d_graphics_device.h"
 #include "d2d_surface_manager.h"
 
 namespace karin
@@ -17,7 +16,7 @@ namespace karin
 class D2DRendererImpl : public IRendererImpl
 {
 public:
-    D2DRendererImpl(D2DGraphicsDevice* device, HWND hwnd);
+    D2DRendererImpl(HWND hwnd);
     ~D2DRendererImpl() override = default;
 
     void cleanUp() override;
@@ -54,9 +53,6 @@ private:
 
     std::unique_ptr<D2DDeviceResources> m_deviceResources;
     std::unique_ptr<D2DSurfaceManager> m_surface;
-
-    // weak reference
-    D2DGraphicsDevice* m_device;
 
     Microsoft::WRL::ComPtr<ID2D1DeviceContext> m_deviceContext;
 
