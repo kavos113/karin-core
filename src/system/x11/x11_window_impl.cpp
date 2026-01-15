@@ -9,6 +9,7 @@
 #include <utils/string.h>
 
 #include "x11_converter.h"
+#include "x11_context.h"
 
 namespace karin
 {
@@ -22,8 +23,6 @@ X11WindowImpl::X11WindowImpl(
 )
     : m_appImpl(appImpl)
 {
-    m_display = appImpl->display();
-
     XSizeHints* sizeHints = XAllocSizeHints();
     if (!sizeHints)
     {
@@ -46,12 +45,12 @@ X11WindowImpl::X11WindowImpl(
     }
 
     m_window = XCreateSimpleWindow(
-        m_display,
-        DefaultRootWindow(m_display),
+        X11Context::instance().display(),
+        DefaultRootWindow(X11Context::instance().display()),
         x, y, width, height,
         0,
-        BlackPixel(m_display, 0),
-        WhitePixel(m_display, 0)
+        BlackPixel(X11Context::instance().display(), 0),
+        WhitePixel(X11Context::instance().display(), 0)
     );
 
     sizeHints->flags = PPosition | PSize;
@@ -75,7 +74,7 @@ X11WindowImpl::X11WindowImpl(
     classHint->res_class = const_cast<char*>(titleStr);
 
     XSetWMProperties(
-        m_display,
+        X11Context::instance().display(),
         m_window,
         &windowName,
         nullptr,
@@ -85,10 +84,10 @@ X11WindowImpl::X11WindowImpl(
         classHint
     );
 
-    Atom netWmName = XInternAtom(m_display, "_NET_WM_NAME", False);
-    Atom utf8String = XInternAtom(m_display, "UTF8_STRING", False);
+    Atom netWmName = XInternAtom(X11Context::instance().display(), "_NET_WM_NAME", False);
+    Atom utf8String = XInternAtom(X11Context::instance().display(), "UTF8_STRING", False);
     XChangeProperty(
-        m_display,
+        X11Context::instance().display(),
         m_window,
         netWmName,
         utf8String,
@@ -99,17 +98,17 @@ X11WindowImpl::X11WindowImpl(
     );
 
     XSelectInput(
-        m_display,
+        X11Context::instance().display(),
         m_window,
         ExposureMask | StructureNotifyMask | KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask
     );
 
-    Atom wmDelete = XInternAtom(m_display, "WM_DELETE_WINDOW", False);
-    XSetWMProtocols(m_display, m_window, &wmDelete, 1);
+    Atom wmDelete = XInternAtom(X11Context::instance().display(), "WM_DELETE_WINDOW", False);
+    XSetWMProtocols(X11Context::instance().display(), m_window, &wmDelete, 1);
 
     const uint64_t valueMask = 0;
     XGCValues values;
-    m_gc = XCreateGC(m_display, m_window, valueMask, &values);
+    m_gc = XCreateGC(X11Context::instance().display(), m_window, valueMask, &values);
     if (!m_gc)
     {
         XFree(sizeHints);
@@ -117,7 +116,7 @@ X11WindowImpl::X11WindowImpl(
         XFree(classHint);
         throw std::runtime_error("Failed to create graphics context");
     }
-    XSetForeground(m_display, m_gc, BlackPixel(m_display, 0));
+    XSetForeground(X11Context::instance().display(), m_gc, BlackPixel(X11Context::instance().display(), 0));
 
     XFree(classHint);
     XFree(wmHints);
@@ -141,7 +140,7 @@ X11WindowImpl::X11WindowImpl(
         throw std::runtime_error("failed to set x locale");
     }
 
-    m_xim = XOpenIM(m_display, nullptr, nullptr, nullptr);
+    m_xim = XOpenIM(X11Context::instance().display(), nullptr, nullptr, nullptr);
     if (!m_xim)
     {
         throw std::runtime_error("failed to open input method");
@@ -164,13 +163,13 @@ X11WindowImpl::~X11WindowImpl()
 {
     if (m_gc)
     {
-        XFreeGC(m_display, m_gc);
+        XFreeGC(X11Context::instance().display(), m_gc);
     }
     if (m_window)
     {
-        XDestroyWindow(m_display, m_window);
+        XDestroyWindow(X11Context::instance().display(), m_window);
     }
-    XFlush(m_display);
+    XFlush(X11Context::instance().display());
 }
 
 void X11WindowImpl::handleEvent(const XEvent& event)
@@ -212,7 +211,7 @@ void X11WindowImpl::handleEvent(const XEvent& event)
         break;
 
     case ClientMessage:
-        if (event.xclient.data.l[0] == XInternAtom(m_display, "WM_DELETE_WINDOW", False))
+        if (event.xclient.data.l[0] == XInternAtom(X11Context::instance().display(), "WM_DELETE_WINDOW", False))
         {
             m_onClose();
         }
@@ -331,7 +330,7 @@ void X11WindowImpl::show()
         return;
     }
 
-    XMapWindow(m_display, m_window);
+    XMapWindow(X11Context::instance().display(), m_window);
 }
 
 void X11WindowImpl::hide()
@@ -341,7 +340,7 @@ void X11WindowImpl::hide()
         return;
     }
 
-    XUnmapWindow(m_display, m_window);
+    XUnmapWindow(X11Context::instance().display(), m_window);
 }
 
 void X11WindowImpl::minimize()
@@ -351,15 +350,15 @@ void X11WindowImpl::minimize()
         return;
     }
 
-    XIconifyWindow(m_display, m_window, DefaultScreen(m_display));
-    XFlush(m_display);
+    XIconifyWindow(X11Context::instance().display(), m_window, DefaultScreen(X11Context::instance().display()));
+    XFlush(X11Context::instance().display());
 
     m_status = X11ShowStatus::Minimize;
 }
 
 void X11WindowImpl::maximize()
 {
-    XMapWindow(m_display, m_window);
+    XMapWindow(X11Context::instance().display(), m_window);
 
     if (!m_window)
     {
@@ -370,22 +369,22 @@ void X11WindowImpl::maximize()
 
     event.type = ClientMessage;
     event.xclient.window = m_window;
-    event.xclient.message_type = XInternAtom(m_display, "_NET_WM_STATE", False);
+    event.xclient.message_type = XInternAtom(X11Context::instance().display(), "_NET_WM_STATE", False);
     event.xclient.format = 32;
     event.xclient.data.l[0] = 1; // _NET_WM_STATE_ADD
-    event.xclient.data.l[1] = XInternAtom(m_display, "_NET_WM_STATE_MAXIMIZED_VERT", False);
-    event.xclient.data.l[2] = XInternAtom(m_display, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
+    event.xclient.data.l[1] = XInternAtom(X11Context::instance().display(), "_NET_WM_STATE_MAXIMIZED_VERT", False);
+    event.xclient.data.l[2] = XInternAtom(X11Context::instance().display(), "_NET_WM_STATE_MAXIMIZED_HORZ", False);
     event.xclient.data.l[3] = 0; // no specific window
 
     XSendEvent(
-        m_display,
-        DefaultRootWindow(m_display),
+        X11Context::instance().display(),
+        DefaultRootWindow(X11Context::instance().display()),
         False,
         SubstructureRedirectMask | SubstructureNotifyMask,
         &event
     );
 
-    XFlush(m_display);
+    XFlush(X11Context::instance().display());
 
     m_status = X11ShowStatus::Maximize;
 }
@@ -404,17 +403,17 @@ void X11WindowImpl::applyStatus()
 
 void X11WindowImpl::setPosition(int x, int y)
 {
-    XMoveWindow(m_display, m_window, x, y);
+    XMoveWindow(X11Context::instance().display(), m_window, x, y);
 }
 
 void X11WindowImpl::setSize(int width, int height)
 {
-    XResizeWindow(m_display, m_window, width, height);
+    XResizeWindow(X11Context::instance().display(), m_window, width, height);
 }
 
 void X11WindowImpl::setRect(int x, int y, int width, int height)
 {
-    XMoveResizeWindow(m_display, m_window, x, y, width, height);
+    XMoveResizeWindow(X11Context::instance().display(), m_window, x, y, width, height);
 }
 
 void X11WindowImpl::setOnPaint(std::function<bool()> onPaint)
@@ -440,7 +439,7 @@ void X11WindowImpl::setOnFinishResize(std::function<void()> onFinishResize)
 Window::NativeHandle X11WindowImpl::handle() const
 {
     return Window::NativeHandle{
-        .display = m_display,
+        .display = X11Context::instance().display(),
         .window = static_cast<uint64_t>(m_window)
     };
 }
