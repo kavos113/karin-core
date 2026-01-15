@@ -4,11 +4,10 @@
 #include "vma.h"
 #include "vulkan_debug_manager.h"
 
-#include <karin/graphics/graphics_device.h>
-
 #include <vulkan/vulkan.h>
 #include <glm/glm.hpp>
 #include <map>
+#include <memory>
 
 namespace karin
 {

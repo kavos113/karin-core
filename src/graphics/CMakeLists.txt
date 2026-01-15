@@ -1,5 +1,4 @@
 set(GRAPHICS_SOURCE
-        graphics_device.cpp
         renderer.cpp
         graphics_context.cpp
         path.cpp
@@ -11,7 +10,6 @@ set(GRAPHICS_SOURCE
 
 if (DIRECTX)
     set(GRAPHICS_SOURCE ${GRAPHICS_SOURCE}
-            d2d/d2d_graphics_device.cpp
             d2d/d2d_surface_manager.cpp
             d2d/d2d_renderer_impl.cpp
             d2d/d2d_graphics_context_impl.cpp

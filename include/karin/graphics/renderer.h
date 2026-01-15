@@ -8,7 +8,6 @@
 #include <karin/common/color/color.h>
 
 #include "graphics_context.h"
-#include "graphics_device.h"
 #include "image.h"
 
 #include <karin/system/system_font.h>
@@ -25,7 +24,7 @@ class IRendererImpl;
 class Renderer
 {
 public:
-    Renderer(GraphicsDevice* device, Window* window, SystemFont* systemFont);
+    Renderer(Window* window, SystemFont* systemFont);
     ~Renderer();
 
     /**
