@@ -13,8 +13,6 @@ class D2DContext
 public:
     static D2DContext& instance();
 
-    void init();
-
     Microsoft::WRL::ComPtr<ID2D1Factory1>& factory()
     {
         return m_d2dFactory;
@@ -36,7 +34,7 @@ public:
     }
 
 private:
-    D2DContext() = default;
+    D2DContext();
     ~D2DContext() = default;
 
     void createD2DFactory();

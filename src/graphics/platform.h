@@ -8,7 +8,6 @@
 #include <karin/system/system_font.h>
 
 #ifdef KARIN_PLATFORM_DIRECTX
-#include "d2d/d2d_graphics_device.h"
 #include "d2d/d2d_renderer_impl.h"
 #include "d2d/d2d_graphics_context_impl.h"
 #elifdef KARIN_PLATFORM_VULKAN
@@ -23,7 +22,7 @@ namespace karin
 inline std::unique_ptr<GraphicsDevice> createGraphicsDevice()
 {
 #ifdef KARIN_PLATFORM_DIRECTX
-    return std::make_unique<D2DGraphicsDevice>();
+    return nullptr;
 #elifdef KARIN_PLATFORM_VULKAN
     return std::make_unique<VulkanGraphicsDevice>();
 #endif
@@ -36,7 +35,7 @@ inline std::unique_ptr<IRendererImpl> createRendererImpl(
 )
 {
 #ifdef KARIN_PLATFORM_DIRECTX
-    return std::make_unique<D2DRendererImpl>(dynamic_cast<D2DGraphicsDevice*>(device), static_cast<HWND>(handle.hwnd));
+    return std::make_unique<D2DRendererImpl>(static_cast<HWND>(handle.hwnd));
 #elifdef KARIN_PLATFORM_VULKAN
     return std::make_unique<VulkanRendererImpl>(
         dynamic_cast<VulkanGraphicsDevice*>(device), handle, std::make_unique<FontLoader>(systemFont)

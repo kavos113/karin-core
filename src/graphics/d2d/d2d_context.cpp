@@ -12,7 +12,7 @@ D2DContext& D2DContext::instance()
     return instance;
 }
 
-void D2DContext::init()
+D2DContext::D2DContext()
 {
     createD2DFactory();
     createDXGIDevice();
