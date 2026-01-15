@@ -48,7 +48,6 @@ private:
     void applyStatus();
     std::optional<Event> translateX11Event(XEvent* event);
 
-    Display* m_display;
     XlibWindow m_window;
     GC m_gc;
     XIM m_xim;

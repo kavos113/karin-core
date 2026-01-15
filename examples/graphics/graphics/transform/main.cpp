@@ -10,8 +10,7 @@ int main()
     karin::Application& app = karin::Application::instance();
     karin::Window window = app.createWindow(L"Hello Graphics", 100, 100, 800, 600);
 
-    std::unique_ptr<karin::GraphicsDevice> device = karin::GraphicsDevice::create();
-    karin::Renderer renderer(device.get(), &window, app.systemFont());
+    karin::Renderer renderer(&window, app.systemFont());
 
     renderer.setClearColor(karin::Color(karin::Color::Green));
 
@@ -97,7 +96,6 @@ int main()
     while (app.waitEvent(event)) {}
 
     renderer.cleanUp();
-    device->cleanUp();
 
     return 0;
 }

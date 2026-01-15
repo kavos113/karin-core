@@ -1,5 +1,7 @@
 #include "vulkan_pipeline.h"
 
+#include "vulkan_context.h"
+
 #include <stdexcept>
 
 namespace
@@ -25,7 +27,7 @@ VkShaderModule loadShader(VkDevice device, const unsigned char* code, unsigned i
 namespace karin
 {
 VulkanPipeline::VulkanPipeline(
-    VkDevice device, VkRenderPass renderPass,
+    VkRenderPass renderPass,
     const unsigned char* vertShaderCode, unsigned int vertShaderSize,
     const unsigned char* fragShaderCode, unsigned int fragShaderSize,
     const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts,
@@ -33,36 +35,36 @@ VulkanPipeline::VulkanPipeline(
 )
 {
     createPipeline(
-        device, renderPass, vertShaderCode, vertShaderSize, fragShaderCode, fragShaderSize, descriptorSetLayouts,
+        renderPass, vertShaderCode, vertShaderSize, fragShaderCode, fragShaderSize, descriptorSetLayouts,
         pushConstantRanges
     );
 }
 
-void VulkanPipeline::cleanUp(VkDevice device)
+void VulkanPipeline::cleanUp()
 {
     if (m_graphicsPipeline != VK_NULL_HANDLE)
     {
-        vkDestroyPipeline(device, m_graphicsPipeline, nullptr);
+        vkDestroyPipeline(VulkanContext::instance().device(), m_graphicsPipeline, nullptr);
         m_graphicsPipeline = VK_NULL_HANDLE;
     }
 
     if (m_pipelineLayout != VK_NULL_HANDLE)
     {
-        vkDestroyPipelineLayout(device, m_pipelineLayout, nullptr);
+        vkDestroyPipelineLayout(VulkanContext::instance().device(), m_pipelineLayout, nullptr);
         m_pipelineLayout = VK_NULL_HANDLE;
     }
 }
 
 void VulkanPipeline::createPipeline(
-    VkDevice device, VkRenderPass renderPass,
+    VkRenderPass renderPass,
     const unsigned char* vertShaderCode, unsigned int vertShaderSize,
     const unsigned char* fragShaderCode, unsigned int fragShaderSize,
     const std::vector<VkDescriptorSetLayout>& descriptorSetLayouts,
     const std::vector<VkPushConstantRange>& pushConstantRanges
 )
 {
-    auto vertShader = loadShader(device, vertShaderCode, vertShaderSize);
-    auto fragShader = loadShader(device, fragShaderCode, fragShaderSize);
+    auto vertShader = loadShader(VulkanContext::instance().device(), vertShaderCode, vertShaderSize);
+    auto fragShader = loadShader(VulkanContext::instance().device(), fragShaderCode, fragShaderSize);
 
     VkPipelineShaderStageCreateInfo vertShaderStageInfo = {
         .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
@@ -168,7 +170,7 @@ void VulkanPipeline::createPipeline(
         .pushConstantRangeCount = static_cast<uint32_t>(pushConstantRanges.size()),
         .pPushConstantRanges = pushConstantRanges.data()
     };
-    if (vkCreatePipelineLayout(device, &layoutCreateInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS)
+    if (vkCreatePipelineLayout(VulkanContext::instance().device(), &layoutCreateInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create pipeline layout");
     }
@@ -193,12 +195,12 @@ void VulkanPipeline::createPipeline(
         .basePipelineHandle = VK_NULL_HANDLE,
         .basePipelineIndex = -1
     };
-    if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_graphicsPipeline) != VK_SUCCESS)
+    if (vkCreateGraphicsPipelines(VulkanContext::instance().device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_graphicsPipeline) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create graphics pipeline");
     }
 
-    vkDestroyShaderModule(device, vertShader, nullptr);
-    vkDestroyShaderModule(device, fragShader, nullptr);
+    vkDestroyShaderModule(VulkanContext::instance().device(), vertShader, nullptr);
+    vkDestroyShaderModule(VulkanContext::instance().device(), fragShader, nullptr);
 }
 } // karin

@@ -1,4 +1,4 @@
-#include "vulkan_graphics_device.h"
+#include "vulkan_context.h"
 
 #include <algorithm>
 #include <array>
@@ -108,16 +108,20 @@ int rateDeviceScore(VkPhysicalDevice device)
 
 namespace karin
 {
-VulkanGraphicsDevice::VulkanGraphicsDevice()
+VulkanContext& VulkanContext::instance()
+{
+    static VulkanContext ctx;
+    return ctx;
+}
+
+VulkanContext::VulkanContext()
 {
     createInstance();
     m_debugManager = std::make_unique<VulkanDebugManager>(m_instance);
     choosePhysicalDevice();
 }
 
-VulkanGraphicsDevice::~VulkanGraphicsDevice() = default;
-
-void VulkanGraphicsDevice::cleanUp()
+VulkanContext::~VulkanContext()
 {
     vkDestroyCommandPool(m_device, m_commandPool, nullptr);
     vkDestroyDescriptorPool(m_device, m_descriptorPool, nullptr);
@@ -131,7 +135,7 @@ void VulkanGraphicsDevice::cleanUp()
     vkDestroyInstance(m_instance, nullptr);
 }
 
-VkCommandBuffer VulkanGraphicsDevice::beginSingleTimeCommands() const
+VkCommandBuffer VulkanContext::beginSingleTimeCommands() const
 {
     VkCommandBufferAllocateInfo allocInfo = {
         .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
@@ -159,7 +163,7 @@ VkCommandBuffer VulkanGraphicsDevice::beginSingleTimeCommands() const
     return commandBuffer;
 }
 
-void VulkanGraphicsDevice::endSingleTimeCommands(VkCommandBuffer commandBuffer) const
+void VulkanContext::endSingleTimeCommands(VkCommandBuffer commandBuffer) const
 {
     if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
     {
@@ -184,7 +188,7 @@ void VulkanGraphicsDevice::endSingleTimeCommands(VkCommandBuffer commandBuffer) 
     vkFreeCommandBuffers(m_device, m_commandPool, 1, &commandBuffer);
 }
 
-void VulkanGraphicsDevice::createInstance()
+void VulkanContext::createInstance()
 {
     VkApplicationInfo appInfo = {
         .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
@@ -230,7 +234,7 @@ void VulkanGraphicsDevice::createInstance()
     }
 }
 
-void VulkanGraphicsDevice::choosePhysicalDevice()
+void VulkanContext::choosePhysicalDevice()
 {
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr);
@@ -259,7 +263,7 @@ void VulkanGraphicsDevice::choosePhysicalDevice()
 }
 
 // TODO: should initialize first?
-void VulkanGraphicsDevice::initDevices(VkSurfaceKHR surface)
+void VulkanContext::initDevices(VkSurfaceKHR surface)
 {
     if (m_device != VK_NULL_HANDLE)
     {
@@ -279,7 +283,7 @@ void VulkanGraphicsDevice::initDevices(VkSurfaceKHR surface)
     createDescriptorPool();
 }
 
-void VulkanGraphicsDevice::getQueueFamily(VkSurfaceKHR surface)
+void VulkanContext::getQueueFamily(VkSurfaceKHR surface)
 {
     uint32_t queueFamilyCount = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(m_physicalDevice, &queueFamilyCount, nullptr);
@@ -306,7 +310,7 @@ void VulkanGraphicsDevice::getQueueFamily(VkSurfaceKHR surface)
     }
 }
 
-void VulkanGraphicsDevice::createVmaAllocator()
+void VulkanContext::createVmaAllocator()
 {
     VmaAllocatorCreateInfo allocatorInfo = {
         .flags = 0,
@@ -322,7 +326,7 @@ void VulkanGraphicsDevice::createVmaAllocator()
     }
 }
 
-void VulkanGraphicsDevice::createLogicalDevice()
+void VulkanContext::createLogicalDevice()
 {
     std::set uniqueQueueFamilies = {
         m_queueFamilyIndices[QueueFamily::Graphics],
@@ -371,7 +375,7 @@ void VulkanGraphicsDevice::createLogicalDevice()
     }
 }
 
-void VulkanGraphicsDevice::createCommandPool()
+void VulkanContext::createCommandPool()
 {
     VkCommandPoolCreateInfo poolInfo = {
         .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
@@ -385,7 +389,7 @@ void VulkanGraphicsDevice::createCommandPool()
     }
 }
 
-void VulkanGraphicsDevice::createDescriptorPool()
+void VulkanContext::createDescriptorPool()
 {
     std::array sizes = {
         VkDescriptorPoolSize{

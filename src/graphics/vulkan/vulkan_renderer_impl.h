@@ -2,7 +2,7 @@
 #define SRC_GRAPHICS_GRAPHICS_VULKAN_VK_RENDERER_IMPL_H
 
 #include "vulkan_device_resources.h"
-#include "vulkan_graphics_device.h"
+#include "vulkan_context.h"
 #include "vulkan_pipeline.h"
 #include "vulkan_surface.h"
 #include "shaders/push_constants.h"
@@ -37,7 +37,6 @@ public:
     };
 
     VulkanRendererImpl(
-        VulkanGraphicsDevice* device,
         Window::NativeHandle nativeHandle,
         std::unique_ptr<FontLoader> fontLoader
     );
@@ -114,7 +113,6 @@ private:
 
     void doResize();
 
-    VulkanGraphicsDevice* m_device;
     std::unique_ptr<VulkanSurface> m_surface;
     std::unordered_map<PipelineType, std::unique_ptr<VulkanPipeline>> m_pipelines;
     std::unique_ptr<VulkanDeviceResources> m_deviceResources;

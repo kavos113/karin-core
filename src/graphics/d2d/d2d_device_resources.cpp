@@ -3,6 +3,7 @@
 #include "d2d_geometry.h"
 #include "d2d_color.h"
 #include "d2d_consts.h"
+#include "d2d_context.h"
 
 #include <d2d/dwrite_converter.h>
 
@@ -417,7 +418,7 @@ Microsoft::WRL::ComPtr<ID2D1StrokeStyle> D2DDeviceResources::strokeStyle(const S
     };
     Microsoft::WRL::ComPtr<ID2D1StrokeStyle> strokeStyle;
     const FLOAT* dashes = style.dash_pattern.empty() ? nullptr : style.dash_pattern.data();
-    HRESULT hr = m_factory->CreateStrokeStyle(
+    HRESULT hr = D2DContext::instance().factory()->CreateStrokeStyle(
         properties,
         dashes,
         static_cast<UINT32>(style.dash_pattern.size()),
@@ -440,7 +441,7 @@ Microsoft::WRL::ComPtr<ID2D1PathGeometry> D2DDeviceResources::pathGeometry(const
     }
 
     Microsoft::WRL::ComPtr<ID2D1PathGeometry> geometry;
-    HRESULT hr = m_factory->CreatePathGeometry(&geometry);
+    HRESULT hr = D2DContext::instance().factory()->CreatePathGeometry(&geometry);
     if (FAILED(hr))
     {
         throw std::runtime_error("Failed to create D2D path geometry");
@@ -575,7 +576,7 @@ Microsoft::WRL::ComPtr<IDWriteTextLayout> D2DDeviceResources::textLayout(const T
     }
     else
     {
-        HRESULT hr = m_dwriteFactory->CreateTextFormat(
+        HRESULT hr = D2DContext::instance().dwriteFactory()->CreateTextFormat(
             toWString(layout.format.font.family).c_str(),
             nullptr,
             toDWriteFontWeight(layout.format.font.weight),
@@ -644,7 +645,7 @@ Microsoft::WRL::ComPtr<IDWriteTextLayout> D2DDeviceResources::textLayout(const T
     }
 
     Microsoft::WRL::ComPtr<IDWriteTextLayout> textLayout;
-    HRESULT hr = m_dwriteFactory->CreateTextLayout(
+    HRESULT hr = D2DContext::instance().dwriteFactory()->CreateTextLayout(
         toWString(layout.text).c_str(),
         static_cast<UINT32>(layout.text.size()),
         format.Get(),

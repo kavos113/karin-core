@@ -19,13 +19,9 @@ class D2DDeviceResources
 {
 public:
     explicit D2DDeviceResources(
-        Microsoft::WRL::ComPtr<ID2D1DeviceContext> deviceContext,
-        Microsoft::WRL::ComPtr<ID2D1Factory1> factory,
-        Microsoft::WRL::ComPtr<IDWriteFactory> dwriteFactory
+        Microsoft::WRL::ComPtr<ID2D1DeviceContext> deviceContext
     )
-        : m_deviceContext(std::move(deviceContext)),
-          m_factory(std::move(factory)),
-          m_dwriteFactory(std::move(dwriteFactory))
+        : m_deviceContext(std::move(deviceContext))
     {
     }
 
@@ -58,8 +54,6 @@ private:
     std::unordered_map<size_t, Microsoft::WRL::ComPtr<IDWriteTextLayout>> m_textLayouts;
 
     Microsoft::WRL::ComPtr<ID2D1DeviceContext> m_deviceContext;
-    Microsoft::WRL::ComPtr<ID2D1Factory1> m_factory;
-    Microsoft::WRL::ComPtr<IDWriteFactory> m_dwriteFactory;
 };
 } // karin
 

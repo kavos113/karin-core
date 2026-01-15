@@ -1,18 +1,18 @@
 #include "d2d_renderer_impl.h"
 
 #include "d2d_color.h"
+#include "d2d_context.h"
 
 #include <iostream>
 #include <stdexcept>
 
 namespace karin
 {
-D2DRendererImpl::D2DRendererImpl(D2DGraphicsDevice* device, HWND hwnd)
-    : m_device(device)
+D2DRendererImpl::D2DRendererImpl(HWND hwnd)
 {
-    m_surface = std::make_unique<D2DSurfaceManager>(device, hwnd);
+    m_surface = std::make_unique<D2DSurfaceManager>(hwnd);
 
-    HRESULT hr = m_device->device()->CreateDeviceContext(
+    HRESULT hr = D2DContext::instance().device()->CreateDeviceContext(
         D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &m_deviceContext
     );
     if (FAILED(hr))
@@ -22,9 +22,7 @@ D2DRendererImpl::D2DRendererImpl(D2DGraphicsDevice* device, HWND hwnd)
 
     setTargetBitmap();
 
-    m_deviceResources = std::make_unique<D2DDeviceResources>(
-        m_deviceContext, m_device->factory(), m_device->dwriteFactory()
-    );
+    m_deviceResources = std::make_unique<D2DDeviceResources>(m_deviceContext);
 }
 
 void D2DRendererImpl::setTargetBitmap() const
@@ -47,7 +45,6 @@ void D2DRendererImpl::cleanUp()
 {
     m_deviceContext.Reset();
     m_surface = nullptr;
-    m_device = nullptr;
 }
 
 bool D2DRendererImpl::beginDraw()

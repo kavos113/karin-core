@@ -1,7 +1,7 @@
 #ifndef SRC_GRAPHICS_VULKAN_VULKAN_GLYPH_CACHE_H
 #define SRC_GRAPHICS_VULKAN_VULKAN_GLYPH_CACHE_H
 
-#include "vulkan_graphics_device.h"
+#include "vulkan_context.h"
 
 #include <karin/common/geometry/rectangle.h>
 #include <karin/system/font.h>
@@ -18,7 +18,7 @@ namespace karin
 class VulkanGlyphCache
 {
 public:
-    explicit VulkanGlyphCache(VulkanGraphicsDevice* device, size_t maxFramesInFlight);
+    explicit VulkanGlyphCache(size_t maxFramesInFlight);
     ~VulkanGlyphCache() = default;
 
     void cleanup();
@@ -69,7 +69,6 @@ private:
 
     static constexpr float SIZE_FLOAT_ACCURACY = 100.0f;
 
-    VulkanGraphicsDevice* m_device = nullptr;
     size_t m_maxFramesInFlight = 2;
 
     std::unordered_map<size_t, GlyphInfo> m_glyphMap;

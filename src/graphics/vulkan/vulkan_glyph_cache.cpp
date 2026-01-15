@@ -10,14 +10,9 @@
 
 namespace karin
 {
-VulkanGlyphCache::VulkanGlyphCache(VulkanGraphicsDevice* device, size_t maxFramesInFlight)
-    : m_device(device), m_maxFramesInFlight(maxFramesInFlight)
+VulkanGlyphCache::VulkanGlyphCache(size_t maxFramesInFlight)
+    : m_maxFramesInFlight(maxFramesInFlight)
 {
-    if (!m_device)
-    {
-        throw std::runtime_error("VulkanGlyphCache: device is null");
-    }
-
     createDescriptorSetLayout();
     createSampler();
     createAtlas();
@@ -25,10 +20,10 @@ VulkanGlyphCache::VulkanGlyphCache(VulkanGraphicsDevice* device, size_t maxFrame
 
 void VulkanGlyphCache::cleanup()
 {
-    vmaDestroyImage(m_device->allocator(), m_atlasImage, m_atlasImageAllocation);
-    vkDestroyImageView(m_device->device(), m_atlasImageView, nullptr);
-    vkDestroySampler(m_device->device(), m_atlasSampler, nullptr);
-    vkDestroyDescriptorSetLayout(m_device->device(), m_atlasDescriptorSetLayout, nullptr);
+    vmaDestroyImage(VulkanContext::instance().allocator(), m_atlasImage, m_atlasImageAllocation);
+    vkDestroyImageView(VulkanContext::instance().device(), m_atlasImageView, nullptr);
+    vkDestroySampler(VulkanContext::instance().device(), m_atlasSampler, nullptr);
+    vkDestroyDescriptorSetLayout(VulkanContext::instance().device(), m_atlasDescriptorSetLayout, nullptr);
 }
 
 VulkanGlyphCache::GlyphInfo VulkanGlyphCache::getGlyph(uint32_t glyphIndex, uint32_t fontKey, FT_Face face, float size)
@@ -105,14 +100,14 @@ void VulkanGlyphCache::flushUploadQueue()
         .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
     };
     if (vmaCreateBuffer(
-        m_device->allocator(), &bufferInfo, &stagingBufferAllocationInfo, &stagingBuffer, &stagingBufferMemory, nullptr
+        VulkanContext::instance().allocator(), &bufferInfo, &stagingBufferAllocationInfo, &stagingBuffer, &stagingBufferMemory, nullptr
     ) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create staging buffer for glyph upload");
     }
 
     void* mappedData;
-    if (vmaMapMemory(m_device->allocator(), stagingBufferMemory, &mappedData) != VK_SUCCESS)
+    if (vmaMapMemory(VulkanContext::instance().allocator(), stagingBufferMemory, &mappedData) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to map memory for glyph upload staging buffer");
     }
@@ -122,9 +117,9 @@ void VulkanGlyphCache::flushUploadQueue()
         std::memcpy(mappedData, upload.bitmapData.data(), upload.bitmapData.size());
         mappedData = static_cast<std::byte*>(mappedData) + upload.bitmapData.size();
     }
-    vmaUnmapMemory(m_device->allocator(), stagingBufferMemory);
+    vmaUnmapMemory(VulkanContext::instance().allocator(), stagingBufferMemory);
 
-    VkCommandBuffer commandBuffer = m_device->beginSingleTimeCommands();
+    VkCommandBuffer commandBuffer = VulkanContext::instance().beginSingleTimeCommands();
     transitionLayout(commandBuffer, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
     size_t offset = 0;
@@ -165,9 +160,9 @@ void VulkanGlyphCache::flushUploadQueue()
     }
 
     transitionLayout(commandBuffer, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-    m_device->endSingleTimeCommands(commandBuffer);
+    VulkanContext::instance().endSingleTimeCommands(commandBuffer);
 
-    vmaDestroyBuffer(m_device->allocator(), stagingBuffer, stagingBufferMemory);
+    vmaDestroyBuffer(VulkanContext::instance().allocator(), stagingBuffer, stagingBufferMemory);
 
     m_uploadQueue.clear();
 }
@@ -225,7 +220,7 @@ void VulkanGlyphCache::createAtlas()
         .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
     };
     if (vmaCreateImage(
-        m_device->allocator(), &imageCreateInfo, &imageAllocInfo, &m_atlasImage, &m_atlasImageAllocation, nullptr
+        VulkanContext::instance().allocator(), &imageCreateInfo, &imageAllocInfo, &m_atlasImage, &m_atlasImageAllocation, nullptr
     ) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create glyph atlas image");
@@ -250,7 +245,7 @@ void VulkanGlyphCache::createAtlas()
             .layerCount = 1,
         },
     };
-    if (vkCreateImageView(m_device->device(), &viewInfo, nullptr, &m_atlasImageView) != VK_SUCCESS)
+    if (vkCreateImageView(VulkanContext::instance().device(), &viewInfo, nullptr, &m_atlasImageView) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create glyph atlas image view");
     }
@@ -258,12 +253,12 @@ void VulkanGlyphCache::createAtlas()
     std::vector layouts(m_maxFramesInFlight, m_atlasDescriptorSetLayout);
     VkDescriptorSetAllocateInfo allocInfo = {
         .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
-        .descriptorPool = m_device->descriptorPool(),
+        .descriptorPool = VulkanContext::instance().descriptorPool(),
         .descriptorSetCount = static_cast<uint32_t>(m_maxFramesInFlight),
         .pSetLayouts = layouts.data(),
     };
     m_atlasDescriptorSets.resize(m_maxFramesInFlight);
-    if (vkAllocateDescriptorSets(m_device->device(), &allocInfo, m_atlasDescriptorSets.data()) != VK_SUCCESS)
+    if (vkAllocateDescriptorSets(VulkanContext::instance().device(), &allocInfo, m_atlasDescriptorSets.data()) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to allocate descriptor sets for glyph atlas");
     }
@@ -284,7 +279,7 @@ void VulkanGlyphCache::createAtlas()
             .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
             .pImageInfo = &imageInfo,
         };
-        vkUpdateDescriptorSets(m_device->device(), 1, &descriptorWrite, 0, nullptr);
+        vkUpdateDescriptorSets(VulkanContext::instance().device(), 1, &descriptorWrite, 0, nullptr);
     }
 }
 
@@ -303,7 +298,7 @@ void VulkanGlyphCache::createDescriptorSetLayout()
         .pBindings = &samplerLayoutBinding,
     };
     if (vkCreateDescriptorSetLayout(
-        m_device->device(), &layoutInfo, nullptr, &m_atlasDescriptorSetLayout
+        VulkanContext::instance().device(), &layoutInfo, nullptr, &m_atlasDescriptorSetLayout
     ) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create descriptor set layout for glyph atlas");
@@ -313,7 +308,7 @@ void VulkanGlyphCache::createDescriptorSetLayout()
 void VulkanGlyphCache::createSampler()
 {
     VkPhysicalDeviceProperties properties;
-    vkGetPhysicalDeviceProperties(m_device->physicalDevice(), &properties);
+    vkGetPhysicalDeviceProperties(VulkanContext::instance().physicalDevice(), &properties);
 
     VkSamplerCreateInfo samplerInfo = {
         .sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
@@ -334,7 +329,7 @@ void VulkanGlyphCache::createSampler()
         .borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK,
         .unnormalizedCoordinates = VK_FALSE,
     };
-    if (vkCreateSampler(m_device->device(), &samplerInfo, nullptr, &m_atlasSampler) != VK_SUCCESS)
+    if (vkCreateSampler(VulkanContext::instance().device(), &samplerInfo, nullptr, &m_atlasSampler) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create glyph atlas sampler");
     }

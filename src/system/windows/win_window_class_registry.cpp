@@ -4,8 +4,6 @@
 
 namespace karin
 {
-std::vector<std::wstring> WinWindowClassRegistry::m_registeredClasses;
-
 void WinWindowClassRegistry::registerClass(WNDCLASSEX& wc, const std::wstring& className)
 {
     wc.lpszClassName = className.c_str();
@@ -19,7 +17,7 @@ void WinWindowClassRegistry::registerClass(WNDCLASSEX& wc, const std::wstring& c
     m_registeredClasses.push_back(className);
 }
 
-void WinWindowClassRegistry::unregisterClasses()
+void WinWindowClassRegistry::unregisterClasses() const
 {
     for (const auto& className : m_registeredClasses)
     {

@@ -11,10 +11,10 @@
 
 namespace karin
 {
-Renderer::Renderer(GraphicsDevice* device, Window* window, SystemFont* systemFont)
+Renderer::Renderer(Window* window, SystemFont* systemFont)
     : m_window(window)
 {
-    m_impl = createRendererImpl(device, window->handle(), systemFont);
+    m_impl = createRendererImpl(window->handle(), systemFont);
 }
 
 Renderer::~Renderer() = default;
