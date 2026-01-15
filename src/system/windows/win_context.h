@@ -9,7 +9,7 @@ class WinContext
 public:
     static WinContext& instance();
 
-    const WinWindowClassRegistry& windowClassRegistry() const
+    WinWindowClassRegistry& windowClassRegistry()
     {
         return m_windowsClassRegistry;
     }

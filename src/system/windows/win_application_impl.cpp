@@ -24,8 +24,6 @@ WinApplicationImpl::WinApplicationImpl()
         .hIconSm = LoadIcon(nullptr, IDI_APPLICATION)
     };
 
-    WinContext::instance().init();
-
     WinContext::instance().windowClassRegistry().registerClass(wc, CLASS_NAME);
 }
 
