@@ -4,24 +4,19 @@
 #include <stdexcept>
 
 #include "x11_window_impl.h"
+#include "x11_context.h"
 
 namespace karin
 {
 X11ApplicationImpl::X11ApplicationImpl()
 {
-    m_display = XOpenDisplay(nullptr);
-    if (!m_display)
-    {
-        throw std::runtime_error("Failed to open X11 display");
-    }
-
     XSetErrorHandler(errorHandler);
-    XSynchronize(m_display, True);
+    XSynchronize(X11Context::instance().display(), True);
 }
 
 X11ApplicationImpl::~X11ApplicationImpl()
 {
-    XCloseDisplay(m_display);
+    XCloseDisplay(X11Context::instance().display());
 }
 
 void X11ApplicationImpl::addWindow(XlibWindow window, X11WindowImpl* impl)
@@ -42,7 +37,7 @@ bool X11ApplicationImpl::waitEvent(Event& event)
     }
 
     XEvent xevent;
-    XNextEvent(m_display, &xevent);
+    XNextEvent(X11Context::instance().display(), &xevent);
 
     m_windows[xevent.xany.window]->handleEvent(xevent);
 

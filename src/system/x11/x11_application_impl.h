@@ -28,15 +28,8 @@ public:
         m_eventQueue.push(event);
     }
 
-    Display* display() const
-    {
-        return m_display;
-    }
-
 private:
     static int errorHandler(Display* display, XErrorEvent* error);
-
-    Display* m_display;
 
     std::map<XlibWindow, X11WindowImpl*> m_windows;
 
