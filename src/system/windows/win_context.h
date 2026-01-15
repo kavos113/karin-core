@@ -4,23 +4,19 @@
 
 namespace karin
 {
-// no contents yet
 class WinContext
 {
 public:
     static WinContext& instance();
 
-    void init();
-    void cleanup();
-
-    WinWindowClassRegistry& windowClassRegistry()
+    const WinWindowClassRegistry& windowClassRegistry() const
     {
         return m_windowsClassRegistry;
     }
 
 private:
-    WinContext() = default;
-    ~WinContext() = default;
+    WinContext();
+    ~WinContext();
 
     WinWindowClassRegistry m_windowsClassRegistry;
 };

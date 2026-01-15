@@ -9,11 +9,9 @@ WinContext& WinContext::instance()
     return instance;
 }
 
-void WinContext::init()
-{
-}
+WinContext::WinContext() = default;
 
-void WinContext::cleanup()
+WinContext::~WinContext()
 {
     m_windowsClassRegistry.unregisterClasses();
 }
