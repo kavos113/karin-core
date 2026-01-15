@@ -20,7 +20,7 @@ if (DIRECTX)
     )
 elseif (VULKAN)
     set(GRAPHICS_SOURCE ${GRAPHICS_SOURCE}
-            vulkan/vulkan_graphics_device.cpp
+            vulkan/vulkan_context.cpp
             vulkan/vulkan_debug_manager.cpp
             vulkan/vulkan_surface.cpp
             vulkan/vulkan_renderer_impl.cpp

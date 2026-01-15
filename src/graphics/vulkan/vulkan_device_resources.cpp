@@ -1,6 +1,7 @@
 #include "vulkan_device_resources.h"
 
 #include <karin/common/color/color.h>
+#include "vulkan_context.h"
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -20,27 +21,27 @@ void VulkanDeviceResources::cleanup()
 
     for (auto& val : m_gradientPointLutMap | std::views::values)
     {
-        vmaDestroyImage(m_device->allocator(), val.image, val.allocation);
-        vkDestroyImageView(m_device->device(), val.imageView, nullptr);
+        vmaDestroyImage(VulkanContext::instance().allocator(), val.image, val.allocation);
+        vkDestroyImageView(VulkanContext::instance().device(), val.imageView, nullptr);
     }
 
     for (auto& val : m_textureMap | std::views::values)
     {
-        vmaDestroyImage(m_device->allocator(), val.image, val.allocation);
-        vkDestroyImageView(m_device->device(), val.imageView, nullptr);
+        vmaDestroyImage(VulkanContext::instance().allocator(), val.image, val.allocation);
+        vkDestroyImageView(VulkanContext::instance().device(), val.imageView, nullptr);
     }
 
-    vmaDestroyImage(m_device->allocator(), m_dummyTexture.image, m_dummyTexture.allocation);
-    vkDestroyImageView(m_device->device(), m_dummyTexture.imageView, nullptr);
+    vmaDestroyImage(VulkanContext::instance().allocator(), m_dummyTexture.image, m_dummyTexture.allocation);
+    vkDestroyImageView(VulkanContext::instance().device(), m_dummyTexture.imageView, nullptr);
 
     m_gradientPointLutMap.clear();
     m_textureMap.clear();
 
-    vkDestroyDescriptorSetLayout(m_device->device(), m_geometryDescriptorSetLayout, nullptr);
+    vkDestroyDescriptorSetLayout(VulkanContext::instance().device(), m_geometryDescriptorSetLayout, nullptr);
 
-    vkDestroySampler(m_device->device(), m_clampSampler, nullptr);
-    vkDestroySampler(m_device->device(), m_repeatSampler, nullptr);
-    vkDestroySampler(m_device->device(), m_mirrorSampler, nullptr);
+    vkDestroySampler(VulkanContext::instance().device(), m_clampSampler, nullptr);
+    vkDestroySampler(VulkanContext::instance().device(), m_repeatSampler, nullptr);
+    vkDestroySampler(VulkanContext::instance().device(), m_mirrorSampler, nullptr);
 }
 
 std::vector<VkDescriptorSet> VulkanDeviceResources::gradientPointLutDescriptorSet(
@@ -67,19 +68,19 @@ std::vector<VkDescriptorSet> VulkanDeviceResources::gradientPointLutDescriptorSe
         .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
     };
     if (vmaCreateBuffer(
-        m_device->allocator(), &bufferInfo, &stagingBufferAllocationInfo, &stagingBuffer, &stagingBufferMemory, nullptr
+        VulkanContext::instance().allocator(), &bufferInfo, &stagingBufferAllocationInfo, &stagingBuffer, &stagingBufferMemory, nullptr
     ) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create staging buffer for gradient point LUT");
     }
 
     void* mappedData;
-    if (vmaMapMemory(m_device->allocator(), stagingBufferMemory, &mappedData) != VK_SUCCESS)
+    if (vmaMapMemory(VulkanContext::instance().allocator(), stagingBufferMemory, &mappedData) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to map patternory for gradient point LUT");
     }
     memcpy(mappedData, data.data(), data.size());
-    vmaUnmapMemory(m_device->allocator(), stagingBufferMemory);
+    vmaUnmapMemory(VulkanContext::instance().allocator(), stagingBufferMemory);
 
 
     VmaAllocationCreateInfo gradientPointLutAllocationInfo = {
@@ -102,14 +103,14 @@ std::vector<VkDescriptorSet> VulkanDeviceResources::gradientPointLutDescriptorSe
     VkImage gradientPointLutImage;
     VmaAllocation gradientPointLutImageAllocation;
     if (vmaCreateImage(
-        m_device->allocator(), &imageInfo, &gradientPointLutAllocationInfo, &gradientPointLutImage,
+        VulkanContext::instance().allocator(), &imageInfo, &gradientPointLutAllocationInfo, &gradientPointLutImage,
         &gradientPointLutImageAllocation, nullptr
     ) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create gradient point LUT image");
     }
 
-    VkCommandBuffer commandBuffer = m_device->beginSingleTimeCommands();
+    VkCommandBuffer commandBuffer = VulkanContext::instance().beginSingleTimeCommands();
 
     VkImageMemoryBarrier barrier = {
         .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
@@ -174,9 +175,9 @@ std::vector<VkDescriptorSet> VulkanDeviceResources::gradientPointLutDescriptorSe
         1, &barrier
     );
 
-    m_device->endSingleTimeCommands(commandBuffer);
+    VulkanContext::instance().endSingleTimeCommands(commandBuffer);
 
-    vmaDestroyBuffer(m_device->allocator(), stagingBuffer, stagingBufferMemory);
+    vmaDestroyBuffer(VulkanContext::instance().allocator(), stagingBuffer, stagingBufferMemory);
 
     VkImageViewCreateInfo viewInfo = {
         .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
@@ -198,7 +199,7 @@ std::vector<VkDescriptorSet> VulkanDeviceResources::gradientPointLutDescriptorSe
         },
     };
     VkImageView gradientPointLutImageView;
-    if (vkCreateImageView(m_device->device(), &viewInfo, nullptr, &gradientPointLutImageView) != VK_SUCCESS)
+    if (vkCreateImageView(VulkanContext::instance().device(), &viewInfo, nullptr, &gradientPointLutImageView) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create gradient point LUT image view");
     }
@@ -208,11 +209,11 @@ std::vector<VkDescriptorSet> VulkanDeviceResources::gradientPointLutDescriptorSe
 
     VkDescriptorSetAllocateInfo allocInfo = {
         .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
-        .descriptorPool = m_device->descriptorPool(),
+        .descriptorPool = VulkanContext::instance().descriptorPool(),
         .descriptorSetCount = m_maxFramesInFlight,
         .pSetLayouts = layouts.data(),
     };
-    if (vkAllocateDescriptorSets(m_device->device(), &allocInfo, descriptorSets.data()) != VK_SUCCESS)
+    if (vkAllocateDescriptorSets(VulkanContext::instance().device(), &allocInfo, descriptorSets.data()) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to allocate descriptor sets for gradient point LUT");
     }
@@ -250,7 +251,7 @@ std::vector<VkDescriptorSet> VulkanDeviceResources::gradientPointLutDescriptorSe
             .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
             .pImageInfo = &descriptorImageInfo,
         };
-        vkUpdateDescriptorSets(m_device->device(), 1, &descriptorWrite, 0, nullptr);
+        vkUpdateDescriptorSets(VulkanContext::instance().device(), 1, &descriptorWrite, 0, nullptr);
     }
 
     Texture lutTexture = {
@@ -307,7 +308,7 @@ std::array<uint8_t, VulkanDeviceResources::LUT_WIDTH * 4> VulkanDeviceResources:
 void VulkanDeviceResources::createSamplers()
 {
     VkPhysicalDeviceProperties properties;
-    vkGetPhysicalDeviceProperties(m_device->physicalDevice(), &properties);
+    vkGetPhysicalDeviceProperties(VulkanContext::instance().physicalDevice(), &properties);
 
     VkSamplerCreateInfo samplerInfo = {
         .sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
@@ -328,7 +329,7 @@ void VulkanDeviceResources::createSamplers()
         .borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK,
         .unnormalizedCoordinates = VK_FALSE,
     };
-    if (vkCreateSampler(m_device->device(), &samplerInfo, nullptr, &m_clampSampler) != VK_SUCCESS)
+    if (vkCreateSampler(VulkanContext::instance().device(), &samplerInfo, nullptr, &m_clampSampler) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create sampler");
     }
@@ -336,7 +337,7 @@ void VulkanDeviceResources::createSamplers()
     samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
     samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
     samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    if (vkCreateSampler(m_device->device(), &samplerInfo, nullptr, &m_repeatSampler) != VK_SUCCESS)
+    if (vkCreateSampler(VulkanContext::instance().device(), &samplerInfo, nullptr, &m_repeatSampler) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create sampler");
     }
@@ -344,7 +345,7 @@ void VulkanDeviceResources::createSamplers()
     samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
     samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
     samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
-    if (vkCreateSampler(m_device->device(), &samplerInfo, nullptr, &m_mirrorSampler) != VK_SUCCESS)
+    if (vkCreateSampler(VulkanContext::instance().device(), &samplerInfo, nullptr, &m_mirrorSampler) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create sampler");
     }
@@ -375,19 +376,19 @@ Image VulkanDeviceResources::createImage(const std::vector<std::byte>& data, uin
         .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
     };
     if (vmaCreateBuffer(
-        m_device->allocator(), &bufferInfo, &stagingBufferAllocationInfo, &stagingBuffer, &stagingBufferMemory, nullptr
+        VulkanContext::instance().allocator(), &bufferInfo, &stagingBufferAllocationInfo, &stagingBuffer, &stagingBufferMemory, nullptr
     ) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create staging buffer for image");
     }
 
     void* mappedData;
-    if (vmaMapMemory(m_device->allocator(), stagingBufferMemory, &mappedData) != VK_SUCCESS)
+    if (vmaMapMemory(VulkanContext::instance().allocator(), stagingBufferMemory, &mappedData) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to map memory for image staging buffer");
     }
     memcpy(mappedData, data.data(), data.size());
-    vmaUnmapMemory(m_device->allocator(), stagingBufferMemory);
+    vmaUnmapMemory(VulkanContext::instance().allocator(), stagingBufferMemory);
 
     VmaAllocationCreateInfo imageAllocationInfo = {
         .flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
@@ -409,13 +410,13 @@ Image VulkanDeviceResources::createImage(const std::vector<std::byte>& data, uin
     VkImage image;
     VmaAllocation imageAllocation;
     if (vmaCreateImage(
-        m_device->allocator(), &imageInfo, &imageAllocationInfo, &image, &imageAllocation, nullptr
+        VulkanContext::instance().allocator(), &imageInfo, &imageAllocationInfo, &image, &imageAllocation, nullptr
     ) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create image");
     }
 
-    VkCommandBuffer commandBuffer = m_device->beginSingleTimeCommands();
+    VkCommandBuffer commandBuffer = VulkanContext::instance().beginSingleTimeCommands();
 
     VkImageMemoryBarrier barrier = {
         .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
@@ -479,9 +480,9 @@ Image VulkanDeviceResources::createImage(const std::vector<std::byte>& data, uin
         0, nullptr,
         1, &barrier
     );
-    m_device->endSingleTimeCommands(commandBuffer);
+    VulkanContext::instance().endSingleTimeCommands(commandBuffer);
 
-    vmaDestroyBuffer(m_device->allocator(), stagingBuffer, stagingBufferMemory);
+    vmaDestroyBuffer(VulkanContext::instance().allocator(), stagingBuffer, stagingBufferMemory);
 
     VkImageViewCreateInfo viewInfo = {
         .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
@@ -503,7 +504,7 @@ Image VulkanDeviceResources::createImage(const std::vector<std::byte>& data, uin
         },
     };
     VkImageView imageView;
-    if (vkCreateImageView(m_device->device(), &viewInfo, nullptr, &imageView) != VK_SUCCESS)
+    if (vkCreateImageView(VulkanContext::instance().device(), &viewInfo, nullptr, &imageView) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create image view");
     }
@@ -512,11 +513,11 @@ Image VulkanDeviceResources::createImage(const std::vector<std::byte>& data, uin
     std::vector<VkDescriptorSet> descriptorSets(m_maxFramesInFlight);
     VkDescriptorSetAllocateInfo allocInfo = {
         .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
-        .descriptorPool = m_device->descriptorPool(),
+        .descriptorPool = VulkanContext::instance().descriptorPool(),
         .descriptorSetCount = m_maxFramesInFlight,
         .pSetLayouts = layouts.data(),
     };
-    if (vkAllocateDescriptorSets(m_device->device(), &allocInfo, descriptorSets.data()) != VK_SUCCESS)
+    if (vkAllocateDescriptorSets(VulkanContext::instance().device(), &allocInfo, descriptorSets.data()) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to allocate descriptor sets for image");
     }
@@ -538,7 +539,7 @@ Image VulkanDeviceResources::createImage(const std::vector<std::byte>& data, uin
             .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
             .pImageInfo = &descriptorImageInfo,
         };
-        vkUpdateDescriptorSets(m_device->device(), 1, &descriptorWrite, 0, nullptr);
+        vkUpdateDescriptorSets(VulkanContext::instance().device(), 1, &descriptorWrite, 0, nullptr);
     }
 
 
@@ -571,7 +572,7 @@ void VulkanDeviceResources::createDescriptorSetLayouts()
         .pBindings = &binding
     };
     if (vkCreateDescriptorSetLayout(
-        m_device->device(), &layoutInfo, nullptr, &m_geometryDescriptorSetLayout
+        VulkanContext::instance().device(), &layoutInfo, nullptr, &m_geometryDescriptorSetLayout
     ) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create descriptor set layout for linear gradient pipeline");
@@ -632,19 +633,19 @@ void VulkanDeviceResources::createDummyTexture()
         .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
     };
     if (vmaCreateBuffer(
-        m_device->allocator(), &bufferInfo, &stagingBufferAllocationInfo, &stagingBuffer, &stagingBufferMemory, nullptr
+        VulkanContext::instance().allocator(), &bufferInfo, &stagingBufferAllocationInfo, &stagingBuffer, &stagingBufferMemory, nullptr
     ) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create staging buffer for dummy texture");
     }
 
     void* mappedData;
-    if (vmaMapMemory(m_device->allocator(), stagingBufferMemory, &mappedData) != VK_SUCCESS)
+    if (vmaMapMemory(VulkanContext::instance().allocator(), stagingBufferMemory, &mappedData) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to map memory for dummy texture staging buffer");
     }
     memcpy(mappedData, whitePixel.data(), whitePixel.size());
-    vmaUnmapMemory(m_device->allocator(), stagingBufferMemory);
+    vmaUnmapMemory(VulkanContext::instance().allocator(), stagingBufferMemory);
 
     VmaAllocationCreateInfo imageAllocationInfo = {
         .flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
@@ -666,13 +667,13 @@ void VulkanDeviceResources::createDummyTexture()
     VkImage image;
     VmaAllocation imageAllocation;
     if (vmaCreateImage(
-        m_device->allocator(), &imageInfo, &imageAllocationInfo, &image, &imageAllocation, nullptr
+        VulkanContext::instance().allocator(), &imageInfo, &imageAllocationInfo, &image, &imageAllocation, nullptr
     ) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create dummy texture image");
     }
 
-    VkCommandBuffer commandBuffer = m_device->beginSingleTimeCommands();
+    VkCommandBuffer commandBuffer = VulkanContext::instance().beginSingleTimeCommands();
 
     VkImageMemoryBarrier barrier = {
         .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
@@ -736,9 +737,9 @@ void VulkanDeviceResources::createDummyTexture()
         0, nullptr,
         1, &barrier
     );
-    m_device->endSingleTimeCommands(commandBuffer);
+    VulkanContext::instance().endSingleTimeCommands(commandBuffer);
 
-    vmaDestroyBuffer(m_device->allocator(), stagingBuffer, stagingBufferMemory);
+    vmaDestroyBuffer(VulkanContext::instance().allocator(), stagingBuffer, stagingBufferMemory);
 
     VkImageViewCreateInfo viewInfo = {
         .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
@@ -760,7 +761,7 @@ void VulkanDeviceResources::createDummyTexture()
         },
     };
     VkImageView imageView;
-    if (vkCreateImageView(m_device->device(), &viewInfo, nullptr, &imageView) != VK_SUCCESS)
+    if (vkCreateImageView(VulkanContext::instance().device(), &viewInfo, nullptr, &imageView) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create image view for dummy texture");
     }
@@ -769,11 +770,11 @@ void VulkanDeviceResources::createDummyTexture()
     std::vector<VkDescriptorSet> descriptorSets(m_maxFramesInFlight);
     VkDescriptorSetAllocateInfo allocInfo = {
         .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
-        .descriptorPool = m_device->descriptorPool(),
+        .descriptorPool = VulkanContext::instance().descriptorPool(),
         .descriptorSetCount = m_maxFramesInFlight,
         .pSetLayouts = layouts.data(),
     };
-    if (vkAllocateDescriptorSets(m_device->device(), &allocInfo, descriptorSets.data()) != VK_SUCCESS)
+    if (vkAllocateDescriptorSets(VulkanContext::instance().device(), &allocInfo, descriptorSets.data()) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to allocate descriptor sets for dummy texture");
     }
@@ -795,7 +796,7 @@ void VulkanDeviceResources::createDummyTexture()
             .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
             .pImageInfo = &descriptorImageInfo,
         };
-        vkUpdateDescriptorSets(m_device->device(), 1, &descriptorWrite, 0, nullptr);
+        vkUpdateDescriptorSets(VulkanContext::instance().device(), 1, &descriptorWrite, 0, nullptr);
     }
 
     m_dummyTexture = {

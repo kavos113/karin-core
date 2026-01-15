@@ -12,7 +12,6 @@ class VulkanPipeline
 {
 public:
     VulkanPipeline(
-        VkDevice device,
         VkRenderPass renderPass,
         const unsigned char* vertShaderCode, unsigned int vertShaderSize,
         const unsigned char* fragShaderCode, unsigned int fragShaderSize,
@@ -28,7 +27,7 @@ public:
         RoundedRectangle = 2,
     };
 
-    void cleanUp(VkDevice device);
+    void cleanUp();
 
     VkPipeline pipeline() const
     {
@@ -77,7 +76,6 @@ public:
 
 private:
     void createPipeline(
-        VkDevice device,
         VkRenderPass renderPass,
         const unsigned char* vertShaderCode, unsigned int vertShaderSize,
         const unsigned char* fragShaderCode, unsigned int fragShaderSize,

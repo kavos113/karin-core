@@ -13,7 +13,7 @@
 namespace karin
 {
 // TODO? options for enabling/disabling validation layers, debug utils, etc.
-class VulkanGraphicsDevice : public GraphicsDevice
+class VulkanContext
 {
 public:
     enum class QueueFamily : uint8_t
@@ -22,17 +22,14 @@ public:
         Present
     };
 
-    VulkanGraphicsDevice();
-    ~VulkanGraphicsDevice() override;
+    static VulkanContext& instance();
 
     void initDevices(VkSurfaceKHR surface);
-
-    void cleanUp() override;
 
     VkCommandBuffer beginSingleTimeCommands() const;
     void endSingleTimeCommands(VkCommandBuffer commandBuffer) const;
 
-    VkInstance instance() const
+    VkInstance vkInstance() const
     {
         return m_instance;
     }
@@ -78,6 +75,9 @@ public:
     }
 
 private:
+    VulkanContext();
+    ~VulkanContext();
+
     void createInstance();
     void choosePhysicalDevice();
     void createVmaAllocator();
