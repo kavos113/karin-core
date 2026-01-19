@@ -31,6 +31,8 @@ elseif (VULKAN)
     )
 endif ()
 
+set(GRAPHICS_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+
 add_subdirectory(text)
 
 add_library(karin_graphics STATIC ${GRAPHICS_SOURCE})
@@ -38,7 +40,7 @@ target_link_libraries(karin_graphics PRIVATE karin_graphics_text)
 target_include_directories(karin_graphics PUBLIC ${INCLUDE_DIR})
 target_include_directories(karin_graphics PRIVATE ${COMMON_DIR})
 target_include_directories(karin_graphics PRIVATE ${THIRD_PARTY_DIR})
-target_include_directories(karin_graphics PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(karin_graphics PRIVATE ${GRAPHICS_DIR})
 
 
 find_package(glm CONFIG REQUIRED)

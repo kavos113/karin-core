@@ -29,6 +29,8 @@ endif ()
 add_library(karin_graphics_text STATIC ${TEXT_SOURCE})
 target_include_directories(karin_graphics_text PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(karin_graphics_text PUBLIC ${INCLUDE_DIR})
+target_include_directories(karin_graphics_text PRIVATE ${COMMON_DIR})
+target_include_directories(karin_graphics_text PRIVATE ${GRAPHICS_DIR})
 
 find_package(harfbuzz CONFIG REQUIRED)
 target_link_libraries(karin_graphics_text PRIVATE harfbuzz::harfbuzz)

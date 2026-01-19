@@ -9,7 +9,7 @@
 
 namespace karin
 {
-class DwriteFontFace : IFontFace
+class DwriteFontFace : public IFontFace
 {
 public:
     DwriteFontFace(const Microsoft::WRL::ComPtr<IDWriteFontFace>& face);

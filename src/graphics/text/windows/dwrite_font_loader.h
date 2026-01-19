@@ -3,9 +3,12 @@
 
 #include <font_loader_platform.h>
 
+#include <vector>
+#include <memory>
+
 namespace karin
 {
-class DwriteFontLoader : IPlatformFontLoader
+class DwriteFontLoader : public IPlatformFontLoader
 {
     DwriteFontLoader() = default;
     ~DwriteFontLoader() override;
