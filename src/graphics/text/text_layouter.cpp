@@ -1,4 +1,4 @@
-#include "font_layouter.h"
+#include "text_layouter.h"
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -123,7 +123,7 @@ struct Metrics
 
 namespace karin
 {
-std::vector<FontLayouter::GlyphPosition> FontLayouter::layout(const TextLayout &layout, FT_Face face) const
+std::vector<TextLayouter::GlyphPosition> TextLayouter::layout(const TextLayout &layout, FT_Face face) const
 {
     std::vector<std::string> lines = std::views::split(layout.text, '\n')
         | std::views::transform(

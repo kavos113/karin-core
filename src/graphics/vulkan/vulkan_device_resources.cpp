@@ -593,7 +593,7 @@ std::vector<VulkanDeviceResources::GlyphPosition> VulkanDeviceResources::textLay
         throw std::runtime_error("failed to set pixel sizes for font");
     }
 
-    std::vector<FontLayouter::GlyphPosition> glyphPositions = m_fontLayouter->layout(layout, face);
+    std::vector<TextLayouter::GlyphPosition> glyphPositions = m_fontLayouter->layout(layout, face);
 
     std::vector<GlyphPosition> glyphs;
     glyphs.reserve(glyphPositions.size());

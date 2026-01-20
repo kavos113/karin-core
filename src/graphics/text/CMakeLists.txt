@@ -1,7 +1,7 @@
 set(TEXT_SOURCE
         text_renderer.cpp
         font_renderer.cpp
-        font_layouter.cpp
+        text_layouter.cpp
         font_loader.cpp
 )
 

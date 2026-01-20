@@ -3,7 +3,7 @@
 
 namespace karin
 {
-class FreeTypeFontConfigFontLoader : IPlatformFontLoader
+class FreeTypeFontConfigFontLoader : public IPlatformFontLoader
 {
 };
 } // karin

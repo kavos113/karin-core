@@ -1,25 +1,21 @@
 #ifndef KARIN_FONT_LAYOUTER_H
 #define KARIN_FONT_LAYOUTER_H
 
-#include "font_loader.h"
+#include "font_face.h"
 
 #include <karin/common/geometry/rectangle.h>
 #include <karin/graphics/text_layout.h>
 
 #include <cstdint>
-#include <memory>
 #include <vector>
 
 namespace karin
 {
-class FontLayouter
+class TextLayouter
 {
 public:
-    FontLayouter(FontLoader* fontLoader)
-        : m_fontLoader(fontLoader)
-    {
-    }
-    ~FontLayouter() = default;
+    TextLayouter() = default;
+    ~TextLayouter() = default;
 
     struct GlyphPosition
     {
@@ -29,10 +25,7 @@ public:
         uint32_t glyphIndex;
     };
 
-    std::vector<GlyphPosition> layout(const TextLayout& layout, FT_Face face) const;
-
-private:
-    FontLoader* m_fontLoader = nullptr;
+    std::vector<GlyphPosition> layout(const TextLayout& layout, IFontFace *face) const;
 };
 } // karin
 
