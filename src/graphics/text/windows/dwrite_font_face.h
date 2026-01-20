@@ -13,7 +13,7 @@ class DwriteFontFace : public IFontFace
 {
 public:
     DwriteFontFace(const Microsoft::WRL::ComPtr<IDWriteFontFace>& face);
-    ~DwriteFontFace() override = default;
+    ~DwriteFontFace() override;
 
     hb_font_t* getHbFont() override;
     Microsoft::WRL::ComPtr<IDWriteFontFace> face();

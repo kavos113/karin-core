@@ -10,6 +10,14 @@ DwriteFontFace::DwriteFontFace(const Microsoft::WRL::ComPtr<IDWriteFontFace>& fa
     m_face = face;
 }
 
+DwriteFontFace::~DwriteFontFace()
+{
+    if (m_hbFont)
+    {
+        hb_font_destroy(m_hbFont);
+    }
+}
+
 hb_font_t* DwriteFontFace::getHbFont()
 {
     return m_hbFont;

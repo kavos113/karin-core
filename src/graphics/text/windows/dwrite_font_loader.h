@@ -10,6 +10,7 @@ namespace karin
 {
 class DwriteFontLoader : public IPlatformFontLoader
 {
+public:
     DwriteFontLoader() = default;
     ~DwriteFontLoader() override;
 
