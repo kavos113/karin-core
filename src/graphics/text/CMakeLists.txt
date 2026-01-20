@@ -11,6 +11,7 @@ if (WIN32)
         set(TEXT_SOURCE ${TEXT_SOURCE}
                 windows/freetype_dwrite_font_loader.cpp
                 vulkan/vulkan_font_renderer.cpp
+                freetype/freetype_font_face.cpp
         )
     elseif (DIRECTX)
         set(TEXT_SOURCE ${TEXT_SOURCE}
@@ -23,6 +24,7 @@ elseif (LINUX)
     set(TEXT_SOURCE ${TEXT_SOURCE}
             unix/freetype_fontconfig_font_loader.cpp
             vulkan/vulkan_font_renderer.cpp
+            freetype/freetype_font_face.cpp
     )
 endif ()
 
