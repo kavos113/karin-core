@@ -113,17 +113,11 @@ bool isBreakable(uint32_t codepoint)
     }
     return false;
 }
-
-struct Metrics
-{
-    FontLoader::FontMetrics metrics;
-    uint32_t glyphIndex;
-};
 }
 
 namespace karin
 {
-std::vector<TextLayouter::GlyphPosition> TextLayouter::layout(const TextLayout &layout, FT_Face face) const
+std::vector<TextLayouter::GlyphPosition> TextLayouter::layout(const TextLayout &layout, IFontFace *face) const
 {
     std::vector<std::string> lines = std::views::split(layout.text, '\n')
         | std::views::transform(
@@ -134,7 +128,7 @@ std::vector<TextLayouter::GlyphPosition> TextLayouter::layout(const TextLayout &
         )
         | std::ranges::to<std::vector<std::string>>();
 
-    hb_font_t* hbFont = hb_ft_font_create(face, nullptr);
+    hb_font_t* hbFont = face->getHbFont();
     std::vector<GlyphPosition> glyphs;
 
     float initPenX = 0;
