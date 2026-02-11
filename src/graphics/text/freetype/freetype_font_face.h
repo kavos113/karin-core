@@ -16,6 +16,7 @@ public:
     ~FreetypeFontFace() override;
 
     hb_font_t* getHbFont() override;
+    FontMetrics getFontMetrics() const override;
     FT_Face face();
 
 private:

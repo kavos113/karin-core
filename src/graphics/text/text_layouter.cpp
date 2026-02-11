@@ -44,7 +44,7 @@ float calculateLineHeight(
     case TextFormat::LineSpacingMode::UNIFORM:
         return lineSpacing;
     default:
-        return metricsHeight * 64.0f;
+        return metricsHeight;
     }
 }
 
@@ -62,7 +62,7 @@ float calculateBaseLine(
     case TextFormat::LineSpacingMode::UNIFORM:
         return baseline;
     default:
-        return metricsHeight * 64.0f;
+        return metricsHeight;
     }
 }
 
@@ -129,6 +129,7 @@ std::vector<TextLayouter::GlyphPosition> TextLayouter::layout(const TextLayout &
         | std::ranges::to<std::vector<std::string>>();
 
     hb_font_t* hbFont = face->getHbFont();
+    FontMetrics fontMetrics = face->getFontMetrics();
     std::vector<GlyphPosition> glyphs;
 
     float initPenX = 0;
@@ -136,13 +137,13 @@ std::vector<TextLayouter::GlyphPosition> TextLayouter::layout(const TextLayout &
         layout.format.lineSpacing,
         layout.format.lineSpacingMode,
         layout.format.size,
-        static_cast<float>(face->size->metrics.height)
+        fontMetrics.height
     );
     float penY = calculateBaseLine(
         layout.format.baseline,
         layout.format.lineSpacingMode,
         layout.format.size,
-        static_cast<float>(face->size->metrics.height)
+        fontMetrics.height
     );
     float penX = 0;
 

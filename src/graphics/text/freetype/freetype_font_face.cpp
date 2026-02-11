@@ -27,4 +27,14 @@ FT_Face FreetypeFontFace::face()
 {
     return m_face;
 }
+
+FontMetrics FreetypeFontFace::getFontMetrics() const
+{
+    return FontMetrics{
+        .ascender = static_cast<float>(m_face->size->metrics.ascender) / 64.0f,
+        .descender = static_cast<float>(m_face->size->metrics.descender) / 64.0f,
+        .height = static_cast<float>(m_face->size->metrics.height) / 64.0f,
+        .maxAdvance = static_cast<float>(m_face->size->metrics.max_advance) / 64.0f,
+    };
+}
 } // karin
