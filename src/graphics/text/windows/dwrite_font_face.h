@@ -16,6 +16,8 @@ public:
     ~DwriteFontFace() override;
 
     hb_font_t* getHbFont() override;
+    FontMetrics getFontMetrics() const override;
+    GlyphMetrics getGlyphMetrics(uint32_t glyphIndex) const override;
     Microsoft::WRL::ComPtr<IDWriteFontFace> face();
 
 private:

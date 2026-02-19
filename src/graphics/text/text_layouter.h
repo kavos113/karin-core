@@ -25,7 +25,7 @@ public:
         uint32_t glyphIndex;
     };
 
-    std::vector<GlyphPosition> layout(const TextLayout& layout, IFontFace *face) const;
+    static std::vector<GlyphPosition> layout(const TextLayout& layout, IFontFace *face);
 };
 } // karin
 

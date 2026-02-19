@@ -117,7 +117,7 @@ bool isBreakable(uint32_t codepoint)
 
 namespace karin
 {
-std::vector<TextLayouter::GlyphPosition> TextLayouter::layout(const TextLayout &layout, IFontFace *face) const
+std::vector<TextLayouter::GlyphPosition> TextLayouter::layout(const TextLayout &layout, IFontFace *face)
 {
     std::vector<std::string> lines = std::views::split(layout.text, '\n')
         | std::views::transform(
@@ -160,13 +160,13 @@ std::vector<TextLayouter::GlyphPosition> TextLayouter::layout(const TextLayout &
         hb_glyph_info_t* glyphInfo = hb_buffer_get_glyph_infos(hbBuffer, &glyphCount);
         hb_glyph_position_t* glyphPos = hb_buffer_get_glyph_positions(hbBuffer, &glyphCount);
 
-        std::vector<Metrics> metricsList;
+        std::vector<GlyphMetrics> metricsList;
         metricsList.reserve(glyphCount);
         for (uint32_t i = 0; i < glyphCount; i++)
         {
             FT_UInt glyphIndex = glyphInfo[i].codepoint;
-            auto metrics = m_fontLoader->glyphMetrics(layout.format.font, static_cast<uint32_t>(layout.format.size), glyphIndex);
-            metricsList.emplace_back(metrics, glyphIndex);
+            auto metrics = face->getGlyphMetrics(glyphIndex);
+            metricsList.push_back(metrics);
         }
 
         uint32_t lastSpaceIndex = 0;
@@ -178,10 +178,10 @@ std::vector<TextLayouter::GlyphPosition> TextLayouter::layout(const TextLayout &
             }
 
             Rectangle position = {
-                penX + metricsList[i].metrics.bearingX,
-                penY - metricsList[i].metrics.bearingY,
-                metricsList[i].metrics.width,
-                metricsList[i].metrics.height
+                penX + metricsList[i].bearingX,
+                penY - metricsList[i].bearingY,
+                metricsList[i].width,
+                metricsList[i].height
             };
 
             glyphs.push_back(GlyphPosition{

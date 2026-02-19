@@ -23,6 +23,14 @@ hb_font_t* DwriteFontFace::getHbFont()
     return m_hbFont;
 }
 
+FontMetrics DwriteFontFace::getFontMetrics() const
+{
+}
+
+GlyphMetrics DwriteFontFace::getGlyphMetrics(uint32_t glyphIndex) const
+{
+}
+
 Microsoft::WRL::ComPtr<IDWriteFontFace> DwriteFontFace::face()
 {
     return m_face;

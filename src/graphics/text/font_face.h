@@ -15,6 +15,16 @@ struct FontMetrics
     float maxAdvance;
 };
 
+struct GlyphMetrics
+{
+    uint32_t glyphIndex;
+    float width;
+    float height;
+    float bearingX;
+    float bearingY;
+    float advanceX;
+};
+
 class IFontFace
 {
 public:
@@ -22,6 +32,7 @@ public:
 
     virtual hb_font_t *getHbFont() = 0;
     virtual FontMetrics getFontMetrics() const = 0;
+    virtual GlyphMetrics getGlyphMetrics(uint32_t glyphIndex) const = 0;
 };
 } // karin
 
