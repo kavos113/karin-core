@@ -2,17 +2,24 @@
 #define SRC_GRAPHICS_TEXT_FONT_FACE_H
 
 #include <hb.h>
+#include <cstdint>
 
 namespace karin
 {
 
-// real value (not fractional)
+// same as DWrite format. by unitsPerEm
 struct FontMetrics
 {
-    float ascender;
-    float descender;
-    float height;
-    float maxAdvance;
+    uint16_t unitsPerEm;
+    uint16_t ascender;
+    uint16_t descender;
+    int16_t lineGap;
+    uint16_t capHeight;
+    uint16_t xHeight;
+    int16_t underlinePosition;
+    uint16_t underlineThickness;
+    int16_t strikethroughPosition;
+    uint16_t strikethroughThickness;
 };
 
 struct GlyphMetrics
