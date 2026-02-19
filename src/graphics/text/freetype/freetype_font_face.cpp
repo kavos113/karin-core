@@ -1,6 +1,9 @@
 #include "freetype_font_face.h"
 
 #include <hb-ft.h>
+#include FT_TRUETYPE_TABLES_H
+
+#include <cmath>
 
 namespace karin
 {
@@ -30,11 +33,76 @@ FT_Face FreetypeFontFace::face()
 
 FontMetrics FreetypeFontFace::getFontMetrics() const
 {
-    return FontMetrics{
-        .ascender = static_cast<float>(m_face->size->metrics.ascender) / 64.0f,
-        .descender = static_cast<float>(m_face->size->metrics.descender) / 64.0f,
-        .height = static_cast<float>(m_face->size->metrics.height) / 64.0f,
-        .maxAdvance = static_cast<float>(m_face->size->metrics.max_advance) / 64.0f,
+    FontMetrics metrics{
+        .unitsPerEm = m_face->units_per_EM,
     };
+
+    auto *os2 = static_cast<TT_OS2 *>(FT_Get_Sfnt_Table(m_face, ft_sfnt_os2));
+    auto *hhea = static_cast<TT_HoriHeader *>(FT_Get_Sfnt_Table(m_face, ft_sfnt_hhea));
+
+    if (os2)
+    {
+        metrics.ascender = os2->usWinAscent;
+        metrics.descender = os2->usWinDescent;
+        short lineGap = os2->sTypoLineGap;
+        metrics.lineGap = static_cast<signed short>(metrics.unitsPerEm + lineGap) - (metrics.ascender + metrics.descender);
+    }
+    else if (hhea)
+    {
+        metrics.ascender = hhea->Ascender;
+        metrics.descender = std::abs(hhea->Descender);
+        metrics.lineGap = hhea->Line_Gap;
+    }
+    else
+    {
+        metrics.ascender = m_face->ascender;
+        metrics.descender = std::abs(m_face->descender);
+        metrics.lineGap = m_face->height - (m_face->ascender - m_face->descender);
+    }
+
+    if (os2 && os2->version >= 2)
+    {
+        metrics.capHeight = os2->sCapHeight;
+        metrics.xHeight = os2->sxHeight;
+    }
+    else
+    {
+        FT_Set_Pixel_Sizes(m_face, 0, metrics.unitsPerEm);
+
+        uint32_t index = FT_Get_Char_Index(m_face, 'H');
+        if (index)
+        {
+            FT_Load_Glyph(m_face, index, FT_LOAD_NO_SCALE);
+            metrics.capHeight = m_face->glyph->metrics.horiBearingY;
+        }
+        index = FT_Get_Char_Index(m_face, 'x');
+        if (index)
+        {
+            FT_Load_Glyph(m_face, index, FT_LOAD_NO_SCALE);
+            metrics.xHeight = m_face->glyph->metrics.horiBearingY;
+        }
+    }
+
+    metrics.underlineThickness = m_face->underline_thickness;
+    // dwrite: top of underline, freetype: center of underline
+    metrics.underlinePosition = m_face->underline_position + metrics.underlineThickness / 2;
+
+    if (os2)
+    {
+        metrics.strikethroughPosition = os2->yStrikeoutPosition;
+        metrics.strikethroughThickness = os2->yStrikeoutSize;
+    }
+    else
+    {
+        uint32_t index = FT_Get_Char_Index(m_face, '0');
+        if (index)
+        {
+            FT_Load_Glyph(m_face, index, FT_LOAD_NO_SCALE);
+            metrics.strikethroughPosition = m_face->glyph->metrics.horiBearingY / 2;
+            metrics.strikethroughThickness = metrics.underlineThickness;
+        }
+    }
+
+    return metrics;
 }
 } // karin

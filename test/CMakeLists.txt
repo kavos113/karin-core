@@ -12,6 +12,12 @@ set(TEST_SRCS
         common/utils/string_test.cpp
 )
 
+if (WIN32)
+    set(TEST_SRCS ${TEST_SRCS}
+        graphics/text/fontface_platform_test.cpp
+    )
+endif ()
+
 include(FetchContent)
 FetchContent_Declare(
         googletest
@@ -34,6 +40,7 @@ target_include_directories(karin_test
     PRIVATE
         ${INCLUDE_DIR}
         ${SOURCE_DIR}/common
+        ${SOURCE_DIR}/graphics
 )
 if (WIN32)
     target_compile_definitions(karin_test PUBLIC KARIN_PLATFORM_WINDOWS)

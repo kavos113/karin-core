@@ -25,6 +25,21 @@ hb_font_t* DwriteFontFace::getHbFont()
 
 FontMetrics DwriteFontFace::getFontMetrics() const
 {
+    DWRITE_FONT_METRICS metrics{};
+    m_face->GetMetrics(&metrics);
+
+    return FontMetrics{
+        metrics.designUnitsPerEm,
+        metrics.ascent,
+        metrics.descent,
+        metrics.lineGap,
+        metrics.capHeight,
+        metrics.xHeight,
+        metrics.underlinePosition,
+        metrics.underlineThickness,
+        metrics.strikethroughPosition,
+        metrics.strikethroughThickness
+    };
 }
 
 GlyphMetrics DwriteFontFace::getGlyphMetrics(uint32_t glyphIndex) const
