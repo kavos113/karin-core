@@ -12,11 +12,22 @@ set(TEST_SRCS
         common/utils/string_test.cpp
 )
 
+set(TEST_DEPEND_SRCS
+        ${SOURCE_DIR}/common/geometry/transform2d.cpp
+)
+
 if (WIN32)
     set(TEST_SRCS ${TEST_SRCS}
         graphics/text/fontface_platform_test.cpp
     )
+    set(TEST_DEPEND_SRCS ${TEST_DEPEND_SRCS}
+        ${SOURCE_DIR}/graphics/text/windows/freetype_dwrite_font_loader.cpp
+        ${SOURCE_DIR}/graphics/text/vulkan/vulkan_font_renderer.cpp
+        ${SOURCE_DIR}/graphics/text/freetype/freetype_font_face.cpp
+    )
 endif ()
+
+file(COPY fixtures DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 include(FetchContent)
 FetchContent_Declare(
@@ -34,6 +45,7 @@ target_link_libraries(karin_test
     PRIVATE
         karin_system
         karin_graphics
+        karin_graphics_text
         GTest::gtest_main
 )
 target_include_directories(karin_test

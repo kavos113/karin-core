@@ -14,6 +14,8 @@ class FontFacePlatformTest : public testing::Test
 protected:
     DwriteFontLoader loader;
     FreeTypeDWriteFontLoader ftLoader;
+
+    const std::string testFontPath = "fixtures/font/NotoSans-Regular.ttf";
 };
 
 TEST_F(FontFacePlatformTest, FontMetricsIsSame)

@@ -137,13 +137,13 @@ std::vector<TextLayouter::GlyphPosition> TextLayouter::layout(const TextLayout &
         layout.format.lineSpacing,
         layout.format.lineSpacingMode,
         layout.format.size,
-        fontMetrics.height
+        fontMetrics.capHeight
     );
     float penY = calculateBaseLine(
         layout.format.baseline,
         layout.format.lineSpacingMode,
         layout.format.size,
-        fontMetrics.height
+        fontMetrics.capHeight
     );
     float penX = 0;
 

@@ -44,6 +44,7 @@ FontMetrics DwriteFontFace::getFontMetrics() const
 
 GlyphMetrics DwriteFontFace::getGlyphMetrics(uint32_t glyphIndex) const
 {
+    return {};
 }
 
 Microsoft::WRL::ComPtr<IDWriteFontFace> DwriteFontFace::face()
