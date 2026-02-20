@@ -14,6 +14,7 @@ class FontLoader
 {
 public:
     std::unique_ptr<IFontFace> loadFont(const Font& font);
+    std::unique_ptr<IFontFace> loadFontFromFile(const std::string& filePath);
     std::vector<Font> getFontLists();
 
 private:

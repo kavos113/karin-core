@@ -160,6 +160,19 @@ std::unique_ptr<IFontFace> FreeTypeDWriteFontLoader::loadFont(const Font& font)
     return std::make_unique<FreetypeFontFace>(face);
 }
 
+std::unique_ptr<IFontFace> FreeTypeDWriteFontLoader::loadFontFromFile(const std::string& filePath)
+{
+    FT_Face face = nullptr;
+    FT_Error err = FT_New_Face(m_library, filePath.c_str(), 0, &face);
+    if (err)
+    {
+        std::cerr << "failed to load font from file: " << filePath << std::endl;
+        return {};
+    }
+
+    return std::make_unique<FreetypeFontFace>(face);
+}
+
 std::vector<Font> FreeTypeDWriteFontLoader::getFontLists()
 {
     Microsoft::WRL::ComPtr<IDWriteFontCollection> fontCollection;

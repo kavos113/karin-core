@@ -67,6 +67,49 @@ std::unique_ptr<IFontFace> DwriteFontLoader::loadFont(const Font& font)
     return std::make_unique<DwriteFontFace>(face);
 }
 
+std::unique_ptr<IFontFace> DwriteFontLoader::loadFontFromFile(const std::string& filePath)
+{
+    Microsoft::WRL::ComPtr<IDWriteFontFile> fontFile;
+    HRESULT hr = D2DContext::instance().dwriteFactory()->CreateFontFileReference(
+        toWString(filePath).c_str(),
+        nullptr, // TODO
+        &fontFile
+    );
+    if (FAILED(hr))
+    {
+        std::cerr << "failed to create font file reference: " << filePath << std::endl;
+        return nullptr;
+    }
+
+    BOOL isSupported = FALSE;
+    DWRITE_FONT_FILE_TYPE fileType;
+    DWRITE_FONT_FACE_TYPE faceType;
+    UINT32 numFaces = 0;
+    hr = fontFile->Analyze(&isSupported, &fileType, &faceType, &numFaces);
+    if (FAILED(hr) || !isSupported)
+    {
+        std::cerr << "font file not supported: " << filePath << std::endl;
+        return nullptr;
+    }
+
+    Microsoft::WRL::ComPtr<IDWriteFontFace> fontFace;
+    hr = D2DContext::instance().dwriteFactory()->CreateFontFace(
+        faceType,
+        1,
+        fontFile.GetAddressOf(),
+        0,
+        DWRITE_FONT_SIMULATIONS_NONE,
+        &fontFace
+    );
+    if (FAILED(hr))
+    {
+        std::cerr << "failed to create font face from file: " << filePath << std::endl;
+        return nullptr;
+    }
+
+    return std::make_unique<DwriteFontFace>(fontFace);
+}
+
 std::vector<Font> DwriteFontLoader::getFontLists()
 {
     Microsoft::WRL::ComPtr<IDWriteFontCollection> fontCollection;

@@ -15,6 +15,7 @@ public:
     ~DwriteFontLoader() override;
 
     std::unique_ptr<IFontFace> loadFont(const Font& font) override;
+    std::unique_ptr<IFontFace> loadFontFromFile(const std::string& filePath) override;
     std::vector<Font> getFontLists() override;
 };
 } // karin

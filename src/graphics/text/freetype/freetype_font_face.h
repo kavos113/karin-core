@@ -17,6 +17,7 @@ public:
 
     hb_font_t* getHbFont() override;
     FontMetrics getFontMetrics() const override;
+    GlyphMetrics getGlyphMetrics(uint32_t glyphIndex) const override;
     FT_Face face();
 
 private:
