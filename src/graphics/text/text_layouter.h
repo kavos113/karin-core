@@ -20,6 +20,7 @@ public:
     struct GlyphPosition
     {
         // position in layout. pixels
+        // origin: top-left
         Rectangle position;
 
         uint32_t glyphIndex;
