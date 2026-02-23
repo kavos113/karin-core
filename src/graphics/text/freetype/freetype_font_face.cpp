@@ -22,7 +22,7 @@ FreetypeFontFace::~FreetypeFontFace()
     }
 }
 
-hb_font_t* FreetypeFontFace::getHbFont()
+hb_font_t* FreetypeFontFace::getHbFont() const
 {
     return m_fbFont;
 }

@@ -1,7 +1,7 @@
 #ifndef SRC_GRAPHICS_TEXT_FONT_RENDERER_PLATFORM_H
 #define SRC_GRAPHICS_TEXT_FONT_RENDERER_PLATFORM_H
 
-#include "font_face.h"
+#include <karin/graphics/font_face.h>
 #include "text_layouter.h"
 
 namespace karin

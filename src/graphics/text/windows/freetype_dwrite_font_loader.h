@@ -2,6 +2,7 @@
 #define SRC_GRAPHICS_TEXT_WINDOWS_FREETYPE_DWRITE_FONT_LOADER_H
 
 #include <font_loader_platform.h>
+#include <karin/graphics/font_face.h>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H

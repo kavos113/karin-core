@@ -2,6 +2,7 @@
 #define SRC_GRAPHICS_TEXT_WINDOWS_DWRITE_FONT_LOADER_H
 
 #include <font_loader_platform.h>
+#include <karin/graphics/font_face.h>
 
 #include <vector>
 #include <memory>

@@ -1,7 +1,8 @@
 #ifndef SRC_GRAPHICS_TEXT_FREETYPE_FREETYPE_FONT_FACE_H
 #define SRC_GRAPHICS_TEXT_FREETYPE_FREETYPE_FONT_FACE_H
 
-#include <font_face.h>
+#include <harfbuzz_provider.h>
+#include <karin/graphics/font_face.h>
 
 #include <hb.h>
 #include <ft2build.h>
@@ -9,13 +10,13 @@
 
 namespace karin
 {
-class FreetypeFontFace : public IFontFace
+class FreetypeFontFace : public IFontFace, public IHarfBuzzProvider
 {
 public:
     FreetypeFontFace(FT_Face face);
     ~FreetypeFontFace() override;
 
-    hb_font_t* getHbFont() override;
+    hb_font_t* getHbFont() const override;
     FontMetrics getFontMetrics() const override;
     GlyphMetrics getGlyphMetrics(uint32_t glyphIndex) const override;
     FT_Face face();

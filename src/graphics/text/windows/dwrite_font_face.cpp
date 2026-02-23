@@ -20,7 +20,7 @@ DwriteFontFace::~DwriteFontFace()
     }
 }
 
-hb_font_t* DwriteFontFace::getHbFont()
+hb_font_t* DwriteFontFace::getHbFont() const
 {
     return m_hbFont;
 }

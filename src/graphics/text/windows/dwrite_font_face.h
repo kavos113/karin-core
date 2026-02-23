@@ -1,7 +1,8 @@
 #ifndef SRC_GRAPHICS_TEXT_WINDOWS_DWRITE_FONT_FACE_H
 #define SRC_GRAPHICS_TEXT_WINDOWS_DWRITE_FONT_FACE_H
 
-#include <font_face.h>
+#include <harfbuzz_provider.h>
+#include <karin/graphics/font_face.h>
 
 #include <hb.h>
 #include <dwrite.h>
@@ -9,13 +10,13 @@
 
 namespace karin
 {
-class DwriteFontFace : public IFontFace
+class DwriteFontFace : public IFontFace, public IHarfBuzzProvider
 {
 public:
     DwriteFontFace(const Microsoft::WRL::ComPtr<IDWriteFontFace>& face);
     ~DwriteFontFace() override;
 
-    hb_font_t* getHbFont() override;
+    hb_font_t* getHbFont() const override;
     FontMetrics getFontMetrics() const override;
     GlyphMetrics getGlyphMetrics(uint32_t glyphIndex) const override;
     Microsoft::WRL::ComPtr<IDWriteFontFace> face();

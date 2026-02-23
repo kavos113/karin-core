@@ -1,12 +1,10 @@
-#ifndef SRC_GRAPHICS_TEXT_FONT_FACE_H
-#define SRC_GRAPHICS_TEXT_FONT_FACE_H
+#ifndef KARIN_GRAPHICS_FONT_FACE_H
+#define KARIN_GRAPHICS_FONT_FACE_H
 
-#include <hb.h>
 #include <cstdint>
 
 namespace karin
 {
-
 // same as DWrite format. by unitsPerEm
 struct FontMetrics
 {
@@ -37,10 +35,9 @@ class IFontFace
 public:
     virtual ~IFontFace() = default;
 
-    virtual hb_font_t *getHbFont() = 0;
     virtual FontMetrics getFontMetrics() const = 0;
     virtual GlyphMetrics getGlyphMetrics(uint32_t glyphIndex) const = 0;
 };
-} // karin
+}
 
-#endif //SRC_GRAPHICS_TEXT_FONT_FACE_H
+#endif //KARIN_GRAPHICS_FONT_FACE_H
