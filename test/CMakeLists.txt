@@ -22,8 +22,10 @@ if (WIN32)
     )
     set(TEST_DEPEND_SRCS ${TEST_DEPEND_SRCS}
         ${SOURCE_DIR}/graphics/text/windows/freetype_dwrite_font_loader.cpp
-        ${SOURCE_DIR}/graphics/text/vulkan/vulkan_font_renderer.cpp
+        ${SOURCE_DIR}/graphics/text/windows/dwrite_font_loader.cpp
+        ${SOURCE_DIR}/graphics/text/windows/dwrite_font_face.cpp
         ${SOURCE_DIR}/graphics/text/freetype/freetype_font_face.cpp
+        ${SOURCE_DIR}/graphics/d2d/d2d_context.cpp
     )
 endif ()
 
@@ -39,13 +41,10 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 
-add_executable(karin_test ${TEST_SRCS})
-add_dependencies(karin_test karin_system)
+add_executable(karin_test ${TEST_SRCS} ${TEST_DEPEND_SRCS})
+add_dependencies(karin_test)
 target_link_libraries(karin_test
     PRIVATE
-        karin_system
-        karin_graphics
-        karin_graphics_text
         GTest::gtest_main
 )
 target_include_directories(karin_test
@@ -53,9 +52,19 @@ target_include_directories(karin_test
         ${INCLUDE_DIR}
         ${SOURCE_DIR}/common
         ${SOURCE_DIR}/graphics
+        ${SOURCE_DIR}/graphics/text
 )
 if (WIN32)
     target_compile_definitions(karin_test PUBLIC KARIN_PLATFORM_WINDOWS)
+
+    find_package(harfbuzz CONFIG REQUIRED)
+    target_link_libraries(karin_test
+        PRIVATE
+            dwrite
+            d2d1
+            d3d11
+            harfbuzz::harfbuzz
+    )
 elseif (APPLE)
     target_compile_definitions(karin_test PUBLIC KARIN_PLATFORM_MACOS)
 elseif (UNIX)

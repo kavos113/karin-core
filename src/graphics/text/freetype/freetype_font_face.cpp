@@ -4,6 +4,7 @@
 #include FT_TRUETYPE_TABLES_H
 
 #include <cmath>
+#include <iostream>
 
 namespace karin
 {
@@ -42,10 +43,9 @@ FontMetrics FreetypeFontFace::getFontMetrics() const
 
     if (os2)
     {
-        metrics.ascender = os2->usWinAscent;
-        metrics.descender = os2->usWinDescent;
-        short lineGap = os2->sTypoLineGap;
-        metrics.lineGap = static_cast<signed short>(metrics.unitsPerEm + lineGap) - (metrics.ascender + metrics.descender);
+        metrics.ascender = os2->sTypoAscender;
+        metrics.descender = std::abs(os2->sTypoDescender);
+        metrics.lineGap = os2->sTypoLineGap;
     }
     else if (hhea)
     {
@@ -104,5 +104,10 @@ FontMetrics FreetypeFontFace::getFontMetrics() const
     }
 
     return metrics;
+}
+
+GlyphMetrics FreetypeFontFace::getGlyphMetrics(uint32_t glyphIndex) const
+{
+    return {};
 }
 } // karin

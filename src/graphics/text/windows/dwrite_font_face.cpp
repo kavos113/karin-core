@@ -1,6 +1,8 @@
 #include "dwrite_font_face.h"
 
 #include <hb-directwrite.h>
+#include <iostream>
+#include <functional>
 
 namespace karin
 {
@@ -27,6 +29,34 @@ FontMetrics DwriteFontFace::getFontMetrics() const
 {
     DWRITE_FONT_METRICS metrics{};
     m_face->GetMetrics(&metrics);
+
+    const void *os2Table = nullptr;
+    UINT32 os2TableSize = 0;
+    void *context = nullptr;
+    BOOL exists = FALSE;
+    HRESULT hr = m_face->TryGetFontTable(DWRITE_MAKE_OPENTYPE_TAG('O', 'S', '/', '2'), &os2Table, &os2TableSize, &context, &exists);
+    if (FAILED(hr) || !exists)
+    {
+        std::cerr << "Failed to get OS/2 table." << std::endl;
+    }
+    else
+    {
+        if (os2TableSize >= 74)
+        {
+            // read as big-endian
+            std::function readUInt16 = [os2Table](size_t offset) {
+                return static_cast<int16_t>(
+                    static_cast<const uint8_t *>(os2Table)[offset] << 8 |
+                    static_cast<const uint8_t *>(os2Table)[offset + 1]);
+            };
+
+            metrics.ascent = readUInt16(68); // sTypoAscender
+            metrics.descent = std::abs(readUInt16(70)); // sTypoDescender, positive value
+            metrics.lineGap = readUInt16(72); // sTypoLineGap
+        }
+
+        m_face->ReleaseFontTable(context);
+    }
 
     return FontMetrics{
         metrics.designUnitsPerEm,

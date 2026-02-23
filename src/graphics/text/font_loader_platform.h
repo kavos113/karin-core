@@ -12,7 +12,7 @@ namespace karin
 class IPlatformFontLoader
 {
 public:
-    virtual ~IPlatformFontLoader() = 0;
+    virtual ~IPlatformFontLoader() = default;
 
     virtual std::unique_ptr<IFontFace> loadFont(const Font& font) = 0;
     virtual std::unique_ptr<IFontFace> loadFontFromFile(const std::string& filePath) = 0;

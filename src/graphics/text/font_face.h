@@ -11,8 +11,8 @@ namespace karin
 struct FontMetrics
 {
     uint16_t unitsPerEm;
-    uint16_t ascender;
-    uint16_t descender;
+    uint16_t ascender;  // sTypoAscender in OS/2
+    uint16_t descender; // sTypoDescender in OS/2, positive value
     int16_t lineGap;
     uint16_t capHeight;
     uint16_t xHeight;
@@ -35,7 +35,7 @@ struct GlyphMetrics
 class IFontFace
 {
 public:
-    virtual ~IFontFace() = 0;
+    virtual ~IFontFace() = default;
 
     virtual hb_font_t *getHbFont() = 0;
     virtual FontMetrics getFontMetrics() const = 0;

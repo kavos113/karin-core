@@ -39,5 +39,5 @@ target_link_libraries(karin_graphics_text PUBLIC harfbuzz::harfbuzz)
 
 if (VULKAN)
     find_package(Freetype CONFIG REQUIRED)
-    target_link_libraries(karin_graphics_text PRIVATE Freetype::Freetype)
+    target_link_libraries(karin_graphics_text PUBLIC Freetype::Freetype)
 endif ()
