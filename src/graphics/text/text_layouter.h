@@ -1,10 +1,9 @@
 #ifndef KARIN_FONT_LAYOUTER_H
 #define KARIN_FONT_LAYOUTER_H
 
-#include "font_face.h"
-
 #include <karin/common/geometry/rectangle.h>
 #include <karin/graphics/text_layout.h>
+#include <karin/graphics/font_face.h>
 
 #include <cstdint>
 #include <vector>

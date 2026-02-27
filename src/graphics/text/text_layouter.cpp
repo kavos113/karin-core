@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 
+#include "harfbuzz_provider.h"
+
 namespace
 {
 using namespace karin;
@@ -127,7 +129,13 @@ std::vector<TextLayouter::GlyphPosition> TextLayouter::layout(const TextLayout &
         )
         | std::ranges::to<std::vector<std::string>>();
 
-    hb_font_t* hbFont = face->getHbFont();
+    auto hbProvider = dynamic_cast<IHarfBuzzProvider*>(face);
+    if (!hbProvider)
+    {
+        throw std::runtime_error("FontFace must implement IHarfBuzzProvider");
+    }
+
+    hb_font_t* hbFont = hbProvider->getHbFont();
     FontMetrics fontMetrics = face->getFontMetrics();
     std::vector<GlyphPosition> glyphs;
 
