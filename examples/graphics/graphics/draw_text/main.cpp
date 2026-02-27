@@ -9,7 +9,7 @@ int main()
     karin::Application& app = karin::Application::instance();
     karin::Window window = app.createWindow(L"Hello Graphics", 100, 100, 800, 600);
 
-    karin::Renderer renderer(&window, app.systemFont());
+    karin::Renderer renderer(&window);
     renderer.setClearColor(karin::Color(karin::Color::Green));
 
     karin::TextEngine textEngine;
@@ -19,8 +19,8 @@ int main()
         "Hello, Karin Graphics!\nnew line support.\n\nvery very very very very very loooooooooooong text.",
         karin::TextFormat{
             .font = {
-                // .family = "Arial",
-                .family = "Ubuntu",
+                .family = "Arial",
+                // .family = "Ubuntu",
             },
             .size = 24.0f,
             .lineSpacing = 1.5f,

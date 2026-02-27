@@ -11,10 +11,10 @@
 
 namespace karin
 {
-Renderer::Renderer(Window* window, SystemFont* systemFont)
+Renderer::Renderer(Window* window)
     : m_window(window)
 {
-    m_impl = createRendererImpl(window->handle(), systemFont);
+    m_impl = createRendererImpl(window->handle());
 }
 
 Renderer::~Renderer() = default;

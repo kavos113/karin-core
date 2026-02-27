@@ -4,7 +4,6 @@
 #include <memory>
 
 #include <karin/system/window.h>
-#include <karin/system/system_font.h>
 
 #ifdef KARIN_PLATFORM_DIRECTX
 #include "d2d/d2d_renderer_impl.h"
@@ -19,7 +18,7 @@ namespace karin
 {
 
 inline std::unique_ptr<IRendererImpl> createRendererImpl(
-    Window::NativeHandle handle, SystemFont* systemFont
+    Window::NativeHandle handle
 )
 {
 #ifdef KARIN_PLATFORM_DIRECTX

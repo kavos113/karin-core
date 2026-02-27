@@ -3,7 +3,6 @@
 
 #include "application_impl.h"
 #include "window_impl.h"
-#include "system_font_impl.h"
 
 #include <memory>
 #include <string>
@@ -46,16 +45,6 @@ inline std::unique_ptr<IWindowImpl> createWindowImpl(
     );
 #endif
 
-    return nullptr;
-}
-
-inline std::unique_ptr<ISystemFontImpl> createSystemFontImpl()
-{
-#ifdef KARIN_PLATFORM_WINDOWS
-    return nullptr;
-#elifdef KARIN_PLATFORM_UNIX
-    return nullptr;
-#endif
     return nullptr;
 }
 }

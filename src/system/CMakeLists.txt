@@ -1,7 +1,6 @@
 set(SYSTEM_SOURCE
         application.cpp
         window.cpp
-        system_font.cpp
 )
 
 if (WIN32)
