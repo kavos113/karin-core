@@ -11,7 +11,7 @@
 #include "stroke_style.h"
 #include "pattern.h"
 #include "image.h"
-#include "text_layout.h"
+#include "text_blob.h"
 
 namespace karin
 {
@@ -66,7 +66,7 @@ public:
         Image image, Rectangle destRect, Rectangle srcRect = Rectangle(), float opacity = 1.0f,
         const Transform2D& transform = Transform2D()
     ) const;
-    void drawText(const TextLayout& text, Point start, Pattern& pattern, const Transform2D& transform = Transform2D()) const;
+    void drawText(const TextBlob& text, Point start, Pattern& pattern, const Transform2D& transform = Transform2D()) const;
 
 private:
     IRendererImpl* m_rendererImpl;

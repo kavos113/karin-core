@@ -80,7 +80,7 @@ void GraphicsContext::drawImage(
     m_impl->drawImage(image, destRect, srcRect, opacity, transform);
 }
 
-void GraphicsContext::drawText(const TextLayout& text, Point start, Pattern& pattern, const Transform2D& transform) const
+void GraphicsContext::drawText(const TextBlob& text, Point start, Pattern& pattern, const Transform2D& transform) const
 {
     m_impl->drawText(text, start, pattern, transform);
 }

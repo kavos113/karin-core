@@ -642,7 +642,7 @@ void VulkanGraphicsContextImpl::drawImage(
     );
 }
 
-void VulkanGraphicsContextImpl::drawText(const TextLayout& text, Point start, Pattern& pattern, const Transform2D& transform)
+void VulkanGraphicsContextImpl::drawText(const TextBlob& text, Point start, Pattern& pattern, const Transform2D& transform)
 {
     std::vector<VulkanPipeline::Vertex> vertices;
     std::vector<uint16_t> indices;

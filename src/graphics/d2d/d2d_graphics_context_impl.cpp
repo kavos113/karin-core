@@ -6,6 +6,8 @@
 #include <stdexcept>
 #include <d2d/matrix_converter.h>
 
+#include "karin/graphics/text_blob.h"
+
 namespace karin
 {
 D2DGraphicsContextImpl::D2DGraphicsContextImpl(
@@ -310,7 +312,7 @@ void D2DGraphicsContextImpl::drawImage(
     m_deviceContext->SetTransform(oldTransform);
 }
 
-void D2DGraphicsContextImpl::drawText(const TextLayout& text, Point start, Pattern& pattern, const Transform2D& transform)
+void D2DGraphicsContextImpl::drawText(const TextBlob& text, Point start, Pattern& pattern, const Transform2D& transform)
 {
     D2D1_MATRIX_3X2_F oldTransform;
     m_deviceContext->GetTransform(&oldTransform);
