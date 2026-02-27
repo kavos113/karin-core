@@ -2,8 +2,8 @@
 #define SRC_GRAPHICS_TEXT_FONT_LOADER_H
 
 #include <karin/system/font.h>
+#include <karin/graphics/font_face.h>
 #include "font_loader_platform.h"
-#include "font_face.h"
 
 #include <memory>
 #include <vector>
@@ -13,6 +13,9 @@ namespace karin
 class FontLoader
 {
 public:
+    FontLoader();
+    ~FontLoader() = default;
+
     std::unique_ptr<IFontFace> loadFont(const Font& font);
     std::unique_ptr<IFontFace> loadFontFromFile(const std::string& filePath);
     std::vector<Font> getFontLists();

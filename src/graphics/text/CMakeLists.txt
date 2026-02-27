@@ -3,6 +3,7 @@ set(TEXT_SOURCE
         font_renderer.cpp
         text_layouter.cpp
         font_loader.cpp
+        text_engine.cpp
 )
 
 
@@ -40,4 +41,16 @@ target_link_libraries(karin_graphics_text PUBLIC harfbuzz::harfbuzz)
 if (VULKAN)
     find_package(Freetype CONFIG REQUIRED)
     target_link_libraries(karin_graphics_text PUBLIC Freetype::Freetype)
+endif ()
+
+if (DIRECTX)
+    target_compile_definitions(karin_graphics_text PUBLIC KARIN_PLATFORM_DIRECTX)
+elseif (VULKAN)
+    target_compile_definitions(karin_graphics_text PUBLIC KARIN_PLATFORM_VULKAN)
+endif ()
+
+if (WIN32)
+    target_compile_definitions(karin_graphics_text PUBLIC KARIN_PLATFORM_WINDOWS)
+elseif (LINUX)
+    target_compile_definitions(karin_graphics_text PUBLIC KARIN_PLATFORM_UNIX)
 endif ()
