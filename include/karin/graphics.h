@@ -7,5 +7,9 @@
 #include "graphics/stroke_style.h"
 #include "graphics/pattern.h"
 #include "graphics/image.h"
+#include "graphics/text_layout.h"
+#include "graphics/text_format.h"
+#include "graphics/text_blob.h"
+#include "graphics/text_engine.h"
 
 #endif //KARIN_GRAPHICS_H

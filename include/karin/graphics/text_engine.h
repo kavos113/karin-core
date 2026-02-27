@@ -14,7 +14,7 @@ class TextEngine
 {
 public:
     TextEngine();
-    ~TextEngine() = default;
+    ~TextEngine();
 
     TextBlob layoutText(const TextLayout& layout) const;
 

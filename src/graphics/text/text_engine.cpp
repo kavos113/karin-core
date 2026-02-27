@@ -9,6 +9,8 @@ TextEngine::TextEngine()
     m_impl = std::make_unique<TextEngineImpl>();
 }
 
+TextEngine::~TextEngine() = default;
+
 TextBlob TextEngine::layoutText(const TextLayout& layout) const
 {
     return m_impl->layoutText(layout);
