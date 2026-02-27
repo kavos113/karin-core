@@ -7,6 +7,7 @@
 #include <d2d/matrix_converter.h>
 
 #include "karin/graphics/text_blob.h"
+#include "windows/dwrite_font_face.h"
 
 namespace karin
 {
@@ -314,31 +315,44 @@ void D2DGraphicsContextImpl::drawImage(
 
 void D2DGraphicsContextImpl::drawText(const TextBlob& text, Point start, Pattern& pattern, const Transform2D& transform)
 {
-    D2D1_MATRIX_3X2_F oldTransform;
-    m_deviceContext->GetTransform(&oldTransform);
-
-    D2D1_MATRIX_3X2_F transitionMatrix = D2D1::Matrix3x2F::Translation(start.x + text.size.width / 2, start.y + text.size.height / 2);
-    m_deviceContext->SetTransform(toD2DMatrix(transform) * transitionMatrix * oldTransform);
-
-    auto textLayout = m_deviceResources->textLayout(text);
-    if (!textLayout)
+    auto dwriteFace = dynamic_cast<DwriteFontFace*>(text.fontFace.get());
+    if (!dwriteFace)
     {
-        throw std::runtime_error("Failed to get text layout");
+        throw std::runtime_error("Unsupported font face type");
     }
 
-    auto brush = m_deviceResources->brush(pattern);
-    if (!brush)
+    FontMetrics metrics = text.fontFace->getFontMetrics();
+
+    std::vector<UINT16> glyphIndices;
+    std::vector<DWRITE_GLYPH_OFFSET> glyphOffsets;
+    std::vector<float> glyphAdvances;
+    glyphIndices.reserve(text.glyphs.size());
+    glyphOffsets.reserve(text.glyphs.size());
+    glyphAdvances.reserve(text.glyphs.size());
+
+    for (const auto& glyph : text.glyphs)
     {
-        throw std::runtime_error("Failed to get brush for pattern");
+        glyphIndices.push_back(static_cast<UINT16>(glyph.glyphIndex));
+        glyphOffsets.push_back(DWRITE_GLYPH_OFFSET{ glyph.position.pos.x, glyph.position.pos.y });
+        glyphAdvances.push_back(0.0f); // position is calculate by offset
     }
 
-    m_deviceContext->DrawTextLayout(
-        D2D1::Point2F(-text.size.width / 2.0f, -text.size.height / 2.0f),
-        textLayout.Get(),
-        brush.Get(),
-        D2D1_DRAW_TEXT_OPTIONS_NONE
+    DWRITE_GLYPH_RUN glyphRun = {
+        .fontFace = dwriteFace->face().Get(),
+        .fontEmSize = 96.0f, // TODO: Get actual font size
+        .glyphCount = static_cast<UINT32>(text.glyphs.size()),
+        .glyphIndices = glyphIndices.data(),
+        .glyphAdvances = glyphAdvances.data(),
+        .glyphOffsets = glyphOffsets.data(),
+        .isSideways = FALSE,
+        .bidiLevel = 0
+    };
+
+    m_deviceContext->DrawGlyphRun(
+        D2D1::Point2F(start.x, start.y),
+        &glyphRun,
+        m_deviceResources->brush(pattern).Get(),
+        DWRITE_MEASURING_MODE_NATURAL
     );
-
-    m_deviceContext->SetTransform(oldTransform);
 }
 } // karin
