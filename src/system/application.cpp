@@ -42,9 +42,4 @@ Application::Application()
 {
     m_impl = createApplicationImpl();
 }
-
-SystemFont* Application::systemFont()
-{
-    return &m_systemFont;
-}
 }
