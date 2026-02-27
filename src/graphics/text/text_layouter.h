@@ -4,6 +4,7 @@
 #include <karin/common/geometry/rectangle.h>
 #include <karin/graphics/text_layout.h>
 #include <karin/graphics/font_face.h>
+#include <karin/graphics/text_blob.h>
 
 #include <cstdint>
 #include <vector>
@@ -15,15 +16,6 @@ class TextLayouter
 public:
     TextLayouter() = default;
     ~TextLayouter() = default;
-
-    struct GlyphPosition
-    {
-        // position in layout. pixels
-        // origin: top-left
-        Rectangle position;
-
-        uint32_t glyphIndex;
-    };
 
     static std::vector<GlyphPosition> layout(const TextLayout& layout, IFontFace *face);
 };

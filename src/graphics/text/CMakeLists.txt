@@ -4,6 +4,7 @@ set(TEXT_SOURCE
         text_layouter.cpp
         font_loader.cpp
         text_engine.cpp
+        text_engine_impl.cpp
 )
 
 

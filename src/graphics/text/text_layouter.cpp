@@ -118,7 +118,7 @@ bool isBreakable(uint32_t codepoint)
 
 namespace karin
 {
-std::vector<TextLayouter::GlyphPosition> TextLayouter::layout(const TextLayout &layout, IFontFace *face)
+std::vector<GlyphPosition> TextLayouter::layout(const TextLayout &layout, IFontFace *face)
 {
     std::vector<std::string> lines = std::views::split(layout.text, '\n')
         | std::views::transform(
