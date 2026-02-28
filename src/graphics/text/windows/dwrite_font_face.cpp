@@ -72,9 +72,33 @@ FontMetrics DwriteFontFace::getFontMetrics() const
     };
 }
 
+// unit: design units. need to be divided by unitsPerEm to get em unit
 GlyphMetrics DwriteFontFace::getGlyphMetrics(uint32_t glyphIndex) const
 {
-    return {};
+    UINT16 glyphIndex16 = static_cast<UINT16>(glyphIndex);
+
+    DWRITE_GLYPH_METRICS metrics{};
+    HRESULT hr = m_face->GetDesignGlyphMetrics(&glyphIndex16, 1, &metrics);
+    if (FAILED(hr))
+    {
+        std::cerr << "Failed to get glyph metrics for glyph index " << glyphIndex << std::endl;
+        return GlyphMetrics{glyphIndex, 0, 0, 0, 0, 0};
+    }
+
+    std::cout << "Glyph index: " << glyphIndex << ", advanceWidth: " << metrics.advanceWidth
+              << ", advanceHeight: " << metrics.advanceHeight
+              << ", leftSideBearing: " << metrics.leftSideBearing
+              << ", topSideBearing: " << metrics.topSideBearing
+              << std::endl;
+
+    return GlyphMetrics{
+        glyphIndex,
+        static_cast<float>(metrics.advanceWidth),
+        static_cast<float>(metrics.advanceHeight),
+        static_cast<float>(metrics.leftSideBearing),
+        static_cast<float>(metrics.advanceHeight - metrics.topSideBearing),
+        static_cast<float>(metrics.advanceWidth) // advanceX is the same as advanceWidth in horizontal layout
+    };
 }
 
 Microsoft::WRL::ComPtr<IDWriteFontFace> DwriteFontFace::face()

@@ -26,7 +26,7 @@ struct GlyphMetrics
     float width;
     float height;
     float bearingX;
-    float bearingY;
+    float bearingY; // from baseline to top of glyph
     float advanceX;
 };
 

@@ -321,8 +321,6 @@ void D2DGraphicsContextImpl::drawText(const TextBlob& text, Point start, Pattern
         throw std::runtime_error("Unsupported font face type");
     }
 
-    FontMetrics metrics = text.fontFace->getFontMetrics();
-
     std::vector<UINT16> glyphIndices;
     std::vector<DWRITE_GLYPH_OFFSET> glyphOffsets;
     std::vector<float> glyphAdvances;
@@ -333,13 +331,13 @@ void D2DGraphicsContextImpl::drawText(const TextBlob& text, Point start, Pattern
     for (const auto& glyph : text.glyphs)
     {
         glyphIndices.push_back(static_cast<UINT16>(glyph.glyphIndex));
-        glyphOffsets.push_back(DWRITE_GLYPH_OFFSET{ glyph.position.pos.x, glyph.position.pos.y });
+        glyphOffsets.push_back(DWRITE_GLYPH_OFFSET{ glyph.position.pos.x, -glyph.position.pos.y });
         glyphAdvances.push_back(0.0f); // position is calculate by offset
     }
 
     DWRITE_GLYPH_RUN glyphRun = {
         .fontFace = dwriteFace->face().Get(),
-        .fontEmSize = 96.0f, // TODO: Get actual font size
+        .fontEmSize = text.fontEmSize,
         .glyphCount = static_cast<UINT32>(text.glyphs.size()),
         .glyphIndices = glyphIndices.data(),
         .glyphAdvances = glyphAdvances.data(),

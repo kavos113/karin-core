@@ -16,7 +16,7 @@ int main()
 
     karin::Pattern magentaPattern = karin::SolidColorPattern(karin::Color(255, 0, 255));
     karin::TextLayout textLayout = {
-        "Hello, Karin Graphics!\nnew line support.\n\nvery very very very very very loooooooooooong text.",
+        "Hello",
         karin::TextFormat{
             .font = {
                 .family = "Arial",

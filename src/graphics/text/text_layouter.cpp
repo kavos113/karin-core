@@ -153,6 +153,7 @@ std::vector<GlyphPosition> TextLayouter::layout(const TextLayout &layout, IFontF
         fontMetrics.capHeight
     );
     float penX = 0;
+    float scale = layout.format.size / fontMetrics.unitsPerEm;
 
     for (const auto& line : lines)
     {
@@ -172,7 +173,14 @@ std::vector<GlyphPosition> TextLayouter::layout(const TextLayout &layout, IFontF
         for (uint32_t i = 0; i < glyphCount; i++)
         {
             FT_UInt glyphIndex = glyphInfo[i].codepoint;
+
             auto metrics = face->getGlyphMetrics(glyphIndex);
+            metrics.advanceX = metrics.advanceX * scale;
+            metrics.bearingX = metrics.bearingX * scale;
+            metrics.bearingY = metrics.bearingY * scale;
+            metrics.width = metrics.width * scale;
+            metrics.height = metrics.height * scale;
+
             metricsList.push_back(metrics);
         }
 
@@ -191,11 +199,18 @@ std::vector<GlyphPosition> TextLayouter::layout(const TextLayout &layout, IFontF
                 metricsList[i].height
             };
 
+            std::cout << "penX: " << penX << ", penY: " << penY << std::endl;
+
+            std::cout << "Glyph " << i << ": index=" << metricsList[i].glyphIndex
+                << ", pos=(" << position.pos.x << ", " << position.pos.y << ")"
+                << ", size=(" << position.size.width << ", " << position.size.height << ")"
+                << std::endl;
+
             glyphs.push_back(GlyphPosition{
                 .position = position,
                 .glyphIndex = metricsList[i].glyphIndex,
             });
-            penX += static_cast<float>(glyphPos[i].x_advance) / 64.0f;
+            penX += static_cast<float>(glyphPos[i].x_advance) * scale;
 
             if (layout.size.width > 0 && penX > layout.size.width)
             {
