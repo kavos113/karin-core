@@ -39,7 +39,4 @@ endif ()
 
 if (UNIX)
     target_link_libraries(karin_system PRIVATE X11)
-
-    find_package(Fontconfig REQUIRED)
-    target_link_libraries(karin_system PRIVATE Fontconfig::Fontconfig)
 endif ()

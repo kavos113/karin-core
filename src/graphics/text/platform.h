@@ -11,6 +11,7 @@
 #ifdef KARIN_PLATFORM_WINDOWS
 #include "windows/freetype_dwrite_font_loader.h"
 #elifdef KARIN_PLATFORM_UNIX
+#include "unix/freetype_fontconfig_font_loader.h"
 #endif
 #endif
 
@@ -25,7 +26,7 @@ inline std::unique_ptr<IPlatformFontLoader> createFontLoader()
 #ifdef KARIN_PLATFORM_WINDOWS
     return std::make_unique<FreeTypeDWriteFontLoader>();
 #elifdef KARIN_PLATFORM_UNIX
-
+    return std::make_unique<FreeTypeFontConfigFontLoader>();
 #endif
 #endif
     return nullptr;

@@ -47,6 +47,11 @@ if (WIN32)
     target_link_libraries(karin_graphics_text PUBLIC d2d1 dwrite d3d11 dxgi)
 endif ()
 
+if (LINUX)
+    find_package(Fontconfig REQUIRED)
+    target_link_libraries(karin_graphics_text PRIVATE Fontconfig::Fontconfig)
+endif ()
+
 if (DIRECTX)
     target_compile_definitions(karin_graphics_text PUBLIC KARIN_PLATFORM_DIRECTX)
 elseif (VULKAN)
