@@ -8,7 +8,6 @@ namespace karin
 GraphicsContext::GraphicsContext(IRendererImpl* impl)
     : m_rendererImpl(impl)
     , m_impl(createGraphicsContextImpl(impl))
-    , m_fontRendererImpl(createFontRendererImpl(impl))
 {
 }
 
@@ -83,6 +82,6 @@ void GraphicsContext::drawImage(
 
 void GraphicsContext::drawText(const TextBlob& text, Point start, Pattern& pattern, const Transform2D& transform) const
 {
-    m_fontRendererImpl->drawText(text, start, pattern, transform);
+    m_rendererImpl->fontRenderer()->drawText(text, start, pattern, transform);
 }
 } // karin

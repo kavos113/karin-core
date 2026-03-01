@@ -17,7 +17,6 @@ namespace karin
 {
 class IRendererImpl;
 class IGraphicsContextImpl;
-class IFontRendererImpl;
 
 /**
  * GraphicsContext provides basic drawing operations(e.g., drawRect).
@@ -73,7 +72,6 @@ private:
     IRendererImpl* m_rendererImpl;
 
     std::unique_ptr<IGraphicsContextImpl> m_impl;
-    std::unique_ptr<IFontRendererImpl> m_fontRendererImpl;
 };
 } // karin
 

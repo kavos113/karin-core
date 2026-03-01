@@ -10,6 +10,7 @@
 
 #include "d2d_device_resources.h"
 #include "d2d_surface_manager.h"
+#include "d2d_font_renderer.h"
 
 namespace karin
 {
@@ -48,11 +49,17 @@ public:
         return m_deviceResources.get();
     }
 
+    IFontRendererImpl* fontRenderer() override
+    {
+        return m_fontRenderer.get();
+    }
+
 private:
     void setTargetBitmap() const;
 
     std::unique_ptr<D2DDeviceResources> m_deviceResources;
     std::unique_ptr<D2DSurfaceManager> m_surface;
+    std::unique_ptr<D2DFontRenderer> m_fontRenderer;
 
     Microsoft::WRL::ComPtr<ID2D1DeviceContext> m_deviceContext;
 
