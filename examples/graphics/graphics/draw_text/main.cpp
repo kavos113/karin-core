@@ -2,8 +2,6 @@
 #include <karin/graphics.h>
 #include <karin/common.h>
 
-#include <memory>
-
 int main()
 {
     karin::Application& app = karin::Application::instance();
