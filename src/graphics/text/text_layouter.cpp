@@ -255,8 +255,6 @@ std::vector<GlyphPosition> TextLayouter::layout(const TextLayout &layout, IFontF
         penY += lineHeight;
     }
 
-    hb_font_destroy(hbFont);
-
     return glyphs;
 }
 } // karin
