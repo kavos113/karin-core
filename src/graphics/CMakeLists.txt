@@ -15,6 +15,7 @@ if (DIRECTX)
             d2d/d2d_graphics_context_impl.cpp
             d2d/d2d_device_resources.cpp
             d2d/d2d_context.cpp
+            d2d/d2d_font_renderer.cpp
     )
 elseif (VULKAN)
     set(GRAPHICS_SOURCE ${GRAPHICS_SOURCE}

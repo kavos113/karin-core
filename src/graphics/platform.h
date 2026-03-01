@@ -5,9 +5,14 @@
 
 #include <karin/system/window.h>
 
+#include "graphics_context_impl.h"
+#include "renderer_impl.h"
+#include "font_renderer_impl.h"
+
 #ifdef KARIN_PLATFORM_DIRECTX
 #include "d2d/d2d_renderer_impl.h"
 #include "d2d/d2d_graphics_context_impl.h"
+#include "d2d/d2d_font_renderer.h"
 #elifdef KARIN_PLATFORM_VULKAN
 #include "vulkan/vulkan_renderer_impl.h"
 #include "vulkan/vulkan_graphics_context_impl.h"
@@ -45,6 +50,20 @@ inline std::unique_ptr<IGraphicsContextImpl> createGraphicsContextImpl(IRenderer
     );
 #endif
 
+    return nullptr;
+}
+
+inline std::unique_ptr<IFontRendererImpl> createFontRendererImpl(IRendererImpl* impl)
+{
+#ifdef KARIN_PLATFORM_DIRECTX
+    auto d2dImpl = dynamic_cast<D2DRendererImpl*>(impl);
+    return std::make_unique<D2DFontRenderer>(
+        d2dImpl->deviceContext(),
+        d2dImpl->deviceResources()
+    );
+#elifdef KARIN_PLATFORM_VULKAN
+    return nullptr;
+#endif
     return nullptr;
 }
 }
