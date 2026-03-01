@@ -99,6 +99,9 @@ uint32_t getCodepoint(const std::string& text, size_t index)
     return 0;
 }
 
+// TODO: breakable has two pattern:
+// 1. spaces: don't rendered at first of new line
+// 2. CJK characters: need to be rendered at first of new line
 bool isBreakable(uint32_t codepoint)
 {
     if (codepoint <= 0x00FF)
@@ -243,12 +246,12 @@ std::vector<GlyphPosition> TextLayouter::layout(const TextLayout &layout, IFontF
                 {
                     penX = initPenX;
                     penY += lineHeight;
-                    for (uint32_t j = i; j > lastSpaceIndex; j--)
+                    for (uint32_t j = i; j >= lastSpaceIndex; j--)
                     {
                         glyphs.pop_back();
                     }
-                    glyphs.pop_back();
-                    i = lastSpaceIndex;
+                    // TODO: change depend on breakable character type. Now: all rendered at first of new line.
+                    i = lastSpaceIndex - 1;
                     lastSpaceIndex = 0;
                 }
             }
