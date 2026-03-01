@@ -96,16 +96,20 @@ void VulkanFontRenderer::drawText(
         return;
     }
 
+    FontMetrics fontMetrics = ftFontFace->getFontMetrics();
+    float scale = text.fontEmSize / fontMetrics.unitsPerEm;
+
     std::vector<GlyphUploadPosition> glyphsToUpload;
     glyphsToUpload.reserve(text.glyphs.size());
     for (const auto& glyphPos : text.glyphs)
     {
         VulkanGlyphCache::GlyphInfo glyphInfo = m_glyphCache->getGlyph(glyphPos.glyphIndex, text.format.hash(), ftFontFace->face(), text.fontEmSize);
+        GlyphMetrics metrics = ftFontFace->getGlyphMetrics(glyphPos.glyphIndex);
 
         glyphsToUpload.push_back({
             .position = Rectangle(
                 glyphPos.position.pos.x,
-                glyphPos.position.pos.y - glyphPos.position.size.height,
+                glyphPos.position.pos.y - metrics.bearingY * scale,
                 glyphPos.position.size.width,
                 glyphPos.position.size.height
             ),
@@ -116,11 +120,8 @@ void VulkanFontRenderer::drawText(
     std::vector<VulkanPipeline::Vertex> vertices;
     std::vector<uint16_t> indices;
 
-    std::cout << "Uploading " << glyphsToUpload.size() << " glyphs for text rendering." << std::endl;
     for (const auto& glyph : glyphsToUpload)
     {
-        std::cout << "Glyph position: (" << glyph.position.pos.x << ", " << glyph.position.pos.y << "), size: (" << glyph.position.size.width << ", " << glyph.position.size.height << ")" << std::endl;
-
         Rectangle pos = Rectangle(
             -text.layoutSize.width / 2.0f + glyph.position.pos.x,
             -text.layoutSize.height / 2.0f + glyph.position.pos.y,
