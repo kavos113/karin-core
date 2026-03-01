@@ -13,13 +13,13 @@
 namespace karin
 {
 VulkanRendererImpl::VulkanRendererImpl(
-    Window::NativeHandle nativeHandle,
-    std::unique_ptr<FontLoader> fontLoader
+    Window::NativeHandle nativeHandle
 )
 {
     m_surface = std::make_unique<VulkanSurface>(nativeHandle);
     m_extent = m_surface->extent();
-    m_deviceResources = std::make_unique<VulkanDeviceResources>(std::move(fontLoader), MAX_FRAMES_IN_FLIGHT);
+    m_deviceResources = std::make_unique<VulkanDeviceResources>(MAX_FRAMES_IN_FLIGHT);
+    m_fontRenderer = std::make_unique<VulkanFontRenderer>(this, MAX_FRAMES_IN_FLIGHT);
 
     createCommandBuffers();
     createSyncObjects();
@@ -135,7 +135,7 @@ bool VulkanRendererImpl::beginDraw()
 
 void VulkanRendererImpl::endDraw()
 {
-    m_deviceResources->flushGlyphUploads();
+    m_fontRenderer->flushGlyphUploads();
 
     std::array vertexBuffers = {m_vertexBuffer};
     std::array<VkDeviceSize, 1> offsets = {};
@@ -234,7 +234,7 @@ void VulkanRendererImpl::endDraw()
             );
         }
 
-        auto glyphAtlasSets = m_deviceResources->glyphAtlasDescriptorSets();
+        auto glyphAtlasSets = m_fontRenderer->glyphAtlasDescriptorSets();
         vkCmdBindDescriptorSets(
             m_commandBuffers[m_currentFrame],
             VK_PIPELINE_BIND_POINT_GRAPHICS,
@@ -675,7 +675,7 @@ void VulkanRendererImpl::createPipeline()
     std::vector textDescriptorSetLayouts = {
         m_projMatrixDescriptorSetLayout,
         m_deviceResources->geometryDescriptorSetLayout(),
-        m_deviceResources->atlasDescriptorSetLayout(),
+        m_fontRenderer->atlasDescriptorSetLayout(),
     };
     m_pipelines[PipelineType::Text] = std::make_unique<VulkanPipeline>(
         m_renderPass,

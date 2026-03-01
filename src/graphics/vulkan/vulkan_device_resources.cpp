@@ -17,8 +17,6 @@ namespace karin
 {
 void VulkanDeviceResources::cleanup()
 {
-    m_glyphCache->cleanup();
-
     for (auto& val : m_gradientPointLutMap | std::views::values)
     {
         vmaDestroyImage(VulkanContext::instance().allocator(), val.image, val.allocation);
@@ -577,39 +575,6 @@ void VulkanDeviceResources::createDescriptorSetLayouts()
     {
         throw std::runtime_error("failed to create descriptor set layout for linear gradient pipeline");
     }
-}
-
-std::vector<VulkanDeviceResources::GlyphPosition> VulkanDeviceResources::textLayout(const TextLayout& layout)
-{
-    if (auto it = m_textLayoutCache.find(layout.hash()); it != m_textLayoutCache.end())
-    {
-        return it->second;
-    }
-
-    FT_Face face = m_fontLoader->loadFont(layout.format.font);
-    FT_Error error = FT_Set_Pixel_Sizes(face, 0, static_cast<FT_UInt>(layout.format.size));
-    if (error)
-    {
-        throw std::runtime_error("failed to set pixel sizes for font");
-    }
-
-    std::vector<TextLayouter::GlyphPosition> glyphPositions = m_fontLayouter->layout(layout, face);
-
-    std::vector<GlyphPosition> glyphs;
-    glyphs.reserve(glyphPositions.size());
-
-    for (const auto& glyphPos : glyphPositions)
-    {
-        auto glyphInfo = m_glyphCache->getGlyph(glyphPos.glyphIndex, layout.format.font.hash(), face, layout.format.size);
-
-        glyphs.push_back(GlyphPosition{
-            .position = glyphPos.position,
-            .uv = glyphInfo.uv,
-        });
-    }
-
-    m_textLayoutCache[layout.hash()] = glyphs;
-    return glyphs;
 }
 
 std::vector<VkDescriptorSet> VulkanDeviceResources::dummyTextureDescriptorSet() const

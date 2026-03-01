@@ -5,10 +5,11 @@
 
 #include <karin/common/geometry/rectangle.h>
 #include <karin/system/font.h>
-#include <text/font_loader.h>
 
 #include <vulkan/vulkan.h>
 #include <vulkan/vma.h>
+#include <ft2build.h>
+#include FT_FREETYPE_H
 #include <unordered_map>
 #include <string>
 #include <vector>

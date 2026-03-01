@@ -3,6 +3,7 @@
 
 #include <karin/common/geometry/rectangle.h>
 #include "font_face.h"
+#include "text_format.h"
 
 #include <vector>
 #include <memory>
@@ -24,6 +25,8 @@ struct TextBlob
     std::vector<GlyphPosition> glyphs;
     std::unique_ptr<IFontFace> fontFace;
     float fontEmSize;
+    TextFormat format;
+    Size layoutSize;
 };
 
 }

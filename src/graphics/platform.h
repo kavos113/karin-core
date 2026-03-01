@@ -27,9 +27,7 @@ inline std::unique_ptr<IRendererImpl> createRendererImpl(
 #ifdef KARIN_PLATFORM_DIRECTX
     return std::make_unique<D2DRendererImpl>(static_cast<HWND>(handle.hwnd));
 #elifdef KARIN_PLATFORM_VULKAN
-    return std::make_unique<VulkanRendererImpl>(
-        handle, std::make_unique<FontLoader>()
-    );
+    return std::make_unique<VulkanRendererImpl>(handle);
 #endif
     return nullptr;
 }
