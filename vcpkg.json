@@ -14,7 +14,7 @@
     {
       "name": "harfbuzz",
       "version>=": "11.2.0",
-      "features": ["directwrite", "freetype"]
+      "default-features": false
     },
     {
       "name": "stb",
