@@ -23,6 +23,8 @@ D2DRendererImpl::D2DRendererImpl(HWND hwnd)
     setTargetBitmap();
 
     m_deviceResources = std::make_unique<D2DDeviceResources>(m_deviceContext);
+
+    m_fontRenderer = std::make_unique<D2DFontRenderer>(m_deviceContext, m_deviceResources.get());
 }
 
 void D2DRendererImpl::setTargetBitmap() const
