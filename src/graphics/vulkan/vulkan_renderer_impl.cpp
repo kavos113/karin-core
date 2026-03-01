@@ -37,6 +37,8 @@ void VulkanRendererImpl::cleanUp()
 {
     vkDeviceWaitIdle(VulkanContext::instance().device());
 
+    m_fontRenderer->cleanup();
+
     for (const auto& framebuffer : m_swapChainFramebuffers)
     {
         vkDestroyFramebuffer(VulkanContext::instance().device(), framebuffer, nullptr);

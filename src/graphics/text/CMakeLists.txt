@@ -18,6 +18,10 @@ if (WIN32)
                 windows/dwrite_font_face.cpp
         )
     endif ()
+
+    set(TEXT_SOURCE ${TEXT_SOURCE}
+            ${GRAPHICS_DIR}/d2d/d2d_context.cpp
+    )
 elseif (LINUX)
     set(TEXT_SOURCE ${TEXT_SOURCE}
             unix/freetype_fontconfig_font_loader.cpp
@@ -37,6 +41,10 @@ target_link_libraries(karin_graphics_text PUBLIC harfbuzz::harfbuzz)
 if (VULKAN)
     find_package(Freetype CONFIG REQUIRED)
     target_link_libraries(karin_graphics_text PUBLIC Freetype::Freetype)
+endif ()
+
+if (WIN32)
+    target_link_libraries(karin_graphics_text PUBLIC d2d1 dwrite d3d11 dxgi)
 endif ()
 
 if (DIRECTX)

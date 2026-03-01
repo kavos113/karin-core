@@ -139,6 +139,7 @@ std::vector<GlyphPosition> TextLayouter::layout(const TextLayout &layout, IFontF
     }
 
     hb_font_t* hbFont = hbProvider->getHbFont();
+
     FontMetrics fontMetrics = face->getFontMetrics();
     std::vector<GlyphPosition> glyphs;
 

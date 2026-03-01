@@ -1,6 +1,7 @@
 #include "freetype_font_face.h"
 
 #include <hb-ft.h>
+#include <hb-ot.h>
 #include FT_TRUETYPE_TABLES_H
 
 #include <cmath>
@@ -10,7 +11,11 @@ namespace karin
 {
 FreetypeFontFace::FreetypeFontFace(FT_Face face)
 {
-    m_fbFont = hb_ft_font_create(face, nullptr);
+    hb_face_t* hbFace = hb_ft_face_create(face, nullptr);
+    m_fbFont = hb_font_create(hbFace);
+    hb_ot_font_set_funcs(m_fbFont);
+    hb_font_set_scale(m_fbFont, face->units_per_EM, face->units_per_EM);
+
     m_face = face;
 }
 

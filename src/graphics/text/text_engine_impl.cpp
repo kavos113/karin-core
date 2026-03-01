@@ -17,6 +17,8 @@ TextBlob TextEngineImpl::layoutText(const TextLayout& layout) const
         .glyphs = std::move(glyphs),
         .fontFace = std::move(fontFace),
         .fontEmSize = layout.format.size,
+        .format = layout.format,
+        .layoutSize = layout.size,
     };
 
     return blob;
