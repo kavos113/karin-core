@@ -33,7 +33,7 @@ void D2DFontRenderer::drawText(const TextBlob& text, Point start, Pattern& patte
     for (const auto& glyph : text.glyphs)
     {
         glyphIndices.push_back(static_cast<UINT16>(glyph.glyphIndex));
-        glyphOffsets.push_back(DWRITE_GLYPH_OFFSET{ glyph.position.pos.x, -glyph.position.pos.y });
+        glyphOffsets.push_back(DWRITE_GLYPH_OFFSET{ glyph.position.x, -glyph.position.y });
         glyphAdvances.push_back(0.0f); // position is calculate by offset
     }
 

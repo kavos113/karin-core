@@ -14,8 +14,8 @@ namespace karin
 struct GlyphPosition
 {
     // position in layout. pixels
-    // origin: bottom (baseline)-left
-    Rectangle position;
+    // bottom-left of the glyph bounding box
+    Point position;
 
     uint32_t glyphIndex;
 };

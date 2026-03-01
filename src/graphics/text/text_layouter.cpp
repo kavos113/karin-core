@@ -196,19 +196,10 @@ std::vector<GlyphPosition> TextLayouter::layout(const TextLayout &layout, IFontF
                 lastSpaceIndex = i;
             }
 
-            Rectangle position = {
+            Point position = {
                 penX + metricsList[i].bearingX,
                 penY,
-                metricsList[i].width,
-                metricsList[i].height
             };
-
-            std::cout << "penX: " << penX << ", penY: " << penY << std::endl;
-
-            std::cout << "Glyph " << i << ": index=" << metricsList[i].glyphIndex
-                << ", pos=(" << position.pos.x << ", " << position.pos.y << ")"
-                << ", size=(" << position.size.width << ", " << position.size.height << ")"
-                << std::endl;
 
             glyphs.push_back(GlyphPosition{
                 .position = position,

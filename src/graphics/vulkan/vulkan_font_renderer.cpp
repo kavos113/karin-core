@@ -108,10 +108,10 @@ void VulkanFontRenderer::drawText(
 
         glyphsToUpload.push_back({
             .position = Rectangle(
-                glyphPos.position.pos.x,
-                glyphPos.position.pos.y - metrics.bearingY * scale,
-                glyphPos.position.size.width,
-                glyphPos.position.size.height
+                glyphPos.position.x,
+                glyphPos.position.y - metrics.bearingY * scale,
+                metrics.width * scale,
+                metrics.height * scale
             ),
             .atlasUV = glyphInfo.uv
         });
