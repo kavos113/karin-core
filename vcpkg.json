@@ -28,5 +28,25 @@
       "name": "fontconfig",
       "version>=": "2.15.0#4"
     }
-  ]
+  ],
+  "features": {
+    "font-directwrite": {
+      "description": "Use DirectWrite for font rendering on Windows",
+      "dependencies": [
+        {
+          "name": "harfbuzz",
+          "features": ["directwrite"]
+        }
+      ]
+    },
+    "font-freetype": {
+      "description": "Use FreeType for font rendering",
+      "dependencies": [
+        {
+          "name": "harfbuzz",
+          "features": ["freetype"]
+        }
+      ]
+    }
+  }
 }

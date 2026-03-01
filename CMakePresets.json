@@ -23,7 +23,7 @@
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_C_COMPILER": "cl.exe",
         "CMAKE_CXX_COMPILER": "cl.exe",
-        "VCPKG_MANIFEST_FEATURES": "harfbuzz[directwrite]"
+        "VCPKG_MANIFEST_FEATURES": "font-directwrite"
       }
     },
     {
@@ -32,7 +32,7 @@
       "description": "windows debug build with Vulkan support",
       "cacheVariables": {
         "WINDOWS_VULKAN": "ON",
-        "VCPKG_MANIFEST_FEATURES": "harfbuzz[freetype]"
+        "VCPKG_MANIFEST_FEATURES": "font-freetype"
       }
     },
     {
@@ -46,7 +46,7 @@
         "CMAKE_CXX_FLAGS": "-stdlib=libc++",
         "CMAKE_EXE_LINKER_FLAGS": "-stdlib=libc++",
         "CMAKE_SHARED_LINKER_FLAGS": "-stdlib=libc++",
-        "VCPKG_MANIFEST_FEATURES": "harfbuzz[freetype]"
+        "VCPKG_MANIFEST_FEATURES": "font-freetype"
       }
     }
   ],
