@@ -71,6 +71,10 @@ elseif (UNIX)
     target_compile_definitions(karin_test PUBLIC KARIN_PLATFORM_UNIX)
 endif ()
 
+if (MSVC)
+    target_compile_options(karin_test PRIVATE /utf-8)
+endif ()
+
 find_package(glm CONFIG REQUIRED)
 target_link_libraries(karin_test PRIVATE glm::glm)
 

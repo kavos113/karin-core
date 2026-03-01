@@ -108,6 +108,28 @@ FontMetrics FreetypeFontFace::getFontMetrics() const
 
 GlyphMetrics FreetypeFontFace::getGlyphMetrics(uint32_t glyphIndex) const
 {
-    return {};
+    FT_Error error = FT_Load_Glyph(m_face, glyphIndex, FT_LOAD_NO_BITMAP | FT_LOAD_NO_SCALE);
+    if (error)
+    {
+        std::cerr << "Failed to load glyph index " << glyphIndex << ": " << error << std::endl;
+        return GlyphMetrics{glyphIndex, 0, 0, 0, 0, 0};
+    }
+
+    error = FT_Render_Glyph(m_face->glyph, FT_RENDER_MODE_NORMAL);
+    if (error)
+    {
+        std::cerr << "Failed to render glyph index " << glyphIndex << ": " << error << std::endl;
+        return GlyphMetrics{glyphIndex, 0, 0, 0, 0, 0};
+    }
+
+    FT_Glyph_Metrics metrics = m_face->glyph->metrics;
+    return GlyphMetrics{
+        .glyphIndex = glyphIndex,
+        .width = static_cast<float>(metrics.width),
+        .height = static_cast<float>(metrics.height),
+        .bearingX = static_cast<float>(metrics.horiBearingX),
+        .bearingY = static_cast<float>(metrics.horiBearingY),
+        .advanceX = static_cast<float>(metrics.horiAdvance)
+    };
 }
 } // karin

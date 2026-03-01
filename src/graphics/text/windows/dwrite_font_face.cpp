@@ -86,12 +86,12 @@ GlyphMetrics DwriteFontFace::getGlyphMetrics(uint32_t glyphIndex) const
     }
 
     return GlyphMetrics{
-        glyphIndex,
-        static_cast<float>(metrics.advanceWidth),
-        static_cast<float>(metrics.advanceHeight),
-        static_cast<float>(metrics.leftSideBearing),
-        static_cast<float>(metrics.advanceHeight - metrics.topSideBearing),
-        static_cast<float>(metrics.advanceWidth) // advanceX is the same as advanceWidth in horizontal layout
+        .glyphIndex = glyphIndex,
+        .width = static_cast<float>(metrics.advanceWidth - metrics.leftSideBearing - metrics.rightSideBearing),
+        .height = static_cast<float>(metrics.advanceHeight - metrics.topSideBearing - metrics.bottomSideBearing),
+        .bearingX = static_cast<float>(metrics.leftSideBearing),
+        .bearingY = static_cast<float>(metrics.verticalOriginY - metrics.topSideBearing),
+        .advanceX = static_cast<float>(metrics.advanceWidth),
     };
 }
 

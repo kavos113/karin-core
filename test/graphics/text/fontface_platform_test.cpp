@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <text/font_loader.h>
-#include <text/font_face.h>
 #include <text/windows/dwrite_font_loader.h>
 #include <text/windows/freetype_dwrite_font_loader.h>
 #include <text/windows/dwrite_font_face.h>
@@ -35,4 +34,24 @@ TEST_F(FontFacePlatformTest, FontMetricsIsSame)
     EXPECT_EQ(dwriteMetrics.underlineThickness, ftMetrics.underlineThickness);
     EXPECT_EQ(dwriteMetrics.strikethroughPosition, ftMetrics.strikethroughPosition);
     EXPECT_EQ(dwriteMetrics.strikethroughThickness, ftMetrics.strikethroughThickness);
+}
+
+TEST_F(FontFacePlatformTest, GlyphMetricsIsSame)
+{
+    auto fontFace1 = loader.loadFontFromFile(TEST_FONT_PATH);
+    auto fontFace2 = ftLoader.loadFontFromFile(TEST_FONT_PATH);
+
+    for (uint32_t glyphIndex = 0; glyphIndex < 100; ++glyphIndex)
+    {
+        SCOPED_TRACE("Glyph index: " + std::to_string(glyphIndex));
+        auto dwriteMetrics = fontFace1->getGlyphMetrics(glyphIndex);
+        auto ftMetrics = fontFace2->getGlyphMetrics(glyphIndex);
+
+        EXPECT_EQ(dwriteMetrics.glyphIndex, ftMetrics.glyphIndex);
+        EXPECT_EQ(dwriteMetrics.advanceX, ftMetrics.advanceX);
+        EXPECT_EQ(dwriteMetrics.bearingX, ftMetrics.bearingX);
+        EXPECT_EQ(dwriteMetrics.bearingY, ftMetrics.bearingY);
+        EXPECT_EQ(dwriteMetrics.width, ftMetrics.width);
+        EXPECT_EQ(dwriteMetrics.height, ftMetrics.height);
+    }
 }
