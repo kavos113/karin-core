@@ -85,12 +85,6 @@ GlyphMetrics DwriteFontFace::getGlyphMetrics(uint32_t glyphIndex) const
         return GlyphMetrics{glyphIndex, 0, 0, 0, 0, 0};
     }
 
-    std::cout << "Glyph index: " << glyphIndex << ", advanceWidth: " << metrics.advanceWidth
-              << ", advanceHeight: " << metrics.advanceHeight
-              << ", leftSideBearing: " << metrics.leftSideBearing
-              << ", topSideBearing: " << metrics.topSideBearing
-              << std::endl;
-
     return GlyphMetrics{
         glyphIndex,
         static_cast<float>(metrics.advanceWidth),

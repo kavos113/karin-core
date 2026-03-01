@@ -194,7 +194,7 @@ std::vector<GlyphPosition> TextLayouter::layout(const TextLayout &layout, IFontF
 
             Rectangle position = {
                 penX + metricsList[i].bearingX,
-                penY - metricsList[i].bearingY,
+                penY,
                 metricsList[i].width,
                 metricsList[i].height
             };
