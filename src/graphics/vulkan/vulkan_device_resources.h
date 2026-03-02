@@ -3,20 +3,16 @@
 
 #include "vulkan_glyph_cache.h"
 #include "vma.h"
-#include <text/font_loader.h>
-#include <text/font_layouter.h>
+#include <text/text_layouter.h>
 
 #include <karin/graphics/image.h>
 #include <karin/graphics/pattern.h>
-#include <karin/graphics/text_layout.h>
 
 #include <vulkan/vulkan.h>
 #include <vector>
 #include <cstddef>
-#include <stdexcept>
 #include <unordered_map>
 #include <array>
-#include <memory>
 
 namespace karin
 {
@@ -24,17 +20,13 @@ class VulkanDeviceResources
 {
 public:
     explicit VulkanDeviceResources(
-        std::unique_ptr<FontLoader> fontLoader,
         size_t maxFramesInFlight
     )
-        : m_fontLoader(std::move(fontLoader)), m_maxFramesInFlight(maxFramesInFlight)
+        : m_maxFramesInFlight(maxFramesInFlight)
     {
         createSamplers();
         createDescriptorSetLayouts();
         createDummyTexture();
-
-        m_glyphCache = std::make_unique<VulkanGlyphCache>(maxFramesInFlight);
-        m_fontLayouter = std::make_unique<FontLayouter>(m_fontLoader.get());
     }
 
     ~VulkanDeviceResources() = default;
@@ -50,32 +42,6 @@ public:
     VkDescriptorSetLayout geometryDescriptorSetLayout() const
     {
         return m_geometryDescriptorSetLayout;
-    }
-
-    VkDescriptorSetLayout atlasDescriptorSetLayout() const
-    {
-        return m_glyphCache->atlasDescriptorSetLayout();
-    }
-
-    struct GlyphPosition
-    {
-        // position in layout. pixels
-        Rectangle position;
-
-        // uv in atlas. 0.0 - 1.0
-        Rectangle uv;
-    };
-
-    std::vector<GlyphPosition> textLayout(const TextLayout& layout);
-
-    void flushGlyphUploads() const
-    {
-        m_glyphCache->flushUploadQueue();
-    }
-
-    std::vector<VkDescriptorSet> glyphAtlasDescriptorSets() const
-    {
-        return m_glyphCache->atlasDescriptorSets();
     }
 
 private:
@@ -99,11 +65,6 @@ private:
     std::unordered_map<size_t, Texture> m_gradientPointLutMap;
     std::unordered_map<size_t, Texture> m_textureMap;
     Texture m_dummyTexture; // 1 x 1 white pixel
-    std::unordered_map<size_t, std::vector<GlyphPosition>> m_textLayoutCache;
-
-    std::unique_ptr<VulkanGlyphCache> m_glyphCache;
-    std::unique_ptr<FontLoader> m_fontLoader;
-    std::unique_ptr<FontLayouter> m_fontLayouter;
 
     VkSampler m_clampSampler = VK_NULL_HANDLE;
     VkSampler m_repeatSampler = VK_NULL_HANDLE;

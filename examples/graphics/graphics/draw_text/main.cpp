@@ -2,23 +2,23 @@
 #include <karin/graphics.h>
 #include <karin/common.h>
 
-#include <memory>
-
 int main()
 {
     karin::Application& app = karin::Application::instance();
     karin::Window window = app.createWindow(L"Hello Graphics", 100, 100, 800, 600);
 
-    karin::Renderer renderer(&window, app.systemFont());
+    karin::Renderer renderer(&window);
     renderer.setClearColor(karin::Color(karin::Color::Green));
+
+    karin::TextEngine textEngine;
 
     karin::Pattern magentaPattern = karin::SolidColorPattern(karin::Color(255, 0, 255));
     karin::TextLayout textLayout = {
-        "Hello, Karin Graphics!\nnew line support.\n\nvery very very very very very loooooooooooong text.",
+        "Hello karin graphics!\nThis is a text layout example.\nthis is very verrrrrrrrrrrrrrrrrrrrrrrrrrry long line to test trimming and wrapping.",
         karin::TextFormat{
             .font = {
-                // .family = "Arial",
-                .family = "Ubuntu",
+                .family = "Arial",
+                // .family = "Ubuntu",
             },
             .size = 24.0f,
             .lineSpacing = 1.5f,
@@ -29,12 +29,13 @@ int main()
         },
         {400.0f, 200.0f},
     };
+    karin::TextBlob textBlob = textEngine.layoutText(textLayout);
 
     renderer.addDrawCommand(
-        [&magentaPattern, &textLayout](karin::GraphicsContext& gc)
+        [&magentaPattern, &textBlob](karin::GraphicsContext& gc)
         {
             gc.drawRect(karin::Rectangle(50.0f, 50.0f, 400.0f, 200.0f), magentaPattern);
-            gc.drawText(textLayout, karin::Point(50.0f, 50.0f), magentaPattern);
+            gc.drawText(textBlob, karin::Point(50.0f, 50.0f), magentaPattern);
         }
     );
 

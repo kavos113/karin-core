@@ -8,7 +8,6 @@
 #include <karin/graphics/pattern.h>
 #include <karin/graphics/stroke_style.h>
 #include <karin/graphics/image.h>
-#include <karin/graphics/text_layout.h>
 
 namespace karin
 {
@@ -48,7 +47,6 @@ public:
     virtual void drawImage(
         Image image, Rectangle destRect, Rectangle srcRect, float opacity, const Transform2D& transform
     ) = 0;
-    virtual void drawText(const TextLayout& text, Point start, Pattern& pattern, const Transform2D& transform) = 0;
 };
 } // karin
 

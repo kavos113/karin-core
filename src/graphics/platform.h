@@ -4,7 +4,9 @@
 #include <memory>
 
 #include <karin/system/window.h>
-#include <karin/system/system_font.h>
+
+#include "graphics_context_impl.h"
+#include "renderer_impl.h"
 
 #ifdef KARIN_PLATFORM_DIRECTX
 #include "d2d/d2d_renderer_impl.h"
@@ -19,15 +21,13 @@ namespace karin
 {
 
 inline std::unique_ptr<IRendererImpl> createRendererImpl(
-    Window::NativeHandle handle, SystemFont* systemFont
+    Window::NativeHandle handle
 )
 {
 #ifdef KARIN_PLATFORM_DIRECTX
     return std::make_unique<D2DRendererImpl>(static_cast<HWND>(handle.hwnd));
 #elifdef KARIN_PLATFORM_VULKAN
-    return std::make_unique<VulkanRendererImpl>(
-        handle, std::make_unique<FontLoader>(systemFont)
-    );
+    return std::make_unique<VulkanRendererImpl>(handle);
 #endif
     return nullptr;
 }

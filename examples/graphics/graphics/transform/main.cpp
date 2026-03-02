@@ -10,9 +10,11 @@ int main()
     karin::Application& app = karin::Application::instance();
     karin::Window window = app.createWindow(L"Hello Graphics", 100, 100, 800, 600);
 
-    karin::Renderer renderer(&window, app.systemFont());
-
+    karin::Renderer renderer(&window);
     renderer.setClearColor(karin::Color(karin::Color::Green));
+
+    karin::TextEngine textEngine;
+    karin::TextBlob blob = textEngine.layoutText(karin::TextLayout("Hello, Karin!", 24, "Segoe UI", karin::Size(200, 50)));
 
     karin::Pattern cyanPattern = karin::SolidColorPattern(karin::Color(0, 255, 255));
     karin::Pattern magentaPattern = karin::SolidColorPattern(karin::Color(255, 0, 255));
@@ -21,7 +23,7 @@ int main()
     karin::Pattern whitePattern = karin::SolidColorPattern(karin::Color(255, 255, 255));
 
     renderer.addDrawCommand(
-        [&cyanPattern, &magentaPattern, &yellowPattern, &blackPattern, &whitePattern](karin::GraphicsContext& gc)
+        [&cyanPattern, &magentaPattern, &yellowPattern, &blackPattern, &whitePattern, &blob](karin::GraphicsContext& gc)
         {
             gc.fillRect(
                 karin::Rectangle(100, 100, 100, 100),
@@ -68,7 +70,7 @@ int main()
             );
 
             gc.drawText(
-                karin::TextLayout("Hello, Karin!", 24, "Segoe UI", karin::Size(200, 50)),
+                blob,
                 karin::Point(300, 50),
                 blackPattern,
                 karin::Transform2D()

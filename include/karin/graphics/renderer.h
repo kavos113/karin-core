@@ -10,8 +10,6 @@
 #include "graphics_context.h"
 #include "image.h"
 
-#include <karin/system/system_font.h>
-
 namespace karin
 {
 class IRendererImpl;
@@ -24,7 +22,7 @@ class IRendererImpl;
 class Renderer
 {
 public:
-    Renderer(Window* window, SystemFont* systemFont);
+    Renderer(Window* window);
     ~Renderer();
 
     /**

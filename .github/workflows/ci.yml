@@ -18,22 +18,22 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            cmake_options: ""
+            cmake_preset: "ubuntu-debug"
             name: "ubuntu"
             triplet: "x64-linux"
           - os: windows-latest
-            cmake_options: ""
+            cmake_preset: "windows-debug"
             name: "windows d2d"
             triplet: "x64-windows"
           - os: windows-latest
-            cmake_options: "-DWINDOWS_VULKAN=ON"
+            cmake_preset: "windows-vulkan-debug"
             name: "windows vulkan"
             vulkan_version: "1.4.321.1"
             triplet: "x64-windows"
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v5
 
       - name: Install ubuntu dependencies
         run: |
@@ -99,11 +99,11 @@ jobs:
           path: |
             ./vcpkg
             ./vcpkg_installed
-          key: ${{ runner.os }}-${{ matrix.triplet }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
+          key: ${{ runner.os }}-${{ matrix.cmake_preset }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
           restore-keys: |
             pr-${{ runner.os }}-${{ matrix.triplet }}-vcpkg-
-            main-${{ runner.os }}-${{ matrix.triplet }}-vcpkg-${ hashFiles('**/vcpkg.json') }}
-            main-${{ runner.os }}-${{ matrix.triplet }}-vcpkg-
+            main-${{ runner.os }}-${{ matrix.cmake_preset }}-vcpkg-${ hashFiles('**/vcpkg.json') }}
+            main-${{ runner.os }}-${{ matrix.cmake_preset }}-vcpkg-
 
       - name: Install with vcpkg
         run: |
@@ -118,19 +118,18 @@ jobs:
         run: |
           mkdir ${{ env.BUILD_DIR }}
           cd ${{ env.BUILD_DIR }}
-          cmake -G Ninja -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_EXPORT_COMPILE_COMMANDS=${{ env.CMAKE_EXPORT_COMPILE_COMMANDS }} \
-            -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake ${{ matrix.cmake_options }} -DVCPKG_INSTALLED_DIR=../vcpkg_installed \
-            -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..
+          cmake -G Ninja -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_INSTALLED_DIR=../vcpkg_installed \
+          -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ --preset ${{ matrix.cmake_preset }} ..
         shell: bash
 
       - name: Build
         run: |
           cd ${{ env.BUILD_DIR }}
-          cmake --build .
+          cmake --build  ${{ matrix.cmake_preset }}
         shell: bash
 
       - name: Run tests
         run: |
-          cd ${{ env.BUILD_DIR }}/test
+          cd ${{ env.BUILD_DIR }}/${{ matrix.cmake_preset }}/test
           ctest --output-on-failure
         shell: bash

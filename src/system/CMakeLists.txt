@@ -1,7 +1,6 @@
 set(SYSTEM_SOURCE
         application.cpp
         window.cpp
-        system_font.cpp
 )
 
 if (WIN32)
@@ -11,14 +10,12 @@ if (WIN32)
             windows/win_window_class_registry.cpp
             windows/win_event.cpp
             windows/win_converter.cpp
-            windows/win_system_font_impl.cpp
             windows/win_context.cpp
     )
 elseif (UNIX)
     set(SYSTEM_SOURCE ${SYSTEM_SOURCE}
             x11/x11_application_impl.cpp
             x11/x11_window_impl.cpp
-            x11/x11_system_font_impl.cpp
             x11/x11_converter.cpp
             x11/x11_context.cpp
     )
@@ -42,7 +39,4 @@ endif ()
 
 if (UNIX)
     target_link_libraries(karin_system PRIVATE X11)
-
-    find_package(Fontconfig REQUIRED)
-    target_link_libraries(karin_system PRIVATE Fontconfig::Fontconfig)
 endif ()

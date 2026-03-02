@@ -321,6 +321,8 @@ std::optional<Event> X11WindowImpl::translateX11Event(XEvent* event)
     default:
         return std::nullopt;
     }
+
+    return std::nullopt;
 }
 
 void X11WindowImpl::show()

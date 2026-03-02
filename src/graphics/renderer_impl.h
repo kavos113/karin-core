@@ -7,6 +7,8 @@
 
 #include <vector>
 
+#include "font_renderer_impl.h"
+
 namespace karin
 {
 class IRendererImpl
@@ -26,6 +28,8 @@ public:
     virtual void finishResizing() = 0;
 
     virtual Image createImage(const std::vector<std::byte>& data, uint32_t width, uint32_t height) = 0;
+
+    virtual IFontRendererImpl* fontRenderer() = 0;
 };
 } // karin
 

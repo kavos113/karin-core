@@ -1,10 +1,13 @@
-#include "x11_system_font_impl.h"
+#include "freetype_fontconfig_font_loader.h"
 
 #include <fontconfig/fontconfig.h>
 
 #include <stdexcept>
 #include <vector>
+#include <string>
 #include <fstream>
+
+#include <text/freetype/freetype_font_face.h>
 
 namespace
 {
@@ -75,77 +78,30 @@ Font::Weight toFontWeight(int weight)
 
 namespace karin
 {
-X11SystemFontImpl::X11SystemFontImpl()
+FreeTypeFontConfigFontLoader::FreeTypeFontConfigFontLoader()
 {
     if (!FcInit())
     {
-        throw std::runtime_error("Failed to initialize Fontconfig.");
+        throw std::runtime_error("Failed to initialize Fontconfig");
+    }
+
+    if (FT_Init_FreeType(&m_ftLibrary))
+    {
+        FcFini();
+        throw std::runtime_error("Failed to initialize FreeType");
     }
 }
 
-X11SystemFontImpl::~X11SystemFontImpl()
+FreeTypeFontConfigFontLoader::~FreeTypeFontConfigFontLoader()
 {
+    if (m_ftLibrary)
+    {
+        FT_Done_FreeType(m_ftLibrary);
+    }
     FcFini();
 }
 
-std::vector<Font> X11SystemFontImpl::getSystemFonts()
-{
-    std::vector<Font> fonts;
-
-    FcPattern* pat = FcPatternCreate();
-    FcObjectSet* os = FcObjectSetBuild(
-        FC_FAMILY,
-        FC_STYLE,
-        FC_SLANT,
-        FC_WEIGHT,
-        FC_WIDTH,
-        nullptr
-    );
-    FcFontSet* fs = FcFontList(nullptr, pat, os);
-
-    for (int i = 0; i < fs->nfont; ++i)
-    {
-        FcPattern* fontPat = fs->fonts[i];
-
-        char* family = nullptr;
-        if (FcPatternGetString(fontPat, FC_FAMILY, 0, reinterpret_cast<FcChar8**>(&family)) != FcResultMatch)
-        {
-            continue;
-        }
-
-        char* style = nullptr;
-        if (FcPatternGetString(fontPat, FC_STYLE, 0, reinterpret_cast<FcChar8**>(&style)) != FcResultMatch)
-        {
-            style = const_cast<char*>("Regular");
-        }
-
-        int slant = FC_SLANT_ROMAN;
-        FcPatternGetInteger(fontPat, FC_SLANT, 0, &slant);
-
-        int weight = FC_WEIGHT_NORMAL;
-        FcPatternGetInteger(fontPat, FC_WEIGHT, 0, &weight);
-
-        int width = FC_WIDTH_NORMAL;
-        FcPatternGetInteger(fontPat, FC_WIDTH, 0, &width);
-
-        fonts.push_back(
-            Font{
-                .family = std::string(family),
-                .style = toFontStyle(slant),
-                .stretch = toFontStretch(width),
-                .weight = toFontWeight(weight),
-            }
-        );
-    }
-
-    FcFontSetDestroy(fs);
-    FcObjectSetDestroy(os);
-    FcPatternDestroy(pat);
-
-    return fonts;
-}
-
-std::vector<std::byte> X11SystemFontImpl::getFontData(const Font& font)
+std::unique_ptr<IFontFace> FreeTypeFontConfigFontLoader::loadFont(const Font& font)
 {
     FcPattern* pat = FcPatternCreate();
     FcObjectSet* os = FcObjectSetBuild(
@@ -195,22 +151,18 @@ std::vector<std::byte> X11SystemFontImpl::getFontData(const Font& font)
                 continue;
             }
 
-            std::ifstream file(filePath, std::ios::binary | std::ios::ate);
-            if (!file)
+            FT_Face face;
+            FT_Error error = FT_New_Face(m_ftLibrary, filePath, 0, &face);
+            if (error)
             {
                 continue;
             }
 
-            std::streamsize size = file.tellg();
-            file.seekg(0, std::ios::beg);
-            std::vector<std::byte> buffer(size);
-            if (file.read(reinterpret_cast<char*>(buffer.data()), size))
-            {
-                FcFontSetDestroy(fs);
-                FcObjectSetDestroy(os);
-                FcPatternDestroy(pat);
-                return buffer;
-            }
+            FcFontSetDestroy(fs);
+            FcObjectSetDestroy(os);
+            FcPatternDestroy(pat);
+
+            return std::make_unique<FreetypeFontFace>(face);
         }
     }
 
@@ -219,5 +171,73 @@ std::vector<std::byte> X11SystemFontImpl::getFontData(const Font& font)
     FcPatternDestroy(pat);
 
     return {};
+}
+
+std::unique_ptr<IFontFace> FreeTypeFontConfigFontLoader::loadFontFromFile(const std::string& filePath)
+{
+    FT_Face face;
+    FT_Error error = FT_New_Face(m_ftLibrary, filePath.c_str(), 0, &face);
+    if (error)
+    {
+        return {};
+    }
+
+    return std::make_unique<FreetypeFontFace>(face);
+}
+
+std::vector<Font> FreeTypeFontConfigFontLoader::getFontLists()
+{
+    std::vector<Font> fonts;
+
+    FcPattern *pat = FcPatternCreate();
+    FcObjectSet *os = FcObjectSetBuild(
+        FC_FAMILY,
+        FC_STYLE,
+        FC_SLANT,
+        FC_WEIGHT,
+        FC_WIDTH,
+        FC_FILE,
+        nullptr
+    );
+    FcFontSet *fs = FcFontList(nullptr, pat, os);
+
+    for (int i = 0; i < fs->nfont; ++i)
+    {
+        FcPattern *fontPat = fs->fonts[i];
+
+        char *family = nullptr;
+        if (FcPatternGetString(fontPat, FC_FAMILY, 0, reinterpret_cast<FcChar8**>(&family)) != FcResultMatch)
+        {
+            continue;
+        }
+
+        char *style = nullptr;
+        if (FcPatternGetString(fontPat, FC_STYLE, 0, reinterpret_cast<FcChar8**>(&style)) != FcResultMatch)
+        {
+            continue;
+        }
+
+        int slant = FC_SLANT_ROMAN;
+        FcPatternGetInteger(fontPat, FC_SLANT, 0, &slant);
+
+        int weight = FC_WEIGHT_REGULAR;
+        FcPatternGetInteger(fontPat, FC_WEIGHT, 0, &weight);
+
+        int width = FC_WIDTH_NORMAL;
+        FcPatternGetInteger(fontPat, FC_WIDTH, 0, &width);
+
+        fonts.push_back(Font{
+            .family = std::string(family),
+            .style = toFontStyle(slant),
+            .stretch = toFontStretch(width),
+            .weight = toFontWeight(weight),
+        });
+    }
+
+    FcFontSetDestroy(fs);
+    FcObjectSetDestroy(os);
+    FcPatternDestroy(pat);
+
+    return fonts;
 }
 } // karin

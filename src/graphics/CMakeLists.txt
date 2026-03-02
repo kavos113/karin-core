@@ -6,6 +6,11 @@ set(GRAPHICS_SOURCE
         hash.cpp
         ${THIRD_PARTY_DIR}/stb_image/stb_image_impl.cpp
         ${COMMON_DIR}/geometry/transform2d.cpp
+
+        text/text_layouter.cpp
+        text/text_engine.cpp
+        text/text_engine_impl.cpp
+        text/font_loader.cpp
 )
 
 if (DIRECTX)
@@ -15,7 +20,11 @@ if (DIRECTX)
             d2d/d2d_graphics_context_impl.cpp
             d2d/d2d_device_resources.cpp
             d2d/d2d_context.cpp
+            d2d/d2d_font_renderer.cpp
+            text/windows/dwrite_font_face.cpp
+            text/windows/dwrite_font_loader.cpp
     )
+
 elseif (VULKAN)
     set(GRAPHICS_SOURCE ${GRAPHICS_SOURCE}
             vulkan/vulkan_context.cpp
@@ -27,18 +36,30 @@ elseif (VULKAN)
             vulkan/vulkan_tessellator.cpp
             vulkan/vulkan_device_resources.cpp
             vulkan/vulkan_glyph_cache.cpp
+            vulkan/vulkan_font_renderer.cpp
             vulkan/vma_impl.cpp
-            text/font_loader.cpp
-            text/font_layouter.cpp
+            text/freetype/freetype_font_face.cpp
     )
+
+    if (WIN32)
+        set(GRAPHICS_SOURCE ${GRAPHICS_SOURCE}
+                text/windows/freetype_dwrite_font_loader.cpp
+                d2d/d2d_context.cpp
+        )
+    elseif (LINUX)
+        set(GRAPHICS_SOURCE ${GRAPHICS_SOURCE}
+                text/unix/freetype_fontconfig_font_loader.cpp
+        )
+    endif ()
 endif ()
+
+# ------------ link libraries ------------
 
 add_library(karin_graphics STATIC ${GRAPHICS_SOURCE})
 target_include_directories(karin_graphics PUBLIC ${INCLUDE_DIR})
 target_include_directories(karin_graphics PRIVATE ${COMMON_DIR})
 target_include_directories(karin_graphics PRIVATE ${THIRD_PARTY_DIR})
 target_include_directories(karin_graphics PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-
 
 find_package(glm CONFIG REQUIRED)
 target_link_libraries(karin_graphics PRIVATE glm::glm)
@@ -47,6 +68,9 @@ if (DIRECTX)
     target_link_libraries(karin_graphics PRIVATE dxgi.lib)
     target_link_libraries(karin_graphics PRIVATE d3d11.lib)
     target_link_libraries(karin_graphics PRIVATE dwrite.lib)
+
+    find_package(harfbuzz CONFIG REQUIRED)
+    target_link_libraries(karin_graphics PRIVATE harfbuzz::harfbuzz)
 
     target_compile_definitions(karin_graphics PUBLIC KARIN_PLATFORM_DIRECTX)
     target_compile_definitions(karin_graphics PUBLIC UNICODE)
@@ -81,6 +105,16 @@ elseif (VULKAN)
     )
 
     add_dependencies(karin_graphics shaders_graphics)
+
+    if (WIN32)
+        target_link_libraries(karin_graphics PRIVATE d2d1.lib)
+        target_link_libraries(karin_graphics PRIVATE dxgi.lib)
+        target_link_libraries(karin_graphics PRIVATE d3d11.lib)
+        target_link_libraries(karin_graphics PRIVATE dwrite.lib)
+    elseif (LINUX)
+        find_package(Fontconfig REQUIRED)
+        target_link_libraries(karin_graphics PRIVATE Fontconfig::Fontconfig)
+    endif ()
 
     find_package(Vulkan REQUIRED)
     target_link_libraries(karin_graphics PRIVATE Vulkan::Vulkan)

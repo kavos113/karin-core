@@ -309,34 +309,4 @@ void D2DGraphicsContextImpl::drawImage(
 
     m_deviceContext->SetTransform(oldTransform);
 }
-
-void D2DGraphicsContextImpl::drawText(const TextLayout& text, Point start, Pattern& pattern, const Transform2D& transform)
-{
-    D2D1_MATRIX_3X2_F oldTransform;
-    m_deviceContext->GetTransform(&oldTransform);
-
-    D2D1_MATRIX_3X2_F transitionMatrix = D2D1::Matrix3x2F::Translation(start.x + text.size.width / 2, start.y + text.size.height / 2);
-    m_deviceContext->SetTransform(toD2DMatrix(transform) * transitionMatrix * oldTransform);
-
-    auto textLayout = m_deviceResources->textLayout(text);
-    if (!textLayout)
-    {
-        throw std::runtime_error("Failed to get text layout");
-    }
-
-    auto brush = m_deviceResources->brush(pattern);
-    if (!brush)
-    {
-        throw std::runtime_error("Failed to get brush for pattern");
-    }
-
-    m_deviceContext->DrawTextLayout(
-        D2D1::Point2F(-text.size.width / 2.0f, -text.size.height / 2.0f),
-        textLayout.Get(),
-        brush.Get(),
-        D2D1_DRAW_TEXT_OPTIONS_NONE
-    );
-
-    m_deviceContext->SetTransform(oldTransform);
-}
 } // karin

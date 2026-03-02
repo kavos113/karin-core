@@ -5,7 +5,7 @@
 #include "d2d_consts.h"
 #include "d2d_context.h"
 
-#include <d2d/dwrite_converter.h>
+#include <text/windows/dwrite_converter.h>
 
 #include <wincodec.h>
 

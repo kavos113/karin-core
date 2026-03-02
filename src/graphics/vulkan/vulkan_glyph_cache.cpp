@@ -2,8 +2,6 @@
 
 #include <utils/hash.h>
 
-#include <ft2build.h>
-#include FT_FREETYPE_H
 #include <stdexcept>
 #include <cmath>
 #include <cstring>

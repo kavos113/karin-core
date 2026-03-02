@@ -1,10 +1,10 @@
-#ifndef SRC_COMMON_D2D_DWRITE_CONVERTER_H
-#define SRC_COMMON_D2D_DWRITE_CONVERTER_H
-
-#include <karin/system/font.h>
+#ifndef SRC_GRAPHICS_TEXT_WINDOWS_DWRITE_CONVERTER_H
+#define SRC_GRAPHICS_TEXT_WINDOWS_DWRITE_CONVERTER_H
 
 #include <dwrite.h>
 #include <stdexcept>
+
+#include <karin/system/font.h>
 
 namespace karin
 {
@@ -83,32 +83,50 @@ inline DWRITE_FONT_STRETCH toDWriteFontStretch(Font::Stretch stretch)
 
 inline Font::Weight fromDWriteFontWeight(DWRITE_FONT_WEIGHT weight)
 {
-    switch (weight)
+    uint32_t w = static_cast<uint32_t>(weight);
+    if (w <= 150)
     {
-    case DWRITE_FONT_WEIGHT_THIN:
         return Font::Weight::THIN;
-    case DWRITE_FONT_WEIGHT_EXTRA_LIGHT:
+    }
+    else if (w <= 250)
+    {
         return Font::Weight::EXTRA_LIGHT;
-    case DWRITE_FONT_WEIGHT_LIGHT:
+    }
+    else if (w <= 325)
+    {
         return Font::Weight::LIGHT;
-    case DWRITE_FONT_WEIGHT_SEMI_LIGHT:
+    }
+    else if (w <= 375)
+    {
         return Font::Weight::SEMI_LIGHT;
-    case DWRITE_FONT_WEIGHT_NORMAL:
+    }
+    else if (w <= 450)
+    {
         return Font::Weight::NORMAL;
-    case DWRITE_FONT_WEIGHT_MEDIUM:
+    }
+    else if (w <= 550)
+    {
         return Font::Weight::MEDIUM;
-    case DWRITE_FONT_WEIGHT_SEMI_BOLD:
+    }
+    else if (w <= 650)
+    {
         return Font::Weight::SEMI_BOLD;
-    case DWRITE_FONT_WEIGHT_BOLD:
+    }
+    else if (w <= 750)
+    {
         return Font::Weight::BOLD;
-    case DWRITE_FONT_WEIGHT_EXTRA_BOLD:
+    }
+    else if (w <= 850)
+    {
         return Font::Weight::EXTRA_BOLD;
-    case DWRITE_FONT_WEIGHT_BLACK:
+    }
+    else if (w <= 925)
+    {
         return Font::Weight::BLACK;
-    case DWRITE_FONT_WEIGHT_EXTRA_BLACK:
+    }
+    else
+    {
         return Font::Weight::EXTRA_BLACK;
-    default:
-        throw std::invalid_argument("Unknown DWRITE font weight");
     }
 }
 
@@ -155,4 +173,4 @@ inline Font::Stretch fromDWriteFontStretch(DWRITE_FONT_STRETCH stretch)
 }
 }
 
-#endif //SRC_COMMON_D2D_DWRITE_CONVERTER_H
+#endif //SRC_GRAPHICS_TEXT_WINDOWS_DWRITE_CONVERTER_H

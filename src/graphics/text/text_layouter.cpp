@@ -1,13 +1,14 @@
-#include "font_layouter.h"
+#include "text_layouter.h"
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include <harfbuzz/hb.h>
-#include <harfbuzz/hb-ft.h>
 
 #include <ranges>
 #include <string>
 #include <vector>
+
+#include "harfbuzz_provider.h"
 
 namespace
 {
@@ -44,7 +45,7 @@ float calculateLineHeight(
     case TextFormat::LineSpacingMode::UNIFORM:
         return lineSpacing;
     default:
-        return metricsHeight * 64.0f;
+        return metricsHeight;
     }
 }
 
@@ -62,7 +63,7 @@ float calculateBaseLine(
     case TextFormat::LineSpacingMode::UNIFORM:
         return baseline;
     default:
-        return metricsHeight * 64.0f;
+        return metricsHeight;
     }
 }
 
@@ -98,6 +99,9 @@ uint32_t getCodepoint(const std::string& text, size_t index)
     return 0;
 }
 
+// TODO: breakable has two pattern:
+// 1. spaces: don't rendered at first of new line
+// 2. CJK characters: need to be rendered at first of new line
 bool isBreakable(uint32_t codepoint)
 {
     if (codepoint <= 0x00FF)
@@ -113,17 +117,11 @@ bool isBreakable(uint32_t codepoint)
     }
     return false;
 }
-
-struct Metrics
-{
-    FontLoader::FontMetrics metrics;
-    uint32_t glyphIndex;
-};
 }
 
 namespace karin
 {
-std::vector<FontLayouter::GlyphPosition> FontLayouter::layout(const TextLayout &layout, FT_Face face) const
+std::vector<GlyphPosition> TextLayouter::layout(const TextLayout &layout, IFontFace *face)
 {
     std::vector<std::string> lines = std::views::split(layout.text, '\n')
         | std::views::transform(
@@ -134,7 +132,15 @@ std::vector<FontLayouter::GlyphPosition> FontLayouter::layout(const TextLayout &
         )
         | std::ranges::to<std::vector<std::string>>();
 
-    hb_font_t* hbFont = hb_ft_font_create(face, nullptr);
+    auto hbProvider = dynamic_cast<IHarfBuzzProvider*>(face);
+    if (!hbProvider)
+    {
+        throw std::runtime_error("FontFace must implement IHarfBuzzProvider");
+    }
+
+    hb_font_t* hbFont = hbProvider->getHbFont();
+
+    FontMetrics fontMetrics = face->getFontMetrics();
     std::vector<GlyphPosition> glyphs;
 
     float initPenX = 0;
@@ -142,15 +148,16 @@ std::vector<FontLayouter::GlyphPosition> FontLayouter::layout(const TextLayout &
         layout.format.lineSpacing,
         layout.format.lineSpacingMode,
         layout.format.size,
-        static_cast<float>(face->size->metrics.height)
+        fontMetrics.capHeight
     );
     float penY = calculateBaseLine(
         layout.format.baseline,
         layout.format.lineSpacingMode,
         layout.format.size,
-        static_cast<float>(face->size->metrics.height)
+        fontMetrics.capHeight
     );
     float penX = 0;
+    float scale = layout.format.size / fontMetrics.unitsPerEm;
 
     for (const auto& line : lines)
     {
@@ -165,13 +172,20 @@ std::vector<FontLayouter::GlyphPosition> FontLayouter::layout(const TextLayout &
         hb_glyph_info_t* glyphInfo = hb_buffer_get_glyph_infos(hbBuffer, &glyphCount);
         hb_glyph_position_t* glyphPos = hb_buffer_get_glyph_positions(hbBuffer, &glyphCount);
 
-        std::vector<Metrics> metricsList;
+        std::vector<GlyphMetrics> metricsList;
         metricsList.reserve(glyphCount);
         for (uint32_t i = 0; i < glyphCount; i++)
         {
             FT_UInt glyphIndex = glyphInfo[i].codepoint;
-            auto metrics = m_fontLoader->glyphMetrics(layout.format.font, static_cast<uint32_t>(layout.format.size), glyphIndex);
-            metricsList.emplace_back(metrics, glyphIndex);
+
+            auto metrics = face->getGlyphMetrics(glyphIndex);
+            metrics.advanceX = metrics.advanceX * scale;
+            metrics.bearingX = metrics.bearingX * scale;
+            metrics.bearingY = metrics.bearingY * scale;
+            metrics.width = metrics.width * scale;
+            metrics.height = metrics.height * scale;
+
+            metricsList.push_back(metrics);
         }
 
         uint32_t lastSpaceIndex = 0;
@@ -182,18 +196,16 @@ std::vector<FontLayouter::GlyphPosition> FontLayouter::layout(const TextLayout &
                 lastSpaceIndex = i;
             }
 
-            Rectangle position = {
-                penX + metricsList[i].metrics.bearingX,
-                penY - metricsList[i].metrics.bearingY,
-                metricsList[i].metrics.width,
-                metricsList[i].metrics.height
+            Point position = {
+                penX + metricsList[i].bearingX,
+                penY,
             };
 
             glyphs.push_back(GlyphPosition{
                 .position = position,
                 .glyphIndex = metricsList[i].glyphIndex,
             });
-            penX += static_cast<float>(glyphPos[i].x_advance) / 64.0f;
+            penX += static_cast<float>(glyphPos[i].x_advance) * scale;
 
             if (layout.size.width > 0 && penX > layout.size.width)
             {
@@ -226,12 +238,12 @@ std::vector<FontLayouter::GlyphPosition> FontLayouter::layout(const TextLayout &
                 {
                     penX = initPenX;
                     penY += lineHeight;
-                    for (uint32_t j = i; j > lastSpaceIndex; j--)
+                    for (uint32_t j = i; j >= lastSpaceIndex; j--)
                     {
                         glyphs.pop_back();
                     }
-                    glyphs.pop_back();
-                    i = lastSpaceIndex;
+                    // TODO: change depend on breakable character type. Now: all rendered at first of new line.
+                    i = lastSpaceIndex - 1;
                     lastSpaceIndex = 0;
                 }
             }
@@ -242,8 +254,6 @@ std::vector<FontLayouter::GlyphPosition> FontLayouter::layout(const TextLayout &
         penX = initPenX;
         penY += lineHeight;
     }
-
-    hb_font_destroy(hbFont);
 
     return glyphs;
 }

@@ -2,12 +2,13 @@
 #define SRC_GRAPHICS_GRAPHICS_VULKAN_VK_RENDERER_IMPL_H
 
 #include "vulkan_device_resources.h"
-#include "vulkan_context.h"
 #include "vulkan_pipeline.h"
 #include "vulkan_surface.h"
+#include "vulkan_font_renderer.h"
 #include "shaders/push_constants.h"
 
 #include <renderer_impl.h>
+#include <font_renderer_impl.h>
 #include <karin/common/geometry/rectangle.h>
 #include <karin/graphics/pattern.h>
 #include <karin/system/window.h>
@@ -37,8 +38,7 @@ public:
     };
 
     VulkanRendererImpl(
-        Window::NativeHandle nativeHandle,
-        std::unique_ptr<FontLoader> fontLoader
+        Window::NativeHandle nativeHandle
     );
     ~VulkanRendererImpl() override = default;
 
@@ -86,6 +86,11 @@ public:
         return m_deviceResources.get();
     }
 
+    IFontRendererImpl* fontRenderer() override
+    {
+        return m_fontRenderer.get();
+    }
+
 private:
     struct DrawCommand
     {
@@ -116,6 +121,7 @@ private:
     std::unique_ptr<VulkanSurface> m_surface;
     std::unordered_map<PipelineType, std::unique_ptr<VulkanPipeline>> m_pipelines;
     std::unique_ptr<VulkanDeviceResources> m_deviceResources;
+    std::unique_ptr<VulkanFontRenderer> m_fontRenderer;
 
     std::vector<DrawCommand> m_drawCommands;
 

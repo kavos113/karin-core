@@ -49,7 +49,6 @@ public:
     void drawImage(
         Image image, Rectangle destRect, Rectangle srcRect, float opacity, const Transform2D& transform
     ) override;
-    void drawText(const TextLayout& text, Point start, Pattern& pattern, const Transform2D& transform) override;
 
 private:
     VulkanRendererImpl* m_renderer;
