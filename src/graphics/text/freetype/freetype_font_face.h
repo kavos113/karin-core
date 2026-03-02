@@ -1,7 +1,7 @@
 #ifndef SRC_GRAPHICS_TEXT_FREETYPE_FREETYPE_FONT_FACE_H
 #define SRC_GRAPHICS_TEXT_FREETYPE_FREETYPE_FONT_FACE_H
 
-#include <harfbuzz_provider.h>
+#include <text/harfbuzz_provider.h>
 #include <karin/graphics/font_face.h>
 
 #include <hb.h>
