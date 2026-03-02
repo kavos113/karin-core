@@ -121,16 +121,10 @@ jobs:
           cmake -G Ninja -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_INSTALLED_DIR=../vcpkg_installed --preset ${{ matrix.cmake_preset }} ..
         shell: bash
 
-      - name: check
-        run: |
-          cd ${{ env.BUILD_DIR }}
-          ls -la
-        shell: bash
-
       - name: Build
         run: |
           cd ${{ env.BUILD_DIR }}
-          cmake --build .
+          cmake --build  ${{ matrix.cmake_preset }}
         shell: bash
 
       - name: Run tests
