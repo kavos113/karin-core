@@ -7,7 +7,7 @@
 #include <string>
 #include <fstream>
 
-#include <freetype/freetype_font_face.h>
+#include <text/freetype/freetype_font_face.h>
 
 namespace
 {

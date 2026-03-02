@@ -122,13 +122,6 @@ GlyphMetrics FreetypeFontFace::getGlyphMetrics(uint32_t glyphIndex) const
         return GlyphMetrics{glyphIndex, 0, 0, 0, 0, 0};
     }
 
-    error = FT_Render_Glyph(m_face->glyph, FT_RENDER_MODE_NORMAL);
-    if (error)
-    {
-        std::cerr << "Failed to render glyph index " << glyphIndex << ": " << error << std::endl;
-        return GlyphMetrics{glyphIndex, 0, 0, 0, 0, 0};
-    }
-
     FT_Glyph_Metrics metrics = m_face->glyph->metrics;
     return GlyphMetrics{
         .glyphIndex = glyphIndex,

@@ -44,6 +44,7 @@ elseif (VULKAN)
     if (WIN32)
         set(GRAPHICS_SOURCE ${GRAPHICS_SOURCE}
                 text/windows/freetype_dwrite_font_loader.cpp
+                d2d/d2d_context.cpp
         )
     elseif (LINUX)
         set(GRAPHICS_SOURCE ${GRAPHICS_SOURCE}
@@ -85,6 +86,11 @@ elseif (VULKAN)
         if (NOT BASH_EXECUTABLE)
             message(FATAL_ERROR "git bash has not found.")
         endif ()
+
+        target_link_libraries(karin_graphics PRIVATE d2d1.lib)
+        target_link_libraries(karin_graphics PRIVATE dxgi.lib)
+        target_link_libraries(karin_graphics PRIVATE d3d11.lib)
+        target_link_libraries(karin_graphics PRIVATE dwrite.lib)
     endif ()
 
     add_custom_command(

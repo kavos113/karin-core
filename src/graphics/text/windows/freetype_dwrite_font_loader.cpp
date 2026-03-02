@@ -7,7 +7,7 @@
 
 #include <utils/string.h>
 #include <d2d/d2d_context.h>
-#include <freetype/freetype_font_face.h>
+#include <text/freetype/freetype_font_face.h>
 
 #include "dwrite_converter.h"
 

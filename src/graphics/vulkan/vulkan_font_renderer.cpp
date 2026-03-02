@@ -5,7 +5,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "freetype/freetype_font_face.h"
+#include "text/freetype/freetype_font_face.h"
 #include "vulkan_pipeline.h"
 #include "vulkan_renderer_impl.h"
 
