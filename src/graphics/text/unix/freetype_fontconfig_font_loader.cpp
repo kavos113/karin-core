@@ -158,6 +158,10 @@ std::unique_ptr<IFontFace> FreeTypeFontConfigFontLoader::loadFont(const Font& fo
                 continue;
             }
 
+            FcFontSetDestroy(fs);
+            FcObjectSetDestroy(os);
+            FcPatternDestroy(pat);
+
             return std::make_unique<FreetypeFontFace>(face);
         }
     }

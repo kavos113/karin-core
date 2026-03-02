@@ -27,6 +27,8 @@ FreetypeFontFace::~FreetypeFontFace()
     {
         hb_font_destroy(m_fbFont);
     }
+
+    FT_Done_Face(m_face);
 }
 
 hb_font_t* FreetypeFontFace::getHbFont() const
