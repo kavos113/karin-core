@@ -118,7 +118,7 @@ jobs:
         run: |
           mkdir ${{ env.BUILD_DIR }}
           cd ${{ env.BUILD_DIR }}
-          cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_INSTALLED_DIR=../vcpkg_installed --preset ${{ matrix.cmake_preset }} ..
+          cmake -G Ninja -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_INSTALLED_DIR=../vcpkg_installed --preset ${{ matrix.cmake_preset }} ..
         shell: bash
 
       - name: Build
