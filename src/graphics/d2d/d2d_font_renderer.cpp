@@ -1,6 +1,6 @@
 #include "d2d_font_renderer.h"
 
-#include "windows/dwrite_font_face.h"
+#include "text/windows/dwrite_font_face.h"
 #include <d2d/matrix_converter.h>
 
 namespace karin
