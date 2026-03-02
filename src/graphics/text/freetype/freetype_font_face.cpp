@@ -16,6 +16,8 @@ FreetypeFontFace::FreetypeFontFace(FT_Face face)
     hb_ot_font_set_funcs(m_fbFont);
     hb_font_set_scale(m_fbFont, face->units_per_EM, face->units_per_EM);
 
+    hb_face_destroy(hbFace);
+
     m_face = face;
 }
 

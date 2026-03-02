@@ -16,6 +16,9 @@ public:
     FreetypeFontFace(FT_Face face);
     ~FreetypeFontFace() override;
 
+    FreetypeFontFace(const FreetypeFontFace&) = delete;
+    FreetypeFontFace& operator=(const FreetypeFontFace&) = delete;
+
     hb_font_t* getHbFont() const override;
     FontMetrics getFontMetrics() const override;
     GlyphMetrics getGlyphMetrics(uint32_t glyphIndex) const override;
