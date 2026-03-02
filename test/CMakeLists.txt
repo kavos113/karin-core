@@ -16,7 +16,7 @@ set(TEST_DEPEND_SRCS
         ${SOURCE_DIR}/common/geometry/transform2d.cpp
 )
 
-if (WIN32)
+if (WIN32 AND VULKAN AND DIRECTX)
     set(TEST_SRCS ${TEST_SRCS}
         graphics/text/fontface_platform_test.cpp
     )
@@ -42,7 +42,6 @@ FetchContent_MakeAvailable(googletest)
 enable_testing()
 
 add_executable(karin_test ${TEST_SRCS} ${TEST_DEPEND_SRCS})
-add_dependencies(karin_test)
 target_link_libraries(karin_test
     PRIVATE
         GTest::gtest_main
