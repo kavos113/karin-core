@@ -9,7 +9,7 @@ int main()
     karin::Application& app = karin::Application::instance();
     karin::Window window = app.createWindow(L"Hello Graphics", 100, 100, 800, 600);
 
-    karin::Renderer renderer(&window, app.systemFont());
+    karin::Renderer renderer(&window);
 
     karin::Pattern pattern = karin::RadialGradientPattern{
         .center = karin::Point(400, 300),
