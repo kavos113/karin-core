@@ -1,6 +1,7 @@
 #include "d2d_font_renderer.h"
 
 #include "windows/dwrite_font_face.h"
+#include <d2d/matrix_converter.h>
 
 namespace karin
 {
@@ -17,6 +18,12 @@ D2DFontRenderer::~D2DFontRenderer() = default;
 
 void D2DFontRenderer::drawText(const TextBlob& text, Point start, Pattern& pattern, const Transform2D& transform) const
 {
+    D2D1_MATRIX_3X2_F oldTransform;
+    m_deviceContext->GetTransform(&oldTransform);
+
+    D2D1_MATRIX_3X2_F transitionMatrix = D2D1::Matrix3x2F::Translation(start.x + text.layoutSize.width / 2, start.y + text.layoutSize.height / 2);
+    m_deviceContext->SetTransform(toD2DMatrix(transform) * transitionMatrix * oldTransform);
+
     auto dwriteFace = dynamic_cast<DwriteFontFace*>(text.fontFace.get());
     if (!dwriteFace)
     {
@@ -54,5 +61,7 @@ void D2DFontRenderer::drawText(const TextBlob& text, Point start, Pattern& patte
         m_deviceResources->brush(pattern).Get(),
         DWRITE_MEASURING_MODE_NATURAL
     );
+
+    m_deviceContext->SetTransform(oldTransform);
 }
 } // karin

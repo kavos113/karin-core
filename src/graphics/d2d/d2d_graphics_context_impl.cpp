@@ -6,9 +6,6 @@
 #include <stdexcept>
 #include <d2d/matrix_converter.h>
 
-#include "karin/graphics/text_blob.h"
-#include "windows/dwrite_font_face.h"
-
 namespace karin
 {
 D2DGraphicsContextImpl::D2DGraphicsContextImpl(
