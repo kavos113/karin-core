@@ -86,11 +86,6 @@ elseif (VULKAN)
         if (NOT BASH_EXECUTABLE)
             message(FATAL_ERROR "git bash has not found.")
         endif ()
-
-        target_link_libraries(karin_graphics PRIVATE d2d1.lib)
-        target_link_libraries(karin_graphics PRIVATE dxgi.lib)
-        target_link_libraries(karin_graphics PRIVATE d3d11.lib)
-        target_link_libraries(karin_graphics PRIVATE dwrite.lib)
     endif ()
 
     add_custom_command(
@@ -110,6 +105,16 @@ elseif (VULKAN)
     )
 
     add_dependencies(karin_graphics shaders_graphics)
+
+    if (WIN32)
+        target_link_libraries(karin_graphics PRIVATE d2d1.lib)
+        target_link_libraries(karin_graphics PRIVATE dxgi.lib)
+        target_link_libraries(karin_graphics PRIVATE d3d11.lib)
+        target_link_libraries(karin_graphics PRIVATE dwrite.lib)
+    elseif (LINUX)
+        find_package(Fontconfig REQUIRED)
+        target_link_libraries(karin_graphics PRIVATE Fontconfig::Fontconfig)
+    endif ()
 
     find_package(Vulkan REQUIRED)
     target_link_libraries(karin_graphics PRIVATE Vulkan::Vulkan)
