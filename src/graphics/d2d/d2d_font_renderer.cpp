@@ -56,7 +56,7 @@ void D2DFontRenderer::drawText(const TextBlob& text, Point start, Pattern& patte
     };
 
     m_deviceContext->DrawGlyphRun(
-        D2D1::Point2F(start.x, start.y),
+        D2D1::Point2F(-text.layoutSize.width / 2, -text.layoutSize.height / 2),
         &glyphRun,
         m_deviceResources->brush(pattern).Get(),
         DWRITE_MEASURING_MODE_NATURAL
