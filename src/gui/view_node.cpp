@@ -25,4 +25,19 @@ void ViewNode::addChild(std::unique_ptr<ViewNode> child)
 
     m_children.push_back(std::move(child));
 }
+
+void ViewNode::calculateLayout() const
+{
+    YGNodeCalculateLayout(m_yogaNode, YGUndefined, YGUndefined, YGDirectionLTR);
+}
+
+Rectangle ViewNode::getLayout() const
+{
+    return {
+        YGNodeLayoutGetLeft(m_yogaNode),
+        YGNodeLayoutGetTop(m_yogaNode),
+        YGNodeLayoutGetWidth(m_yogaNode),
+        YGNodeLayoutGetHeight(m_yogaNode)
+    };
+}
 } // karin

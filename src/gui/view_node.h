@@ -2,6 +2,7 @@
 #define SRC_GUI_VIEW_NODE_H
 
 #include <karin/common/geometry/size.h>
+#include <karin/common/geometry/rectangle.h>
 
 #include <yoga/Yoga.h>
 #include <vector>
@@ -19,6 +20,8 @@ public:
     virtual void draw() const = 0;
 
     void addChild(std::unique_ptr<ViewNode> child);
+    void calculateLayout() const;
+    Rectangle getLayout() const;
 
 private:
     YGNodeRef m_yogaNode;
