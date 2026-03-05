@@ -7,7 +7,7 @@
 #include <vector>
 #include <memory>
 
-namespace karin
+namespace karin::gui
 {
 class ViewNode
 {

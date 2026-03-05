@@ -1,6 +1,6 @@
 #include "view_node.h"
 
-namespace karin
+namespace karin::gui
 {
 ViewNode::ViewNode()
 {
