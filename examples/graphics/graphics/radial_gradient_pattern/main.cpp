@@ -7,9 +7,9 @@
 int main()
 {
     karin::Application& app = karin::Application::instance();
-    karin::Window window = app.createWindow(L"Hello Graphics", 100, 100, 800, 600);
+    std::unique_ptr<karin::Window> window = app.createWindow(L"Hello Graphics", 100, 100, 800, 600);
 
-    karin::Renderer renderer(&window);
+    karin::Renderer renderer(window.get());
 
     karin::Pattern pattern = karin::RadialGradientPattern{
         .center = karin::Point(400, 300),
@@ -35,7 +35,7 @@ int main()
 
     renderer.update();
 
-    window.setStatus(karin::Window::ShowStatus::SHOW);
+    window->setStatus(karin::Window::ShowStatus::SHOW);
 
     karin::Event event;
     while (app.waitEvent(event)) {}
