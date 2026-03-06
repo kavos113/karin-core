@@ -7,13 +7,20 @@
 #include "view_node.h"
 
 #include <memory>
+#include <string>
 
 namespace karin::gui
 {
 class Window
 {
 public:
-    Window();
+    Window(
+        const std::wstring& title,
+        int x,
+        int y,
+        int width,
+        int height
+    );
     ~Window() = default;
 
     void run();

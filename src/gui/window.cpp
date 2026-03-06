@@ -5,10 +5,10 @@
 
 namespace karin::gui
 {
-Window::Window()
+Window::Window(const std::wstring& title, int x, int y, int width, int height)
 {
     Application& app = Application::instance();
-    m_window = app.createWindow(L"Karin GUI Window", 100, 100, 800, 600);
+    m_window = app.createWindow(title, x, y, width, height);
 
     m_renderer = std::make_unique<Renderer>(m_window.get());
     m_renderer->setClearColor(Color(Color::White));
