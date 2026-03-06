@@ -22,8 +22,8 @@ public:
 private:
     std::unique_ptr<ViewNode> m_rootView;
 
-    karin::Window m_window;
-    Renderer m_renderer;
+    std::unique_ptr<karin::Window> m_window;
+    std::unique_ptr<Renderer> m_renderer;
 };
 } // karin::gui
 

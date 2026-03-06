@@ -26,6 +26,8 @@ public:
 
 private:
     YGNodeRef m_yogaNode;
+
+protected:
     std::vector<std::unique_ptr<ViewNode>> m_children;
 };
 } // karin
