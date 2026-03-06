@@ -8,7 +8,7 @@ namespace karin::gui
 class RectangleNode : public ViewNode
 {
 public:
-    RectangleNode(Size size, karin::Color color) : ViewNode(size), m_color(color) {}
+    RectangleNode(Size size, Color color) : ViewNode(size), m_color(color) {}
     ~RectangleNode() override = default;
 
     void draw(GraphicsContext& gc) const override;
