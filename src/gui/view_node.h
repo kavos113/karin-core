@@ -18,7 +18,7 @@ public:
     explicit ViewNode(Size size);
     virtual ~ViewNode();
 
-    virtual void draw(GraphicsContext& gc) const = 0;
+    virtual void draw(GraphicsContext& gc, const Transform2D& parentTransform) const = 0;
 
     void addChild(std::unique_ptr<ViewNode> child);
     void calculateLayout() const;

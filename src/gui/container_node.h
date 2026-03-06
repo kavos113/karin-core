@@ -12,7 +12,7 @@ public:
     explicit ContainerNode(Size size) : ViewNode(size) {}
     ~ContainerNode() override = default;
 
-    void draw(GraphicsContext& gc) const override;
+    void draw(GraphicsContext& gc, const Transform2D& parentTransform) const override;
 };
 } // karin::gui
 

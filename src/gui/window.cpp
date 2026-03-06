@@ -17,11 +17,14 @@ Window::Window(const std::wstring& title, int x, int y, int width, int height)
 void Window::run()
 {
     m_rootView->calculateLayout();
+    Rectangle layout = m_rootView->getLayout();
+    Transform2D transform;
+    transform.translate(layout.pos.x, layout.pos.y);
 
     m_renderer->addDrawCommand(
-        [this](GraphicsContext& gc)
+        [this, &transform](GraphicsContext& gc)
         {            // For debugging
-            m_rootView->draw(gc);
+            m_rootView->draw(gc, transform);
         }
     );
 
