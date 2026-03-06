@@ -17,9 +17,9 @@ bool Application::waitEvent(Event &event) const
     return m_impl->waitEvent(event);
 }
 
-Window Application::createWindow(const std::wstring& title, int x, int y, int width, int height)
+std::unique_ptr<Window> Application::createWindow(const std::wstring& title, int x, int y, int width, int height)
 {
-    return Window(
+    return std::make_unique<Window>(
         m_impl.get(),
         title,
         x,
@@ -29,9 +29,9 @@ Window Application::createWindow(const std::wstring& title, int x, int y, int wi
     );
 }
 
-Window Application::createWindow(const std::wstring& title, Rectangle rect)
+std::unique_ptr<Window> Application::createWindow(const std::wstring& title, Rectangle rect)
 {
-    return Window(
+    return std::make_unique<Window>(
         m_impl.get(),
         title,
         rect

@@ -13,3 +13,5 @@ add_subdirectory(graphics/graphics/draw_image)
 add_subdirectory(graphics/graphics/draw_text)
 add_subdirectory(graphics/graphics/draw_text_japanese)
 add_subdirectory(graphics/graphics/transform)
+
+add_subdirectory(gui/hello_layout)
