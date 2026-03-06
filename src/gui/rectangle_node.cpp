@@ -7,6 +7,6 @@ void RectangleNode::draw(GraphicsContext& gc) const
     Rectangle layout = getLayout();
     Pattern pattern = SolidColorPattern(m_color);
 
-    gc.drawRect(layout, pattern);
+    gc.fillRect(layout, pattern);
 }
 } // karin::gui
