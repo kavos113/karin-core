@@ -3,6 +3,7 @@
 
 #include <karin/common/geometry/size.h>
 #include <karin/common/geometry/rectangle.h>
+#include <karin/graphics/graphics_context.h>
 
 #include <yoga/Yoga.h>
 #include <vector>
@@ -17,7 +18,7 @@ public:
     explicit ViewNode(Size size);
     virtual ~ViewNode();
 
-    virtual void draw() const = 0;
+    virtual void draw(GraphicsContext& gc) const = 0;
 
     void addChild(std::unique_ptr<ViewNode> child);
     void calculateLayout() const;

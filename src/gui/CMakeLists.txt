@@ -1,5 +1,6 @@
 set(GUI_SOURCES
         view_node.cpp
+        window.cpp
 )
 
 add_library(karin_gui STATIC ${GUI_SOURCES})

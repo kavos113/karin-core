@@ -32,6 +32,17 @@ Window::Window(IApplicationImpl* applicationImpl, const std::wstring& title, Rec
 {
 }
 
+Window::Window(const Window& other)
+{
+    m_rect = other.m_rect;
+    m_showStatus = other.m_showStatus;
+    m_impl = std::move(other.m_impl);
+}
+
+Window& Window::operator=(const Window& other)
+{
+}
+
 Window::~Window() = default;
 
 void Window::setStatus(ShowStatus status)

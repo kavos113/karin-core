@@ -48,6 +48,8 @@ public:
         const std::wstring &title,
         Rectangle rect = Rectangle(0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT)
     );
+    Window(const Window& other);
+    Window& operator=(const Window& other);
     ~Window();
 
     void setStatus(ShowStatus status);
