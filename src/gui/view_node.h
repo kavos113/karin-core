@@ -20,15 +20,17 @@ public:
 
     virtual void draw(GraphicsContext& gc, const Transform2D& parentTransform) const = 0;
 
-    void addChild(std::unique_ptr<ViewNode> child);
     void calculateLayout() const;
     Rectangle getLayout() const;
 
-private:
-    YGNodeRef m_yogaNode;
+    void setSize(Size size);
+    void setWidth(float width);
+    void setHeight(float height);
+
+    YGNodeRef getYogaNode() const;
 
 protected:
-    std::vector<std::unique_ptr<ViewNode>> m_children;
+    YGNodeRef m_yogaNode;
 };
 } // karin
 

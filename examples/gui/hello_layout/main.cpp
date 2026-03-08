@@ -21,6 +21,9 @@ int main()
     rootView->addChild(std::move(greenRect));
     rootView->addChild(std::move(blueRect));
 
+    rootView->setLayoutDirection(karin::gui::ContainerNode::LayoutDirection::Row);
+    rootView->setGap(10.0f);
+
     window.setRootView(std::move(rootView));
     window.run();
 }

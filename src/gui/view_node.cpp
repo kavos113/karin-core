@@ -19,13 +19,6 @@ ViewNode::~ViewNode()
     YGNodeFree(m_yogaNode);
 }
 
-void ViewNode::addChild(std::unique_ptr<ViewNode> child)
-{
-    YGNodeInsertChild(m_yogaNode, child->m_yogaNode, YGNodeGetChildCount(m_yogaNode));
-
-    m_children.push_back(std::move(child));
-}
-
 void ViewNode::calculateLayout() const
 {
     YGNodeCalculateLayout(m_yogaNode, YGUndefined, YGUndefined, YGDirectionLTR);
@@ -39,5 +32,26 @@ Rectangle ViewNode::getLayout() const
         YGNodeLayoutGetWidth(m_yogaNode),
         YGNodeLayoutGetHeight(m_yogaNode)
     };
+}
+
+void ViewNode::setSize(Size size)
+{
+    YGNodeStyleSetWidth(m_yogaNode, size.width);
+    YGNodeStyleSetHeight(m_yogaNode, size.height);
+}
+
+void ViewNode::setWidth(float width)
+{
+    YGNodeStyleSetWidth(m_yogaNode, width);
+}
+
+void ViewNode::setHeight(float height)
+{
+    YGNodeStyleSetHeight(m_yogaNode, height);
+}
+
+YGNodeRef ViewNode::getYogaNode() const
+{
+    return m_yogaNode;
 }
 } // karin
