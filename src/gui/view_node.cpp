@@ -33,4 +33,25 @@ Rectangle ViewNode::getLayout() const
         YGNodeLayoutGetHeight(m_yogaNode)
     };
 }
+
+void ViewNode::setSize(Size size)
+{
+    YGNodeStyleSetWidth(m_yogaNode, size.width);
+    YGNodeStyleSetHeight(m_yogaNode, size.height);
+}
+
+void ViewNode::setWidth(float width)
+{
+    YGNodeStyleSetWidth(m_yogaNode, width);
+}
+
+void ViewNode::setHeight(float height)
+{
+    YGNodeStyleSetHeight(m_yogaNode, height);
+}
+
+YGNodeRef ViewNode::getYogaNode() const
+{
+    return m_yogaNode;
+}
 } // karin

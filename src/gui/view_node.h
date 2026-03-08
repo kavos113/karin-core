@@ -23,7 +23,11 @@ public:
     void calculateLayout() const;
     Rectangle getLayout() const;
 
-    YGNodeRef getYogaNode() const { return m_yogaNode; }
+    void setSize(Size size);
+    void setWidth(float width);
+    void setHeight(float height);
+
+    YGNodeRef getYogaNode() const;
 
 protected:
     YGNodeRef m_yogaNode;
