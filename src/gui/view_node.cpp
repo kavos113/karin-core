@@ -19,13 +19,6 @@ ViewNode::~ViewNode()
     YGNodeFree(m_yogaNode);
 }
 
-void ViewNode::addChild(std::unique_ptr<ViewNode> child)
-{
-    YGNodeInsertChild(m_yogaNode, child->m_yogaNode, YGNodeGetChildCount(m_yogaNode));
-
-    m_children.push_back(std::move(child));
-}
-
 void ViewNode::calculateLayout() const
 {
     YGNodeCalculateLayout(m_yogaNode, YGUndefined, YGUndefined, YGDirectionLTR);

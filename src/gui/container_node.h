@@ -13,6 +13,11 @@ public:
     ~ContainerNode() override = default;
 
     void draw(GraphicsContext& gc, const Transform2D& parentTransform) const override;
+
+    void addChild(std::unique_ptr<ViewNode> child);
+
+protected:
+    std::vector<std::unique_ptr<ViewNode>> m_children;
 };
 } // karin::gui
 
