@@ -17,14 +17,33 @@ Window::Window(const std::wstring& title, int x, int y, int width, int height)
 void Window::run()
 {
     m_rootView->calculateLayout();
-    Rectangle layout = m_rootView->getLayout();
-    Transform2D transform;
-    transform.translate(layout.pos.x, layout.pos.y);
+    m_needRelayout = false;
 
     m_renderer->addDrawCommand(
-        [this, &transform](GraphicsContext& gc)
-        {            // For debugging
+        [this](GraphicsContext& gc)
+        {
+            if (m_needRelayout)
+            {
+                m_rootView->calculateLayout();
+                m_needRelayout = false;
+            }
+
+            Rectangle layout = m_rootView->getLayout();
+            Transform2D transform;
+            transform.translate(layout.pos.x, layout.pos.y);
+
             m_rootView->draw(gc, transform);
+        }
+    );
+
+    m_window->addResizeCallback(
+        [this](Size size)
+        {
+            if (size.width == 0 || size.height == 0)
+            {
+                return;
+            }
+            requestRelayout();
         }
     );
 
@@ -40,6 +59,12 @@ void Window::run()
 
 void Window::setRootView(std::unique_ptr<ViewNode> rootView)
 {
-        m_rootView = std::move(rootView);
+    m_rootView = std::move(rootView);
+}
+
+void Window::requestRelayout()
+{
+    m_needRelayout = true;
+    m_window->invalidate();
 }
 } // karin::gui
