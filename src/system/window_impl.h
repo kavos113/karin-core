@@ -21,10 +21,10 @@ public:
     virtual void setSize(int width, int height) = 0;
     virtual void setRect(int x, int y, int width, int height) = 0;
 
-    virtual void setOnPaint(std::function<bool()> onPaint) = 0;
-    virtual void setOnResize(std::function<void(Size)> onResize) = 0;
-    virtual void setOnStartResize(std::function<void()> onStartResize) = 0;
-    virtual void setOnFinishResize(std::function<void()> onFinishResize) = 0;
+    virtual void addPaintCallback(std::function<bool()> onPaint) = 0;
+    virtual void addResizeCallback(std::function<void(Size)> onResize) = 0;
+    virtual void addStartResizeCallback(std::function<void()> onStartResize) = 0;
+    virtual void addFinishResizeCallback(std::function<void()> onFinishResize) = 0;
 
     virtual Window::NativeHandle handle() const = 0;
 };

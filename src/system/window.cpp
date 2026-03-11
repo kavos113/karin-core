@@ -102,23 +102,23 @@ Rectangle Window::rect() const
     return m_rect;
 }
 
-void Window::setOnPaint(std::function<bool()> onPaint)
+void Window::addPaintCallback(std::function<bool()> onPaint)
 {
-    m_impl->setOnPaint(std::move(onPaint));
+    m_impl->addPaintCallback(std::move(onPaint));
 }
 
-void Window::setOnResize(std::function<void(Size)> onResize)
+void Window::addResizeCallback(std::function<void(Size)> onResize)
 {
-    m_impl->setOnResize(std::move(onResize));
+    m_impl->addResizeCallback(std::move(onResize));
 }
 
-void Window::setOnStartResize(std::function<void()> onStartResize)
+void Window::addStartResizeCallback(std::function<void()> onStartResize)
 {
-    m_impl->setOnStartResize(std::move(onStartResize));
+    m_impl->addStartResizeCallback(std::move(onStartResize));
 }
 
-void Window::setOnFinishResize(std::function<void()> onFinishResize)
+void Window::addFinishResizeCallback(std::function<void()> onFinishResize)
 {
-    m_impl->setOnFinishResize(std::move(onFinishResize));
+    m_impl->addFinishResizeCallback(std::move(onFinishResize));
 }
 } // karin

@@ -7,6 +7,7 @@
 #include <karin/system/window.h>
 #include <string>
 #include <functional>
+#include <vector>
 
 #include "win_application_impl.h"
 
@@ -34,10 +35,10 @@ public:
     void setSize(int width, int height) override;
     void setRect(int x, int y, int width, int height) override;
 
-    void setOnPaint(std::function<bool()> onPaint) override;
-    void setOnResize(std::function<void(Size)> onResize) override;
-    void setOnStartResize(std::function<void()> onStartResize) override;
-    void setOnFinishResize(std::function<void()> onFinishResize) override;
+    void addPaintCallback(std::function<bool()> onPaint) override;
+    void addResizeCallback(std::function<void(Size)> onResize) override;
+    void addStartResizeCallback(std::function<void()> onStartResize) override;
+    void addFinishResizeCallback(std::function<void()> onFinishResize) override;
 
     [[nodiscard]] Window::NativeHandle handle() const override;
 
@@ -48,10 +49,10 @@ private:
 
     HWND m_hwnd;
 
-    std::function<void()> m_onPaint;
-    std::function<void(Size)> m_onResize;
-    std::function<void()> m_onStartResize;
-    std::function<void()> m_onFinishResize;
+    std::vector<std::function<bool()>> m_paintCallbacks;
+    std::vector<std::function<void(Size)>> m_resizeCallbacks;
+    std::vector<std::function<void()>> m_startResizeCallbacks;
+    std::vector<std::function<void()>> m_finishResizeCallbacks;
 
     WinApplicationImpl* m_appImpl = nullptr;
 };

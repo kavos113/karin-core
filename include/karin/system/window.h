@@ -63,10 +63,10 @@ public:
     Rectangle rect() const;
 
     // expected to return false if it should redraw
-    void setOnPaint(std::function<bool()> onPaint);
-    void setOnResize(std::function<void(Size)> onResize);
-    void setOnStartResize(std::function<void()> onStartResize);
-    void setOnFinishResize(std::function<void()> onFinishResize);
+    void addPaintCallback(std::function<bool()> onPaint);
+    void addResizeCallback(std::function<void(Size)> onResize);
+    void addStartResizeCallback(std::function<void()> onStartResize);
+    void addFinishResizeCallback(std::function<void()> onFinishResize);
 
     static constexpr int DEFAULT_WIDTH = 800;
     static constexpr int DEFAULT_HEIGHT = 600;
