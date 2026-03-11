@@ -14,6 +14,13 @@ public:
         Column
     };
 
+    enum class WrapMode
+    {
+        No,
+        Wrap,
+        WrapReverse
+    };
+
     ContainerNode() = default;
     explicit ContainerNode(Size size) : ViewNode(size) {}
     ~ContainerNode() override = default;
@@ -23,6 +30,7 @@ public:
     void addChild(std::unique_ptr<ViewNode> child);
     void setLayoutDirection(LayoutDirection direction);
     void setGap(float gap);
+    void setWrapMode(WrapMode mode);
 
 protected:
     std::vector<std::unique_ptr<ViewNode>> m_children;

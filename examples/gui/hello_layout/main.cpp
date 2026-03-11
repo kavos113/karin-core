@@ -29,6 +29,7 @@ int main()
 
     rootView->setLayoutDirection(karin::gui::ContainerNode::LayoutDirection::Row);
     rootView->setGap(10.0f);
+    rootView->setWrapMode(karin::gui::ContainerNode::WrapMode::Wrap);
 
     window.setRootView(std::move(rootView));
     window.run();

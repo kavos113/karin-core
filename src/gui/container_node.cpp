@@ -14,6 +14,21 @@ YGFlexDirection toYogaFlexDirection(karin::gui::ContainerNode::LayoutDirection d
         return YGFlexDirectionRow; // Default to Row if unknown
     }
 }
+
+YGWrap toYogaWrap(karin::gui::ContainerNode::WrapMode mode)
+{
+    switch (mode)
+    {
+    case karin::gui::ContainerNode::WrapMode::No:
+        return YGWrapNoWrap;
+    case karin::gui::ContainerNode::WrapMode::Wrap:
+        return YGWrapWrap;
+    case karin::gui::ContainerNode::WrapMode::WrapReverse:
+        return YGWrapWrapReverse;
+    default:
+        return YGWrapNoWrap; // Default to No Wrap if unknown
+    }
+}
 }
 
 namespace karin::gui
@@ -41,5 +56,10 @@ void ContainerNode::setLayoutDirection(LayoutDirection direction)
 void ContainerNode::setGap(float gap)
 {
     YGNodeStyleSetGap(m_yogaNode, YGGutterAll, gap);
+}
+
+void ContainerNode::setWrapMode(WrapMode mode)
+{
+    YGNodeStyleSetFlexWrap(m_yogaNode, toYogaWrap(mode));
 }
 } // karin::gui
