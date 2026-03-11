@@ -26,7 +26,7 @@ void Renderer::addDrawCommand(std::function < void(GraphicsContext &) > command)
 
 void Renderer::update() const
 {
-    m_window->setOnPaint(
+    m_window->addPaintCallback(
         [this]
         {
             bool res = m_impl->beginDraw();
@@ -48,7 +48,7 @@ void Renderer::update() const
         }
     );
 
-    m_window->setOnResize(
+    m_window->addResizeCallback(
         [this](Size size)
         {
             if (size.width == 0 || size.height == 0)
@@ -56,17 +56,19 @@ void Renderer::update() const
                 return;
             }
             m_impl->resize(size);
+
+            m_window->invalidate();
         }
     );
 
-    m_window->setOnStartResize(
+    m_window->addStartResizeCallback(
         [this]
         {
             m_impl->startResizing();
         }
     );
 
-    m_window->setOnFinishResize(
+    m_window->addFinishResizeCallback(
         [this]
         {
             m_impl->finishResizing();

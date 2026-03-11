@@ -69,14 +69,6 @@ LRESULT WinWindowImpl::handleMessage(UINT message, WPARAM wParam, LPARAM lParam)
             {
                 callback(newSize);
             }
-
-            for (const auto& callback : m_paintCallbacks)
-            {
-                if (callback())
-                {
-                    break;
-                }
-            }
         }
         return 0;
 
