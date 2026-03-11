@@ -11,7 +11,7 @@ public:
     RectangleNode(Size size, Color color) : ViewNode(size), m_color(color) {}
     ~RectangleNode() override = default;
 
-    void draw(GraphicsContext& gc, const Transform2D& parentTransform) const override;
+    void drawInternal(GraphicsContext& gc, const Transform2D& parentTransform) const override;
 
 private:
     Color m_color;

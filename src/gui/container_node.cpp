@@ -33,7 +33,7 @@ YGWrap toYogaWrap(karin::gui::ContainerNode::WrapMode mode)
 
 namespace karin::gui
 {
-void ContainerNode::draw(GraphicsContext& gc, const Transform2D& parentTransform) const
+void ContainerNode::drawInternal(GraphicsContext& gc, const Transform2D& parentTransform) const
 {
     for (const auto& child : m_children)
     {
