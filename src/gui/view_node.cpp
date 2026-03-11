@@ -219,5 +219,6 @@ void ViewNode::drawBorder(GraphicsContext& gc, const Transform2D& transform) con
             toStrokeStyle(m_borders[3].style, m_borders[3].width),
             transform
         );
+    }
 }
 } // karin
