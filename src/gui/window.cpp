@@ -44,6 +44,7 @@ void Window::run()
                 return;
             }
             requestRelayout();
+            m_rootView->setSize(size);
         }
     );
 
