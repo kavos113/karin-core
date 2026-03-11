@@ -40,6 +40,8 @@ public:
     void addStartResizeCallback(std::function<void()> onStartResize) override;
     void addFinishResizeCallback(std::function<void()> onFinishResize) override;
 
+    void invalidate() override;
+
     [[nodiscard]] Window::NativeHandle handle() const override;
 
     static LRESULT CALLBACK windowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);

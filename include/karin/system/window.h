@@ -68,6 +68,9 @@ public:
     void addStartResizeCallback(std::function<void()> onStartResize);
     void addFinishResizeCallback(std::function<void()> onFinishResize);
 
+    // request redraw, will trigger paint callbacks
+    void invalidate();
+
     static constexpr int DEFAULT_WIDTH = 800;
     static constexpr int DEFAULT_HEIGHT = 600;
 

@@ -121,4 +121,9 @@ void Window::addFinishResizeCallback(std::function<void()> onFinishResize)
 {
     m_impl->addFinishResizeCallback(std::move(onFinishResize));
 }
+
+void Window::invalidate()
+{
+    m_impl->invalidate();
+}
 } // karin

@@ -226,4 +226,12 @@ void WinWindowImpl::addFinishResizeCallback(std::function<void()> onFinishResize
 {
     m_finishResizeCallbacks.push_back(std::move(onFinishResize));
 }
+
+void WinWindowImpl::invalidate()
+{
+    if (m_hwnd)
+    {
+        InvalidateRect(m_hwnd, nullptr, FALSE);
+    }
+}
 } // karin
