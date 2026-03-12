@@ -63,6 +63,8 @@ namespace karin::gui
 ViewNode::ViewNode()
 {
     m_yogaNode = YGNodeNew();
+
+    m_borders.fill({ 0.0f, Color(), NodeBorder::LineStyle::None });
 }
 
 ViewNode::ViewNode(Size size)
@@ -70,6 +72,8 @@ ViewNode::ViewNode(Size size)
     m_yogaNode = YGNodeNew();
     YGNodeStyleSetWidth(m_yogaNode, size.width);
     YGNodeStyleSetHeight(m_yogaNode, size.height);
+
+    m_borders.fill({ 0.0f, Color(), NodeBorder::LineStyle::None });
 }
 
 ViewNode::~ViewNode()
@@ -178,7 +182,7 @@ void ViewNode::drawBorder(GraphicsContext& gc, const Transform2D& transform) con
         Pattern pattern = SolidColorPattern(m_borders[0].color);
         gc.drawLine(
             topLeft,
-            topRight,
+            bottomLeft,
             pattern,
             toStrokeStyle(m_borders[0].style, m_borders[0].width),
             transform
@@ -189,8 +193,8 @@ void ViewNode::drawBorder(GraphicsContext& gc, const Transform2D& transform) con
     {
         Pattern pattern = SolidColorPattern(m_borders[1].color);
         gc.drawLine(
+            topLeft,
             topRight,
-            bottomRight,
             pattern,
             toStrokeStyle(m_borders[1].style, m_borders[1].width),
             transform
@@ -201,8 +205,8 @@ void ViewNode::drawBorder(GraphicsContext& gc, const Transform2D& transform) con
     {
         Pattern pattern = SolidColorPattern(m_borders[2].color);
         gc.drawLine(
+            topRight,
             bottomRight,
-            bottomLeft,
             pattern,
             toStrokeStyle(m_borders[2].style, m_borders[2].width),
             transform
@@ -214,7 +218,7 @@ void ViewNode::drawBorder(GraphicsContext& gc, const Transform2D& transform) con
         Pattern pattern = SolidColorPattern(m_borders[3].color);
         gc.drawLine(
             bottomLeft,
-            topLeft,
+            bottomRight,
             pattern,
             toStrokeStyle(m_borders[3].style, m_borders[3].width),
             transform
