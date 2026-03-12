@@ -14,6 +14,8 @@ class Transform2D
 public:
     Transform2D();
     ~Transform2D();
+    Transform2D(const Transform2D& other);
+    Transform2D& operator=(const Transform2D& other);
 
     Transform2D& translate(float tx, float ty);
     Transform2D& setTranslate(float tx, float ty);
