@@ -35,10 +35,12 @@ public:
     void setSize(int width, int height) override;
     void setRect(int x, int y, int width, int height) override;
 
-    void setOnPaint(std::function<bool()> onPaint) override;
-    void setOnResize(std::function<void(Size)> onResize) override;
-    void setOnStartResize(std::function<void()> onStartResize) override;
-    void setOnFinishResize(std::function<void()> onFinishResize) override;
+    void addPaintCallback(std::function<bool()> onPaint) override;
+    void addResizeCallback(std::function<void(Size)> onResize) override;
+    void addStartResizeCallback(std::function<void()> onStartResize) override;
+    void addFinishResizeCallback(std::function<void()> onFinishResize) override;
+
+    void invalidate() override;
 
     [[nodiscard]] Window::NativeHandle handle() const override;
 

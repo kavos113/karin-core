@@ -418,24 +418,46 @@ void X11WindowImpl::setRect(int x, int y, int width, int height)
     XMoveResizeWindow(X11Context::instance().display(), m_window, x, y, width, height);
 }
 
-void X11WindowImpl::setOnPaint(std::function<bool()> onPaint)
+void X11WindowImpl::addPaintCallback(std::function<bool()> onPaint)
 {
     m_onPaint = std::move(onPaint);
 }
 
-void X11WindowImpl::setOnResize(std::function<void(Size)> onResize)
+void X11WindowImpl::addResizeCallback(std::function<void(Size)> onResize)
 {
     m_onResize = std::move(onResize);
 }
 
-void X11WindowImpl::setOnStartResize(std::function<void()> onStartResize)
+void X11WindowImpl::addStartResizeCallback(std::function<void()> onStartResize)
 {
     m_onStartResize = std::move(onStartResize);
 }
 
-void X11WindowImpl::setOnFinishResize(std::function<void()> onFinishResize)
+void X11WindowImpl::addFinishResizeCallback(std::function<void()> onFinishResize)
 {
     m_onFinishResize = std::move(onFinishResize);
+}
+
+void X11WindowImpl::invalidate()
+{
+    XEvent event = {};
+    event.type = Expose;
+    event.xexpose.display = X11Context::instance().display();
+    event.xexpose.window = m_window;
+    event.xexpose.x = 0;
+    event.xexpose.y = 0;
+    event.xexpose.width = 1;
+    event.xexpose.height = 1;
+    event.xexpose.count = 0;
+    XSendEvent(
+        X11Context::instance().display(),
+        m_window,
+        False,
+        ExposureMask,
+        &event
+    );
+
+    XFlush(X11Context::instance().display());
 }
 
 Window::NativeHandle X11WindowImpl::handle() const
