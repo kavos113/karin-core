@@ -102,7 +102,7 @@ jobs:
           key: ${{ runner.os }}-${{ matrix.cmake_preset }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
           restore-keys: |
             ${{ runner.os }}-${{ matrix.triplet }}-vcpkg-
-            main-${{ runner.os }}-${{ matrix.cmake_preset }}-vcpkg-${ hashFiles('**/vcpkg.json') }}
+            main-${{ runner.os }}-${{ matrix.cmake_preset }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
             main-${{ runner.os }}-${{ matrix.cmake_preset }}-vcpkg-
 
       - name: Install with vcpkg
