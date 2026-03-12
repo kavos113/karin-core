@@ -14,19 +14,25 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: "ubuntu-latest"
+          - os: ubuntu-latest
+            cmake_preset: "ubuntu-debug"
+            name: "ubuntu"
             triplet: "x64-linux"
-
-          - os: "windows-latest"
+          - os: windows-latest
+            cmake_preset: "windows-debug"
+            name: "windows d2d"
             triplet: "x64-windows"
-            vulkan_version: "1.4.321.1"
+          - os: windows-latest
+            cmake_preset: "windows-vulkan-debug"
+            name: "windows vulkan"
+            triplet: "x64-windows"
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
       - name: Vulkan SDK Cache
-        if: contains(matrix.os, 'windows-latest')
+        if: contains(matrix.name, 'vulkan')
         id: cache-vulkan-sdk
         uses: actions/cache@v4
         with:
@@ -34,7 +40,7 @@ jobs:
           key: main-${{ runner.os }}-vulkan-sdk-${{ matrix.vulkan_version }}
 
       - name: Download and Install Vulkan SDK
-        if: contains(matrix.os, 'windows-latest') && steps.cache-vulkan-sdk.outputs.cache-hit != 'true'
+        if: contains(matrix.name, 'vulkan') && steps.cache-vulkan-sdk.outputs.cache-hit != 'true'
         shell: bash
         run: |
           INSTALLER_URL="https://sdk.lunarg.com/sdk/download/${{ matrix.vulkan_version }}/windows/vulkansdk-windows-X64-${{ matrix.vulkan_version }}.exe"
@@ -58,9 +64,9 @@ jobs:
           path: |
             ./vcpkg
             ./vcpkg_installed
-          key: main-${{ runner.os }}-${{ matrix.triplet }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
+          key: main-${{ runner.os }}-${{ matrix.cmake_preset }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
           restore-keys: |
-            main-${{ runner.os }}-${{ matrix.triplet }}-vcpkg-
+            main-${{ runner.os }}-${{ matrix.cmake_preset }}-vcpkg-
 
       - name: Install with vcpkg
         run: |
