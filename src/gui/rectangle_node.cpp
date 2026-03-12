@@ -2,7 +2,7 @@
 
 namespace karin::gui
 {
-void RectangleNode::drawInternal(GraphicsContext& gc, const Transform2D& parentTransform) const
+void RectangleNode::drawBackground(GraphicsContext& gc, const Transform2D& parentTransform) const
 {
     Rectangle layout = getLayout();
     Pattern pattern = SolidColorPattern(m_color);

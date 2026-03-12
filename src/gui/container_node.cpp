@@ -35,10 +35,17 @@ namespace karin::gui
 {
 void ContainerNode::drawInternal(GraphicsContext& gc, const Transform2D& parentTransform) const
 {
+    drawBackground(gc, parentTransform);
+
+    Rectangle layout = getLayout();
+    Transform2D transform = parentTransform;
+    transform.translate(layout.pos.x, layout.pos.y);
     for (const auto& child : m_children)
     {
-        child->draw(gc, parentTransform);
+        child->draw(gc, transform);
     }
+
+    drawForeground(gc, parentTransform);
 }
 
 void ContainerNode::addChild(std::unique_ptr<ViewNode> child)

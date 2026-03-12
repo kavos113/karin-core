@@ -25,7 +25,10 @@ public:
     explicit ContainerNode(Size size) : ViewNode(size) {}
     ~ContainerNode() override = default;
 
-    void drawInternal(GraphicsContext& gc, const Transform2D& parentTransform) const override;
+    void drawInternal(GraphicsContext& gc, const Transform2D& parentTransform) const final;
+
+    virtual void drawBackground(GraphicsContext& gc, const Transform2D& parentTransform) const {}
+    virtual void drawForeground(GraphicsContext& gc, const Transform2D& parentTransform) const {}
 
     void addChild(std::unique_ptr<ViewNode> child);
     void setLayoutDirection(LayoutDirection direction);
