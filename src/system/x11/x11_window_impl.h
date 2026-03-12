@@ -3,6 +3,7 @@
 #include <mutex>
 #include <string>
 #include <optional>
+#include <vector>
 #include <X11/Xlib.h>
 
 #include <karin/system/window.h>
@@ -55,10 +56,10 @@ private:
     XIM m_xim;
     XIC m_xic;
 
-    std::function<bool()> m_onPaint;
-    std::function<void(Size)> m_onResize;
-    std::function<void()> m_onStartResize;
-    std::function<void()> m_onFinishResize;
+    std::vector<std::function<bool()>> m_paintCallbacks;
+    std::vector<std::function<void(Size)>> m_resizeCallbacks;
+    std::vector<std::function<void()>> m_startResizeCallbacks;
+    std::vector<std::function<void()>> m_finishResizeCallbacks;
 
     std::function<void()> m_onClose;
     std::function<void()> m_onStartMainLoop;
