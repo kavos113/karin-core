@@ -14,16 +14,38 @@ YGFlexDirection toYogaFlexDirection(karin::gui::ContainerNode::LayoutDirection d
         return YGFlexDirectionRow; // Default to Row if unknown
     }
 }
+
+YGWrap toYogaWrap(karin::gui::ContainerNode::WrapMode mode)
+{
+    switch (mode)
+    {
+    case karin::gui::ContainerNode::WrapMode::No:
+        return YGWrapNoWrap;
+    case karin::gui::ContainerNode::WrapMode::Wrap:
+        return YGWrapWrap;
+    case karin::gui::ContainerNode::WrapMode::WrapReverse:
+        return YGWrapWrapReverse;
+    default:
+        return YGWrapNoWrap; // Default to No Wrap if unknown
+    }
+}
 }
 
 namespace karin::gui
 {
-void ContainerNode::draw(GraphicsContext& gc, const Transform2D& parentTransform) const
+void ContainerNode::drawInternal(GraphicsContext& gc, const Transform2D& parentTransform) const
 {
+    drawBackground(gc, parentTransform);
+
+    Rectangle layout = getLayout();
+    Transform2D transform = parentTransform;
+    transform.translate(layout.pos.x, layout.pos.y);
     for (const auto& child : m_children)
     {
-        child->draw(gc, parentTransform);
+        child->draw(gc, transform);
     }
+
+    drawForeground(gc, parentTransform);
 }
 
 void ContainerNode::addChild(std::unique_ptr<ViewNode> child)
@@ -41,5 +63,10 @@ void ContainerNode::setLayoutDirection(LayoutDirection direction)
 void ContainerNode::setGap(float gap)
 {
     YGNodeStyleSetGap(m_yogaNode, YGGutterAll, gap);
+}
+
+void ContainerNode::setWrapMode(WrapMode mode)
+{
+    YGNodeStyleSetFlexWrap(m_yogaNode, toYogaWrap(mode));
 }
 } // karin::gui

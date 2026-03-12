@@ -27,10 +27,14 @@ public:
     void setRootView(std::unique_ptr<ViewNode> rootView);
 
 private:
+    void requestRelayout();
+
     std::unique_ptr<ViewNode> m_rootView;
 
     std::unique_ptr<karin::Window> m_window;
     std::unique_ptr<Renderer> m_renderer;
+
+    bool m_needRelayout = true;
 };
 } // karin::gui
 

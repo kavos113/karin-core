@@ -53,35 +53,36 @@ LRESULT WinWindowImpl::handleMessage(UINT message, WPARAM wParam, LPARAM lParam)
 
     case WM_PAINT:
         ValidateRect(m_hwnd, nullptr);
-        if (m_onPaint)
+        for (const auto& callback : m_paintCallbacks)
         {
-            m_onPaint();
+            if (callback())
+            {
+                break;
+            }
         }
         return 0;
 
     case WM_SIZE:
-        if (m_onResize)
         {
             Size newSize(LOWORD(lParam), HIWORD(lParam));
-            m_onResize(newSize);
-        }
-        if (m_onPaint)
-        {
-            m_onPaint();
+            for (const auto& callback : m_resizeCallbacks)
+            {
+                callback(newSize);
+            }
         }
         return 0;
 
     case WM_ENTERSIZEMOVE:
-        if (m_onStartResize)
+        for (const auto& callback : m_startResizeCallbacks)
         {
-            m_onStartResize();
+            callback();
         }
         return 0;
 
     case WM_EXITSIZEMOVE:
-        if (m_onFinishResize)
+        for (const auto& callback : m_finishResizeCallbacks)
         {
-            m_onFinishResize();
+            callback();
         }
         return 0;
 
@@ -198,23 +199,31 @@ Window::NativeHandle WinWindowImpl::handle() const
     };
 }
 
-void WinWindowImpl::setOnPaint(std::function<bool()> onPaint)
+void WinWindowImpl::addPaintCallback(std::function<bool()> onPaint)
 {
-    m_onPaint = std::move(onPaint);
+    m_paintCallbacks.push_back(std::move(onPaint));
 }
 
-void WinWindowImpl::setOnResize(std::function<void(Size)> onResize)
+void WinWindowImpl::addResizeCallback(std::function<void(Size)> onResize)
 {
-    m_onResize = std::move(onResize);
+    m_resizeCallbacks.push_back(std::move(onResize));
 }
 
-void WinWindowImpl::setOnStartResize(std::function<void()> onStartResize)
+void WinWindowImpl::addStartResizeCallback(std::function<void()> onStartResize)
 {
-    m_onStartResize = std::move(onStartResize);
+    m_startResizeCallbacks.push_back(std::move(onStartResize));
 }
 
-void WinWindowImpl::setOnFinishResize(std::function<void()> onFinishResize)
+void WinWindowImpl::addFinishResizeCallback(std::function<void()> onFinishResize)
 {
-    m_onFinishResize = std::move(onFinishResize);
+    m_finishResizeCallbacks.push_back(std::move(onFinishResize));
+}
+
+void WinWindowImpl::invalidate()
+{
+    if (m_hwnd)
+    {
+        InvalidateRect(m_hwnd, nullptr, FALSE);
+    }
 }
 } // karin

@@ -184,25 +184,25 @@ void X11WindowImpl::handleEvent(const XEvent& event)
     {
     case Expose:
         std::call_once(m_applyStatusFlag, &X11WindowImpl::applyStatus, this);
-        if (m_onPaint)
+        for (const auto& callback : m_paintCallbacks)
         {
-            bool ret = m_onPaint();
-            if (!ret)
+            if (!callback())
             {
-                m_onPaint(); // redraw
+                break;
             }
         }
         break;
 
     case ConfigureNotify:
-        if (m_onResize)
         {
-            m_onResize(
-                Size(
-                    event.xconfigure.width,
-                    event.xconfigure.height
-                )
-            );
+            Size newSize = {
+                static_cast<float>(event.xconfigure.width),
+                static_cast<float>(event.xconfigure.height)
+            };
+            for (const auto& callback : m_resizeCallbacks)
+            {
+                callback(newSize);
+            }
         }
         break;
 
@@ -418,24 +418,46 @@ void X11WindowImpl::setRect(int x, int y, int width, int height)
     XMoveResizeWindow(X11Context::instance().display(), m_window, x, y, width, height);
 }
 
-void X11WindowImpl::setOnPaint(std::function<bool()> onPaint)
+void X11WindowImpl::addPaintCallback(std::function<bool()> onPaint)
 {
-    m_onPaint = std::move(onPaint);
+    m_paintCallbacks.push_back(std::move(onPaint));
 }
 
-void X11WindowImpl::setOnResize(std::function<void(Size)> onResize)
+void X11WindowImpl::addResizeCallback(std::function<void(Size)> onResize)
 {
-    m_onResize = std::move(onResize);
+    m_resizeCallbacks.push_back(std::move(onResize));
 }
 
-void X11WindowImpl::setOnStartResize(std::function<void()> onStartResize)
+void X11WindowImpl::addStartResizeCallback(std::function<void()> onStartResize)
 {
-    m_onStartResize = std::move(onStartResize);
+    m_startResizeCallbacks.push_back(std::move(onStartResize));
 }
 
-void X11WindowImpl::setOnFinishResize(std::function<void()> onFinishResize)
+void X11WindowImpl::addFinishResizeCallback(std::function<void()> onFinishResize)
 {
-    m_onFinishResize = std::move(onFinishResize);
+    m_finishResizeCallbacks.push_back(std::move(onFinishResize));
+}
+
+void X11WindowImpl::invalidate()
+{
+    XEvent event = {};
+    event.type = Expose;
+    event.xexpose.display = X11Context::instance().display();
+    event.xexpose.window = m_window;
+    event.xexpose.x = 0;
+    event.xexpose.y = 0;
+    event.xexpose.width = 1;
+    event.xexpose.height = 1;
+    event.xexpose.count = 0;
+    XSendEvent(
+        X11Context::instance().display(),
+        m_window,
+        False,
+        ExposureMask,
+        &event
+    );
+
+    XFlush(X11Context::instance().display());
 }
 
 Window::NativeHandle X11WindowImpl::handle() const

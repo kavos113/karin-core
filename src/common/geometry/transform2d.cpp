@@ -16,6 +16,22 @@ public:
     float rotation = 0.0f; // in radians
     Point scale = Point(1.0f, 1.0f);
 
+    Transform2DImpl() = default;
+    Transform2DImpl(const Transform2DImpl& other)
+        : translation(other.translation), rotation(other.rotation), scale(other.scale)
+    {
+    }
+    Transform2DImpl& operator=(const Transform2DImpl& other)
+    {
+        if (this != &other)
+        {
+            translation = other.translation;
+            rotation = other.rotation;
+            scale = other.scale;
+        }
+        return *this;
+    }
+
     // unintended to be called with (isColMajor == false) and (isColMajor == true) from same process.
     // results of below code:
     //     auto m1 = matrix(true);
@@ -57,6 +73,20 @@ Transform2D::Transform2D()
 }
 
 Transform2D::~Transform2D() = default;
+
+Transform2D::Transform2D(const Transform2D& other)
+    : m_impl(std::make_unique<Transform2DImpl>(*other.m_impl))
+{
+}
+
+Transform2D& Transform2D::operator=(const Transform2D& other)
+{
+    if (this != &other)
+    {
+        *m_impl = *other.m_impl;
+    }
+    return *this;
+}
 
 Transform2D& Transform2D::translate(float tx, float ty)
 {

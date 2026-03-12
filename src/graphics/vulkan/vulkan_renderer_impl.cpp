@@ -95,6 +95,7 @@ bool VulkanRendererImpl::beginDraw()
     m_indexMapPoint = m_indexStartPoint;
     m_vertexOffset = 0;
     m_indexCount = 0;
+    m_drawCommands.clear();
 
     vkWaitForFences(VulkanContext::instance().device(), 1, &m_swapChainFences[m_currentFrame], VK_TRUE, UINT64_MAX);
     m_imageIndex = m_surface->acquireNextImage(m_swapChainSemaphores[m_currentFrame]);
