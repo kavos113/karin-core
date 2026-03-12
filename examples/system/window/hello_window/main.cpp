@@ -7,7 +7,7 @@ int main()
 
     window->setStatus(karin::Window::ShowStatus::SHOW);
 
-    window->setOnResize([](karin::Size newSize)
+    window->addResizeCallback([](karin::Size newSize)
     {
         std::cout << "Window resized to " << newSize.width << "x" << newSize.height << std::endl;
     });
