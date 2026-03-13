@@ -1,0 +1,47 @@
+#include "application.h"
+
+namespace karin::gui
+{
+Application* Application::s_instance = nullptr;
+
+Application::Application()
+{
+    m_textEngine = std::make_unique<TextEngine>();
+
+    if (s_instance)
+    {
+        throw std::runtime_error("Application instance already exists");
+    }
+    s_instance = this;
+}
+
+Application::~Application()
+{
+    s_instance = nullptr;
+}
+
+Application& Application::instance()
+{
+    return *s_instance;
+}
+
+std::shared_ptr<Window> Application::createWindow(const std::wstring& title, int x, int y, int width, int height)
+{
+    auto window = std::make_shared<Window>(title, x, y, width, height);
+    m_windows.push_back(window);
+
+    return window;
+}
+
+void Application::run()
+{
+    for (auto& window : m_windows)
+    {
+        window->beforeRun();
+    }
+
+    karin::Application& app = karin::Application::instance();
+    Event event;
+    while (app.waitEvent(event)) { }
+}
+} // karin::gui

@@ -11,8 +11,15 @@
 
 namespace karin::gui
 {
+class Application;
+
 class Window
 {
+private:
+    friend class Application;
+
+    void beforeRun();
+
 public:
     Window(
         const std::wstring& title,
@@ -21,9 +28,8 @@ public:
         int width,
         int height
     );
-    ~Window() = default;
+    ~Window();
 
-    void run();
     void setRootView(std::unique_ptr<ViewNode> rootView);
 
 private:

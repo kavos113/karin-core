@@ -25,6 +25,7 @@ jobs:
           - os: windows-latest
             cmake_preset: "windows-vulkan-debug"
             name: "windows vulkan"
+            vulkan_version: "1.4.321.1"
             triplet: "x64-windows"
 
     steps:
