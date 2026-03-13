@@ -4,6 +4,7 @@ set(GUI_SOURCES
         container_node.cpp
         rectangle_node.cpp
         leaf_node.cpp
+        application.cpp
 )
 
 add_library(karin_gui STATIC ${GUI_SOURCES})

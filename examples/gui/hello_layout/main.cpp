@@ -50,5 +50,5 @@ int main()
     rootView->setWrapMode(karin::gui::ContainerNode::WrapMode::Wrap);
 
     window.setRootView(std::move(rootView));
-    window.run();
+    window.beforeRun();
 }
