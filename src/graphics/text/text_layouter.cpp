@@ -121,7 +121,7 @@ bool isBreakable(uint32_t codepoint)
 
 namespace karin
 {
-std::vector<GlyphPosition> TextLayouter::layout(const TextLayout &layout, IFontFace *face)
+std::vector<GlyphPosition> TextLayouter::layout(const TextLayout &layout, IFontFace *face, Size& outLayoutSize)
 {
     std::vector<std::string> lines = std::views::split(layout.text, '\n')
         | std::views::transform(
@@ -158,6 +158,8 @@ std::vector<GlyphPosition> TextLayouter::layout(const TextLayout &layout, IFontF
     );
     float penX = 0;
     float scale = layout.format.size / fontMetrics.unitsPerEm;
+
+    float maxX = 0;
 
     for (const auto& line : lines)
     {
@@ -209,6 +211,8 @@ std::vector<GlyphPosition> TextLayouter::layout(const TextLayout &layout, IFontF
 
             if (layout.size.width > 0 && penX > layout.size.width)
             {
+                maxX = layout.size.width;
+
                 if (layout.format.wrapping == TextFormat::Wrapping::NONE)
                 {
                     if (layout.format.trimming == TextFormat::Trimming::CHARACTER)
@@ -251,9 +255,16 @@ std::vector<GlyphPosition> TextLayouter::layout(const TextLayout &layout, IFontF
 
         hb_buffer_destroy(hbBuffer);
 
+        maxX = std::max(maxX, penX);
+
         penX = initPenX;
         penY += lineHeight;
     }
+
+    outLayoutSize = {
+        .width = maxX,
+        .height = penY,
+    };
 
     return glyphs;
 }

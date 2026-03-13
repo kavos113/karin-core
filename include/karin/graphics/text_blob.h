@@ -26,6 +26,8 @@ struct TextBlob
     std::unique_ptr<IFontFace> fontFace;
     float fontEmSize;
     TextFormat format;
+
+    // actual layout size. may be smaller than specified layout size
     Size layoutSize;
 };
 

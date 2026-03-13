@@ -17,7 +17,7 @@ public:
     TextLayouter() = default;
     ~TextLayouter() = default;
 
-    static std::vector<GlyphPosition> layout(const TextLayout& layout, IFontFace *face);
+    static std::vector<GlyphPosition> layout(const TextLayout& layout, IFontFace *face, Size& outLayoutSize);
 };
 } // karin
 
