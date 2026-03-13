@@ -2,6 +2,8 @@
 
 namespace karin::gui
 {
+Application* Application::s_instance = nullptr;
+
 Application::Application()
 {
     m_textEngine = std::make_unique<TextEngine>();
