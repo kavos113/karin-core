@@ -15,7 +15,7 @@ class Application
 {
 public:
     Application();
-    ~Application() = default;
+    ~Application();
 
     std::shared_ptr<Window> createWindow(
         const std::wstring& title,
@@ -27,7 +27,11 @@ public:
 
     void run();
 
+    static Application& instance();
+
 private:
+    static Application* s_instance;
+
     // ApplicationContextとかにまとめてもいいかも
     std::unique_ptr<TextEngine> m_textEngine;
 

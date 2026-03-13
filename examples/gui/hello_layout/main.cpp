@@ -7,6 +7,7 @@
 #include "container_node.h"
 #include "rectangle_node.h"
 #include "view_node.h"
+#include "application.h"
 
 int main()
 {
@@ -14,7 +15,8 @@ int main()
     std::mt19937 gen(rd());
     std::uniform_real_distribution<float> dis(0.0f, 1.0f);
 
-    karin::gui::Window window(L"Hello Layout", 100, 100, 800, 600);
+    karin::gui::Application app;
+    auto window = app.createWindow(L"Hello Layout", 100, 100, 800, 600);
 
     auto rootView = std::make_unique<karin::gui::ContainerNode>(karin::Size(800, 600));
 
@@ -49,6 +51,6 @@ int main()
     rootView->setGap(10.0f);
     rootView->setWrapMode(karin::gui::ContainerNode::WrapMode::Wrap);
 
-    window.setRootView(std::move(rootView));
-    window.beforeRun();
+    window->setRootView(std::move(rootView));
+    app.run();
 }

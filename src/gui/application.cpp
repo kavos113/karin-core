@@ -5,6 +5,22 @@ namespace karin::gui
 Application::Application()
 {
     m_textEngine = std::make_unique<TextEngine>();
+
+    if (s_instance)
+    {
+        throw std::runtime_error("Application instance already exists");
+    }
+    s_instance = this;
+}
+
+Application::~Application()
+{
+    s_instance = nullptr;
+}
+
+Application& Application::instance()
+{
+    return *s_instance;
 }
 
 std::shared_ptr<Window> Application::createWindow(const std::wstring& title, int x, int y, int width, int height)
