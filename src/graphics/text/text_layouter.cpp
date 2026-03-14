@@ -14,17 +14,17 @@ namespace
 {
 using namespace karin;
 
-hb_direction_t toHBDirection(TextFormat::Direction dir)
+hb_direction_t toHBDirection(ParagraphStyle::Direction dir)
 {
     switch (dir)
     {
-    case TextFormat::Direction::LEFT_TO_RIGHT:
+    case ParagraphStyle::Direction::LEFT_TO_RIGHT:
         return HB_DIRECTION_LTR;
-    case TextFormat::Direction::RIGHT_TO_LEFT:
+    case ParagraphStyle::Direction::RIGHT_TO_LEFT:
         return HB_DIRECTION_RTL;
-    case TextFormat::Direction::TOP_TO_BOTTOM:
+    case ParagraphStyle::Direction::TOP_TO_BOTTOM:
         return HB_DIRECTION_TTB;
-    case TextFormat::Direction::BOTTOM_TO_TOP:
+    case ParagraphStyle::Direction::BOTTOM_TO_TOP:
         return HB_DIRECTION_BTT;
     default:
         return HB_DIRECTION_LTR;
@@ -33,16 +33,16 @@ hb_direction_t toHBDirection(TextFormat::Direction dir)
 
 float calculateLineHeight(
     float lineSpacing,
-    TextFormat::LineSpacingMode mode,
+    ParagraphStyle::LineSpacingMode mode,
     float fontSize,
     float metricsHeight
 )
 {
     switch (mode)
     {
-    case TextFormat::LineSpacingMode::PROPORTIONAL:
+    case ParagraphStyle::LineSpacingMode::PROPORTIONAL:
         return fontSize * lineSpacing;
-    case TextFormat::LineSpacingMode::UNIFORM:
+    case ParagraphStyle::LineSpacingMode::UNIFORM:
         return lineSpacing;
     default:
         return metricsHeight;
@@ -51,16 +51,16 @@ float calculateLineHeight(
 
 float calculateBaseLine(
     float baseline,
-    TextFormat::LineSpacingMode mode,
+    ParagraphStyle::LineSpacingMode mode,
     float fontSize,
     float metricsHeight
 )
 {
     switch (mode)
     {
-    case TextFormat::LineSpacingMode::PROPORTIONAL:
+    case ParagraphStyle::LineSpacingMode::PROPORTIONAL:
         return fontSize * baseline;
-    case TextFormat::LineSpacingMode::UNIFORM:
+    case ParagraphStyle::LineSpacingMode::UNIFORM:
         return baseline;
     default:
         return metricsHeight;
@@ -121,9 +121,16 @@ bool isBreakable(uint32_t codepoint)
 
 namespace karin
 {
-std::vector<GlyphPosition> TextLayouter::layout(const TextLayout &layout, IFontFace *face, Size& outLayoutSize)
+std::vector<GlyphPosition> TextLayouter::layout(
+    const IFontFace* face,
+    const std::string& text,
+    const TextStyle& textStyle,
+    const ParagraphStyle& paragraphStyle,
+    const Size& maxSize,
+    Size& outContentSize
+)
 {
-    std::vector<std::string> lines = std::views::split(layout.text, '\n')
+    std::vector<std::string> lines = std::views::split(text, '\n')
         | std::views::transform(
             [](auto&& rng)
             {
@@ -132,7 +139,7 @@ std::vector<GlyphPosition> TextLayouter::layout(const TextLayout &layout, IFontF
         )
         | std::ranges::to<std::vector<std::string>>();
 
-    auto hbProvider = dynamic_cast<IHarfBuzzProvider*>(face);
+    auto hbProvider = dynamic_cast<const IHarfBuzzProvider*>(face);
     if (!hbProvider)
     {
         throw std::runtime_error("FontFace must implement IHarfBuzzProvider");
@@ -145,19 +152,19 @@ std::vector<GlyphPosition> TextLayouter::layout(const TextLayout &layout, IFontF
 
     float initPenX = 0;
     float lineHeight = calculateLineHeight(
-        layout.format.lineSpacing,
-        layout.format.lineSpacingMode,
-        layout.format.size,
+        paragraphStyle.lineSpacing,
+        paragraphStyle.lineSpacingMode,
+        textStyle.size,
         fontMetrics.capHeight
     );
     float penY = calculateBaseLine(
-        layout.format.baseline,
-        layout.format.lineSpacingMode,
-        layout.format.size,
+        paragraphStyle.baseline,
+        paragraphStyle.lineSpacingMode,
+        textStyle.size,
         fontMetrics.capHeight
     );
     float penX = 0;
-    float scale = layout.format.size / fontMetrics.unitsPerEm;
+    float scale = textStyle.size / fontMetrics.unitsPerEm;
 
     float maxX = 0;
 
@@ -165,8 +172,8 @@ std::vector<GlyphPosition> TextLayouter::layout(const TextLayout &layout, IFontF
     {
         hb_buffer_t* hbBuffer = hb_buffer_create();
         hb_buffer_add_utf8(hbBuffer, line.c_str(), -1, 0, -1);
-        hb_buffer_set_direction(hbBuffer, toHBDirection(layout.format.readingDirection));
-        hb_buffer_set_language(hbBuffer, hb_language_from_string(layout.format.locale.c_str(), -1));
+        hb_buffer_set_direction(hbBuffer, toHBDirection(paragraphStyle.readingDirection));
+        hb_buffer_set_language(hbBuffer, hb_language_from_string(textStyle.locale.c_str(), -1));
 
         hb_shape(hbFont, hbBuffer, nullptr, 0);
 
@@ -209,19 +216,19 @@ std::vector<GlyphPosition> TextLayouter::layout(const TextLayout &layout, IFontF
             });
             penX += static_cast<float>(glyphPos[i].x_advance) * scale;
 
-            if (layout.size.width > 0 && penX > layout.size.width)
+            if (maxSize.width > 0 && penX > maxSize.width)
             {
-                maxX = layout.size.width;
+                maxX = maxSize.width;
 
-                if (layout.format.wrapping == TextFormat::Wrapping::NONE)
+                if (paragraphStyle.wrapping == ParagraphStyle::Wrapping::NONE)
                 {
-                    if (layout.format.trimming == TextFormat::Trimming::CHARACTER)
+                    if (paragraphStyle.trimming == ParagraphStyle::Trimming::CHARACTER)
                     {
                         glyphs.pop_back();
                         break;
                     }
 
-                    if (layout.format.trimming == TextFormat::Trimming::WORD && lastSpaceIndex != 0)
+                    if (paragraphStyle.trimming == ParagraphStyle::Trimming::WORD && lastSpaceIndex != 0)
                     {
                         for (uint32_t j = i; j > lastSpaceIndex; j--)
                         {
@@ -231,14 +238,14 @@ std::vector<GlyphPosition> TextLayouter::layout(const TextLayout &layout, IFontF
                         break;
                     }
                 }
-                else if (layout.format.wrapping == TextFormat::Wrapping::CHARACTER)
+                else if (paragraphStyle.wrapping == ParagraphStyle::Wrapping::CHARACTER)
                 {
                     penX = initPenX;
                     penY += lineHeight;
                     glyphs.pop_back();
                     i--;
                 }
-                else if (layout.format.wrapping == TextFormat::Wrapping::WORD && lastSpaceIndex != 0)
+                else if (paragraphStyle.wrapping == ParagraphStyle::Wrapping::WORD && lastSpaceIndex != 0)
                 {
                     penX = initPenX;
                     penY += lineHeight;
@@ -261,7 +268,7 @@ std::vector<GlyphPosition> TextLayouter::layout(const TextLayout &layout, IFontF
         penY += lineHeight;
     }
 
-    outLayoutSize = {
+    outContentSize = {
         .width = maxX,
         .height = penY,
     };

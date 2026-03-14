@@ -1,7 +1,7 @@
 #include <karin/graphics/pattern.h>
-#include <karin/graphics/text_format.h>
-#include <karin/graphics/text_layout.h>
-#include <../../include/karin/graphics/font.h>
+#include <karin/graphics/font.h>
+#include <karin/graphics/text_style.h>
+#include <karin/graphics/paragraph_style.h>
 
 #include <utils/hash.h>
 
@@ -90,13 +90,22 @@ size_t Font::hash() const
     return seed;
 }
 
-
-size_t TextFormat::hash() const
+size_t TextStyle::hash() const
 {
     size_t seed = 0;
 
     hash_combine(seed, size);
     hash_combine(seed, font.hash());
+    hash_combine(seed, underline);
+    hash_combine(seed, lineThrough);
+    hash_combine(seed, locale);
+    return seed;
+}
+
+size_t ParagraphStyle::hash() const
+{
+    size_t seed = 0;
+
     hash_combine(seed, static_cast<int>(horizontalAlignment));
     hash_combine(seed, static_cast<int>(verticalAlignment));
     hash_combine(seed, lineSpacing);
@@ -106,21 +115,6 @@ size_t TextFormat::hash() const
     hash_combine(seed, static_cast<int>(wrapping));
     hash_combine(seed, static_cast<int>(flowDirection));
     hash_combine(seed, static_cast<int>(readingDirection));
-    hash_combine(seed, locale);
-    return seed;
-}
-
-size_t TextLayout::hash() const
-{
-    size_t seed = 0;
-
-    hash_combine(seed, underline);
-    hash_combine(seed, lineThrough);
-    hash_combine(seed, size.width);
-    hash_combine(seed, size.height);
-    hash_combine(seed, format.hash());
-    hash_combine(seed, text);
-
     return seed;
 }
 }

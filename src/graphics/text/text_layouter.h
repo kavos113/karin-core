@@ -2,12 +2,13 @@
 #define KARIN_FONT_LAYOUTER_H
 
 #include <karin/common/geometry/rectangle.h>
-#include <karin/graphics/text_layout.h>
+#include <karin/graphics/text_style.h>
+#include <karin/graphics/paragraph_style.h>
 #include <karin/graphics/font_face.h>
 #include <karin/graphics/text_blob.h>
 
-#include <cstdint>
 #include <vector>
+#include <string>
 
 namespace karin
 {
@@ -17,7 +18,14 @@ public:
     TextLayouter() = default;
     ~TextLayouter() = default;
 
-    static std::vector<GlyphPosition> layout(const TextLayout& layout, IFontFace *face, Size& outLayoutSize);
+    static std::vector<GlyphPosition> layout(
+        const IFontFace* face,
+        const std::string& text,
+        const TextStyle& textStyle,
+        const ParagraphStyle& paragraphStyle,
+        const Size& maxSize,
+        Size& outContentSize
+    );
 };
 } // karin
 
