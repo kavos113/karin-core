@@ -85,7 +85,7 @@ void VulkanFontRenderer::cleanup() const
 }
 
 void VulkanFontRenderer::drawText(
-    const TextBlob& text, Point start, Pattern& pattern,
+    const TextBlob& text, Point start, const Pattern& pattern,
     const Transform2D& transform
 ) const
 {

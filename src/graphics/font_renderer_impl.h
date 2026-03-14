@@ -14,7 +14,7 @@ public:
     IFontRendererImpl() = default;
     virtual ~IFontRendererImpl() = default;
 
-    virtual void drawText(const TextBlob& text, Point start, Pattern& pattern, const Transform2D& transform = Transform2D()) const = 0;
+    virtual void drawText(const TextBlob& text, Point start, const Pattern& pattern, const Transform2D& transform = Transform2D()) const = 0;
 };
 } // karin
 

@@ -16,7 +16,7 @@ D2DFontRenderer::D2DFontRenderer(
 
 D2DFontRenderer::~D2DFontRenderer() = default;
 
-void D2DFontRenderer::drawText(const TextBlob& text, Point start, Pattern& pattern, const Transform2D& transform) const
+void D2DFontRenderer::drawText(const TextBlob& text, Point start, const Pattern& pattern, const Transform2D& transform) const
 {
     auto dwriteFace = dynamic_cast<DwriteFontFace*>(text.fontFace.get());
     if (!dwriteFace)

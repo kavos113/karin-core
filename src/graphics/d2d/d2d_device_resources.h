@@ -30,7 +30,7 @@ public:
 
     Image createImage(const std::vector<std::byte>& data, uint32_t width, uint32_t height);
 
-    Microsoft::WRL::ComPtr<ID2D1Brush> brush(Pattern& pattern);
+    Microsoft::WRL::ComPtr<ID2D1Brush> brush(const Pattern& pattern);
     Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> solidColorBrush(const SolidColorPattern& pattern);
     Microsoft::WRL::ComPtr<ID2D1LinearGradientBrush> linearGradientBrush(const LinearGradientPattern& pattern);
     Microsoft::WRL::ComPtr<ID2D1RadialGradientBrush> radialGradientBrush(const RadialGradientPattern& pattern);

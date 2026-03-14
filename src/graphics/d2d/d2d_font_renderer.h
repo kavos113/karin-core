@@ -15,7 +15,7 @@ public:
     explicit D2DFontRenderer(Microsoft::WRL::ComPtr<ID2D1DeviceContext> d2dContext, D2DDeviceResources* deviceResources);
     ~D2DFontRenderer() override;
 
-    void drawText(const TextBlob& text, Point start, Pattern& pattern, const Transform2D& transform) const override;
+    void drawText(const TextBlob& text, Point start, const Pattern& pattern, const Transform2D& transform) const override;
 
 private:
     Microsoft::WRL::ComPtr<ID2D1DeviceContext> m_deviceContext;

@@ -79,7 +79,7 @@ void D2DDeviceResources::clear()
     }
 }
 
-Microsoft::WRL::ComPtr<ID2D1Brush> D2DDeviceResources::brush(Pattern& pattern)
+Microsoft::WRL::ComPtr<ID2D1Brush> D2DDeviceResources::brush(const Pattern& pattern)
 {
     return std::visit(
         [this]<typename T0>(const T0& p) -> Microsoft::WRL::ComPtr<ID2D1Brush>

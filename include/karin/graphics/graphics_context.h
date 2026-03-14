@@ -32,33 +32,33 @@ private:
     friend class Renderer;
 
 public:
-    void fillRect(Rectangle rect, Pattern& pattern, const Transform2D& transform = Transform2D()) const;
+    void fillRect(Rectangle rect, const Pattern& pattern, const Transform2D& transform = Transform2D()) const;
     void fillEllipse(
-        Point center, float radiusX, float radiusY, Pattern& pattern, const Transform2D& transform = Transform2D()
+        Point center, float radiusX, float radiusY, const Pattern& pattern, const Transform2D& transform = Transform2D()
     ) const;
     void fillRoundedRect(
-        Rectangle rect, float radiusX, float radiusY, Pattern& pattern, const Transform2D& transform = Transform2D()
+        Rectangle rect, float radiusX, float radiusY, const Pattern& pattern, const Transform2D& transform = Transform2D()
     ) const;
-    void fillPath(const Path& path, Pattern& pattern, const Transform2D& transform = Transform2D()) const;
+    void fillPath(const Path& path, const Pattern& pattern, const Transform2D& transform = Transform2D()) const;
 
     void drawLine(
-        Point start, Point end, Pattern& pattern, const StrokeStyle& strokeStyle = StrokeStyle(),
+        Point start, Point end, const Pattern& pattern, const StrokeStyle& strokeStyle = StrokeStyle(),
         const Transform2D& transform = Transform2D()
     ) const;
     void drawRect(
-        Rectangle rect, Pattern& pattern, const StrokeStyle& strokeStyle = StrokeStyle(),
+        Rectangle rect, const Pattern& pattern, const StrokeStyle& strokeStyle = StrokeStyle(),
         const Transform2D& transform = Transform2D()
     ) const;
     void drawEllipse(
-        Point center, float radiusX, float radiusY, Pattern& pattern, const StrokeStyle& strokeStyle = StrokeStyle(),
+        Point center, float radiusX, float radiusY, const Pattern& pattern, const StrokeStyle& strokeStyle = StrokeStyle(),
         const Transform2D& transform = Transform2D()
     ) const;
     void drawRoundedRect(
-        Rectangle rect, float radiusX, float radiusY, Pattern& pattern, const StrokeStyle& strokeStyle = StrokeStyle(),
+        Rectangle rect, float radiusX, float radiusY, const Pattern& pattern, const StrokeStyle& strokeStyle = StrokeStyle(),
         const Transform2D& transform = Transform2D()
     ) const;
     void drawPath(
-        const Path& path, Pattern& pattern, const StrokeStyle& strokeStyle = StrokeStyle(),
+        const Path& path, const Pattern& pattern, const StrokeStyle& strokeStyle = StrokeStyle(),
         const Transform2D& transform = Transform2D()
     ) const;
 
@@ -66,7 +66,7 @@ public:
         Image image, Rectangle destRect, Rectangle srcRect = Rectangle(), float opacity = 1.0f,
         const Transform2D& transform = Transform2D()
     ) const;
-    void drawText(const TextBlob& text, Point start, Pattern& pattern, const Transform2D& transform = Transform2D()) const;
+    void drawText(const TextBlob& text, Point start, const Pattern& pattern, const Transform2D& transform = Transform2D()) const;
 
 private:
     IRendererImpl* m_rendererImpl;
