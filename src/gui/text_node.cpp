@@ -14,11 +14,11 @@ TextNode::TextNode(std::string text, TextStyle textStyle, ParagraphStyle paragra
 
 void TextNode::drawInternal(GraphicsContext& gc, const Transform2D& parentTransform) const
 {
-    auto& textEngine = getAppContext().textEngine;
-    auto textBlob = textEngine->layoutText(m_text, m_textStyle, m_paragraphStyle, Size{std::numeric_limits<float>::max(), std::numeric_limits<float>::max()});
-
     Rectangle layout = getLayout();
     Point start = layout.pos;
+
+    auto& textEngine = getAppContext().textEngine;
+    auto textBlob = textEngine->layoutText(m_text, m_textStyle, m_paragraphStyle, layout.size);
 
     gc.drawText(textBlob, start, m_pattern, parentTransform);
 }
