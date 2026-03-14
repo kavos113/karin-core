@@ -36,6 +36,7 @@ int main()
         karin::ParagraphStyle(),
         pattern
     );
+    rootView->addChild(std::move(textNode));
 
     rootView->setLayoutDirection(karin::gui::ContainerNode::LayoutDirection::Row);
     rootView->setGap(10.0f);

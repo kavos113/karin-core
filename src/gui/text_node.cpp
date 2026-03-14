@@ -17,7 +17,10 @@ void TextNode::drawInternal(GraphicsContext& gc, const Transform2D& parentTransf
     auto& textEngine = getAppContext().textEngine;
     auto textBlob = textEngine->layoutText(m_text, m_textStyle, m_paragraphStyle, Size{std::numeric_limits<float>::max(), std::numeric_limits<float>::max()});
 
-    gc.drawText(textBlob, {0, 0}, m_pattern, parentTransform);
+    Rectangle layout = getLayout();
+    Point start = layout.pos;
+
+    gc.drawText(textBlob, start, m_pattern, parentTransform);
 }
 
 YGSize TextNode::measure(Size availableSize) const

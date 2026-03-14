@@ -151,21 +151,20 @@ std::vector<GlyphPosition> TextLayouter::layout(
     std::vector<GlyphPosition> glyphs;
 
     float initPenX = 0;
+    float scale = textStyle.size / static_cast<float>(fontMetrics.unitsPerEm);
     float lineHeight = calculateLineHeight(
         paragraphStyle.lineSpacing,
         paragraphStyle.lineSpacingMode,
         textStyle.size,
-        fontMetrics.capHeight
+        static_cast<float>(fontMetrics.capHeight) * scale
     );
     float penY = calculateBaseLine(
         paragraphStyle.baseline,
         paragraphStyle.lineSpacingMode,
         textStyle.size,
-        fontMetrics.capHeight
+        static_cast<float>(fontMetrics.capHeight) * scale
     );
     float penX = 0;
-    float scale = textStyle.size / fontMetrics.unitsPerEm;
-
     float maxX = 0;
 
     for (const auto& line : lines)
