@@ -9,7 +9,6 @@
 #include <karin/graphics/stroke_style.h>
 #include <karin/graphics/pattern.h>
 #include <karin/graphics/image.h>
-#include <karin/graphics/text_layout.h>
 
 #include <path_impl.h>
 
@@ -39,7 +38,6 @@ public:
     Microsoft::WRL::ComPtr<ID2D1StrokeStyle> strokeStyle(const StrokeStyle& style);
     Microsoft::WRL::ComPtr<ID2D1PathGeometry> pathGeometry(const PathImpl& path);
     Microsoft::WRL::ComPtr<ID2D1Bitmap> bitmap(const Image& image);
-    Microsoft::WRL::ComPtr<IDWriteTextLayout> textLayout(const TextLayout& layout);
 
 private:
     // TODO: create before starting draw calls?

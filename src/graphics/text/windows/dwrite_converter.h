@@ -4,7 +4,7 @@
 #include <dwrite.h>
 #include <stdexcept>
 
-#include <../../../../include/karin/graphics/font.h>
+#include <karin/graphics/font.h>
 
 namespace karin
 {
