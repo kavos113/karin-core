@@ -13,23 +13,24 @@ int main()
     karin::TextEngine textEngine;
 
     karin::Pattern magentaPattern = karin::SolidColorPattern(karin::Color(255, 0, 255));
-    karin::TextLayout textLayout = {
+    karin::TextBlob textBlob = textEngine.layoutText(
         "日本語も描画できます。とても長い文章の場合、改行やトリミングが適切に行われるか確認します。",
-        karin::TextFormat{
+        karin::TextStyle{
             .font = {
                 .family = "Meiryo UI",
                 // .family = "Ubuntu",
             },
             .size = 24.0f,
+        },
+        karin::ParagraphStyle{
             .lineSpacing = 1.5f,
             .baseline = 1.0f,
-            .lineSpacingMode = karin::TextFormat::LineSpacingMode::PROPORTIONAL,
-            .trimming = karin::TextFormat::Trimming::CHARACTER,
-            .wrapping = karin::TextFormat::Wrapping::WORD,
+            .lineSpacingMode = karin::ParagraphStyle::LineSpacingMode::PROPORTIONAL,
+            .trimming = karin::ParagraphStyle::Trimming::CHARACTER,
+            .wrapping = karin::ParagraphStyle::Wrapping::WORD,
         },
-        {400.0f, 200.0f},
-    };
-    karin::TextBlob textBlob = textEngine.layoutText(textLayout);
+        {400.0f, 200.0f}
+    );
 
     renderer.addDrawCommand(
         [&magentaPattern, &textBlob](karin::GraphicsContext& gc)
