@@ -4,13 +4,14 @@
 #include "window.h"
 
 #include <karin/system/application.h>
-#include <karin/graphics/text_engine.h>
 
 #include <memory>
 #include <vector>
 
 namespace karin::gui
 {
+class ApplicationContext;
+
 class Application
 {
 public:
@@ -27,13 +28,8 @@ public:
 
     void run();
 
-    static Application& instance();
-
 private:
-    static Application* s_instance;
-
-    // ApplicationContextとかにまとめてもいいかも
-    std::unique_ptr<TextEngine> m_textEngine;
+    std::unique_ptr<ApplicationContext> m_context;
 
     std::vector<std::shared_ptr<Window>> m_windows;
 };
