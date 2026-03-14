@@ -15,13 +15,7 @@ int main()
     karin::Pattern magentaPattern = karin::SolidColorPattern(karin::Color(255, 0, 255));
     karin::TextBlob textBlob = textEngine.layoutText(
         "日本語も描画できます。とても長い文章の場合、改行やトリミングが適切に行われるか確認します。",
-        karin::TextStyle{
-            .font = {
-                .family = "Meiryo UI",
-                // .family = "Ubuntu",
-            },
-            .size = 24.0f,
-        },
+        karin::TextStyle(24.0f, "Meiryo UI"),
         karin::ParagraphStyle{
             .lineSpacing = 1.5f,
             .baseline = 1.0f,
