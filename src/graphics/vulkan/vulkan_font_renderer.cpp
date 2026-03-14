@@ -103,7 +103,7 @@ void VulkanFontRenderer::drawText(
     glyphsToUpload.reserve(text.glyphs.size());
     for (const auto& glyphPos : text.glyphs)
     {
-        VulkanGlyphCache::GlyphInfo glyphInfo = m_glyphCache->getGlyph(glyphPos.glyphIndex, text.format.hash(), ftFontFace->face(), text.fontEmSize);
+        VulkanGlyphCache::GlyphInfo glyphInfo = m_glyphCache->getGlyph(glyphPos.glyphIndex, text.font.hash(), ftFontFace->face(), text.fontEmSize);
         GlyphMetrics metrics = ftFontFace->getGlyphMetrics(glyphPos.glyphIndex);
 
         glyphsToUpload.push_back({

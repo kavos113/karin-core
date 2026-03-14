@@ -30,8 +30,8 @@ TextBlob TextEngineImpl::layoutText(
     return TextBlob{
         .glyphs = std::move(glyphs),
         .fontFace = std::move(fontFace),
+        .font = textStyle.font,
         .fontEmSize = textStyle.size,
-        .format = textStyle,
         .layoutSize = layoutSize,
     };
 }
