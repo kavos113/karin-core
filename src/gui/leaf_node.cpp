@@ -1,5 +1,7 @@
 #include "leaf_node.h"
 
+#include <limits>
+
 namespace karin::gui
 {
 LeafNode::LeafNode()
@@ -12,9 +14,12 @@ YGSize LeafNode::staticMeasureFunc(
 {
     auto *self = static_cast<LeafNode*>(YGNodeGetContext(node));
 
+    float availableWidth = (widthMode == YGMeasureModeUndefined) ? std::numeric_limits<float>::infinity() : width;
+    float availableHeight = (heightMode == YGMeasureModeUndefined) ? std::numeric_limits<float>::infinity() : height;
+
     if (self)
     {
-        return self->measure({width, height});
+        return self->measure({availableWidth, availableHeight});
     }
 
     return {0, 0};
