@@ -16,6 +16,11 @@ struct TextStyle
     bool underline = false;
     bool lineThrough = false;
 
+    TextStyle() = default;
+    TextStyle(float size, std::string fontFamily, std::string locale = "en-US")
+        : font(std::move(fontFamily)), size(size), locale(std::move(locale))
+    {}
+
     size_t hash() const;
 };
 } // karin
