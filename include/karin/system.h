@@ -4,6 +4,5 @@
 #include "system/application.h"
 #include "system/window.h"
 #include "system/event.h"
-#include "system/font.h"
 
 #endif //KARIN_SYSTEM_H

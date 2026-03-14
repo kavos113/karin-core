@@ -19,31 +19,31 @@ public:
     explicit VulkanGraphicsContextImpl(VulkanRendererImpl* renderer);
     ~VulkanGraphicsContextImpl() override = default;
 
-    void fillRect(Rectangle rect, Pattern& pattern, const Transform2D& transform) override;
+    void fillRect(Rectangle rect, const Pattern& pattern, const Transform2D& transform) override;
     void fillEllipse(
-        Point center, float radiusX, float radiusY, Pattern& pattern, const Transform2D& transform
+        Point center, float radiusX, float radiusY, const Pattern& pattern, const Transform2D& transform
     ) override;
     void fillRoundedRect(
-        Rectangle rect, float radiusX, float radiusY, Pattern& pattern, const Transform2D& transform
+        Rectangle rect, float radiusX, float radiusY, const Pattern& pattern, const Transform2D& transform
     ) override;
-    void fillPath(const PathImpl& path, Pattern& pattern, const Transform2D& transform) override;
+    void fillPath(const PathImpl& path, const Pattern& pattern, const Transform2D& transform) override;
     void drawLine(
-        Point start, Point end, Pattern& pattern, const StrokeStyle& strokeStyle, const Transform2D& transform
+        Point start, Point end, const Pattern& pattern, const StrokeStyle& strokeStyle, const Transform2D& transform
     ) override;
     void drawRect(
-        Rectangle rect, Pattern& pattern, const StrokeStyle& strokeStyle, const Transform2D& transform
+        Rectangle rect, const Pattern& pattern, const StrokeStyle& strokeStyle, const Transform2D& transform
     ) override;
     void drawEllipse(
-        Point center, float radiusX, float radiusY, Pattern& pattern, const StrokeStyle& strokeStyle, const Transform2D&
+        Point center, float radiusX, float radiusY, const Pattern& pattern, const StrokeStyle& strokeStyle, const Transform2D&
         transform
     ) override;
     void drawRoundedRect(
-        Rectangle rect, float radiusX, float radiusY, Pattern& pattern, const StrokeStyle& strokeStyle,
+        Rectangle rect, float radiusX, float radiusY, const Pattern& pattern, const StrokeStyle& strokeStyle,
         const Transform2D&
         transform
     ) override;
     void drawPath(
-        const PathImpl& path, Pattern& pattern, const StrokeStyle& strokeStyle, const Transform2D& transform
+        const PathImpl& path, const Pattern& pattern, const StrokeStyle& strokeStyle, const Transform2D& transform
     ) override;
 
     void drawImage(

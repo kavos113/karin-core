@@ -1,28 +1,24 @@
 #include "application.h"
+#include "application_context.h"
 
 namespace karin::gui
 {
-Application* Application::s_instance = nullptr;
+static ApplicationContext *s_appContext = nullptr;
 
 Application::Application()
 {
-    m_textEngine = std::make_unique<TextEngine>();
-
-    if (s_instance)
+    if (s_appContext)
     {
-        throw std::runtime_error("Application instance already exists");
+        throw std::runtime_error("Application already exists");
     }
-    s_instance = this;
+
+    m_context = std::make_unique<ApplicationContext>();
+    s_appContext = m_context.get();
 }
 
 Application::~Application()
 {
-    s_instance = nullptr;
-}
-
-Application& Application::instance()
-{
-    return *s_instance;
+    s_appContext = nullptr;
 }
 
 std::shared_ptr<Window> Application::createWindow(const std::wstring& title, int x, int y, int width, int height)
@@ -43,5 +39,14 @@ void Application::run()
     karin::Application& app = karin::Application::instance();
     Event event;
     while (app.waitEvent(event)) { }
+}
+
+ApplicationContext& getAppContext()
+{
+    if (!s_appContext)
+    {
+        throw std::runtime_error("Application context is not initialized");
+    }
+    return *s_appContext;
 }
 } // karin::gui

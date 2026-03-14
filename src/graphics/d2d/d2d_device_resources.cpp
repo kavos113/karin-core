@@ -5,8 +5,6 @@
 #include "d2d_consts.h"
 #include "d2d_context.h"
 
-#include <text/windows/dwrite_converter.h>
-
 #include <wincodec.h>
 
 #include <cmath>
@@ -69,117 +67,6 @@ D2D1_EXTEND_MODE toD2DExtendMode(ExtendMode extendMode)
         throw std::invalid_argument("Unknown extend mode");
     }
 }
-
-DWRITE_TEXT_ALIGNMENT toDWriteTextAlignment(TextFormat::HorizontalAlignment alignment)
-{
-    switch (alignment)
-    {
-    case TextFormat::HorizontalAlignment::LEADING:
-        return DWRITE_TEXT_ALIGNMENT_LEADING;
-    case TextFormat::HorizontalAlignment::TRAILING:
-        return DWRITE_TEXT_ALIGNMENT_TRAILING;
-    case TextFormat::HorizontalAlignment::CENTER:
-        return DWRITE_TEXT_ALIGNMENT_CENTER;
-    case TextFormat::HorizontalAlignment::JUSTIFIED:
-        return DWRITE_TEXT_ALIGNMENT_JUSTIFIED;
-    default:
-        throw std::invalid_argument("Unknown text alignment");
-    }
-}
-
-DWRITE_PARAGRAPH_ALIGNMENT toDWriteParagraphAlignment(TextFormat::VerticalAlignment alignment)
-{
-    switch (alignment)
-    {
-    case TextFormat::VerticalAlignment::TOP:
-        return DWRITE_PARAGRAPH_ALIGNMENT_NEAR;
-    case TextFormat::VerticalAlignment::CENTER:
-        return DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
-    case TextFormat::VerticalAlignment::BOTTOM:
-        return DWRITE_PARAGRAPH_ALIGNMENT_FAR;
-    default:
-        throw std::invalid_argument("Unknown paragraph alignment");
-    }
-}
-
-DWRITE_WORD_WRAPPING toDWriteWordWrapping(TextFormat::Wrapping wordWrapping)
-{
-    switch (wordWrapping)
-    {
-    case TextFormat::Wrapping::NONE:
-        return DWRITE_WORD_WRAPPING_NO_WRAP;
-    case TextFormat::Wrapping::CHARACTER:
-        return DWRITE_WORD_WRAPPING_CHARACTER;
-    case TextFormat::Wrapping::WORD:
-        return DWRITE_WORD_WRAPPING_WRAP;
-    default:
-        throw std::invalid_argument("Unknown word wrapping");
-    }
-}
-
-DWRITE_TRIMMING_GRANULARITY toDWriteTrimmingGranularity(TextFormat::Trimming trimming)
-{
-    switch (trimming)
-    {
-    case TextFormat::Trimming::NONE:
-        return DWRITE_TRIMMING_GRANULARITY_NONE;
-    case TextFormat::Trimming::WORD:
-        return DWRITE_TRIMMING_GRANULARITY_CHARACTER;
-    case TextFormat::Trimming::CHARACTER:
-        return DWRITE_TRIMMING_GRANULARITY_CHARACTER;
-    default:
-        throw std::invalid_argument("Unknown trimming granularity");
-    }
-}
-
-DWRITE_FLOW_DIRECTION toDWriteFlowDirection(TextFormat::Direction flowDirection)
-{
-    switch (flowDirection)
-    {
-    case TextFormat::Direction::TOP_TO_BOTTOM:
-        return DWRITE_FLOW_DIRECTION_TOP_TO_BOTTOM;
-    case TextFormat::Direction::BOTTOM_TO_TOP:
-        return DWRITE_FLOW_DIRECTION_BOTTOM_TO_TOP;
-    case TextFormat::Direction::LEFT_TO_RIGHT:
-        return DWRITE_FLOW_DIRECTION_LEFT_TO_RIGHT;
-    case TextFormat::Direction::RIGHT_TO_LEFT:
-        return DWRITE_FLOW_DIRECTION_RIGHT_TO_LEFT;
-    default:
-        throw std::invalid_argument("Unknown flow direction");
-    }
-}
-
-DWRITE_READING_DIRECTION toDWriteReadingDirection(TextFormat::Direction readingDirection)
-{
-    switch (readingDirection)
-    {
-    case TextFormat::Direction::TOP_TO_BOTTOM:
-        return DWRITE_READING_DIRECTION_TOP_TO_BOTTOM;
-    case TextFormat::Direction::BOTTOM_TO_TOP:
-        return DWRITE_READING_DIRECTION_BOTTOM_TO_TOP;
-    case TextFormat::Direction::LEFT_TO_RIGHT:
-        return DWRITE_READING_DIRECTION_LEFT_TO_RIGHT;
-    case TextFormat::Direction::RIGHT_TO_LEFT:
-        return DWRITE_READING_DIRECTION_RIGHT_TO_LEFT;
-    default:
-        throw std::invalid_argument("Unknown reading direction");
-    }
-}
-
-DWRITE_LINE_SPACING_METHOD toDWriteLineSpacingMethod(TextFormat::LineSpacingMode lineSpacingMode)
-{
-    switch (lineSpacingMode)
-    {
-    case TextFormat::LineSpacingMode::DEFAULT:
-        return DWRITE_LINE_SPACING_METHOD_DEFAULT;
-    case TextFormat::LineSpacingMode::UNIFORM:
-        return DWRITE_LINE_SPACING_METHOD_UNIFORM;
-    case TextFormat::LineSpacingMode::PROPORTIONAL:
-        return DWRITE_LINE_SPACING_METHOD_PROPORTIONAL;
-    default:
-        throw std::invalid_argument("Unknown line spacing method");
-    }
-}
 }
 
 namespace karin
@@ -192,7 +79,7 @@ void D2DDeviceResources::clear()
     }
 }
 
-Microsoft::WRL::ComPtr<ID2D1Brush> D2DDeviceResources::brush(Pattern& pattern)
+Microsoft::WRL::ComPtr<ID2D1Brush> D2DDeviceResources::brush(const Pattern& pattern)
 {
     return std::visit(
         [this]<typename T0>(const T0& p) -> Microsoft::WRL::ComPtr<ID2D1Brush>
@@ -560,126 +447,5 @@ Microsoft::WRL::ComPtr<ID2D1Bitmap> D2DDeviceResources::bitmap(const Image& imag
     }
 
     throw std::runtime_error("Bitmap creation not implemented");
-}
-
-Microsoft::WRL::ComPtr<IDWriteTextLayout> D2DDeviceResources::textLayout(const TextLayout& layout)
-{
-    if (auto it = m_textLayouts.find(layout.hash()); it != m_textLayouts.end())
-    {
-        return it->second;
-    }
-
-    Microsoft::WRL::ComPtr<IDWriteTextFormat> format;
-    if (auto it = m_textFormats.find(layout.format.hash()); it != m_textFormats.end())
-    {
-        format = it->second;
-    }
-    else
-    {
-        HRESULT hr = D2DContext::instance().dwriteFactory()->CreateTextFormat(
-            toWString(layout.format.font.family).c_str(),
-            nullptr,
-            toDWriteFontWeight(layout.format.font.weight),
-            toDWriteFontStyle(layout.format.font.style),
-            toDWriteFontStretch(layout.format.font.stretch),
-            layout.format.size,
-            toWString(layout.format.locale).c_str(),
-            &format
-        );
-        if (FAILED(hr))
-        {
-            throw std::runtime_error("Failed to create DWrite text format");
-        }
-
-        hr = format->SetTextAlignment(toDWriteTextAlignment(layout.format.horizontalAlignment));
-        if (FAILED(hr))
-        {
-            throw std::runtime_error("Failed to set text alignment in DWrite text format");
-        }
-
-        hr = format->SetParagraphAlignment(toDWriteParagraphAlignment(layout.format.verticalAlignment));
-        if (FAILED(hr))
-        {
-            throw std::runtime_error("Failed to set paragraph alignment in DWrite text format");
-        }
-
-        hr = format->SetWordWrapping(toDWriteWordWrapping(layout.format.wrapping));
-        if (FAILED(hr))
-        {
-            throw std::runtime_error("Failed to set word wrapping in DWrite text format");
-        }
-        DWRITE_TRIMMING trimming = {
-            .granularity = toDWriteTrimmingGranularity(layout.format.trimming),
-            .delimiter = 0, // No delimiter for now
-            .delimiterCount = 0
-        };
-        hr = format->SetTrimming(&trimming, nullptr);
-        if (FAILED(hr))
-        {
-            throw std::runtime_error("Failed to set trimming in DWrite text format");
-        }
-
-        hr = format->SetLineSpacing(
-            toDWriteLineSpacingMethod(layout.format.lineSpacingMode),
-            layout.format.lineSpacing,
-            layout.format.baseline
-        );
-        if (FAILED(hr))
-        {
-            throw std::runtime_error("Failed to set line spacing in DWrite text format");
-        }
-
-        hr = format->SetFlowDirection(toDWriteFlowDirection(layout.format.flowDirection));
-        if (FAILED(hr))
-        {
-            throw std::runtime_error("Failed to set flow direction in DWrite text format");
-        }
-
-        hr = format->SetReadingDirection(toDWriteReadingDirection(layout.format.readingDirection));
-        if (FAILED(hr))
-        {
-            throw std::runtime_error("Failed to set reading direction in DWrite text format");
-        }
-
-        m_textFormats[layout.format.hash()] = format;
-    }
-
-    Microsoft::WRL::ComPtr<IDWriteTextLayout> textLayout;
-    HRESULT hr = D2DContext::instance().dwriteFactory()->CreateTextLayout(
-        toWString(layout.text).c_str(),
-        static_cast<UINT32>(layout.text.size()),
-        format.Get(),
-        layout.size.width,
-        layout.size.height,
-        &textLayout
-    );
-    if (FAILED(hr))
-    {
-        throw std::runtime_error("Failed to create DWrite text layout");
-    }
-
-    DWRITE_TEXT_RANGE textRange = {
-        .startPosition = 0,
-        .length = static_cast<UINT32>(layout.text.size())
-    };
-    if (layout.underline)
-    {
-        hr = textLayout->SetUnderline(true, textRange);
-        if (FAILED(hr))
-        {
-            throw std::runtime_error("Failed to set underline in DWrite text layout");
-        }
-    }
-    if (layout.lineThrough)
-    {
-        hr = textLayout->SetStrikethrough(true, textRange);
-        if (FAILED(hr))
-        {
-            throw std::runtime_error("Failed to set line-through in DWrite text layout");
-        }
-    }
-
-    m_textLayouts[layout.hash()] = textLayout;
-    return textLayout;
 }
 } // karin

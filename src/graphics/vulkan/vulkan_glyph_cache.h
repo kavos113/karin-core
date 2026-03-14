@@ -4,7 +4,7 @@
 #include "vulkan_context.h"
 
 #include <karin/common/geometry/rectangle.h>
-#include <karin/system/font.h>
+#include <karin/common/geometry/point.h>
 
 #include <vulkan/vulkan.h>
 #include <vulkan/vma.h>

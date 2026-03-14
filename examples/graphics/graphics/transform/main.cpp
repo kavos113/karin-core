@@ -14,7 +14,12 @@ int main()
     renderer.setClearColor(karin::Color(karin::Color::Green));
 
     karin::TextEngine textEngine;
-    karin::TextBlob blob = textEngine.layoutText(karin::TextLayout("Hello, Karin!", 24, "Segoe UI", karin::Size(200, 50)));
+    karin::TextBlob blob = textEngine.layoutText(
+        "Hello, Karin!",
+        karin::TextStyle(24, "Segoe UI"),
+        karin::ParagraphStyle(),
+        karin::Size(200, 50)
+    );
 
     karin::Pattern cyanPattern = karin::SolidColorPattern(karin::Color(0, 255, 255));
     karin::Pattern magentaPattern = karin::SolidColorPattern(karin::Color(255, 0, 255));

@@ -15,7 +15,7 @@ public:
     explicit VulkanFontRenderer(VulkanRendererImpl *renderer, size_t maxFramesInFlight);
     ~VulkanFontRenderer() override;
 
-    void drawText(const TextBlob& text, Point start, Pattern& pattern, const Transform2D& transform) const override;
+    void drawText(const TextBlob& text, Point start, const Pattern& pattern, const Transform2D& transform) const override;
 
     void cleanup() const;
 

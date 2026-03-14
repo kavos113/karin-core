@@ -2,7 +2,8 @@
 #define KARIN_GRAPHICS_TEXT_ENGINE_H
 
 #include "text_blob.h"
-#include "text_layout.h"
+#include "text_style.h"
+#include "paragraph_style.h"
 
 #include <memory>
 
@@ -16,7 +17,12 @@ public:
     TextEngine();
     ~TextEngine();
 
-    TextBlob layoutText(const TextLayout& layout) const;
+    TextBlob layoutText(
+        const std::string& text,
+        const TextStyle& textStyle,
+        const ParagraphStyle& paragraphStyle,
+        const Size& maxSize
+    );
 
 private:
     std::unique_ptr<TextEngineImpl> m_impl;

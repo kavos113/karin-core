@@ -15,3 +15,4 @@ add_subdirectory(graphics/graphics/draw_text_japanese)
 add_subdirectory(graphics/graphics/transform)
 
 add_subdirectory(gui/hello_layout)
+add_subdirectory(gui/text_node)

@@ -16,32 +16,32 @@ class IGraphicsContextImpl
 public:
     virtual ~IGraphicsContextImpl() = default;
 
-    virtual void fillRect(Rectangle rect, Pattern& pattern, const Transform2D& transform) = 0;
+    virtual void fillRect(Rectangle rect, const Pattern& pattern, const Transform2D& transform) = 0;
     virtual void fillEllipse(
-        Point center, float radiusX, float radiusY, Pattern& pattern, const Transform2D& transform
+        Point center, float radiusX, float radiusY, const Pattern& pattern, const Transform2D& transform
     ) = 0;
     virtual void fillRoundedRect(
-        Rectangle rect, float radiusX, float radiusY, Pattern& pattern, const Transform2D& transform
+        Rectangle rect, float radiusX, float radiusY, const Pattern& pattern, const Transform2D& transform
     ) = 0;
-    virtual void fillPath(const PathImpl& path, Pattern& pattern, const Transform2D& transform) = 0;
+    virtual void fillPath(const PathImpl& path, const Pattern& pattern, const Transform2D& transform) = 0;
 
     virtual void drawLine(
-        Point start, Point end, Pattern& pattern, const StrokeStyle& strokeStyle, const Transform2D& transform
+        Point start, Point end, const Pattern& pattern, const StrokeStyle& strokeStyle, const Transform2D& transform
     ) = 0;
     virtual void drawRect(
-        Rectangle rect, Pattern& pattern, const StrokeStyle& strokeStyle, const Transform2D& transform
+        Rectangle rect, const Pattern& pattern, const StrokeStyle& strokeStyle, const Transform2D& transform
     ) = 0;
     virtual void drawEllipse(
-        Point center, float radiusX, float radiusY, Pattern& pattern, const StrokeStyle& strokeStyle, const Transform2D&
+        Point center, float radiusX, float radiusY, const Pattern& pattern, const StrokeStyle& strokeStyle, const Transform2D&
         transform
     ) = 0;
     virtual void drawRoundedRect(
-        Rectangle rect, float radiusX, float radiusY, Pattern& pattern, const StrokeStyle& strokeStyle,
+        Rectangle rect, float radiusX, float radiusY, const Pattern& pattern, const StrokeStyle& strokeStyle,
         const Transform2D&
         transform
     ) = 0;
     virtual void drawPath(
-        const PathImpl& path, Pattern& pattern, const StrokeStyle& strokeStyle, const Transform2D& transform
+        const PathImpl& path, const Pattern& pattern, const StrokeStyle& strokeStyle, const Transform2D& transform
     ) = 0;
 
     virtual void drawImage(

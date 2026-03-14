@@ -17,7 +17,7 @@ D2DGraphicsContextImpl::D2DGraphicsContextImpl(
 {
 }
 
-void D2DGraphicsContextImpl::fillRect(const Rectangle rect, Pattern& pattern, const Transform2D& transform)
+void D2DGraphicsContextImpl::fillRect(const Rectangle rect, const Pattern& pattern, const Transform2D& transform)
 {
     D2D1_MATRIX_3X2_F oldTransform;
     m_deviceContext->GetTransform(&oldTransform);
@@ -40,7 +40,7 @@ void D2DGraphicsContextImpl::fillRect(const Rectangle rect, Pattern& pattern, co
 }
 
 void D2DGraphicsContextImpl::fillEllipse(
-    Point center, float radiusX, float radiusY, Pattern& pattern, const Transform2D& transform
+    Point center, float radiusX, float radiusY, const Pattern& pattern, const Transform2D& transform
 )
 {
     D2D1_MATRIX_3X2_F oldTransform;
@@ -68,7 +68,7 @@ void D2DGraphicsContextImpl::fillEllipse(
 }
 
 void D2DGraphicsContextImpl::fillRoundedRect(
-    Rectangle rect, float radiusX, float radiusY, Pattern& pattern, const Transform2D& transform
+    Rectangle rect, float radiusX, float radiusY, const Pattern& pattern, const Transform2D& transform
 )
 {
     D2D1_MATRIX_3X2_F oldTransform;
@@ -97,7 +97,7 @@ void D2DGraphicsContextImpl::fillRoundedRect(
 }
 
 void D2DGraphicsContextImpl::drawLine(
-    Point start, Point end, Pattern& pattern, const StrokeStyle& strokeStyle, const Transform2D& transform
+    Point start, Point end, const Pattern& pattern, const StrokeStyle& strokeStyle, const Transform2D& transform
 )
 {
     D2D1_MATRIX_3X2_F oldTransform;
@@ -124,7 +124,7 @@ void D2DGraphicsContextImpl::drawLine(
 }
 
 void D2DGraphicsContextImpl::drawRect(
-    Rectangle rect, Pattern& pattern, const StrokeStyle& strokeStyle, const Transform2D& transform
+    Rectangle rect, const Pattern& pattern, const StrokeStyle& strokeStyle, const Transform2D& transform
 )
 {
     D2D1_MATRIX_3X2_F oldTransform;
@@ -153,7 +153,7 @@ void D2DGraphicsContextImpl::drawEllipse(
     Point center,
     float radiusX,
     float radiusY,
-    Pattern& pattern,
+    const Pattern& pattern,
     const StrokeStyle& strokeStyle, const Transform2D& transform
 )
 {
@@ -187,7 +187,7 @@ void D2DGraphicsContextImpl::drawRoundedRect(
     Rectangle rect,
     float radiusX,
     float radiusY,
-    Pattern& pattern,
+    const Pattern& pattern,
     const StrokeStyle& strokeStyle, const Transform2D& transform
 )
 {
@@ -218,7 +218,7 @@ void D2DGraphicsContextImpl::drawRoundedRect(
     m_deviceContext->SetTransform(oldTransform);
 }
 
-void D2DGraphicsContextImpl::fillPath(const PathImpl& path, Pattern& pattern, const Transform2D& transform)
+void D2DGraphicsContextImpl::fillPath(const PathImpl& path, const Pattern& pattern, const Transform2D& transform)
 {
     D2D1_MATRIX_3X2_F oldTransform;
     m_deviceContext->GetTransform(&oldTransform);
@@ -246,7 +246,7 @@ void D2DGraphicsContextImpl::fillPath(const PathImpl& path, Pattern& pattern, co
 }
 
 void D2DGraphicsContextImpl::drawPath(
-    const PathImpl& path, Pattern& pattern, const StrokeStyle& strokeStyle, const Transform2D& transform
+    const PathImpl& path, const Pattern& pattern, const StrokeStyle& strokeStyle, const Transform2D& transform
 )
 {
     D2D1_MATRIX_3X2_F oldTransform;

@@ -1,8 +1,9 @@
 #ifndef SRC_GRAPHICS_TEXT_TEXT_ENGINE_IMPL_H
 #define SRC_GRAPHICS_TEXT_TEXT_ENGINE_IMPL_H
 
-#include <karin/graphics/text_layout.h>
 #include <karin/graphics/text_blob.h>
+#include <karin/graphics/text_style.h>
+#include <karin/graphics/paragraph_style.h>
 
 #include "font_loader.h"
 #include "text_layouter.h"
@@ -15,7 +16,12 @@ public:
     TextEngineImpl();
     ~TextEngineImpl() = default;
 
-    TextBlob layoutText(const TextLayout& layout) const;
+    TextBlob layoutText(
+        const std::string& text,
+        const TextStyle& textStyle,
+        const ParagraphStyle& paragraphStyle,
+        const Size& maxSize
+    ) const;
 
 private:
     std::unique_ptr<FontLoader> m_fontLoader;

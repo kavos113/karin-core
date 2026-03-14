@@ -11,8 +11,13 @@ TextEngine::TextEngine()
 
 TextEngine::~TextEngine() = default;
 
-TextBlob TextEngine::layoutText(const TextLayout& layout) const
+TextBlob TextEngine::layoutText(
+    const std::string& text,
+    const TextStyle& textStyle,
+    const ParagraphStyle& paragraphStyle,
+    const Size& maxSize
+)
 {
-    return m_impl->layoutText(layout);
+    return m_impl->layoutText(text, textStyle, paragraphStyle, maxSize);
 }
 }

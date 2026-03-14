@@ -13,23 +13,18 @@ int main()
     karin::TextEngine textEngine;
 
     karin::Pattern magentaPattern = karin::SolidColorPattern(karin::Color(255, 0, 255));
-    karin::TextLayout textLayout = {
+    karin::TextBlob textBlob = textEngine.layoutText(
         "Hello karin graphics!\nThis is a text layout example.\nthis is very verrrrrrrrrrrrrrrrrrrrrrrrrrry long line to test trimming and wrapping.",
-        karin::TextFormat{
-            .font = {
-                .family = "Arial",
-                // .family = "Ubuntu",
-            },
-            .size = 24.0f,
+        karin::TextStyle(24.0f, "Arial"),
+        karin::ParagraphStyle{
             .lineSpacing = 1.5f,
             .baseline = 1.0f,
-            .lineSpacingMode = karin::TextFormat::LineSpacingMode::PROPORTIONAL,
-            .trimming = karin::TextFormat::Trimming::WORD,
-            .wrapping = karin::TextFormat::Wrapping::WORD,
+            .lineSpacingMode = karin::ParagraphStyle::LineSpacingMode::PROPORTIONAL,
+            .trimming = karin::ParagraphStyle::Trimming::WORD,
+            .wrapping = karin::ParagraphStyle::Wrapping::WORD,
         },
-        {400.0f, 200.0f},
-    };
-    karin::TextBlob textBlob = textEngine.layoutText(textLayout);
+        {400.0f, 200.0f}
+    );
 
     renderer.addDrawCommand(
         [&magentaPattern, &textBlob](karin::GraphicsContext& gc)

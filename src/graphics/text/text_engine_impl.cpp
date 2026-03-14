@@ -8,19 +8,31 @@ TextEngineImpl::TextEngineImpl()
     m_textLayouter = std::make_unique<TextLayouter>();
 }
 
-TextBlob TextEngineImpl::layoutText(const TextLayout& layout) const
+TextBlob TextEngineImpl::layoutText(
+    const std::string& text,
+    const TextStyle& textStyle,
+    const ParagraphStyle& paragraphStyle,
+    const Size& maxSize
+) const
 {
-    std::unique_ptr<IFontFace> fontFace = m_fontLoader->loadFont(layout.format.font);
-    std::vector<GlyphPosition> glyphs = TextLayouter::layout(layout, fontFace.get());
+    std::unique_ptr<IFontFace> fontFace = m_fontLoader->loadFont(textStyle.font);
 
-    TextBlob blob = {
+    Size layoutSize{};
+    std::vector<GlyphPosition> glyphs = TextLayouter::layout(
+        fontFace.get(),
+        text,
+        textStyle,
+        paragraphStyle,
+        maxSize,
+        layoutSize
+    );
+
+    return TextBlob{
         .glyphs = std::move(glyphs),
         .fontFace = std::move(fontFace),
-        .fontEmSize = layout.format.size,
-        .format = layout.format,
-        .layoutSize = layout.size,
+        .font = textStyle.font,
+        .fontEmSize = textStyle.size,
+        .layoutSize = layoutSize,
     };
-
-    return blob;
 }
 }

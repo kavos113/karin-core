@@ -2,7 +2,7 @@
 #define SRC_GRAPHICS_TEXT_FONT_LOADER_PLATFORM_H
 
 #include <karin/graphics/font_face.h>
-#include <karin/system/font.h>
+#include <karin/graphics/font.h>
 
 #include <memory>
 #include <vector>

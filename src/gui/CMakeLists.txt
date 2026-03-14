@@ -5,6 +5,8 @@ set(GUI_SOURCES
         rectangle_node.cpp
         leaf_node.cpp
         application.cpp
+        application_context.cpp
+        text_node.cpp
 )
 
 add_library(karin_gui STATIC ${GUI_SOURCES})
