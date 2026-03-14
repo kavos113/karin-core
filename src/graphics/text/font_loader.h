@@ -1,7 +1,7 @@
 #ifndef SRC_GRAPHICS_TEXT_FONT_LOADER_H
 #define SRC_GRAPHICS_TEXT_FONT_LOADER_H
 
-#include <karin/system/font.h>
+#include <../../../include/karin/graphics/font.h>
 #include <karin/graphics/font_face.h>
 #include "font_loader_platform.h"
 

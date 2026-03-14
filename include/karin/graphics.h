@@ -7,6 +7,8 @@
 #include "graphics/stroke_style.h"
 #include "graphics/pattern.h"
 #include "graphics/image.h"
+#include "graphics/font.h"
+#include "graphics/font_face.h"
 #include "graphics/text_layout.h"
 #include "graphics/text_format.h"
 #include "graphics/text_blob.h"

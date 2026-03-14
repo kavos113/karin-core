@@ -1,7 +1,7 @@
 #include <karin/graphics/pattern.h>
 #include <karin/graphics/text_format.h>
 #include <karin/graphics/text_layout.h>
-#include <karin/system/font.h>
+#include <../../include/karin/graphics/font.h>
 
 #include <utils/hash.h>
 

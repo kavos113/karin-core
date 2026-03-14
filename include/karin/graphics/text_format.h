@@ -1,7 +1,7 @@
 #ifndef KARIN_GRAPHICS_TEXT_FORMAT_H
 #define KARIN_GRAPHICS_TEXT_FORMAT_H
 
-#include <karin/system/font.h>
+#include <font.h>
 
 #include <string>
 #include <cstdint>
