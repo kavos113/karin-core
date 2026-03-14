@@ -77,3 +77,7 @@ jobs:
           ./vcpkg/bootstrap-vcpkg.sh
           ./vcpkg/vcpkg install --triplet ${{ matrix.triplet }}
         shell: bash
+
+      - name: Install cmake preset dependencies
+        run: cmake --preset ${{ matrix.cmake_preset }}
+        shell: bash
