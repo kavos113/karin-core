@@ -13,8 +13,6 @@ target_link_libraries(karin_examples_text_node PRIVATE
         karin_system
         karin_graphics)
 target_include_directories(karin_examples_text_node PRIVATE ${INCLUDE_DIR})
-# for testing
-target_include_directories(karin_examples_text_node PRIVATE ../../../src/gui)
 
 find_package(yoga CONFIG REQUIRED)
 target_link_libraries(karin_examples_text_node PRIVATE yoga::yogacore)
