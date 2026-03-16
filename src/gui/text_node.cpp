@@ -1,4 +1,4 @@
-#include "text_node.h"
+#include <karin/gui/text_node.h>
 
 #include "application_context.h"
 

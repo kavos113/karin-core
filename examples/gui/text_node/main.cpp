@@ -1,13 +1,8 @@
 #include <karin/common.h>
+#include <karin/gui.h>
 
 #include <memory>
 #include <random>
-
-#include "window.h"
-#include "container_node.h"
-#include "rectangle_node.h"
-#include "text_node.h"
-#include "application.h"
 
 int main()
 {

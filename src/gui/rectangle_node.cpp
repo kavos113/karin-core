@@ -1,4 +1,4 @@
-#include "rectangle_node.h"
+#include <karin/gui/rectangle_node.h>
 
 namespace karin::gui
 {
