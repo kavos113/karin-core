@@ -1,4 +1,4 @@
-#include "window.h"
+#include <karin/gui/window.h>
 
 #include <karin/system/application.h>
 #include <karin/common/color/color.h>

@@ -1,4 +1,4 @@
-#include "leaf_node.h"
+#include <karin/gui/leaf_node.h>
 
 #include <limits>
 

@@ -1,4 +1,4 @@
-#include "application.h"
+#include <karin/gui/application.h>
 #include "application_context.h"
 
 namespace karin::gui

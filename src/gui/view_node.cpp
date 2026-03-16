@@ -1,4 +1,4 @@
-#include "view_node.h"
+#include <karin/gui/view_node.h>
 
 #include <karin/graphics/stroke_style.h>
 

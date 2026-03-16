@@ -1,4 +1,4 @@
-#include "container_node.h"
+#include <karin/gui/container_node.h>
 
 namespace
 {

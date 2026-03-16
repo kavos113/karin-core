@@ -3,11 +3,11 @@
 #include <memory>
 #include <random>
 
-#include "window.h"
+#include "../../../include/karin/gui/window.h"
 #include "container_node.h"
-#include "rectangle_node.h"
+#include "../../../include/karin/gui/rectangle_node.h"
 #include "view_node.h"
-#include "application.h"
+#include "../../../include/karin/gui/application.h"
 
 int main()
 {
