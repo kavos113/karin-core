@@ -17,10 +17,10 @@ JNIEXPORT jlong JNICALL Java_com_github_kavos113_karin_KarinJni_applicationCreat
     auto *app = reinterpret_cast<Application *>(appPtr);
 
     const char *titleChars = env->GetStringUTFChars(title, nullptr);
-    Window *window = app->createWindow(titleChars, x, y, width, height);
+    auto window = app->createWindow(titleChars, x, y, width, height);
     env->ReleaseStringUTFChars(title, titleChars);
 
-    return reinterpret_cast<jlong>(window);
+    return reinterpret_cast<jlong>(window.get());
 }
 
 JNIEXPORT void JNICALL Java_com_github_kavos113_karin_KarinJni_applicationRun
