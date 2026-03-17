@@ -69,4 +69,30 @@ void ContainerNode::setWrapMode(WrapMode mode)
 {
     YGNodeStyleSetFlexWrap(m_yogaNode, toYogaWrap(mode));
 }
+
+const ViewNode* ContainerNode::hitTest(const Point& point) const
+{
+    float width = YGNodeLayoutGetWidth(m_yogaNode);
+    float height = YGNodeLayoutGetHeight(m_yogaNode);
+
+    if (point.x < 0 || point.y < 0 || point.x > width || point.y > height)
+    {
+        return nullptr;
+    }
+
+    for (const auto & child : m_children)
+    {
+        float childX = YGNodeLayoutGetLeft(child->getYogaNode());
+        float childY = YGNodeLayoutGetTop(child->getYogaNode());
+        Point childPoint = { point.x - childX, point.y - childY };
+
+        const ViewNode* hitNode = child->hitTest(childPoint);
+        if (hitNode)
+        {
+            return hitNode;
+        }
+    }
+
+    return this;
+}
 } // karin::gui

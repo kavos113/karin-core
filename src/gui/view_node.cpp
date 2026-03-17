@@ -225,4 +225,17 @@ void ViewNode::drawBorder(GraphicsContext& gc, const Transform2D& transform) con
         );
     }
 }
+
+const ViewNode* ViewNode::hitTest(const Point& point) const
+{
+    float width = YGNodeLayoutGetWidth(m_yogaNode);
+    float height = YGNodeLayoutGetHeight(m_yogaNode);
+
+    if (point.x < 0 || point.y < 0 || point.x > width || point.y > height)
+    {
+        return nullptr;
+    }
+
+    return this;
+}
 } // karin

@@ -35,6 +35,8 @@ public:
     void setGap(float gap);
     void setWrapMode(WrapMode mode);
 
+    const ViewNode* hitTest(const Point& point) const override;
+
 protected:
     std::vector<std::unique_ptr<ViewNode>> m_children;
 };
