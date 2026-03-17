@@ -6,6 +6,13 @@ on:
   push:
     branches:
       - main
+    paths: 
+      - 'core/**'
+
+defaults:
+  run: 
+    shell: bash
+    working-directory: ./core
 
 jobs:
   save-cache:
@@ -31,6 +38,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        
+      - name: Install ubuntu dependencies
+        run: |
+          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+            wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo tee /etc/apt/trusted.gpg.d/lunarg.asc
+            sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-noble.list http://packages.lunarg.com/vulkan/lunarg-vulkan-noble.list
+            sudo apt update
+            sudo apt install -y cmake g++ make libx11-dev vulkan-sdk
+          fi
 
       - name: Vulkan SDK Cache
         if: contains(matrix.name, 'vulkan')
@@ -42,7 +58,6 @@ jobs:
 
       - name: Download and Install Vulkan SDK
         if: contains(matrix.name, 'vulkan') && steps.cache-vulkan-sdk.outputs.cache-hit != 'true'
-        shell: bash
         run: |
           INSTALLER_URL="https://sdk.lunarg.com/sdk/download/${{ matrix.vulkan_version }}/windows/vulkansdk-windows-X64-${{ matrix.vulkan_version }}.exe"
           INSTALLER_PATH="$TEMP/VulkanSDK-Installer.exe"
@@ -63,8 +78,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ./vcpkg
-            ./vcpkg_installed
+            ./core/vcpkg
+            ./core/vcpkg_installed
           key: main-${{ runner.os }}-${{ matrix.cmake_preset }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
           restore-keys: |
             main-${{ runner.os }}-${{ matrix.cmake_preset }}-vcpkg-
@@ -75,9 +90,10 @@ jobs:
             git clone https://github.com/microsoft/vcpkg.git            
           fi
           ./vcpkg/bootstrap-vcpkg.sh
+          cd core
           ./vcpkg/vcpkg install --triplet ${{ matrix.triplet }}
-        shell: bash
 
       - name: Install cmake preset dependencies
-        run: cmake -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake --preset ${{ matrix.cmake_preset }}
-        shell: bash
+        run: |
+          cd core
+          cmake -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake --preset ${{ matrix.cmake_preset }} .
