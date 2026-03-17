@@ -9,6 +9,11 @@ on:
     paths: 
       - 'core/**'
 
+defaults:
+  run: 
+    shell: bash
+    working-directory: ./core
+
 jobs:
   save-cache:
     name: save-cache-${{ matrix.os }}
@@ -42,7 +47,6 @@ jobs:
             sudo apt update
             sudo apt install -y cmake g++ make libx11-dev vulkan-sdk
           fi
-        shell: bash
 
       - name: Vulkan SDK Cache
         if: contains(matrix.name, 'vulkan')
@@ -54,7 +58,6 @@ jobs:
 
       - name: Download and Install Vulkan SDK
         if: contains(matrix.name, 'vulkan') && steps.cache-vulkan-sdk.outputs.cache-hit != 'true'
-        shell: bash
         run: |
           INSTALLER_URL="https://sdk.lunarg.com/sdk/download/${{ matrix.vulkan_version }}/windows/vulkansdk-windows-X64-${{ matrix.vulkan_version }}.exe"
           INSTALLER_PATH="$TEMP/VulkanSDK-Installer.exe"
@@ -75,8 +78,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ./vcpkg
-            ./vcpkg_installed
+            ./core/vcpkg
+            ./core/vcpkg_installed
           key: main-${{ runner.os }}-${{ matrix.cmake_preset }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
           restore-keys: |
             main-${{ runner.os }}-${{ matrix.cmake_preset }}-vcpkg-
@@ -87,9 +90,10 @@ jobs:
             git clone https://github.com/microsoft/vcpkg.git            
           fi
           ./vcpkg/bootstrap-vcpkg.sh
+          cd core
           ./vcpkg/vcpkg install --triplet ${{ matrix.triplet }}
-        shell: bash
 
       - name: Install cmake preset dependencies
-        run: cmake -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake --preset ${{ matrix.cmake_preset }}
-        shell: bash
+        run: |
+          cd core
+          cmake -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake --preset ${{ matrix.cmake_preset }} .
