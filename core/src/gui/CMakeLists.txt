@@ -10,9 +10,9 @@ set(GUI_SOURCES
 )
 
 add_library(karin_gui STATIC ${GUI_SOURCES})
-target_include_directories(karin_gui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(karin_gui PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(karin_gui PRIVATE ${COMMON_DIR})
-target_include_directories(karin_gui PRIVATE ${INCLUDE_DIR})
+target_include_directories(karin_gui PUBLIC ${INCLUDE_DIR})
 target_include_directories(karin_gui PRIVATE ${THIRD_PARTY_DIR})
 
 find_package(yoga CONFIG REQUIRED)
