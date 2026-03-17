@@ -44,6 +44,7 @@ public:
     virtual ~ViewNode();
 
     void draw(GraphicsContext& gc, const Transform2D& parentTransform) const;
+    virtual const ViewNode* hitTest(const Point& point) const;
 
     void calculateLayout() const;
     Rectangle getLayout() const;
