@@ -79,5 +79,5 @@ jobs:
         shell: bash
 
       - name: Install cmake preset dependencies
-        run: cmake --preset ${{ matrix.cmake_preset }}
+        run: cmake -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake --preset ${{ matrix.cmake_preset }}
         shell: bash
