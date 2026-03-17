@@ -1,20 +1,19 @@
-name: build.yml
+name: cache.yml
 on:
-  pull_request:
+  schedule:
+    - cron: '0 0 * * 0'
+
+  push:
     branches:
       - main
-env:
-  CMAKE_BUILD_TYPE: Release
-  CMAKE_EXPORT_COMPILE_COMMANDS: true
-  BUILD_DIR: build
+    paths: 
+      - 'core/**'
 
 jobs:
-  run:
-    name: ${{ matrix.os }} ${{ matrix.name }}
+  save-cache:
+    name: save-cache-${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-
     strategy:
-      fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
@@ -33,8 +32,8 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
-
+        uses: actions/checkout@v2
+        
       - name: Install ubuntu dependencies
         run: |
           if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
@@ -45,24 +44,13 @@ jobs:
           fi
         shell: bash
 
-      - name: Install ninja
-        run: |
-          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
-            sudo apt-get install -y ninja-build
-          elif [ "${{ matrix.os }}" == "windows-latest" ]; then
-            choco install ninja -y
-          fi
-        shell: bash
-
       - name: Vulkan SDK Cache
         if: contains(matrix.name, 'vulkan')
         id: cache-vulkan-sdk
         uses: actions/cache@v4
         with:
-          path: C:/VulkanSDK/${{ matrix.vulkan_version }}
-          key: pr-${{ runner.os }}-vulkan-sdk-${{ matrix.vulkan_version }}
-          restore-keys:
-            main-${{ runner.os }}-vulkan-sdk-${{ matrix.vulkan_version }}
+          path: C:\VulkanSDK\${{ matrix.vulkan_version }}
+          key: main-${{ runner.os }}-vulkan-sdk-${{ matrix.vulkan_version }}
 
       - name: Download and Install Vulkan SDK
         if: contains(matrix.name, 'vulkan') && steps.cache-vulkan-sdk.outputs.cache-hit != 'true'
@@ -82,16 +70,6 @@ jobs:
           
           echo "Vulkan SDK setup complete."
 
-      - name: Setup Vulkan Environment
-        if: contains(matrix.name, 'vulkan')
-        run: |
-          echo "Setting up Vulkan environment variables..."
-          echo "VULKAN_SDK=C:/VulkanSDK/${{ matrix.vulkan_version }}" >> $GITHUB_ENV
-          echo "$VULKAN_SDK/Bin" >> $GITHUB_PATH
-          echo "$VULKAN_SDK/Lib" >> $GITHUB_PATH
-          echo "$VULKAN_SDK/Include" >> $GITHUB_PATH
-        shell: bash
-
       - name: Vcpkg Cache
         id: cache-vcpkg
         uses: actions/cache@v4
@@ -99,10 +77,8 @@ jobs:
           path: |
             ./vcpkg
             ./vcpkg_installed
-          key: ${{ runner.os }}-${{ matrix.cmake_preset }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
+          key: main-${{ runner.os }}-${{ matrix.cmake_preset }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.cmake_preset }}-vcpkg-
-            main-${{ runner.os }}-${{ matrix.cmake_preset }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
             main-${{ runner.os }}-${{ matrix.cmake_preset }}-vcpkg-
 
       - name: Install with vcpkg
@@ -114,22 +90,6 @@ jobs:
           ./vcpkg/vcpkg install --triplet ${{ matrix.triplet }}
         shell: bash
 
-      - name: Configure CMake
-        run: |
-          mkdir ${{ env.BUILD_DIR }}
-          cd ${{ env.BUILD_DIR }}
-          cmake -G Ninja -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_INSTALLED_DIR=../vcpkg_installed \
-          -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ --preset ${{ matrix.cmake_preset }} ..
-        shell: bash
-
-      - name: Build
-        run: |
-          cd ${{ env.BUILD_DIR }}
-          cmake --build  ${{ matrix.cmake_preset }}
-        shell: bash
-
-      - name: Run tests
-        run: |
-          cd ${{ env.BUILD_DIR }}/${{ matrix.cmake_preset }}/test
-          ctest --output-on-failure
+      - name: Install cmake preset dependencies
+        run: cmake -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake --preset ${{ matrix.cmake_preset }}
         shell: bash

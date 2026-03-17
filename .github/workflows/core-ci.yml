@@ -1,0 +1,137 @@
+name: build.yml
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'core/**'
+env:
+  CMAKE_BUILD_TYPE: Release
+  CMAKE_EXPORT_COMPILE_COMMANDS: true
+  BUILD_DIR: build
+
+jobs:
+  run:
+    name: ${{ matrix.os }} ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            cmake_preset: "ubuntu-debug"
+            name: "ubuntu"
+            triplet: "x64-linux"
+          - os: windows-latest
+            cmake_preset: "windows-debug"
+            name: "windows d2d"
+            triplet: "x64-windows"
+          - os: windows-latest
+            cmake_preset: "windows-vulkan-debug"
+            name: "windows vulkan"
+            vulkan_version: "1.4.321.1"
+            triplet: "x64-windows"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Install ubuntu dependencies
+        run: |
+          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+            wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo tee /etc/apt/trusted.gpg.d/lunarg.asc
+            sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-noble.list http://packages.lunarg.com/vulkan/lunarg-vulkan-noble.list
+            sudo apt update
+            sudo apt install -y cmake g++ make libx11-dev vulkan-sdk
+          fi
+        shell: bash
+
+      - name: Install ninja
+        run: |
+          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+            sudo apt-get install -y ninja-build
+          elif [ "${{ matrix.os }}" == "windows-latest" ]; then
+            choco install ninja -y
+          fi
+        shell: bash
+
+      - name: Vulkan SDK Cache
+        if: contains(matrix.name, 'vulkan')
+        id: cache-vulkan-sdk
+        uses: actions/cache@v4
+        with:
+          path: C:/VulkanSDK/${{ matrix.vulkan_version }}
+          key: pr-${{ runner.os }}-vulkan-sdk-${{ matrix.vulkan_version }}
+          restore-keys:
+            main-${{ runner.os }}-vulkan-sdk-${{ matrix.vulkan_version }}
+
+      - name: Download and Install Vulkan SDK
+        if: contains(matrix.name, 'vulkan') && steps.cache-vulkan-sdk.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          INSTALLER_URL="https://sdk.lunarg.com/sdk/download/${{ matrix.vulkan_version }}/windows/vulkansdk-windows-X64-${{ matrix.vulkan_version }}.exe"
+          INSTALLER_PATH="$TEMP/VulkanSDK-Installer.exe"
+          INSTALL_DIR="C:/VulkanSDK/${{ matrix.vulkan_version }}"
+          
+          echo "Downloading Vulkan SDK version ${{ matrix.vulkan_version }}..."
+          curl -L -o "$INSTALLER_PATH" "$INSTALLER_URL"
+          
+          echo "Installing Vulkan SDK to $INSTALL_DIR..."
+          "$INSTALLER_PATH" --root "$INSTALL_DIR" --accept-licenses --default-answer --confirm-command install
+          
+          rm "$INSTALLER_PATH"
+          
+          echo "Vulkan SDK setup complete."
+
+      - name: Setup Vulkan Environment
+        if: contains(matrix.name, 'vulkan')
+        run: |
+          echo "Setting up Vulkan environment variables..."
+          echo "VULKAN_SDK=C:/VulkanSDK/${{ matrix.vulkan_version }}" >> $GITHUB_ENV
+          echo "$VULKAN_SDK/Bin" >> $GITHUB_PATH
+          echo "$VULKAN_SDK/Lib" >> $GITHUB_PATH
+          echo "$VULKAN_SDK/Include" >> $GITHUB_PATH
+        shell: bash
+
+      - name: Vcpkg Cache
+        id: cache-vcpkg
+        uses: actions/cache@v4
+        with:
+          path: |
+            ./vcpkg
+            ./vcpkg_installed
+          key: ${{ runner.os }}-${{ matrix.cmake_preset }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.cmake_preset }}-vcpkg-
+            main-${{ runner.os }}-${{ matrix.cmake_preset }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
+            main-${{ runner.os }}-${{ matrix.cmake_preset }}-vcpkg-
+
+      - name: Install with vcpkg
+        run: |
+          if [ ! -d "./vcpkg" ]; then
+            git clone https://github.com/microsoft/vcpkg.git            
+          fi
+          ./vcpkg/bootstrap-vcpkg.sh
+          ./vcpkg/vcpkg install --triplet ${{ matrix.triplet }}
+        shell: bash
+
+      - name: Configure CMake
+        run: |
+          mkdir ${{ env.BUILD_DIR }}
+          cd ${{ env.BUILD_DIR }}
+          cmake -G Ninja -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_INSTALLED_DIR=../vcpkg_installed \
+          -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ --preset ${{ matrix.cmake_preset }} ..
+        shell: bash
+
+      - name: Build
+        run: |
+          cd ${{ env.BUILD_DIR }}
+          cmake --build  ${{ matrix.cmake_preset }}
+        shell: bash
+
+      - name: Run tests
+        run: |
+          cd ${{ env.BUILD_DIR }}/${{ matrix.cmake_preset }}/test
+          ctest --output-on-failure
+        shell: bash
