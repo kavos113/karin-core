@@ -5,7 +5,7 @@
 
 namespace karin::gui
 {
-Window::Window(const std::wstring& title, int x, int y, int width, int height)
+Window::Window(const std::string& title, int x, int y, int width, int height)
 {
     karin::Application& app = karin::Application::instance();
     m_window = app.createWindow(title, x, y, width, height);

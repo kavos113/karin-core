@@ -18,7 +18,7 @@ class X11WindowImpl : public IWindowImpl
 {
 public:
     X11WindowImpl(
-        const std::wstring& title,
+        const std::string& title,
         int x,
         int y,
         int width,

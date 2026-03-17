@@ -3,10 +3,12 @@
 #include "win_event.h"
 #include "win_window_class_registry.h"
 
+#include <utils/string.h>
+
 namespace karin
 {
 WinWindowImpl::WinWindowImpl(
-    const std::wstring& title,
+    const std::string& title,
     const int x,
     const int y,
     const int width,
@@ -15,10 +17,12 @@ WinWindowImpl::WinWindowImpl(
 )
     : m_appImpl(appImpl)
 {
+    std::wstring wtitle = toWString(title);
+
     m_hwnd = CreateWindowEx(
         0,
         WinApplicationImpl::CLASS_NAME,
-        title.c_str(),
+        wtitle.c_str(),
         WS_OVERLAPPEDWINDOW,
         x, y,
         width, height,

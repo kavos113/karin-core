@@ -22,7 +22,7 @@ private:
 
 public:
     Window(
-        const std::wstring& title,
+        const std::string& title,
         int x,
         int y,
         int width,
