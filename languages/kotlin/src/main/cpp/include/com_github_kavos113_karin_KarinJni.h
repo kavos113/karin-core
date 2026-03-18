@@ -31,6 +31,70 @@ JNIEXPORT jlong JNICALL Java_com_github_kavos113_karin_KarinJni_applicationCreat
 JNIEXPORT void JNICALL Java_com_github_kavos113_karin_KarinJni_applicationRun
   (JNIEnv *, jclass, jlong);
 
+/*
+ * Class:     com_github_kavos113_karin_KarinJni
+ * Method:    windowSetRootView
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_com_github_kavos113_karin_KarinJni_windowSetRootView
+  (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     com_github_kavos113_karin_KarinJni
+ * Method:    containerNodeCreate
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_com_github_kavos113_karin_KarinJni_containerNodeCreate__
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     com_github_kavos113_karin_KarinJni
+ * Method:    containerNodeCreate
+ * Signature: (FF)J
+ */
+JNIEXPORT jlong JNICALL Java_com_github_kavos113_karin_KarinJni_containerNodeCreate__FF
+  (JNIEnv *, jclass, jfloat, jfloat);
+
+/*
+ * Class:     com_github_kavos113_karin_KarinJni
+ * Method:    containerNodeAddChild
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_com_github_kavos113_karin_KarinJni_containerNodeAddChild
+  (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     com_github_kavos113_karin_KarinJni
+ * Method:    containerNodeSetLayoutDirection
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_com_github_kavos113_karin_KarinJni_containerNodeSetLayoutDirection
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     com_github_kavos113_karin_KarinJni
+ * Method:    containerNodeSetGap
+ * Signature: (JF)V
+ */
+JNIEXPORT void JNICALL Java_com_github_kavos113_karin_KarinJni_containerNodeSetGap
+  (JNIEnv *, jclass, jlong, jfloat);
+
+/*
+ * Class:     com_github_kavos113_karin_KarinJni
+ * Method:    containerNodeSetWrapMode
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_com_github_kavos113_karin_KarinJni_containerNodeSetWrapMode
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     com_github_kavos113_karin_KarinJni
+ * Method:    rectangleNodeCreate
+ * Signature: (FFFFFF)J
+ */
+JNIEXPORT jlong JNICALL Java_com_github_kavos113_karin_KarinJni_rectangleNodeCreate
+  (JNIEnv *, jclass, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat);
+
 #ifdef __cplusplus
 }
 #endif
