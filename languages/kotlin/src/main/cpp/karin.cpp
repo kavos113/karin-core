@@ -1,6 +1,8 @@
 #include "com_github_kavos113_karin_KarinJni.h"
 
 #include <karin/gui.h>
+#include <karin/common.h>
+#include <memory>
 
 using namespace karin::gui;
 
@@ -28,4 +30,66 @@ JNIEXPORT void JNICALL Java_com_github_kavos113_karin_KarinJni_applicationRun
 {
     auto *app = reinterpret_cast<Application *>(appPtr);
     app->run();
+}
+
+JNIEXPORT void JNICALL Java_com_github_kavos113_karin_KarinJni_windowSetRootView
+    (JNIEnv *env, jclass cls, jlong windowPtr, jlong viewPtr)
+{
+    auto *window = reinterpret_cast<Window *>(windowPtr);
+    auto *view = reinterpret_cast<ViewNode *>(viewPtr);
+
+    window->setRootView(std::unique_ptr<ViewNode>(view));
+}
+
+JNIEXPORT jlong JNICALL Java_com_github_kavos113_karin_KarinJni_containerNodeCreate__
+    (JNIEnv *, jclass)
+{
+    auto *container = new ContainerNode();
+    return reinterpret_cast<jlong>(container);
+}
+
+JNIEXPORT jlong JNICALL Java_com_github_kavos113_karin_KarinJni_containerNodeCreate__FF
+    (JNIEnv *env, jclass cls, jfloat width, jfloat height)
+{
+    karin::Size size(width, height);
+    auto *container = new ContainerNode(size);
+    return reinterpret_cast<jlong>(container);
+}
+
+JNIEXPORT void JNICALL Java_com_github_kavos113_karin_KarinJni_containerNodeAddChild
+    (JNIEnv *env, jclass cls, jlong containerPtr, jlong childPtr)
+{
+    auto *container = reinterpret_cast<ContainerNode *>(containerPtr);
+    auto *child = reinterpret_cast<ViewNode *>(childPtr);
+    container->addChild(std::unique_ptr<ViewNode>(child));
+}
+
+JNIEXPORT void JNICALL Java_com_github_kavos113_karin_KarinJni_containerNodeSetLayoutDirection
+    (JNIEnv *env, jclass cls, jlong containerPtr, jint direction)
+{
+    auto *container = reinterpret_cast<ContainerNode *>(containerPtr);
+    container->setLayoutDirection(static_cast<ContainerNode::LayoutDirection>(direction));
+}
+
+JNIEXPORT void JNICALL Java_com_github_kavos113_karin_KarinJni_containerNodeSetGap
+    (JNIEnv *env, jclass cls, jlong containerPtr, jfloat gap)
+{
+    auto *container = reinterpret_cast<ContainerNode *>(containerPtr);
+    container->setGap(gap);
+}
+
+JNIEXPORT void JNICALL Java_com_github_kavos113_karin_KarinJni_containerNodeSetWrapMode
+    (JNIEnv *env, jclass cls, jlong containerPtr, jint mode)
+{
+    auto *container = reinterpret_cast<ContainerNode *>(containerPtr);
+    container->setWrapMode(static_cast<ContainerNode::WrapMode>(mode));
+}
+
+JNIEXPORT jlong JNICALL Java_com_github_kavos113_karin_KarinJni_rectangleNodeCreate
+    (JNIEnv *env, jclass cls, jfloat width, jfloat height, jfloat r, jfloat g, jfloat b, jfloat a)
+{
+    karin::Size size(width, height);
+    karin::Color color(r, g, b, a);
+    auto *rectangle = new RectangleNode(size, color);
+    return reinterpret_cast<jlong>(rectangle);
 }
