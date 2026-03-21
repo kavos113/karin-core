@@ -1,4 +1,4 @@
 package com.github.kavos113.karin
 
-internal abstract class ViewNode(var nativePtr: Long) {
+abstract class ViewNode(internal var nativePtr: Long) {
 }

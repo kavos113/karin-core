@@ -1,6 +1,6 @@
 package com.github.kavos113.karin
 
-internal class Window(var nativePtr: Long) {
+class Window(internal var nativePtr: Long) {
 
     fun setRootView(view: ViewNode) {
         KarinJni.windowSetRootView(nativePtr, view.nativePtr)

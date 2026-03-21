@@ -1,6 +1,6 @@
 package com.github.kavos113.karin
 
-internal open class ContainerNode(ptr: Long) : ViewNode(ptr) {
+open class ContainerNode(ptr: Long) : ViewNode(ptr) {
 
     enum class LayoutDirection(val value: Int) {
         Row(0),
