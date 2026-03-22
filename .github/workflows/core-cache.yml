@@ -90,7 +90,6 @@ jobs:
             git clone https://github.com/microsoft/vcpkg.git            
           fi
           ./vcpkg/bootstrap-vcpkg.sh
-          cd core
           ./vcpkg/vcpkg install --triplet ${{ matrix.triplet }}
 
       - name: Install cmake preset dependencies
