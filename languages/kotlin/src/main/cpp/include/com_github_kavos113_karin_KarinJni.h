@@ -33,11 +33,27 @@ JNIEXPORT void JNICALL Java_com_github_kavos113_karin_KarinJni_applicationRun
 
 /*
  * Class:     com_github_kavos113_karin_KarinJni
+ * Method:    applicationDestroy
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_github_kavos113_karin_KarinJni_applicationDestroy
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     com_github_kavos113_karin_KarinJni
  * Method:    windowSetRootView
  * Signature: (JJ)V
  */
 JNIEXPORT void JNICALL Java_com_github_kavos113_karin_KarinJni_windowSetRootView
   (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     com_github_kavos113_karin_KarinJni
+ * Method:    windowDestroy
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_github_kavos113_karin_KarinJni_windowDestroy
+  (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     com_github_kavos113_karin_KarinJni

@@ -17,7 +17,10 @@ open class ContainerNode internal constructor(ptr: Long) : ViewNode(ptr) {
     constructor(size: Size) : this(KarinJni.containerNodeCreate(size.width, size.height))
 
     fun addChild(child: ViewNode) {
+        require(child.nativePtr != 0L) { "ViewNode has been destroyed or already add child of others" }
+
         KarinJni.containerNodeAddChild(nativePtr, child.nativePtr)
+        child.nativePtr = 0L
     }
 
     fun setLayoutDirection(direction: LayoutDirection) {

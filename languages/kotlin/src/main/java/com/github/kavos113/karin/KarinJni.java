@@ -8,8 +8,10 @@ class KarinJni {
     static native long applicationCreate();
     static native long applicationCreateWindow(long appPtr, String title, int x, int y, int width, int height);
     static native void applicationRun(long appPtr);
+    static native void applicationDestroy(long appPtr);
 
     static native void windowSetRootView(long windowPtr, long viewPtr);
+    static native void windowDestroy(long windowPtr);
 
     static native long containerNodeCreate();
     static native long containerNodeCreate(float width, float height);

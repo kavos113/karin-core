@@ -22,7 +22,9 @@ JNIEXPORT jlong JNICALL Java_com_github_kavos113_karin_KarinJni_applicationCreat
     auto window = app->createWindow(titleChars, x, y, width, height);
     env->ReleaseStringUTFChars(title, titleChars);
 
-    return reinterpret_cast<jlong>(window.get());
+    auto *windowPtr = new std::shared_ptr(window);
+
+    return reinterpret_cast<jlong>(windowPtr);
 }
 
 JNIEXPORT void JNICALL Java_com_github_kavos113_karin_KarinJni_applicationRun
@@ -32,13 +34,27 @@ JNIEXPORT void JNICALL Java_com_github_kavos113_karin_KarinJni_applicationRun
     app->run();
 }
 
+JNIEXPORT void JNICALL Java_com_github_kavos113_karin_KarinJni_applicationDestroy
+    (JNIEnv *env, jclass cls, jlong appPtr)
+{
+    auto *app = reinterpret_cast<Application *>(appPtr);
+    delete app;
+}
+
 JNIEXPORT void JNICALL Java_com_github_kavos113_karin_KarinJni_windowSetRootView
     (JNIEnv *env, jclass cls, jlong windowPtr, jlong viewPtr)
 {
-    auto *window = reinterpret_cast<Window *>(windowPtr);
+    auto *window = reinterpret_cast<std::shared_ptr<Window> *>(windowPtr);
     auto *view = reinterpret_cast<ViewNode *>(viewPtr);
 
-    window->setRootView(std::unique_ptr<ViewNode>(view));
+    (*window)->setRootView(std::unique_ptr<ViewNode>(view));
+}
+
+JNIEXPORT void JNICALL Java_com_github_kavos113_karin_KarinJni_windowDestroy
+    (JNIEnv *env, jclass cls, jlong windowPtr)
+{
+    auto *window = reinterpret_cast<std::shared_ptr<Window> *>(windowPtr);
+    delete window;
 }
 
 JNIEXPORT jlong JNICALL Java_com_github_kavos113_karin_KarinJni_containerNodeCreate__

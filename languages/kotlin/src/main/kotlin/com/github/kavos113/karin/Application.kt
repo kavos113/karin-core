@@ -1,6 +1,6 @@
 package com.github.kavos113.karin
 
-class Application {
+class Application : AutoCloseable {
     internal var nativePtr: Long = KarinJni.applicationCreate()
 
     fun createWindow(title: String, x: Int, y: Int, width: Int, height: Int): Window {
@@ -10,5 +10,12 @@ class Application {
 
     fun run() {
         KarinJni.applicationRun(nativePtr)
+    }
+
+    override fun close() {
+        if (nativePtr != 0L) {
+            KarinJni.applicationDestroy(nativePtr)
+            nativePtr = 0L
+        }
     }
 }
