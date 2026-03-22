@@ -1,3 +1,5 @@
+import org.gradle.internal.os.OperatingSystem
+
 plugins {
     kotlin("jvm") version "2.3.0"
 }
@@ -11,10 +13,20 @@ dependencies {
 }
 
 kotlin {
-    jvmToolchain(25)
+    jvmToolchain(24)
 }
 
 tasks.withType<JavaExec> {
-    val nativeLibDir = file("$rootDir/../.../languages/kotlin/build/native").absolutePath
+    val nativeLibDir = file("$rootDir/../../languages/kotlin/build/native").absolutePath
     systemProperty("java.library.path", nativeLibDir)
+
+    val os = OperatingSystem.current()
+    val envVar = when {
+        os.isWindows -> "PATH"
+        os.isMacOsX -> "DYLD_LIBRARY_PATH"
+        else -> "LD_LIBRARY_PATH"
+    }
+
+    val currEnv = System.getenv(envVar) ?: ""
+    environment(envVar, "$nativeLibDir${File.pathSeparator}$currEnv")
 }

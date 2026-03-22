@@ -2,7 +2,7 @@ package com.github.kavos113.karin;
 
 class KarinJni {
     static {
-        System.loadLibrary("karin");
+        System.loadLibrary("karin_languages_java");
     }
 
     static native long applicationCreate();
