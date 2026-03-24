@@ -5,6 +5,8 @@ on:
       - main
     paths:
       - 'core/**'
+      - 'CMakeLists.txt'
+      - 'CMakePresets.json'
 env:
   CMAKE_BUILD_TYPE: Release
   CMAKE_EXPORT_COMPILE_COMMANDS: true
@@ -13,12 +15,14 @@ env:
 defaults:
   run: 
     shell: bash
-    working-directory: ./core
 
 jobs:
   run:
     name: ${{ matrix.os }} ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
+
+    permissions:
+      contents: write
 
     strategy:
       fail-fast: false
@@ -100,32 +104,37 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ./core/vcpkg
-            ./core/vcpkg_installed
-          key: ${{ runner.os }}-${{ matrix.cmake_preset }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
+            ./vcpkg
+            ./${{ env.BUILD_DIR }}/${{ matrix.cmake_preset }}/vcpkg_installed
+          key: ${{ matrix.cmake_preset }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.cmake_preset }}-vcpkg-
-            main-${{ runner.os }}-${{ matrix.cmake_preset }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
-            main-${{ runner.os }}-${{ matrix.cmake_preset }}-vcpkg-
+            ${{ matrix.cmake_preset }}-vcpkg-
+            main-${{ matrix.cmake_preset }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
+            main-${{ matrix.cmake_preset }}-vcpkg-
 
-      - name: Install with vcpkg
+      - name: Install vcpkg
         run: |
           if [ ! -d "./vcpkg" ]; then
             git clone https://github.com/microsoft/vcpkg.git            
           fi
           ./vcpkg/bootstrap-vcpkg.sh
-          ./vcpkg/vcpkg install --triplet ${{ matrix.triplet }}
+
+      - name: set permission
+        run: |
+          chmod +x ./core/scripts/*.sh
 
       - name: Configure CMake
         run: |
           mkdir -p ${{ env.BUILD_DIR }}
           cd ${{ env.BUILD_DIR }}
+          
+          WORKSPACE=$(echo "${{ github.workspace }}" | sed 's/\\/\//g')
+          
           cmake -G Ninja \
             -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} \
-            -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake \
-            -DVCPKG_INSTALLED_DIR=../vcpkg_installed \
-            -DCMAKE_C_COMPILER=clang \ 
-            -DCMAKE_CXX_COMPILER=clang++ \ 
+            -DCMAKE_TOOLCHAIN_FILE="${WORKSPACE}/vcpkg/scripts/buildsystems/vcpkg.cmake" \
+            -DCMAKE_C_COMPILER=clang \
+            -DCMAKE_CXX_COMPILER=clang++ \
             --preset ${{ matrix.cmake_preset }} ..
 
       - name: Build
@@ -135,5 +144,5 @@ jobs:
 
       - name: Run tests
         run: |
-          cd ${{ env.BUILD_DIR }}/${{ matrix.cmake_preset }}/test
+          cd ${{ env.BUILD_DIR }}/${{ matrix.cmake_preset }}/core/test
           ctest --output-on-failure

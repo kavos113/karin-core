@@ -29,7 +29,7 @@ inline std::unique_ptr<IApplicationImpl> createApplicationImpl()
 }
 
 inline std::unique_ptr<IWindowImpl> createWindowImpl(
-    const std::wstring& title,
+    const std::string& title,
     int x,
     int y,
     int width,

@@ -3,7 +3,7 @@
 int main()
 {
     karin::Application& app = karin::Application::instance();
-    std::unique_ptr<karin::Window> window = app.createWindow(L"Hello Window", 100, 100, 800, 600);
+    std::unique_ptr<karin::Window> window = app.createWindow("Hello Window", 100, 100, 800, 600);
 
     window->setStatus(karin::Window::ShowStatus::SHOW);
 

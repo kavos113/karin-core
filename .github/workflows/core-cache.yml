@@ -12,12 +12,15 @@ on:
 defaults:
   run: 
     shell: bash
-    working-directory: ./core
 
 jobs:
   save-cache:
-    name: save-cache-${{ matrix.os }}
+    name: save-cache-${{ matrix.cmake_preset }}
     runs-on: ${{ matrix.os }}
+
+    permissions:
+      contents: read
+
     strategy:
       matrix:
         include:
@@ -78,11 +81,11 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ./core/vcpkg
-            ./core/vcpkg_installed
-          key: main-${{ runner.os }}-${{ matrix.cmake_preset }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
-          restore-keys: |
-            main-${{ runner.os }}-${{ matrix.cmake_preset }}-vcpkg-
+            ./vcpkg
+            ./${{ matrix.cmake_preset }}/vcpkg_installed
+          key: main-${{ matrix.cmake_preset }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
+          restore-keys:
+            main-${{ matrix.cmake_preset }}-vcpkg-
 
       - name: Install with vcpkg
         run: |
@@ -90,10 +93,9 @@ jobs:
             git clone https://github.com/microsoft/vcpkg.git            
           fi
           ./vcpkg/bootstrap-vcpkg.sh
-          cd core
-          ./vcpkg/vcpkg install --triplet ${{ matrix.triplet }}
 
       - name: Install cmake preset dependencies
         run: |
-          cd core
-          cmake -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake --preset ${{ matrix.cmake_preset }} .
+          cmake \
+            -DCMAKE_TOOLCHAIN_FILE=./vcpkg/scripts/buildsystems/vcpkg.cmake\
+            --preset ${{ matrix.cmake_preset }} .

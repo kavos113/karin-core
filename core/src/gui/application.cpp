@@ -21,7 +21,7 @@ Application::~Application()
     s_appContext = nullptr;
 }
 
-std::shared_ptr<Window> Application::createWindow(const std::wstring& title, int x, int y, int width, int height)
+std::shared_ptr<Window> Application::createWindow(const std::string& title, int x, int y, int width, int height)
 {
     auto window = std::make_shared<Window>(title, x, y, width, height);
     m_windows.push_back(window);

@@ -4,7 +4,7 @@
 
 namespace karin
 {
-Window::Window(IApplicationImpl* applicationImpl, const std::wstring& title, int x, int y, int width, int height)
+Window::Window(IApplicationImpl* applicationImpl, const std::string& title, int x, int y, int width, int height)
     : m_rect(
           Rectangle(
               static_cast<float>(x),
@@ -17,7 +17,7 @@ Window::Window(IApplicationImpl* applicationImpl, const std::wstring& title, int
 {
 }
 
-Window::Window(IApplicationImpl* applicationImpl, const std::wstring& title, Rectangle rect)
+Window::Window(IApplicationImpl* applicationImpl, const std::string& title, Rectangle rect)
     : m_rect(rect)
       , m_impl(
           createWindowImpl(

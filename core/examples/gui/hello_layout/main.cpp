@@ -11,7 +11,7 @@ int main()
     std::uniform_real_distribution<float> dis(0.0f, 1.0f);
 
     karin::gui::Application app;
-    auto window = app.createWindow(L"Hello Layout", 100, 100, 800, 600);
+    auto window = app.createWindow("Hello Layout", 100, 100, 800, 600);
 
     auto rootView = std::make_unique<karin::gui::ContainerNode>(karin::Size(800, 600));
 

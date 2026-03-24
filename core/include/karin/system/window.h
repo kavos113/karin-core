@@ -37,7 +37,7 @@ public:
 
     explicit Window(
         IApplicationImpl *applicationImpl,
-        const std::wstring &title,
+        const std::string &title,
         int x = 0,
         int y = 0,
         int width = DEFAULT_WIDTH,
@@ -45,7 +45,7 @@ public:
     );
     explicit Window(
         IApplicationImpl *applicationImpl,
-        const std::wstring &title,
+        const std::string &title,
         Rectangle rect = Rectangle(0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT)
     );
     ~Window();

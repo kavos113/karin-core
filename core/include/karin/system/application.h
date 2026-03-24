@@ -22,7 +22,7 @@ public:
     // TODO: peekEvent
 
     std::unique_ptr<Window> createWindow(
-        const std::wstring& title,
+        const std::string& title,
         int x = 0,
         int y = 0,
         int width = Window::DEFAULT_WIDTH,
@@ -30,7 +30,7 @@ public:
     );
 
     std::unique_ptr<Window> createWindow(
-        const std::wstring& title,
+        const std::string& title,
         Rectangle rect = Rectangle(0, 0, Window::DEFAULT_WIDTH, Window::DEFAULT_HEIGHT)
     );
 

@@ -17,7 +17,7 @@ class WinWindowImpl : public IWindowImpl
 {
 public:
     WinWindowImpl(
-        const std::wstring& title,
+        const std::string& title,
         int x,
         int y,
         int width,

@@ -14,7 +14,7 @@
 namespace karin
 {
 X11WindowImpl::X11WindowImpl(
-    const std::wstring& title,
+    const std::string& title,
     int x,
     int y,
     int width,
@@ -56,8 +56,7 @@ X11WindowImpl::X11WindowImpl(
     sizeHints->flags = PPosition | PSize;
 
     XTextProperty windowName;
-    std::string titleString = toString(title);
-    const char* titleStr = titleString.c_str();
+    const char* titleStr = title.c_str();
     if (!XStringListToTextProperty(const_cast<char**>(&titleStr), 1, &windowName))
     {
         XFree(sizeHints);
@@ -94,7 +93,7 @@ X11WindowImpl::X11WindowImpl(
         8,
         PropModeReplace,
         reinterpret_cast<const unsigned char*>(titleStr),
-        static_cast<int>(title.length() * sizeof(wchar_t))
+        static_cast<int>(title.length() * sizeof(char))
     );
 
     XSelectInput(

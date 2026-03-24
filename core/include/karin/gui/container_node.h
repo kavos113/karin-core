@@ -10,15 +10,15 @@ class ContainerNode : public ViewNode
 public:
     enum class LayoutDirection
     {
-        Row,
-        Column
+        Row = 0,
+        Column = 1
     };
 
     enum class WrapMode
     {
-        No,
-        Wrap,
-        WrapReverse
+        No = 0,
+        Wrap = 1,
+        WrapReverse = 2
     };
 
     ContainerNode() = default;
