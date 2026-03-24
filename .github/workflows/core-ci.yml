@@ -123,8 +123,9 @@ jobs:
         run: |
           mkdir -p ${{ env.BUILD_DIR }}
           cd ${{ env.BUILD_DIR }}
-          pwd
-          ls ../vcpkg/scripts/buildsystems
+          
+          WORKSPACE=$(echo ${{ github.workspace }} | sed 's/\\/\//g')
+          
           cmake -G Ninja \
             -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} \
             -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake \
