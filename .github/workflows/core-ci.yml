@@ -128,7 +128,7 @@ jobs:
           
           cmake -G Ninja \
             -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} \
-            -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake \
+            -DCMAKE_TOOLCHAIN_FILE="${WORKSPACE}/vcpkg/scripts/buildsystems/vcpkg.cmake" \
             -DCMAKE_C_COMPILER=clang \
             -DCMAKE_CXX_COMPILER=clang++ \
             --preset ${{ matrix.cmake_preset }} ..
