@@ -119,6 +119,10 @@ jobs:
           fi
           ./vcpkg/bootstrap-vcpkg.sh
 
+      - name: set permission
+        run: |
+          chmod +x ./core/scripts/*.sh
+
       - name: Configure CMake
         run: |
           mkdir -p ${{ env.BUILD_DIR }}
