@@ -124,7 +124,7 @@ jobs:
           mkdir -p ${{ env.BUILD_DIR }}
           cd ${{ env.BUILD_DIR }}
           
-          WORKSPACE=$(echo ${{ github.workspace }} | sed 's/\\/\//g')
+          WORKSPACE=$(echo "${{ github.workspace }}" | sed 's/\\/\//g')
           
           cmake -G Ninja \
             -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} \
