@@ -22,7 +22,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     permissions:
-      contents: read
+      contents: write
 
     strategy:
       fail-fast: false
@@ -140,5 +140,5 @@ jobs:
 
       - name: Run tests
         run: |
-          cd ${{ env.BUILD_DIR }}/${{ matrix.cmake_preset }}/test
+          cd ${{ env.BUILD_DIR }}/${{ matrix.cmake_preset }}/core/test
           ctest --output-on-failure
