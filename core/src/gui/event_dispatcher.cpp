@@ -49,15 +49,15 @@ void EventDispatcher::handleMouseButtonEvent(const MouseButtonEvent& event)
     switch (event.type)
     {
     case MouseButtonEvent::Type::ButtonPress_:
-        pressedNode = target;
+        m_pressedNode = target;
         break;
 
     case MouseButtonEvent::Type::ButtonRelease_:
-        if (pressedNode && pressedNode == target)
+        if (m_pressedNode && m_pressedNode == target)
         {
-            pressedNode->triggerClick(point);
+            m_pressedNode->triggerClick(point);
         }
-        pressedNode = nullptr;
+        m_pressedNode = nullptr;
         break;
     }
 }

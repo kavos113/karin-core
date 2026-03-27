@@ -21,9 +21,9 @@ private:
 
     ViewNode *m_rootView;
 
-    ViewNode *pressedNode = nullptr;
-    ViewNode *hoveredNode = nullptr;
-    ViewNode *focusedNode = nullptr;
+    ViewNode *m_pressedNode = nullptr;
+    ViewNode *m_hoveredNode = nullptr;
+    ViewNode *m_focusedNode = nullptr;
 };
 
 } // karin::gui
