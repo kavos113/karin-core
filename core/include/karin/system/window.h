@@ -71,12 +71,17 @@ public:
     // request redraw, will trigger paint callbacks
     void invalidate();
 
+    void setUserData(void* data);
+    void* userData() const;
+
     static constexpr int DEFAULT_WIDTH = 800;
     static constexpr int DEFAULT_HEIGHT = 600;
 
 private:
     ShowStatus m_showStatus = ShowStatus::HIDE;
     Rectangle m_rect;
+
+    void *m_userData = nullptr;
 
     std::unique_ptr<IWindowImpl> m_impl;
 };

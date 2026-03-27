@@ -126,4 +126,14 @@ void Window::invalidate()
 {
     m_impl->invalidate();
 }
+
+void Window::setUserData(void* data)
+{
+    m_userData = data;
+}
+
+void* Window::userData() const
+{
+    return m_userData;
+}
 } // karin
