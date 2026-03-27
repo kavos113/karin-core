@@ -61,9 +61,18 @@ void Window::beforeRun()
     m_window->setStatus(karin::Window::ShowStatus::SHOW);
 }
 
+void Window::dispatchEvent(const Event& event) const
+{
+    if (m_eventDispatcher)
+    {
+        m_eventDispatcher->dispatchEvent(event);
+    }
+}
+
 void Window::setRootView(std::unique_ptr<ViewNode> rootView)
 {
     m_rootView = std::move(rootView);
+    m_eventDispatcher = std::make_unique<EventDispatcher>(m_rootView.get());
 }
 
 void Window::requestRelayout()
