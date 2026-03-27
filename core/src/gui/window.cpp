@@ -3,6 +3,8 @@
 #include <karin/system/application.h>
 #include <karin/common/color/color.h>
 
+#include "event_dispatcher.h"
+
 namespace karin::gui
 {
 Window::Window(const std::string& title, int x, int y, int width, int height)
@@ -12,6 +14,8 @@ Window::Window(const std::string& title, int x, int y, int width, int height)
 
     m_renderer = std::make_unique<Renderer>(m_window.get());
     m_renderer->setClearColor(Color(Color::White));
+
+    m_eventDispatcher = std::make_unique<EventDispatcher>(m_rootView.get());
 }
 
 Window::~Window()

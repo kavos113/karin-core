@@ -70,7 +70,7 @@ void ContainerNode::setWrapMode(WrapMode mode)
     YGNodeStyleSetFlexWrap(m_yogaNode, toYogaWrap(mode));
 }
 
-const ViewNode* ContainerNode::hitTest(const Point& point) const
+ViewNode* ContainerNode::hitTest(const Point& point) const
 {
     float width = YGNodeLayoutGetWidth(m_yogaNode);
     float height = YGNodeLayoutGetHeight(m_yogaNode);

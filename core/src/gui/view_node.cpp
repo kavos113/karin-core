@@ -168,6 +168,19 @@ YGNodeRef ViewNode::getYogaNode() const
     return m_yogaNode;
 }
 
+void ViewNode::setOnClick(std::function<void(Point point)> onClick)
+{
+    m_onClick = std::move(onClick);
+}
+
+void ViewNode::triggerClick(Point point) const
+{
+    if (m_onClick)
+    {
+        m_onClick(point);
+    }
+}
+
 void ViewNode::drawBorder(GraphicsContext& gc, const Transform2D& transform) const
 {
     Rectangle layout = getLayout();
@@ -226,7 +239,7 @@ void ViewNode::drawBorder(GraphicsContext& gc, const Transform2D& transform) con
     }
 }
 
-const ViewNode* ViewNode::hitTest(const Point& point) const
+ViewNode* ViewNode::hitTest(const Point& point) const
 {
     float width = YGNodeLayoutGetWidth(m_yogaNode);
     float height = YGNodeLayoutGetHeight(m_yogaNode);
