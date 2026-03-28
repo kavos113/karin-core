@@ -355,6 +355,12 @@ constexpr KeyEvent::Modifier& operator|=(KeyEvent::Modifier& a, KeyEvent::Modifi
     return a;
 }
 
+struct EventPayload
+{
+    Window *window;
+    Event event;
+};
+
 } // karin
 
 #endif //KARIN_SYSTEM_EVENT_H

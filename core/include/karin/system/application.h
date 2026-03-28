@@ -17,7 +17,7 @@ public:
     static Application& instance();
 
     // return true if event loop should continue, false to quit.
-    bool waitEvent(Event& event) const;
+    bool waitEvent(EventPayload& event) const;
 
     // TODO: peekEvent
 

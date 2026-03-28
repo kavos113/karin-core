@@ -14,10 +14,10 @@ public:
     WinApplicationImpl();
     ~WinApplicationImpl() override = default;
 
-    bool waitEvent(Event& event) override;
+    bool waitEvent(EventPayload& event) override;
     void shutdown() override;
 
-    void pushEvent(const Event& event)
+    void pushEvent(const EventPayload& event)
     {
         m_eventQueue.push(event);
     }
@@ -27,7 +27,7 @@ public:
     static constexpr auto CLASS_NAME = L"KarinWindow";
 
 private:
-    std::queue<Event> m_eventQueue;
+    std::queue<EventPayload> m_eventQueue;
 };
 } // karin
 

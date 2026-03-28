@@ -12,7 +12,7 @@ public:
 
     virtual void shutdown() = 0;
 
-    virtual bool waitEvent(Event& event) = 0;
+    virtual bool waitEvent(EventPayload& event) = 0;
 };
 } // karin
 

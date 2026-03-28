@@ -12,7 +12,7 @@ Application& Application::instance()
     return instance;
 }
 
-bool Application::waitEvent(Event &event) const
+bool Application::waitEvent(EventPayload &event) const
 {
     return m_impl->waitEvent(event);
 }

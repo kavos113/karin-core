@@ -27,7 +27,7 @@ WinApplicationImpl::WinApplicationImpl()
     WinContext::instance().windowClassRegistry().registerClass(wc, CLASS_NAME);
 }
 
-bool WinApplicationImpl::waitEvent(Event &event)
+bool WinApplicationImpl::waitEvent(EventPayload &event)
 {
     if (!m_isRunning)
         m_isRunning = true;
