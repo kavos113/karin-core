@@ -13,9 +13,11 @@ WinWindowImpl::WinWindowImpl(
     const int y,
     const int width,
     const int height,
-    WinApplicationImpl* appImpl
+    WinApplicationImpl* appImpl,
+    Window* owner
 )
-    : m_appImpl(appImpl)
+    : m_appImpl(appImpl),
+      m_owner(owner)
 {
     std::wstring wtitle = toWString(title);
 
@@ -42,7 +44,7 @@ LRESULT WinWindowImpl::handleMessage(UINT message, WPARAM wParam, LPARAM lParam)
     std::optional<Event> event = translateWinEvent(message, wParam, lParam);
     if (event.has_value())
     {
-        m_appImpl->pushEvent(*event);
+        m_appImpl->pushEvent(*event, m_owner);
     }
 
     switch (message)
@@ -149,7 +151,7 @@ void WinWindowImpl::minimize()
         ShowWindow(m_hwnd, SW_MINIMIZE);
     }
 
-    m_appImpl->pushEvent(WindowEvent(WindowEvent::Type::Minimize));
+    m_appImpl->pushEvent(WindowEvent(WindowEvent::Type::Minimize), m_owner);
 }
 
 void WinWindowImpl::maximize()
@@ -159,7 +161,7 @@ void WinWindowImpl::maximize()
         ShowWindow(m_hwnd, SW_MAXIMIZE);
     }
 
-    m_appImpl->pushEvent(WindowEvent(WindowEvent::Type::Maximize));
+    m_appImpl->pushEvent(WindowEvent(WindowEvent::Type::Maximize), m_owner);
 }
 
 void WinWindowImpl::setPosition(int x, int y)

@@ -4,6 +4,7 @@
 #include <application_impl.h>
 
 #include <karin/system/event.h>
+#include <karin/system/window.h>
 #include <queue>
 
 namespace karin
@@ -17,9 +18,12 @@ public:
     bool waitEvent(EventPayload& event) override;
     void shutdown() override;
 
-    void pushEvent(const EventPayload& event)
+    void pushEvent(const Event& event, Window *window)
     {
-        m_eventQueue.push(event);
+        m_eventQueue.push(EventPayload{
+            .window = window,
+            .event = event
+        });
     }
 
     bool m_isRunning = false;

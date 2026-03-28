@@ -13,7 +13,7 @@ Window::Window(IApplicationImpl* applicationImpl, const std::string& title, int 
               static_cast<float>(height)
           )
       )
-      , m_impl(createWindowImpl(title, x, y, width, height, applicationImpl))
+      , m_impl(createWindowImpl(title, x, y, width, height, applicationImpl, this))
 {
 }
 
@@ -26,7 +26,8 @@ Window::Window(IApplicationImpl* applicationImpl, const std::string& title, Rect
               static_cast<int>(rect.pos.y),
               static_cast<int>(rect.size.width),
               static_cast<int>(rect.size.height),
-              applicationImpl
+              applicationImpl,
+              this
           )
       )
 {

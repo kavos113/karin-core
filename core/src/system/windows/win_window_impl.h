@@ -22,7 +22,8 @@ public:
         int y,
         int width,
         int height,
-        WinApplicationImpl* appImpl
+        WinApplicationImpl* appImpl,
+        Window* owner
     );
     ~WinWindowImpl() override = default;
 
@@ -57,6 +58,7 @@ private:
     std::vector<std::function<void()>> m_finishResizeCallbacks;
 
     WinApplicationImpl* m_appImpl = nullptr;
+    Window* m_owner = nullptr;
 };
 } // karin
 
