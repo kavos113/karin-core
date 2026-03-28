@@ -11,6 +11,7 @@ Window::Window(const std::string& title, int x, int y, int width, int height)
 {
     karin::Application& app = karin::Application::instance();
     m_window = app.createWindow(title, x, y, width, height);
+    m_window->setUserData(this);
 
     m_renderer = std::make_unique<Renderer>(m_window.get());
     m_renderer->setClearColor(Color(Color::White));

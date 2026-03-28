@@ -37,8 +37,16 @@ void Application::run()
     }
 
     karin::Application& app = karin::Application::instance();
-    Event event;
-    while (app.waitEvent(event)) { }
+    EventPayload event;
+    while (app.waitEvent(event))
+    {
+        void* userData = event.window->userData();
+        if (userData)
+        {
+            auto* window = static_cast<Window*>(userData);
+            window->dispatchEvent(event.event);
+        }
+    }
 }
 
 ApplicationContext& getAppContext()
