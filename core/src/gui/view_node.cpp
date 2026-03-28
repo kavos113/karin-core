@@ -239,7 +239,7 @@ void ViewNode::drawBorder(GraphicsContext& gc, const Transform2D& transform) con
     }
 }
 
-ViewNode* ViewNode::hitTest(const Point& point) const
+ViewNode* ViewNode::hitTest(const Point& point)
 {
     float width = YGNodeLayoutGetWidth(m_yogaNode);
     float height = YGNodeLayoutGetHeight(m_yogaNode);
