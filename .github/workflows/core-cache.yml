@@ -76,6 +76,15 @@ jobs:
           
           echo "Vulkan SDK setup complete."
 
+      - name: Setup Vulkan Environment
+        if: contains(matrix.name, 'vulkan')
+        run: |
+          echo "Setting up Vulkan environment variables..."
+          echo "VULKAN_SDK=C:/VulkanSDK/${{ matrix.vulkan_version }}" >> $GITHUB_ENV
+          echo "$VULKAN_SDK/Bin" >> $GITHUB_PATH
+          echo "$VULKAN_SDK/Lib" >> $GITHUB_PATH
+          echo "$VULKAN_SDK/Include" >> $GITHUB_PATH
+
       - name: Vcpkg Cache
         id: cache-vcpkg
         uses: actions/cache@v4
