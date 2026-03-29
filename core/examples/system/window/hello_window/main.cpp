@@ -12,10 +12,10 @@ int main()
         std::cout << "Window resized to " << newSize.width << "x" << newSize.height << std::endl;
     });
 
-    karin::Event event;
+    karin::EventPayload event;
     while (app.waitEvent(event))
     {
-        if (const auto* windowEvent = std::get_if<karin::WindowEvent>(&event))
+        if (const auto* windowEvent = std::get_if<karin::WindowEvent>(&event.event))
         {
             if (windowEvent->type == karin::WindowEvent::Type::Close)
             {
