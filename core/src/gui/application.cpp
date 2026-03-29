@@ -40,11 +40,22 @@ void Application::run()
     EventPayload event;
     while (app.waitEvent(event))
     {
-        void* userData = event.window->userData();
+        if (std::holds_alternative<std::monostate>(event.event))
+        {
+            continue;
+        }
+
+        karin::Window* window = app.findWindow(event.windowId);
+        if (!window)
+        {
+            continue;
+        }
+
+        void* userData = window->userData();
         if (userData)
         {
-            auto* window = static_cast<Window*>(userData);
-            window->dispatchEvent(event.event);
+            auto* guiWindow = static_cast<Window*>(userData);
+            guiWindow->dispatchEvent(event.event);
         }
     }
 }

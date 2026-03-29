@@ -14,7 +14,7 @@ WinWindowImpl::WinWindowImpl(
     const int width,
     const int height,
     WinApplicationImpl* appImpl,
-    Window* owner
+    WindowID owner
 )
     : m_appImpl(appImpl),
       m_owner(owner)

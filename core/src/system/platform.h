@@ -35,7 +35,7 @@ inline std::unique_ptr<IWindowImpl> createWindowImpl(
     int width,
     int height,
     IApplicationImpl* applicationImpl,
-    Window* owner
+    WindowID owner
 )
 {
 #ifdef KARIN_PLATFORM_WINDOWS

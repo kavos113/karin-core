@@ -15,26 +15,25 @@ Window::Window(IApplicationImpl* applicationImpl, const std::string& title, int 
               static_cast<float>(height)
           )
       )
-      , m_impl(createWindowImpl(title, x, y, width, height, applicationImpl, this))
 {
     m_id = Application::instance().registerWindow(this);
+    m_impl = createWindowImpl(title, x, y, width, height, applicationImpl, m_id);
 }
 
 Window::Window(IApplicationImpl* applicationImpl, const std::string& title, Rectangle rect)
     : m_rect(rect)
-      , m_impl(
-          createWindowImpl(
-              title,
-              static_cast<int>(rect.pos.x),
-              static_cast<int>(rect.pos.y),
-              static_cast<int>(rect.size.width),
-              static_cast<int>(rect.size.height),
-              applicationImpl,
-              this
-          )
-      )
 {
     m_id = Application::instance().registerWindow(this);
+
+    m_impl = createWindowImpl(
+        title,
+        static_cast<int>(rect.pos.x),
+        static_cast<int>(rect.pos.y),
+        static_cast<int>(rect.size.width),
+        static_cast<int>(rect.size.height),
+        applicationImpl,
+        m_id
+    );
 }
 
 Window::~Window()

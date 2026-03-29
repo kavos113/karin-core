@@ -360,7 +360,7 @@ constexpr KeyEvent::Modifier& operator|=(KeyEvent::Modifier& a, KeyEvent::Modifi
 
 struct EventPayload
 {
-    Window *window;
+    WindowID windowId;
     Event event;
 };
 

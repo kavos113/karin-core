@@ -27,10 +27,10 @@ WinApplicationImpl::WinApplicationImpl()
     WinContext::instance().windowClassRegistry().registerClass(wc, CLASS_NAME);
 }
 
-void WinApplicationImpl::pushEvent(const Event& event, Window* window)
+void WinApplicationImpl::pushEvent(const Event& event, WindowID window)
 {
     EventPayload payload{
-        .window = window,
+        .windowId = window,
         .event = event
     };
     m_eventQueue.push(payload);
