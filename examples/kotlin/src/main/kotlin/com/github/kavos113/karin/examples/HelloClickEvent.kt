@@ -1,4 +1,4 @@
-package com.github.kavos113.karin.examples.hellolayout
+package com.github.kavos113.karin.examples.helloclickevent
 
 import com.github.kavos113.karin.Application
 import com.github.kavos113.karin.Color
@@ -34,6 +34,9 @@ fun main() {
     bigRect.setLayoutDirection(ContainerNode.LayoutDirection.Column)
     bigRect.setGap(5.0f)
     bigRect.setWrapMode(ContainerNode.WrapMode.Wrap)
+    bigRect.setOnClickListener {
+        println("Big rectangle clicked!")
+    }
     root.addChild(bigRect)
 
     root.setLayoutDirection(ContainerNode.LayoutDirection.Row)
