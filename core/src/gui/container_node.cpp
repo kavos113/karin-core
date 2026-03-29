@@ -86,7 +86,7 @@ ViewNode* ContainerNode::hitTest(const Point& point)
         float childY = YGNodeLayoutGetTop(child->getYogaNode());
         Point childPoint = { point.x - childX, point.y - childY };
 
-        const ViewNode* hitNode = child->hitTest(childPoint);
+        ViewNode* hitNode = child->hitTest(childPoint);
         if (hitNode)
         {
             return hitNode;

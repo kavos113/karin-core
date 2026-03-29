@@ -1,5 +1,8 @@
 #ifndef KARIN_SYSTEM_EVENT_H
 #define KARIN_SYSTEM_EVENT_H
+
+#include "window.h"
+
 #include <any>
 #include <cstdint>
 #include <string>

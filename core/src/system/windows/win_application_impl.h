@@ -20,10 +20,11 @@ public:
 
     void pushEvent(const Event& event, Window *window)
     {
-        m_eventQueue.push(EventPayload{
+        EventPayload payload{
             .window = window,
             .event = event
-        });
+        };
+        m_eventQueue.push(payload);
     }
 
     bool m_isRunning = false;
