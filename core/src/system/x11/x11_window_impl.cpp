@@ -19,9 +19,11 @@ X11WindowImpl::X11WindowImpl(
     int y,
     int width,
     int height,
-    X11ApplicationImpl* appImpl
+    X11ApplicationImpl* appImpl,
+    WindowID owner
 )
-    : m_appImpl(appImpl)
+    : m_appImpl(appImpl),
+      m_id(owner)
 {
     XSizeHints* sizeHints = XAllocSizeHints();
     if (!sizeHints)
@@ -176,7 +178,7 @@ void X11WindowImpl::handleEvent(const XEvent& event)
     std::optional<Event> translatedEvent = translateX11Event(&const_cast<XEvent&>(event));
     if (translatedEvent.has_value())
     {
-        m_appImpl->pushEvent(translatedEvent.value());
+        m_appImpl->pushEvent(translatedEvent.value(), m_id);
     }
 
     switch (event.type)
@@ -206,7 +208,7 @@ void X11WindowImpl::handleEvent(const XEvent& event)
         break;
 
     case KeyPress:
-        m_appImpl->pushEvent(KeyTypeEvent(x11ConvertKeyChar(&const_cast<XEvent&>(event), m_xic)));
+        m_appImpl->pushEvent(KeyTypeEvent(x11ConvertKeyChar(&const_cast<XEvent&>(event), m_xic)), m_id);
         break;
 
     case ClientMessage:

@@ -23,7 +23,8 @@ public:
         int y,
         int width,
         int height,
-        X11ApplicationImpl* appImpl
+        X11ApplicationImpl* appImpl,
+        WindowID owner
     );
     ~X11WindowImpl() override;
 
@@ -75,6 +76,7 @@ private:
     std::once_flag m_applyStatusFlag;
 
     X11ApplicationImpl* m_appImpl = nullptr;
+    WindowID m_id;
 
     static constexpr float SCROLL_DELTA = 1.0f;
 };
