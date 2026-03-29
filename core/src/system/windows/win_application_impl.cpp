@@ -27,6 +27,15 @@ WinApplicationImpl::WinApplicationImpl()
     WinContext::instance().windowClassRegistry().registerClass(wc, CLASS_NAME);
 }
 
+void WinApplicationImpl::pushEvent(const Event& event, Window* window)
+{
+    EventPayload payload{
+        .window = window,
+        .event = event
+    };
+    m_eventQueue.push(payload);
+}
+
 bool WinApplicationImpl::waitEvent(EventPayload &event)
 {
     if (!m_isRunning)
@@ -39,22 +48,21 @@ bool WinApplicationImpl::waitEvent(EventPayload &event)
         return true;
     }
 
-    MSG msg;
-    if (!GetMessage(&msg, nullptr, 0, 0))
+    while (m_eventQueue.empty())
     {
-        m_isRunning = false;
-        return false;
+        MSG msg;
+        if (!GetMessage(&msg, nullptr, 0, 0))
+        {
+            m_isRunning = false;
+            return false;
+        }
+
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
     }
 
-    TranslateMessage(&msg);
-    DispatchMessage(&msg);
-
-    if (!m_eventQueue.empty())
-    {
-        event = m_eventQueue.front();
-        m_eventQueue.pop();
-        return true;
-    }
+    event = m_eventQueue.front();
+    m_eventQueue.pop();
 
     return true;
 }

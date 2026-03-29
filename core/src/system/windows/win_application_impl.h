@@ -18,14 +18,7 @@ public:
     bool waitEvent(EventPayload& event) override;
     void shutdown() override;
 
-    void pushEvent(const Event& event, Window *window)
-    {
-        EventPayload payload{
-            .window = window,
-            .event = event
-        };
-        m_eventQueue.push(payload);
-    }
+    void pushEvent(const Event& event, Window *window);
 
     bool m_isRunning = false;
 
