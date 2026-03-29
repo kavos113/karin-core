@@ -13,6 +13,8 @@ class KarinJni {
     static native void windowSetRootView(long windowPtr, long viewPtr);
     static native void windowDestroy(long windowPtr);
 
+    static native void viewNodeSetClickListener(long nodePtr, ViewNode node);
+
     static native long containerNodeCreate();
     static native long containerNodeCreate(float width, float height);
     static native void containerNodeAddChild(long containerPtr, long childPtr);

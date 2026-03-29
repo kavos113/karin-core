@@ -57,6 +57,14 @@ JNIEXPORT void JNICALL Java_com_github_kavos113_karin_KarinJni_windowDestroy
 
 /*
  * Class:     com_github_kavos113_karin_KarinJni
+ * Method:    viewNodeSetClickListener
+ * Signature: (JLcom/github/kavos113/karin/ViewNode;)V
+ */
+JNIEXPORT void JNICALL Java_com_github_kavos113_karin_KarinJni_viewNodeSetClickListener
+  (JNIEnv *, jclass, jlong, jobject);
+
+/*
+ * Class:     com_github_kavos113_karin_KarinJni
  * Method:    containerNodeCreate
  * Signature: ()J
  */

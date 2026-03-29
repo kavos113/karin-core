@@ -2,6 +2,8 @@
 
 #include "platform.h"
 
+#include <karin/system/application.h>
+
 namespace karin
 {
 Window::Window(IApplicationImpl* applicationImpl, const std::string& title, int x, int y, int width, int height)
@@ -13,26 +15,31 @@ Window::Window(IApplicationImpl* applicationImpl, const std::string& title, int 
               static_cast<float>(height)
           )
       )
-      , m_impl(createWindowImpl(title, x, y, width, height, applicationImpl))
 {
+    m_id = Application::instance().registerWindow(this);
+    m_impl = createWindowImpl(title, x, y, width, height, applicationImpl, m_id);
 }
 
 Window::Window(IApplicationImpl* applicationImpl, const std::string& title, Rectangle rect)
     : m_rect(rect)
-      , m_impl(
-          createWindowImpl(
-              title,
-              static_cast<int>(rect.pos.x),
-              static_cast<int>(rect.pos.y),
-              static_cast<int>(rect.size.width),
-              static_cast<int>(rect.size.height),
-              applicationImpl
-          )
-      )
 {
+    m_id = Application::instance().registerWindow(this);
+
+    m_impl = createWindowImpl(
+        title,
+        static_cast<int>(rect.pos.x),
+        static_cast<int>(rect.pos.y),
+        static_cast<int>(rect.size.width),
+        static_cast<int>(rect.size.height),
+        applicationImpl,
+        m_id
+    );
 }
 
-Window::~Window() = default;
+Window::~Window()
+{
+    Application::instance().unregisterWindow(m_id);
+}
 
 void Window::setStatus(ShowStatus status)
 {
@@ -125,5 +132,15 @@ void Window::addFinishResizeCallback(std::function<void()> onFinishResize)
 void Window::invalidate()
 {
     m_impl->invalidate();
+}
+
+void Window::setUserData(void* data)
+{
+    m_userData = data;
+}
+
+void* Window::userData() const
+{
+    return m_userData;
 }
 } // karin

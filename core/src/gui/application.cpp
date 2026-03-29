@@ -37,8 +37,27 @@ void Application::run()
     }
 
     karin::Application& app = karin::Application::instance();
-    Event event;
-    while (app.waitEvent(event)) { }
+    EventPayload event;
+    while (app.waitEvent(event))
+    {
+        if (std::holds_alternative<std::monostate>(event.event))
+        {
+            continue;
+        }
+
+        karin::Window* window = app.findWindow(event.windowId);
+        if (!window)
+        {
+            continue;
+        }
+
+        void* userData = window->userData();
+        if (userData)
+        {
+            auto* guiWindow = static_cast<Window*>(userData);
+            guiWindow->dispatchEvent(event.event);
+        }
+    }
 }
 
 ApplicationContext& getAppContext()

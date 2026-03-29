@@ -18,6 +18,7 @@ elseif (UNIX)
             x11/x11_window_impl.cpp
             x11/x11_converter.cpp
             x11/x11_context.cpp
+            x11/x11_event.cpp
     )
 endif ()
 

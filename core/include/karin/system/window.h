@@ -5,10 +5,14 @@
 #include <memory>
 #include <string>
 
-#include "../common/geometry/rectangle.h"
+#include <karin/common/geometry/point.h>
+#include <karin/common/geometry/size.h>
+#include <karin/common/geometry/rectangle.h>
 
 namespace karin
 {
+
+using WindowID = uint32_t;
 
 class IWindowImpl;
 class IApplicationImpl;
@@ -71,12 +75,18 @@ public:
     // request redraw, will trigger paint callbacks
     void invalidate();
 
+    void setUserData(void* data);
+    void* userData() const;
+
     static constexpr int DEFAULT_WIDTH = 800;
     static constexpr int DEFAULT_HEIGHT = 600;
 
 private:
     ShowStatus m_showStatus = ShowStatus::HIDE;
     Rectangle m_rect;
+
+    void *m_userData = nullptr;
+    WindowID m_id;
 
     std::unique_ptr<IWindowImpl> m_impl;
 };

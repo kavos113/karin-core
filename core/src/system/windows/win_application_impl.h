@@ -4,6 +4,7 @@
 #include <application_impl.h>
 
 #include <karin/system/event.h>
+#include <karin/system/window.h>
 #include <queue>
 
 namespace karin
@@ -14,20 +15,17 @@ public:
     WinApplicationImpl();
     ~WinApplicationImpl() override = default;
 
-    bool waitEvent(Event& event) override;
+    bool waitEvent(EventPayload& event) override;
     void shutdown() override;
 
-    void pushEvent(const Event& event)
-    {
-        m_eventQueue.push(event);
-    }
+    void pushEvent(const Event& event, WindowID window);
 
     bool m_isRunning = false;
 
     static constexpr auto CLASS_NAME = L"KarinWindow";
 
 private:
-    std::queue<Event> m_eventQueue;
+    std::queue<EventPayload> m_eventQueue;
 };
 } // karin
 

@@ -1,5 +1,8 @@
 #ifndef KARIN_SYSTEM_EVENT_H
 #define KARIN_SYSTEM_EVENT_H
+
+#include "window.h"
+
 #include <any>
 #include <cstdint>
 #include <string>
@@ -354,6 +357,12 @@ constexpr KeyEvent::Modifier& operator|=(KeyEvent::Modifier& a, KeyEvent::Modifi
     a = a | b;
     return a;
 }
+
+struct EventPayload
+{
+    WindowID windowId;
+    Event event;
+};
 
 } // karin
 

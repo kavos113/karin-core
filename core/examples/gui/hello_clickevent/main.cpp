@@ -1,0 +1,56 @@
+#include <karin/common.h>
+#include <karin/gui.h>
+
+#include <memory>
+#include <random>
+
+int main()
+{
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> dis(0.0f, 1.0f);
+
+    karin::gui::Application app;
+    auto window = app.createWindow("Hello Layout", 100, 100, 800, 600);
+
+    auto rootView = std::make_unique<karin::gui::ContainerNode>(karin::Size(800, 600));
+
+    for (int i = 0; i < 10; ++i)
+    {
+        auto rect = std::make_unique<karin::gui::RectangleNode>(
+            karin::Size(100, 100),
+            karin::Color(dis(gen), dis(gen), dis(gen))
+        );
+        rootView->addChild(std::move(rect));
+    }
+
+    auto bigRect = std::make_unique<karin::gui::RectangleNode>(
+        karin::Size(200, 200),
+        karin::Color(dis(gen), dis(gen), dis(gen))
+    );
+    for (int i = 0; i < 5; ++i)
+    {
+        auto rect = std::make_unique<karin::gui::RectangleNode>(
+            karin::Size(50, 50),
+            karin::Color(dis(gen), dis(gen), dis(gen))
+        );
+        bigRect->addChild(std::move(rect));
+    }
+    bigRect->setLayoutDirection(karin::gui::ContainerNode::LayoutDirection::Column);
+    bigRect->setGap(5.0f);
+    bigRect->setWrapMode(karin::gui::ContainerNode::WrapMode::Wrap);
+    bigRect->setPadding(karin::gui::ViewNode::Side::All, 10.0f);
+    bigRect->setOnClick(
+        [](karin::Point point)  {
+            std::cout << "Big rectangle clicked at (" << point.x << ", " << point.y << ")" << std::endl;
+        }
+    );
+    rootView->addChild(std::move(bigRect));
+
+    rootView->setLayoutDirection(karin::gui::ContainerNode::LayoutDirection::Row);
+    rootView->setGap(10.0f);
+    rootView->setWrapMode(karin::gui::ContainerNode::WrapMode::Wrap);
+
+    window->setRootView(std::move(rootView));
+    app.run();
+}

@@ -12,7 +12,7 @@ Application& Application::instance()
     return instance;
 }
 
-bool Application::waitEvent(Event &event) const
+bool Application::waitEvent(EventPayload &event) const
 {
     return m_impl->waitEvent(event);
 }
@@ -36,6 +36,27 @@ std::unique_ptr<Window> Application::createWindow(const std::string& title, Rect
         title,
         rect
     );
+}
+
+WindowID Application::registerWindow(Window* window)
+{
+    WindowID id = m_nextWindowID++;
+    m_windowRegistry[id] = window;
+    return id;
+}
+
+void Application::unregisterWindow(WindowID id)
+{
+    m_windowRegistry.erase(id);
+}
+
+Window* Application::findWindow(WindowID id) const
+{
+    if (auto it = m_windowRegistry.find(id); it != m_windowRegistry.end())
+    {
+        return it->second;
+    }
+    return nullptr;
 }
 
 Application::Application()

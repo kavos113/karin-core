@@ -21,12 +21,8 @@ public:
     void addWindow(XlibWindow window, X11WindowImpl* impl);
 
     void shutdown() override;
-    bool waitEvent(Event& event) override;
-
-    void pushEvent(const Event& event)
-    {
-        m_eventQueue.push(event);
-    }
+    bool waitEvent(EventPayload& event) override;
+    void pushEvent(const Event& event, WindowID window);
 
 private:
     static int errorHandler(Display* display, XErrorEvent* error);
@@ -34,7 +30,7 @@ private:
     std::map<XlibWindow, X11WindowImpl*> m_windows;
 
     bool m_running = true;
-    std::queue<Event> m_eventQueue;
+    std::queue<EventPayload> m_eventQueue;
 };
 } // karin
 

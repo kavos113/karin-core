@@ -2,6 +2,7 @@
 #define SRC_GUI_WINDOW_H
 
 #include <karin/system/window.h>
+#include <karin/system/event.h>
 #include <karin/graphics/renderer.h>
 
 #include "view_node.h"
@@ -12,6 +13,7 @@
 namespace karin::gui
 {
 class Application;
+class EventDispatcher;
 
 class Window
 {
@@ -32,6 +34,8 @@ public:
 
     void setRootView(std::unique_ptr<ViewNode> rootView);
 
+    void dispatchEvent(const Event& event) const;
+
 private:
     void requestRelayout();
 
@@ -39,6 +43,7 @@ private:
 
     std::unique_ptr<karin::Window> m_window;
     std::unique_ptr<Renderer> m_renderer;
+    std::unique_ptr<EventDispatcher> m_eventDispatcher;
 
     bool m_needRelayout = true;
 };

@@ -16,3 +16,4 @@ add_subdirectory(graphics/graphics/transform)
 
 add_subdirectory(gui/hello_layout)
 add_subdirectory(gui/text_node)
+add_subdirectory(gui/hello_clickevent)

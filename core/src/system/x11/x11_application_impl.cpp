@@ -24,7 +24,7 @@ void X11ApplicationImpl::addWindow(XlibWindow window, X11WindowImpl* impl)
     m_windows[window] = impl;
 }
 
-bool X11ApplicationImpl::waitEvent(Event& event)
+bool X11ApplicationImpl::waitEvent(EventPayload& event)
 {
     if (!m_running)
         return false;
@@ -49,6 +49,14 @@ bool X11ApplicationImpl::waitEvent(Event& event)
     }
 
     return true;
+}
+
+void X11ApplicationImpl::pushEvent(const Event& event, WindowID window)
+{
+    EventPayload payload = {};
+    payload.event = event;
+    payload.windowId = window;
+    m_eventQueue.push(payload);
 }
 
 void X11ApplicationImpl::shutdown()

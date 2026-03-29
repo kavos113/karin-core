@@ -9,7 +9,7 @@ int main()
     window->setStatus(karin::Window::ShowStatus::SHOW);
     window->setSize(karin::Size(1600, 900));
 
-    karin::Event event;
+    karin::EventPayload event;
     while (app.waitEvent(event)) {}
 
     return 0;

@@ -40,7 +40,7 @@ int main()
 
     window->setStatus(karin::Window::ShowStatus::SHOW);
 
-    karin::Event event;
+    karin::EventPayload event;
     while (app.waitEvent(event)) {}
 
     renderer.cleanUp();

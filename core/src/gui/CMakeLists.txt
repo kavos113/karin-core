@@ -7,6 +7,7 @@ set(GUI_SOURCES
         application.cpp
         application_context.cpp
         text_node.cpp
+        event_dispatcher.cpp
 )
 
 add_library(karin_gui STATIC ${GUI_SOURCES})

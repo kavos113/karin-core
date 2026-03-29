@@ -17,7 +17,7 @@ public:
     static Application& instance();
 
     // return true if event loop should continue, false to quit.
-    bool waitEvent(Event& event) const;
+    bool waitEvent(EventPayload& event) const;
 
     // TODO: peekEvent
 
@@ -34,11 +34,18 @@ public:
         Rectangle rect = Rectangle(0, 0, Window::DEFAULT_WIDTH, Window::DEFAULT_HEIGHT)
     );
 
+    WindowID registerWindow(Window* window);
+    void unregisterWindow(WindowID id);
+    Window* findWindow(WindowID id) const;
+
 private:
     Application();
     ~Application() = default;
 
     std::unique_ptr<IApplicationImpl> m_impl;
+
+    std::unordered_map<WindowID, Window*> m_windowRegistry;
+    WindowID m_nextWindowID = 1;
 };
 } // karin
 

@@ -34,14 +34,15 @@ inline std::unique_ptr<IWindowImpl> createWindowImpl(
     int y,
     int width,
     int height,
-    IApplicationImpl* applicationImpl
+    IApplicationImpl* applicationImpl,
+    WindowID owner
 )
 {
 #ifdef KARIN_PLATFORM_WINDOWS
-    return std::make_unique<WinWindowImpl>(title, x, y, width, height, dynamic_cast<WinApplicationImpl*>(applicationImpl));
+    return std::make_unique<WinWindowImpl>(title, x, y, width, height, dynamic_cast<WinApplicationImpl*>(applicationImpl), owner);
 #elifdef KARIN_PLATFORM_UNIX
     return std::make_unique<X11WindowImpl>(
-        title, x, y, width, height, dynamic_cast<X11ApplicationImpl*>(applicationImpl)
+        title, x, y, width, height, dynamic_cast<X11ApplicationImpl*>(applicationImpl), owner
     );
 #endif
 
