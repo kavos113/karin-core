@@ -57,6 +57,29 @@ JNIEXPORT void JNICALL Java_com_github_kavos113_karin_KarinJni_windowDestroy
     delete window;
 }
 
+JNIEXPORT void JNICALL Java_com_github_kavos113_karin_KarinJni_viewNodeSetClickListener
+    (JNIEnv *env, jclass cls, jlong viewPtr, jobject listener)
+{
+    auto *node = reinterpret_cast<ViewNode *>(viewPtr);
+
+    jobject globalObj = env->NewGlobalRef(listener);
+
+    node->setOnClick(
+        [env, globalObj](karin::Point point)
+        {
+            jclass listenerClass = env->GetObjectClass(globalObj);
+
+            jmethodID dispatchClickMethod = env->GetMethodID(listenerClass, "dispatchClickEvent", "()V");
+            if (dispatchClickMethod)
+            {
+                env->CallVoidMethod(globalObj, dispatchClickMethod);
+            }
+
+            env->DeleteLocalRef(listenerClass);
+        }
+    );
+}
+
 JNIEXPORT jlong JNICALL Java_com_github_kavos113_karin_KarinJni_containerNodeCreate__
     (JNIEnv *, jclass)
 {
