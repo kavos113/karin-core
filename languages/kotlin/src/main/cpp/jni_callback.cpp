@@ -4,7 +4,13 @@ namespace karin::jni
 {
 JniVoidCallback::JniVoidCallback(JNIEnv* env, jobject listener)
 {
-    env->GetJavaVM(&m_jvm);
+    if (env->GetJavaVM(&m_jvm) != 0)
+    {
+        m_jvm = nullptr;
+        m_globalObj = nullptr;
+        return;
+    }
+
     m_globalObj = env->NewGlobalRef(listener);
 }
 
@@ -40,6 +46,11 @@ void JniVoidCallback::invoke(const std::string& methodName, const std::string& m
     if (methodId)
     {
         env->CallVoidMethod(m_globalObj, methodId);
+        if (env->ExceptionCheck())
+        {
+            env->ExceptionDescribe();
+            env->ExceptionClear();
+        }
     }
 
     env->DeleteLocalRef(listenerClass);
