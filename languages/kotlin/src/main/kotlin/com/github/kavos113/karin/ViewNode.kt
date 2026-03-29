@@ -6,6 +6,7 @@ abstract class ViewNode(internal var nativePtr: Long) {
 
     fun setOnClickListener(listener: () -> Unit) {
         onClick = listener
+        KarinJni.viewNodeSetClickListener(nativePtr, this)
     }
 
     internal fun dispatchClickEvent() {
