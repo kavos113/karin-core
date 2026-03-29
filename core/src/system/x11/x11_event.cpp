@@ -15,8 +15,8 @@ std::optional<Event> translateX11Event(XEvent* event)
     {
     case ButtonPress:
     {
-        int x = event->xbutton.x_root;
-        int y = event->xbutton.y_root;
+        int x = event->xbutton.x;
+        int y = event->xbutton.y;
         switch (event->xbutton.button)
         {
         case Button1:
@@ -55,8 +55,8 @@ std::optional<Event> translateX11Event(XEvent* event)
 
     case ButtonRelease:
     {
-        int x = event->xbutton.x_root;
-        int y = event->xbutton.y_root;
+        int x = event->xbutton.x;
+        int y = event->xbutton.y;
         switch (event->xbutton.button)
         {
         case Button1:

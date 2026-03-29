@@ -102,7 +102,9 @@ X11WindowImpl::X11WindowImpl(
     XSelectInput(
         X11Context::instance().display(),
         m_window,
-        ExposureMask | StructureNotifyMask | KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask
+        ExposureMask | StructureNotifyMask |
+        KeyPressMask | KeyReleaseMask |
+        ButtonPressMask | ButtonReleaseMask
     );
 
     Atom wmDelete = XInternAtom(X11Context::instance().display(), "WM_DELETE_WINDOW", False);
