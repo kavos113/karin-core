@@ -2,12 +2,10 @@
 #define SRC_SYSTEM_X11_X11_WINDOW_IMPL_H
 #include <mutex>
 #include <string>
-#include <optional>
 #include <vector>
 #include <X11/Xlib.h>
 
 #include <karin/system/window.h>
-#include <karin/system/event.h>
 #include <x11/window.h>
 #include <window_impl.h>
 #include "x11_application_impl.h"
@@ -50,7 +48,6 @@ public:
 
 private:
     void applyStatus();
-    std::optional<Event> translateX11Event(XEvent* event);
 
     XlibWindow m_window;
     GC m_gc;
@@ -77,8 +74,6 @@ private:
 
     X11ApplicationImpl* m_appImpl = nullptr;
     WindowID m_id;
-
-    static constexpr float SCROLL_DELTA = 1.0f;
 };
 } // karin
 
