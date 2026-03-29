@@ -49,4 +49,4 @@ private:
 };
 } // karin::gui
 
-#endif //SRC_GUI_WINDOW_H!
+#endif //SRC_GUI_WINDOW_H

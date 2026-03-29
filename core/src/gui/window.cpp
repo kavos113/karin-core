@@ -15,8 +15,6 @@ Window::Window(const std::string& title, int x, int y, int width, int height)
 
     m_renderer = std::make_unique<Renderer>(m_window.get());
     m_renderer->setClearColor(Color(Color::White));
-
-    m_eventDispatcher = std::make_unique<EventDispatcher>(m_rootView.get());
 }
 
 Window::~Window()

@@ -51,7 +51,7 @@ bool WinApplicationImpl::waitEvent(EventPayload &event)
     while (m_eventQueue.empty())
     {
         MSG msg;
-        if (!GetMessage(&msg, nullptr, 0, 0))
+        if (GetMessage(&msg, nullptr, 0, 0) <= 0)
         {
             m_isRunning = false;
             return false;
