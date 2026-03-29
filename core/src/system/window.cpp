@@ -2,6 +2,8 @@
 
 #include "platform.h"
 
+#include <karin/system/application.h>
+
 namespace karin
 {
 Window::Window(IApplicationImpl* applicationImpl, const std::string& title, int x, int y, int width, int height)
@@ -15,6 +17,7 @@ Window::Window(IApplicationImpl* applicationImpl, const std::string& title, int 
       )
       , m_impl(createWindowImpl(title, x, y, width, height, applicationImpl, this))
 {
+    m_id = Application::instance().registerWindow(this);
 }
 
 Window::Window(IApplicationImpl* applicationImpl, const std::string& title, Rectangle rect)
@@ -31,9 +34,13 @@ Window::Window(IApplicationImpl* applicationImpl, const std::string& title, Rect
           )
       )
 {
+    m_id = Application::instance().registerWindow(this);
 }
 
-Window::~Window() = default;
+Window::~Window()
+{
+    Application::instance().unregisterWindow(m_id);
+}
 
 void Window::setStatus(ShowStatus status)
 {

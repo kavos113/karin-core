@@ -5,10 +5,14 @@
 #include <memory>
 #include <string>
 
-#include "../common/geometry/rectangle.h"
+#include <karin/common/geometry/point.h>
+#include <karin/common/geometry/size.h>
+#include <karin/common/geometry/rectangle.h>
 
 namespace karin
 {
+
+using WindowID = uint32_t;
 
 class IWindowImpl;
 class IApplicationImpl;
@@ -82,6 +86,7 @@ private:
     Rectangle m_rect;
 
     void *m_userData = nullptr;
+    WindowID m_id;
 
     std::unique_ptr<IWindowImpl> m_impl;
 };
