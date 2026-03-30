@@ -2,7 +2,7 @@
 
 namespace karin::jni
 {
-JniVoidCallback::JniVoidCallback(JNIEnv* env, jobject listener)
+JniGlobalRef::JniGlobalRef(JNIEnv* env, jobject listener)
 {
     if (env->GetJavaVM(&m_jvm) != 0)
     {
@@ -14,7 +14,7 @@ JniVoidCallback::JniVoidCallback(JNIEnv* env, jobject listener)
     m_globalObj = env->NewGlobalRef(listener);
 }
 
-JniVoidCallback::~JniVoidCallback()
+JniGlobalRef::~JniGlobalRef()
 {
     if (m_globalObj)
     {
@@ -32,7 +32,8 @@ JniVoidCallback::~JniVoidCallback()
     }
 }
 
-void JniVoidCallback::invoke(const std::string& methodName, const std::string& methodSig) const
+template <typename Func>
+void JniGlobalRef::invoke(Func&& func) const
 {
     bool shouldDetach;
     JNIEnv* env = getEnv(shouldDetach);
@@ -41,19 +42,12 @@ void JniVoidCallback::invoke(const std::string& methodName, const std::string& m
         return;
     }
 
-    jclass listenerClass = env->GetObjectClass(m_globalObj);
-    jmethodID methodId = env->GetMethodID(listenerClass, methodName.c_str(), methodSig.c_str());
-    if (methodId)
+    func(env, m_globalObj);
+    if (env->ExceptionCheck())
     {
-        env->CallVoidMethod(m_globalObj, methodId);
-        if (env->ExceptionCheck())
-        {
-            env->ExceptionDescribe();
-            env->ExceptionClear();
-        }
+        env->ExceptionDescribe();
+        env->ExceptionClear();
     }
-
-    env->DeleteLocalRef(listenerClass);
 
     if (shouldDetach)
     {
@@ -61,7 +55,7 @@ void JniVoidCallback::invoke(const std::string& methodName, const std::string& m
     }
 }
 
-JNIEnv* JniVoidCallback::getEnv(bool& shouldDetach) const
+JNIEnv* JniGlobalRef::getEnv(bool& shouldDetach) const
 {
     JNIEnv* env = nullptr;
     shouldDetach = false;

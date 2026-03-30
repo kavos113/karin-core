@@ -8,16 +8,19 @@
 namespace karin::jni
 {
 
-class JniVoidCallback
+class JniGlobalRef
 {
 public:
-    JniVoidCallback(JNIEnv* env, jobject listener);
-    ~JniVoidCallback();
+    JniGlobalRef(JNIEnv* env, jobject listener);
+    ~JniGlobalRef();
 
-    JniVoidCallback(const JniVoidCallback&) = delete;
-    JniVoidCallback& operator=(const JniVoidCallback&) = delete;
+    JniGlobalRef(const JniGlobalRef&) = delete;
+    JniGlobalRef& operator=(const JniGlobalRef&) = delete;
+    JniGlobalRef(JniGlobalRef&&) = delete;
+    JniGlobalRef& operator=(JniGlobalRef&&) = delete;
 
-    void invoke(const std::string& methodName, const std::string& methodSig) const;
+    template<typename Func>
+    void invoke(Func&& func) const;
 
 private:
     JNIEnv* getEnv(bool& shouldDetach) const;
