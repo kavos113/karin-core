@@ -21,7 +21,8 @@
       "description": "windows debug build",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
-        "VCPKG_MANIFEST_FEATURES": "font-directwrite"
+        "VCPKG_MANIFEST_FEATURES": "font-directwrite",
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static-md"
       }
     },
     {

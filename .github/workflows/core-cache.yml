@@ -27,16 +27,13 @@ jobs:
           - os: ubuntu-latest
             cmake_preset: "ubuntu-debug"
             name: "ubuntu"
-            triplet: "x64-linux"
           - os: windows-latest
             cmake_preset: "windows-debug"
             name: "windows d2d"
-            triplet: "x64-windows"
           - os: windows-latest
             cmake_preset: "windows-vulkan-debug"
             name: "windows vulkan"
             vulkan_version: "1.4.321.1"
-            triplet: "x64-windows"
 
     steps:
       - name: Checkout code
