@@ -4,7 +4,7 @@
 #include <karin/common.h>
 #include <memory>
 
-#include "jni_callback.h"
+#include "jni_global_ref.h"
 
 using namespace karin::gui;
 using namespace karin::jni;
@@ -65,12 +65,24 @@ JNIEXPORT void JNICALL Java_com_github_kavos113_karin_KarinJni_viewNodeSetClickL
 {
     auto *node = reinterpret_cast<ViewNode *>(viewPtr);
 
-    auto callback = std::make_shared<JniVoidCallback>(env, listener);
+    auto callback = std::make_shared<JniGlobalRef>(env, listener);
 
     node->setOnClick(
         [callback](karin::Point point)
         {
-            callback->invoke("dispatchClickEvent", "()V");
+            callback->invoke(
+                [](JNIEnv* env, jobject obj)
+                {
+                    jclass listenerClass = env->GetObjectClass(obj);
+                    jmethodID methodId = env->GetMethodID(listenerClass, "dispatchClickEvent", "()V");
+                    if (methodId)
+                    {
+                        env->CallVoidMethod(obj, methodId);
+                    }
+
+                    env->DeleteLocalRef(listenerClass);
+                }
+            );
         }
     );
 }
