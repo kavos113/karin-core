@@ -3,6 +3,12 @@ package com.github.kavos113.karin
 class Application : AutoCloseable {
     internal var nativePtr: Long = KarinJni.applicationCreate()
 
+    companion object {
+        init {
+            KarinLoader.load()
+        }
+    }
+
     fun createWindow(title: String, x: Int, y: Int, width: Int, height: Int): Window {
         val windowPtr = KarinJni.applicationCreateWindow(nativePtr, title, x, y, width, height)
         return Window(windowPtr)

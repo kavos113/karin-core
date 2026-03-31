@@ -46,3 +46,5 @@ bin/
 .DS_Store
 
 *.class
+
+src/main/resources/native
