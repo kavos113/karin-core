@@ -19,7 +19,7 @@ object KarinLoader {
         val (dir, file) = when {
             os.contains("win") -> "windows" to "$LIB_NAME.dll"
             os.contains("mac") -> "macos" to "lib$LIB_NAME.dylib"
-            os.contains("nux") -> "linux" to "lib$LIB_NAME.so"
+            os.contains("linux") -> "linux" to "lib$LIB_NAME.so"
             else -> throw UnsupportedOperationException("Unsupported operating system: $os")
         }
 
