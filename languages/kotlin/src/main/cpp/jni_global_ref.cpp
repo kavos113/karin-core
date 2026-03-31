@@ -1,4 +1,4 @@
-#include "jni_callback.h"
+#include "jni_global_ref.h"
 
 namespace karin::jni
 {
@@ -29,29 +29,6 @@ JniGlobalRef::~JniGlobalRef()
         {
             m_jvm->DetachCurrentThread();
         }
-    }
-}
-
-template <typename Func>
-void JniGlobalRef::invoke(Func&& func) const
-{
-    bool shouldDetach;
-    JNIEnv* env = getEnv(shouldDetach);
-    if (!env)
-    {
-        return;
-    }
-
-    func(env, m_globalObj);
-    if (env->ExceptionCheck())
-    {
-        env->ExceptionDescribe();
-        env->ExceptionClear();
-    }
-
-    if (shouldDetach)
-    {
-        m_jvm->DetachCurrentThread();
     }
 }
 

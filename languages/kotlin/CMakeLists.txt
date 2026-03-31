@@ -4,7 +4,7 @@ find_package(Java REQUIRED)
 find_package(JNI REQUIRED)
 add_library(karin_languages_java SHARED
         src/main/cpp/karin.cpp
-        src/main/cpp/jni_callback.cpp
+        src/main/cpp/jni_global_ref.cpp
 )
 
 target_include_directories(karin_languages_java PRIVATE

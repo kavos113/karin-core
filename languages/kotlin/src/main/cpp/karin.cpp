@@ -4,7 +4,7 @@
 #include <karin/common.h>
 #include <memory>
 
-#include "jni_callback.h"
+#include "jni_global_ref.h"
 
 using namespace karin::gui;
 using namespace karin::jni;
