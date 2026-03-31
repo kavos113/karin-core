@@ -74,7 +74,7 @@ JNIEXPORT void JNICALL Java_com_github_kavos113_karin_KarinJni_viewNodeSetClickL
                 [](JNIEnv* env, jobject obj)
                 {
                     jclass listenerClass = env->GetObjectClass(obj);
-                    jmethodID methodId = env->GetMethodID(listenerClass, "onClick", "()V");
+                    jmethodID methodId = env->GetMethodID(listenerClass, "dispatchClickEvent", "()V");
                     if (methodId)
                     {
                         env->CallVoidMethod(obj, methodId);
