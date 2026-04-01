@@ -1,7 +1,7 @@
 name: kotlin-ci.yml
 on:
   workflow_run:
-    workflows: ["build.yml"]
+    workflows: ["core-ci.yml"]
     types:
       - completed
 
