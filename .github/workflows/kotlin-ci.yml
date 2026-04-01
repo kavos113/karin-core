@@ -1,19 +1,9 @@
-name: core-ci.yml
+name: kotlin-ci.yml
 on:
-  pull_request:
-    branches:
-      - main
-  push:
-    branches:
-      - main
-env:
-  CMAKE_BUILD_TYPE: Release
-  CMAKE_EXPORT_COMPILE_COMMANDS: true
-  BUILD_DIR: build
-
-defaults:
-  run: 
-    shell: bash
+  workflow_run:
+    workflows: ["build.yml"]
+    types:
+      - completed
 
 jobs:
   run:
@@ -42,6 +32,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
+      - name: Setup JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '25'
+
       - name: Install ubuntu dependencies
         run: |
           if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
@@ -66,25 +62,8 @@ jobs:
         with:
           path: C:/VulkanSDK/${{ matrix.vulkan_version }}
           key: pr-${{ runner.os }}-vulkan-sdk-${{ matrix.vulkan_version }}
-          restore-keys:
+          restore-keys: |
             main-${{ runner.os }}-vulkan-sdk-${{ matrix.vulkan_version }}
-
-      - name: Download and Install Vulkan SDK
-        if: contains(matrix.name, 'vulkan') && steps.cache-vulkan-sdk.outputs.cache-hit != 'true'
-        run: |
-          INSTALLER_URL="https://sdk.lunarg.com/sdk/download/${{ matrix.vulkan_version }}/windows/vulkansdk-windows-X64-${{ matrix.vulkan_version }}.exe"
-          INSTALLER_PATH="$TEMP/VulkanSDK-Installer.exe"
-          INSTALL_DIR="C:/VulkanSDK/${{ matrix.vulkan_version }}"
-          
-          echo "Downloading Vulkan SDK version ${{ matrix.vulkan_version }}..."
-          curl -L -o "$INSTALLER_PATH" "$INSTALLER_URL"
-          
-          echo "Installing Vulkan SDK to $INSTALL_DIR..."
-          "$INSTALLER_PATH" --root "$INSTALL_DIR" --accept-licenses --default-answer --confirm-command install
-          
-          rm "$INSTALLER_PATH"
-          
-          echo "Vulkan SDK setup complete."
 
       - name: Setup Vulkan Environment
         if: contains(matrix.name, 'vulkan')
@@ -108,12 +87,11 @@ jobs:
             main-${{ matrix.cmake_preset }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
             main-${{ matrix.cmake_preset }}-vcpkg-
 
-      - name: Install vcpkg
-        run: |
-          if [ ! -d "./vcpkg" ]; then
-            git clone https://github.com/microsoft/vcpkg.git            
-          fi
-          ./vcpkg/bootstrap-vcpkg.sh
+      - name: Download core build
+        uses: actions/download-artifact@v8
+        with:
+          name: core-${{ matrix.cmake_preset }}-build
+          path: ${{ env.BUILD_DIR }}
 
       - name: set permission
         run: |
@@ -133,19 +111,19 @@ jobs:
             -DCMAKE_CXX_COMPILER=clang++ \
             --preset ${{ matrix.cmake_preset }} ..
 
-      - name: Build
+      - name: Build Native Library
         run: |
           cd ${{ env.BUILD_DIR }}
-          cmake --build  ${{ matrix.cmake_preset }}
+          cmake --build ${{ matrix.cmake_preset }} --target karin_languages_java
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v5
-        with:
-          name: core-${{ matrix.cmake_preset }}-build
-          path: ${{ env.BUILD_DIR }}
-          overwrite: 'true'
-
-      - name: Run tests
+      - name: Build Kotlin Bindings
+        working-directory: ./languages/kotlin
         run: |
-          cd ${{ env.BUILD_DIR }}/${{ matrix.cmake_preset }}/core/test
-          ctest --output-on-failure
+          chmod +x ./gradlew
+          ./gradlew build
+
+      - name: Build Kotlin Examples
+        working-directory: ./examples/kotlin
+        run: |
+          chmod +x ./gradlew
+          ./gradlew build
