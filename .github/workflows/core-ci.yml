@@ -105,8 +105,6 @@ jobs:
           key: ${{ matrix.cmake_preset }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
           restore-keys: |
             ${{ matrix.cmake_preset }}-vcpkg-
-            main-${{ matrix.cmake_preset }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
-            main-${{ matrix.cmake_preset }}-vcpkg-
 
       - name: Install vcpkg
         run: |
