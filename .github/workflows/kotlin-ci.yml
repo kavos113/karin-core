@@ -92,6 +92,7 @@ jobs:
         with:
           name: core-${{ matrix.cmake_preset }}-build
           path: ${{ env.BUILD_DIR }}
+          run-id: '${{ github.event.workflow_run.id }}'
 
       - name: set permission
         run: |
