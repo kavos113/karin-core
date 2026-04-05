@@ -9,46 +9,46 @@ struct ParagraphStyle
 {
     enum class HorizontalAlignment : uint8_t
     {
-        LEADING,
-        TRAILING,
-        CENTER,
-        JUSTIFIED,
+        LEADING = 0,
+        TRAILING = 1,
+        CENTER = 2,
+        JUSTIFIED = 3,
     };
 
     enum class VerticalAlignment : uint8_t
     {
-        TOP,
-        CENTER,
-        BOTTOM,
+        TOP = 0,
+        CENTER = 1,
+        BOTTOM = 2,
     };
 
     enum class Trimming : uint8_t
     {
-        NONE,
-        WORD,
-        CHARACTER,
+        NONE = 0,
+        WORD = 1,
+        CHARACTER = 2,
     };
 
     enum class Wrapping : uint8_t
     {
-        NONE,
-        WORD,
-        CHARACTER,
+        NONE = 0,
+        WORD = 1,
+        CHARACTER = 2,
     };
 
     enum class Direction : uint8_t
     {
-        TOP_TO_BOTTOM,
-        BOTTOM_TO_TOP,
-        LEFT_TO_RIGHT,
-        RIGHT_TO_LEFT,
+        TOP_TO_BOTTOM = 0,
+        BOTTOM_TO_TOP = 1,
+        LEFT_TO_RIGHT = 2,
+        RIGHT_TO_LEFT = 3,
     };
 
     enum class LineSpacingMode : uint8_t
     {
-        DEFAULT,
-        UNIFORM,
-        PROPORTIONAL,
+        DEFAULT = 0,
+        UNIFORM = 1,
+        PROPORTIONAL = 2,
     };
 
     HorizontalAlignment horizontalAlignment = HorizontalAlignment::LEADING;

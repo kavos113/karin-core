@@ -10,22 +10,22 @@ struct Font
 {
     enum class Style : uint8_t
     {
-        NORMAL,
-        ITALIC,
-        OBLIQUE,
+        NORMAL = 0,
+        ITALIC = 1,
+        OBLIQUE = 2,
     };
 
     enum class Stretch : uint8_t
     {
-        ULTRA_CONDENSED,
-        EXTRA_CONDENSED,
-        CONDENSED,
-        SEMI_CONDENSED,
-        NORMAL,
-        SEMI_EXPANDED,
-        EXPANDED,
-        EXTRA_EXPANDED,
-        ULTRA_EXPANDED,
+        ULTRA_CONDENSED = 0,
+        EXTRA_CONDENSED = 1,
+        CONDENSED = 2,
+        SEMI_CONDENSED = 3,
+        NORMAL = 4,
+        SEMI_EXPANDED = 5,
+        EXPANDED = 6,
+        EXTRA_EXPANDED = 7,
+        ULTRA_EXPANDED = 8,
     };
 
     enum class Weight : uint16_t

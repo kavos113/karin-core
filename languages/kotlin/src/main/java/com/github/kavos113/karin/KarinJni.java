@@ -23,4 +23,29 @@ class KarinJni {
     static native void containerNodeSetWrapMode(long containerPtr, int wrapMode);
 
     static native long rectangleNodeCreate(float width, float height, float r, float g, float b, float a);
+
+    static native long textNodeCreate(
+        String text,
+        String fontFamily,
+        int fontStyle,
+        int fontStretch,
+        int fontWeight,
+        float fontSize,
+        String locale,
+        boolean underline,
+        boolean strikethrough,
+        int horizontalAlignment,
+        int verticalAlignment,
+        float lineSpacing,
+        float baseLine,
+        int lineSpacingMode,
+        int trimming,
+        int wrapping,
+        int flowDirection,
+        int readingDirection,
+        float r,
+        float g,
+        float b,
+        float a
+    );
 }
