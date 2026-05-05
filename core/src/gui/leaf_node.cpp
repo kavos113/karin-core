@@ -7,6 +7,7 @@ namespace karin::gui
 LeafNode::LeafNode()
 {
     YGNodeSetMeasureFunc(m_yogaNode, reinterpret_cast<YGMeasureFunc>(staticMeasureFunc));
+    YGNodeSetContext(m_yogaNode, this);
 }
 
 YGSize LeafNode::staticMeasureFunc(
