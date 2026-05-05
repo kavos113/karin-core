@@ -119,6 +119,14 @@ JNIEXPORT void JNICALL Java_com_github_kavos113_karin_KarinJni_containerNodeSetW
 JNIEXPORT jlong JNICALL Java_com_github_kavos113_karin_KarinJni_rectangleNodeCreate
   (JNIEnv *, jclass, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat);
 
+/*
+ * Class:     com_github_kavos113_karin_KarinJni
+ * Method:    textNodeCreate
+ * Signature: (Ljava/lang/String;Ljava/lang/String;IIIFLjava/lang/String;ZZIIFFIIIIIFFFF)J
+ */
+JNIEXPORT jlong JNICALL Java_com_github_kavos113_karin_KarinJni_textNodeCreate
+  (JNIEnv *, jclass, jstring, jstring, jint, jint, jint, jfloat, jstring, jboolean, jboolean, jint, jint, jfloat, jfloat, jint, jint, jint, jint, jint, jfloat, jfloat, jfloat, jfloat);
+
 #ifdef __cplusplus
 }
 #endif

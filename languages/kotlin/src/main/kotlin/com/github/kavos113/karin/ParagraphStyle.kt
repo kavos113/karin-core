@@ -9,7 +9,7 @@ data class ParagraphStyle(
     val readingDirection: Direction = Direction.LeftToRight,
     val lineSpacingMode: LineSpacingMode = LineSpacingMode.Proportional,
     val lineSpacingValue: Float = 1f,
-    val baseLineOffset: Float = 0f
+    val baseLineOffset: Float = 1f
 )
 
 enum class HorizontalAlignment {
